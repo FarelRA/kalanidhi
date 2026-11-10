@@ -1,0 +1,842 @@
+<!DOCTYPE html><html class="dark" lang="id"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-primary": "#000000",
+          "on-surface-variant": "#d4c4ac",
+          "surface": "#131313",
+          "surface-container-low": "#18181b",
+          "surface-charcoal": "#121212",
+          "secondary-fixed-dim": "#f9ba78",
+          "on-tertiary-fixed": "#00201e",
+          "on-primary-fixed": "#261900",
+          "text-secondary": "#A1A1AA",
+          "surface-dim": "#131313",
+          "outline-subtle": "#27272A",
+          "on-tertiary-fixed-variant": "#00504b",
+          "primary-fixed-dim": "#fdbc13",
+          "background": "#111111",
+          "on-background": "#FFFFFF",
+          "primary-fixed": "#ffdea3",
+          "on-secondary-fixed": "#2c1700",
+          "inverse-primary": "#7a5900",
+          "on-secondary-fixed-variant": "#673d04",
+          "surface-bright": "#27272a",
+          "soga-copper": "#D49A5B",
+          "on-secondary-container": "#e9ac6c",
+          "outline": "#71717A",
+          "secondary-fixed": "#ffdcbc",
+          "inverse-surface": "#e5e2e1",
+          "surface-container-elevated": "#1E1F24",
+          "tertiary-fixed-dim": "#5dd9d0",
+          "surface-container-highest": "#27272a",
+          "surface-variant": "#1E1F24",
+          "surface-container-lowest": "#0e0e0e",
+          "secondary": "#f9ba78",
+          "text-primary": "#FFFFFF",
+          "outline-variant": "#27272A",
+          "inverse-on-surface": "#313030",
+          "text-muted": "#71717A",
+          "error": "#ffb4ab",
+          "on-tertiary": "#003734",
+          "tertiary": "#F4B400",
+          "gold-hover": "#EAA510",
+          "on-error": "#690005",
+          "on-surface": "#FFFFFF",
+          "on-primary-fixed-variant": "#5d4200",
+          "tertiary-fixed": "#7cf6ec",
+          "surface-container-high": "#222328",
+          "primary": "#F4B400",
+          "surface-tint": "#F4B400",
+          "on-secondary": "#492900",
+          "error-container": "#93000a",
+          "on-primary-container": "#000000",
+          "surface-container": "#1A1A1E",
+          "on-tertiary-container": "#000000",
+          "primary-container": "#F4B400",
+          "on-error-container": "#ffdad6",
+          "nusantara-teal": "#34B9B0",
+          "gold-action": "#F4B400",
+          "tertiary-container": "#53d1c8",
+          "secondary-container": "#6a3f06"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "margin-mobile": "1.25rem",
+          "margin": "3rem",
+          "gutter": "1.5rem",
+          "gutter-mobile": "1rem",
+          "space-sm": "0.5rem",
+          "space-md": "1rem",
+          "space-lg": "1.5rem",
+          "space-xl": "2.5rem",
+          "space-xs": "0.25rem"
+        },
+        "fontFamily": {
+          "label-md": [
+            "Plus Jakarta Sans"
+          ],
+          "body-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "display-mobile": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "title-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg-mobile": [
+            "Plus Jakarta Sans"
+          ],
+          "body-sm": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-md": [
+            "Plus Jakarta Sans"
+          ],
+          "display": [
+            "Plus Jakarta Sans"
+          ],
+          "title-md": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-sm": [
+            "Plus Jakarta Sans"
+          ],
+          "label-sm": [
+            "Plus Jakarta Sans"
+          ],
+          "body-md": [
+            "Plus Jakarta Sans"
+          ]
+        },
+        "fontSize": {
+          "label-md": [
+            "12px",
+            {
+              "lineHeight": "16px",
+              "letterSpacing": "0.06em",
+              "fontWeight": "700"
+            }
+          ],
+          "body-lg": [
+            "18px",
+            {
+              "lineHeight": "28px",
+              "fontWeight": "400"
+            }
+          ],
+          "display-mobile": [
+            "36px",
+            {
+              "lineHeight": "44px",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "800"
+            }
+          ],
+          "headline-lg": [
+            "40px",
+            {
+              "lineHeight": "48px",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            }
+          ],
+          "title-lg": [
+            "18px",
+            {
+              "lineHeight": "26px",
+              "fontWeight": "700"
+            }
+          ],
+          "headline-lg-mobile": [
+            "28px",
+            {
+              "lineHeight": "36px",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "700"
+            }
+          ],
+          "body-sm": [
+            "13px",
+            {
+              "lineHeight": "20px",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-md": [
+            "28px",
+            {
+              "lineHeight": "36px",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "700"
+            }
+          ],
+          "display": [
+            "56px",
+            {
+              "lineHeight": "64px",
+              "letterSpacing": "-0.03em",
+              "fontWeight": "800"
+            }
+          ],
+          "title-md": [
+            "16px",
+            {
+              "lineHeight": "24px",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-sm": [
+            "22px",
+            {
+              "lineHeight": "30px",
+              "fontWeight": "600"
+            }
+          ],
+          "label-sm": [
+            "11px",
+            {
+              "lineHeight": "14px",
+              "letterSpacing": "0.08em",
+              "fontWeight": "700"
+            }
+          ],
+          "body-md": [
+            "15px",
+            {
+              "lineHeight": "24px",
+              "fontWeight": "400"
+            }
+          ]
+        }
+      }
+    }
+  };</script></head><body class="bg-[#111111] font-body-md text-white min-h-screen flex flex-col selection:bg-[#F4B400] selection:text-black"><header class="fixed top-0 left-0 right-0 z-50 bg-[#131313]/95 backdrop-blur-xl border-b border-zinc-800 shadow-[0_8px_32px_-4px_rgba(0,0,0,0.85)]"><div class="h-20 max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between gap-6"><div class="flex items-center gap-8 flex-shrink-0"><a class="flex items-center gap-3 group flex-shrink-0" data-path="beranda" href="#"><div class="w-9 h-9 rounded-xl bg-[#F4B400] flex items-center justify-center text-black font-bold font-headline-sm text-lg shadow-sm group-hover:bg-[#EAA510] transition-colors">N</div><div class="flex flex-col leading-none"><span class="font-headline-sm text-[18px] text-white group-hover:text-[#F4B400] transition-colors tracking-tight font-bold">Nyantrik<span class="text-[#F4B400]">.id</span></span></div></a><nav class="hidden lg:flex items-center gap-7 flex-shrink-0 ml-2"><a class="font-title-md text-[14px] text-zinc-400 hover:text-white transition-colors" data-path="belajar-jalur" href="#">Pelatihan</a><a aria-current="page" class="font-title-md text-[14px] text-[#F4B400] font-bold transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:right-0 after:h-0.5 after:bg-[#F4B400]" data-path="toko-karya-kit" href="#">Karya</a><a class="font-title-md text-[14px] text-zinc-400 hover:text-white transition-colors" data-path="praktisi-pranatacara" href="#">Instruktur &amp; Praktisi</a><a class="font-title-md text-[14px] text-zinc-400 hover:text-white transition-colors" data-path="pustaka-mangsa" href="#">Pustaka</a><a class="font-title-md text-[14px] text-zinc-400 hover:text-white transition-colors" data-path="audit-transparansi" href="#">Transparansi</a></nav></div><div class="flex items-center gap-3.5 flex-shrink-0"><div class="hidden md:flex items-center bg-[#1A1A1E] border border-zinc-800 px-3.5 py-2 rounded-lg text-zinc-400 focus-within:text-[#F4B400] focus-within:border-[#F4B400]/60 transition-all w-48 lg:w-56"><span class="material-symbols-outlined text-[17px] mr-2 flex-shrink-0">search</span><input class="bg-transparent border-0 outline-none font-body-sm text-[13px] text-white placeholder:text-zinc-500 w-full" placeholder="Cari karya, motif..." type="text"><kbd class="font-label-sm text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-400 ml-1.5 flex-shrink-0">⌘K</kbd></div><a class="relative p-2 text-zinc-300 hover:text-[#F4B400] transition-colors flex items-center justify-center rounded-lg hover:bg-[#1A1A1E]" data-path="keranjang" href="#"><span class="material-symbols-outlined text-[22px]">shopping_bag</span><span class="absolute top-1 right-1 bg-[#F4B400] text-black font-label-sm text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold leading-none">2</span></a><div class="flex items-center gap-2 pl-1"><a class="font-label-md text-[13px] px-3.5 py-2 text-zinc-300 hover:text-white transition-colors" data-path="masuk" href="#">Masuk</a><a class="font-label-md text-[13px] px-4 py-2 bg-[#F4B400] text-black hover:bg-[#EAA510] rounded-lg font-semibold transition-all" data-path="daftar" href="#">Daftar</a></div></div></div></header><main class="w-full bg-[#111111] flex-1 pt-20"><div class="flex flex-col w-full">
+<!-- Subtle Ornamental Motif Canvas -->
+<div class="relative w-full overflow-hidden">
+<div class="absolute inset-0 pointer-events-none opacity-[0.025] bg-[radial-gradient(#F4B400_1px,transparent_1px)] [background-size:24px_24px]"></div>
+<div class="max-w-7xl mx-auto px-6 lg:px-8 py-8 relative">
+<!-- 1. Breadcrumb -->
+<nav aria-label="Breadcrumb" class="flex items-center gap-2 font-label-md text-[13px] text-zinc-400 mb-8">
+<a class="hover:text-[#F4B400] transition-colors" href="#">Toko Karya</a>
+<span class="material-symbols-outlined text-[15px] text-zinc-600">chevron_right</span>
+<a class="hover:text-[#F4B400] transition-colors" href="#">Batik Tulis Halus</a>
+<span class="material-symbols-outlined text-[15px] text-zinc-600">chevron_right</span>
+<span class="text-zinc-200 font-semibold truncate max-w-xs md:max-w-none">Kain Sido Asih Pewarna Alami</span>
+</nav>
+<!-- Main Showcase Grid (Gallery + Purchase Dossier) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+<!-- 2. Galeri Foto & Proses Pembuatan (Left Column: 7 Cols) -->
+<div class="lg:col-span-7 flex flex-col gap-5">
+<!-- Master Stage / Main Frame -->
+<div class="relative rounded-2xl overflow-hidden bg-[#1A1A1E] border border-zinc-800 shadow-[0_16px_40px_-8px_rgba(0,0,0,0.85)] group">
+<div class="aspect-[4/3] w-full relative">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Close up high-resolution view of authentic handmade Javanese batik tulis textile featuring the sacred Sido Asih motif. Fine wax canting resist lines with deep organic brown soga dyes, terracotta amber pigments, and warm indigo accents on luxurious textured primissima cotton cloth. Editorial craft lighting with shallow depth of field." id="main-gallery-view" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaS-b1qlzLY5pChkwFI_Y9wd08Bx0zUcmRQboaurA0TYv5VgNkBCOP1I6cB11VssSC6V-ghCU98vm_n52Uni5_AEs4u5J09F00NwFO6T-HSEGTtcJIHAXttDZBNYO8p6EN6uB40cpO532LXw1hvC7u-eTwI9EQMbnrLu-Agl5sOgtbcBqg8F0_VTEqpkpCwzPYJ0eO6_fTYWILaxfRVy_8EoJsZ6PpzivBX1l8io0">
+<div class="absolute inset-0 bg-gradient-to-t from-[#0e0e0e]/95 via-transparent to-black/30 pointer-events-none"></div>
+</div>
+<!-- Master Quality Seal Overlay Badge -->
+<div class="absolute top-4 left-4 flex flex-wrap gap-2 pointer-events-none">
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#111111]/90 backdrop-blur-md border border-[#F4B400]/40 text-[#F4B400] font-label-sm text-[11px] font-bold tracking-wider shadow-lg">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: &quot;FILL&quot; 1;">workspace_premium</span>
+                BATIK TULIS ASLI 100%
+              </span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#111111]/90 backdrop-blur-md border border-zinc-800 text-zinc-200 font-label-sm text-[11px] tracking-wide shadow-lg">
+<span class="material-symbols-outlined text-[15px] text-[#F4B400]">verified</span>
+                PROSES TERVERIFIKASI
+              </span>
+</div>
+<div class="absolute bottom-4 left-4 right-4 flex items-end justify-between pointer-events-none">
+<div class="bg-[#111111]/90 backdrop-blur-md border border-zinc-800 px-4 py-2.5 rounded-xl pointer-events-auto shadow-lg max-w-[80%]">
+<p class="font-label-sm text-[11px] text-[#F4B400] uppercase tracking-wider font-bold">Dokumentasi Pelestarian Resmi</p>
+<p class="font-body-sm text-[13px] text-zinc-200 font-medium">Bantul, D.I. Yogyakarta • 114 Jam Canting Manual</p>
+</div>
+<button class="bg-[#1E1F24] hover:bg-zinc-800 border border-zinc-700 text-white p-3 rounded-xl backdrop-blur-md transition-colors pointer-events-auto shadow-lg" title="Perbesar Tampilan">
+<span class="material-symbols-outlined text-[20px]">zoom_in</span>
+</button>
+</div>
+</div>
+<!-- Thumbnails Row -->
+<div class="grid grid-cols-4 gap-3">
+<button class="relative rounded-xl overflow-hidden bg-[#1A1A1E] border border-zinc-800 focus:outline-none transition-all ring-2 ring-[#F4B400] group" onclick="switchThumb(this, 'Kain Utuh Sido Asih')">
+<div class="aspect-square w-full">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform" data-alt="Full panoramic shot of the Javanese Sido Asih hand-drawn batik length unfolded across an aged dark teak wood table, revealing complex geometric rhythm and warm natural earthy soga dye tones in soft ambient light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWyDzTsnjp0Wz6rcumBOR5DHzDsPqJ8C6W8vPFEb9FJ5hp60oS5TEBmYZEEAqT4FR8fnE52pJl0swbHtL6RzaJaL98_nOZVc-8JOPRHsXSuNh-ln22sCEjB9kn_eCosFLpr1JU5X5cLLvDDc9_5d3dPlNxYBHE3xT7VIKNTEAwyjhdqXbxHPkkxN0FziEo-vP0To2UDcVv727Sk_VTuu-_RjYA2UMv5KDt2H8I2Yk">
+</div>
+<span class="absolute bottom-1.5 inset-x-1.5 font-label-sm text-[11px] text-center bg-[#111111]/90 text-white py-0.5 rounded font-semibold border border-zinc-800/80">Kain Utuh</span>
+</button>
+<button class="relative rounded-xl overflow-hidden bg-[#1A1A1E] border border-zinc-800 focus:outline-none transition-all hover:border-zinc-600 group" onclick="switchThumb(this, 'Cecek Canting')">
+<div class="aspect-square w-full">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform" data-alt="Extreme macro photography of fine wax canting dots known as cecek on cotton fabric, displaying micro cracks and fine hair-thin natural lines made with molten bee wax on raw textiles." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI5zP4Q274ZwZqoWI4YkzYL-76zmIedKz1XsB2eUgyvNrlmG1jRWIUVy3Sf6Efqa-0MG1v-E-sifasEWmylnpjTRNkxBdY9Kn8_QiUF6K0DghsOMesSbjunGQxkOJduNaUcTJH44kHCXthKN6mv2ONc5pH9jomaKAnqKEXsbAAk6WOj_8IAbWGaWLhrIiKQ71xcx4VACBaB87dL5xV1csri58wf3FZQTMWPc4SSks">
+</div>
+<span class="absolute bottom-1.5 inset-x-1.5 font-label-sm text-[11px] text-center bg-[#111111]/90 text-zinc-300 py-0.5 rounded font-medium border border-zinc-800/80">Rincian Titik</span>
+</button>
+<button class="relative rounded-xl overflow-hidden bg-[#1A1A1E] border border-zinc-800 focus:outline-none transition-all hover:border-zinc-600 group" onclick="switchThumb(this, 'Pencelupan Soga')">
+<div class="aspect-square w-full">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform" data-alt="Artisan hands gently submerging cloth into a traditional wooden vat filled with warm organic soga jambal and bark dye liquor in an atmospheric open-air Javanese workshop courtyard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQqPXIb55nznKVSk7kiaPMtybeOz3u1i_FPXlRTJ--mVwSPwoEwZla5RfxUNoLeKy8q--JWQBQvS6LYwTAc4McrZl7lOlJNpcMSeKJVPtTOw4omNqdbtp2u7i4RkvfxFW78rmA6LsCwZsFEBE5KboQVLeu8V4ytM9shKkFtbzPAt4gG6b62gEC4dqYdM7L5BuOIyEmTQIViKQ0w2Y7xyqOkQ5cpESH-KgIrc6YShU">
+</div>
+<span class="absolute bottom-1.5 inset-x-1.5 font-label-sm text-[11px] text-center bg-[#111111]/90 text-zinc-300 py-0.5 rounded font-medium border border-zinc-800/80">Pewarnaan</span>
+</button>
+<button class="relative rounded-xl overflow-hidden bg-[#1A1A1E] border border-zinc-800 focus:outline-none transition-all hover:border-zinc-600 group" onclick="switchThumb(this, 'Sertifikat Fisik')">
+<div class="aspect-square w-full">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform" data-alt="Physical tactile provenance parchment certificate stamped with traditional red wax seal and copper canting symbol, signed by Master Artisan Hardjono and apprentice Sari Wardhani." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHob0fttVy8x1nahxJ8lXg3BduqrENNF-AcFBv-v2so_toBFNf8kxVvqkaI99d5mVKRCnK7OMkkboxF5ainxzyK4hZKQzZ3YUJPiso1pkkBXvufLsa1ha_1pPkOb18NZ7efhRZk-JOTKJfn7nB4NCNu5mQ3p3_FSCLZq1EAh_zZ4n747Dq2dO10m9HhTdB2JKek8EV9xHnicvLsdoYF3V_zlCvsHFnz5IwCA2FLsw">
+</div>
+<span class="absolute bottom-1.5 inset-x-1.5 font-label-sm text-[11px] text-center bg-[#111111]/90 text-zinc-300 py-0.5 rounded font-medium border border-zinc-800/80">Sertifikat</span>
+</button>
+</div>
+<!-- Quick Craft Badges Bar -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-xl bg-[#1A1A1E] border border-zinc-800">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-[#1E1F24] border border-zinc-800 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[#F4B400] text-[22px]">eco</span>
+</div>
+<div>
+<p class="font-label-sm text-[11px] text-zinc-400 uppercase tracking-wider font-semibold">Bahan Pewarna</p>
+<p class="font-title-md text-[15px] text-white font-bold leading-tight">100% Organik Alami</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-[#1E1F24] border border-zinc-800 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[#F4B400] text-[22px]">hourglass_top</span>
+</div>
+<div>
+<p class="font-label-sm text-[11px] text-zinc-400 uppercase tracking-wider font-semibold">Waktu Pembuatan</p>
+<p class="font-title-md text-[15px] text-white font-bold leading-tight">28 Hari Kerja</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-[#1E1F24] border border-zinc-800 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[#F4B400] text-[22px]">psychology_alt</span>
+</div>
+<div>
+<p class="font-label-sm text-[11px] text-zinc-400 uppercase tracking-wider font-semibold">Kualifikasi Pembuat</p>
+<p class="font-title-md text-[15px] text-white font-bold leading-tight">Lulusan Terverifikasi</p>
+</div>
+</div>
+</div>
+</div>
+<!-- 3. Info Karya & Pembelian (Right Column: 5 Cols) -->
+<div class="lg:col-span-5 flex flex-col gap-5">
+<div class="bg-[#1A1A1E] p-6 lg:p-7 rounded-2xl border border-zinc-800 shadow-[0_8px_32px_-4px_rgba(0,0,0,0.7)] flex flex-col gap-6">
+<!-- Creator Credentials -->
+<div class="flex items-start justify-between gap-4 pb-4 border-b border-zinc-800/80">
+<div class="flex items-center gap-3.5">
+<div class="w-13 h-13 rounded-full overflow-hidden bg-zinc-800 border-2 border-[#F4B400]/40 flex-shrink-0 shadow-md">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of Javanese craftswoman Sari Wardhani smiling serenely in front of an unrolled natural batik textile in a traditional workshop setting, warm natural side lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHQVJdU_1m7Kj23Q58Z2aDg4_wso4dvSCwk5H0EFc5vaWDmQUfrXbplhdr_OoBog_u6iMaekKHiKZaoaA_Yp_Xq1UYh96ttRDSKY2okNm9uPaR7f-eD3tMP8cpLNas83cRIIHiMKNr4rKd0JHhXosWlwTmZ--NdZbdFGzdB9OnZ2re8OkbKpwRRJ-_oTD7sAHMLh_mfC_53mgJmOsZvub9Eg3LHIIt454HQKeUoC0">
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-[17px] text-white font-bold">Sari Wardhani</span>
+<span class="material-symbols-outlined text-[17px] text-[#F4B400]" style="font-variation-settings: &quot;FILL&quot; 1;" title="Lulusan Terverifikasi">verified</span>
+</div>
+<p class="font-body-sm text-[13px] text-zinc-300 mt-0.5">Lulusan Angkatan II • Sertifikat Resmi <span class="font-mono text-[#F4B400] font-bold">#NY-2024-089</span></p>
+<p class="font-label-sm text-[11px] text-zinc-400 mt-0.5">Mentor Ahli: <span class="text-[#F4B400] font-semibold">Bapak Hardjono (Sentra Giriloyo)</span></p>
+</div>
+</div>
+<span class="bg-[#1E1F24] border border-zinc-700 text-zinc-300 font-medium px-3 py-1 rounded-full font-label-sm text-[11px] whitespace-nowrap tracking-wide">Karya Tunggal Eksklusif</span>
+</div>
+<!-- Title & Price Block -->
+<div>
+<h1 class="font-headline-md text-2xl lg:text-[26px] text-white font-bold leading-snug">
+                Kain Panjang Batik Tulis Sido Asih — Pewarna Alami Soga Tradisional
+              </h1>
+<div class="mt-4 flex items-baseline gap-3 flex-wrap">
+<span class="text-3xl lg:text-4xl text-[#F4B400] font-extrabold tracking-tight font-display">Rp 1.650.000</span>
+<span class="font-label-sm text-[11px] text-zinc-400 uppercase tracking-wider font-semibold">Termasuk PPN &amp; Kemasan Bambu Khusus</span>
+</div>
+<div class="mt-2.5 flex items-center gap-2 text-zinc-300 font-body-sm text-[13px]">
+<span class="w-2.5 h-2.5 rounded-full bg-[#F4B400] animate-pulse"></span>
+<span class="text-white font-semibold">Ketersediaan Stok:</span>
+<span class="text-amber-300 font-medium">Tersedia Hanya 1 Lembar (Edisi Khusus Kolektor)</span>
+</div>
+</div>
+<!-- Shipping & Packaging Info -->
+<div class="bg-[#1E1F24] p-4 rounded-xl border border-zinc-800 flex flex-col gap-3">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-[#F4B400] text-[20px] mt-0.5 flex-shrink-0">local_shipping</span>
+<div class="font-body-sm text-[13px] text-zinc-300 leading-relaxed">
+<span class="text-white font-semibold">Dikirim dari Bantul, D.I. Yogyakarta.</span> Perkiraan pengiriman 2–4 hari kerja dengan asuransi pengiriman penuh.
+                </div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-[#F4B400] text-[20px] mt-0.5 flex-shrink-0">inventory_2</span>
+<div class="font-body-sm text-[13px] text-zinc-300 leading-relaxed">
+                  Kemasan menggunakan <span class="text-white font-semibold">kotak anyaman bambu eksklusif</span> dengan lapisan pelindung dan sertifikat keaslian digital QR.
+                </div>
+</div>
+</div>
+<!-- CTA Actions -->
+<div class="flex flex-col gap-3 pt-1">
+<div class="grid grid-cols-12 gap-3">
+<button class="col-span-8 bg-[#F4B400] hover:bg-[#EAA510] text-black font-title-md text-[15px] py-3.5 px-5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">shopping_bag</span>
+                  Beli Sekarang
+                </button>
+<button class="col-span-2 bg-[#1E1F24] hover:bg-zinc-800 border border-zinc-700 text-white rounded-xl transition-colors flex items-center justify-center p-3" title="Tambah ke Keranjang">
+<span class="material-symbols-outlined text-[22px]">add_shopping_cart</span>
+</button>
+<button class="col-span-2 bg-[#1E1F24] hover:bg-zinc-800 border border-zinc-700 text-white rounded-xl transition-colors flex items-center justify-center p-3" title="Simpan ke Daftar Keinginan">
+<span class="material-symbols-outlined text-[22px]">bookmark_border</span>
+</button>
+</div>
+<div class="flex items-center justify-center gap-4 text-center font-label-sm text-[11px] text-zinc-400 pt-1 flex-wrap">
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] text-[#F4B400]">shield</span> Transaksi Aman &amp; Terpercaya</span>
+<span>•</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] text-[#F4B400]">autorenew</span> Garansi Pengembalian 14 Hari</span>
+</div>
+</div>
+</div>
+<!-- Quick Artisan Note Accordion Card -->
+<div class="bg-[#1A1A1E] p-5 rounded-2xl border border-zinc-800 shadow-sm flex flex-col gap-2.5">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[#F4B400] text-[20px]">format_quote</span>
+<span class="font-title-md text-[14px] text-white font-bold tracking-wide">Catatan dari Pembuat Karya (Sari Wardhani)</span>
+</div>
+<p class="font-body-sm text-[13px] text-zinc-300 italic leading-relaxed pl-1">
+              "Kain Sido Asih ini saya buat secara manual di Giriloyo dengan ketelitian penuh. Setiap titik canting ditorehkan dengan harapan menghadirkan ketenangan dan keharmonisan bagi pemiliknya. Terima kasih telah mengapresiasi dan mendukung kelestarian karya batik tulis tradisional."
+            </p>
+</div>
+</div>
+</div>
+<!-- 4. Modul Sorotan: Sertifikat Keaslian Digital (#PSK-77492) -->
+<section class="mt-14 w-full">
+<div class="relative bg-[#1A1A1E] border border-zinc-800 rounded-2xl p-6 md:p-8 lg:p-10 shadow-[0_16px_48px_-8px_rgba(0,0,0,0.85)] overflow-hidden">
+<!-- Golden Accent Decorative Backdrop Glow -->
+<div class="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-8 border-b border-zinc-800/80">
+<div class="flex items-start gap-4">
+<div class="w-14 h-14 rounded-2xl bg-[#1E1F24] border border-zinc-700 flex items-center justify-center text-[#F4B400] flex-shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-[32px]">qr_code_2</span>
+</div>
+<div>
+<div class="flex items-center gap-2.5 flex-wrap">
+<span class="font-label-sm text-[11px] tracking-widest text-[#F4B400] font-mono uppercase font-bold">SERTIFIKAT KEASLIAN DIGITAL PRODUK</span>
+<span class="inline-flex items-center gap-1 bg-[#1E1F24] border border-zinc-700 px-2.5 py-0.5 rounded-full text-[#F4B400] font-label-sm text-[11px] font-semibold">
+<span class="material-symbols-outlined text-[13px]">done_all</span> Data Terverifikasi Resmi
+                  </span>
+</div>
+<h2 class="font-headline-md text-2xl lg:text-[26px] text-white font-bold mt-1 tracking-tight">Nomor Registrasi Produk: <span class="text-[#F4B400]">#PSK-77492</span></h2>
+<p class="font-body-sm text-[13px] text-zinc-300 mt-1">Dokumen identitas resmi produk kriya terdaftar secara permanen pada sistem registrasi karya nasional.</p>
+</div>
+</div>
+<div class="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+<button class="w-full sm:w-auto bg-[#F4B400] hover:bg-[#EAA510] text-black font-label-md text-[13px] py-2.5 px-4 rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+                Verifikasi Sertifikat QR
+              </button>
+<button class="w-full sm:w-auto bg-[#1E1F24] hover:bg-zinc-800 border border-zinc-700 text-white font-label-md text-[13px] py-2.5 px-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                Unduh Sertifikat PDF
+              </button>
+</div>
+</div>
+<!-- Passport Detail Key-Value Spec Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
+<div class="bg-[#1E1F24] border border-zinc-800 p-5 rounded-xl">
+<span class="font-label-sm text-[11px] text-zinc-400 uppercase tracking-wider block mb-1 font-semibold">Durasi Pembuatan</span>
+<p class="font-title-lg text-lg text-white font-bold">28 Hari Kerja Manual</p>
+<p class="font-body-sm text-[13px] text-zinc-300 mt-1.5 leading-relaxed">Total akumulasi 114 jam pengerjaan canting tangan murni tanpa teknik sablon atau cetak mesin.</p>
+</div>
+<div class="bg-[#1E1F24] border border-zinc-800 p-5 rounded-xl">
+<span class="font-label-sm text-[11px] text-zinc-400 uppercase tracking-wider block mb-1 font-semibold">Spesifikasi Bahan Baku</span>
+<p class="font-title-lg text-lg text-white font-bold">Katun Primissima Premium</p>
+<p class="font-body-sm text-[13px] text-zinc-300 mt-1.5 leading-relaxed">Lilin lebah murni, ekstraksi kulit kayu tingi, dan rebusan kayu soga jambal alami berkualitas.</p>
+</div>
+<div class="bg-[#1E1F24] border border-zinc-800 p-5 rounded-xl">
+<span class="font-label-sm text-[11px] text-zinc-400 uppercase tracking-wider block mb-1 font-semibold">Hasil Penilaian Kurator Ahli</span>
+<div class="flex items-baseline gap-2">
+<span class="font-title-lg text-lg text-[#F4B400] font-bold">Nilai 96 / 100</span>
+<span class="font-label-sm text-[11px] text-zinc-400">(Kategori Sangat Baik)</span>
+</div>
+<p class="font-body-sm text-[13px] text-zinc-300 mt-1.5 leading-relaxed">Dinilai langsung oleh kurator ahli berdasarkan standar mutu mutu batik tulis halus.</p>
+</div>
+</div>
+<!-- Timeline Stepper (Process Provenance) -->
+<div class="mt-8 pt-6">
+<div class="flex items-center justify-between mb-5 flex-wrap gap-2">
+<h3 class="font-title-lg text-lg text-white font-bold">Tahapan dan Riwayat Proses Pembuatan</h3>
+<span class="font-label-sm text-[12px] text-zinc-300 font-semibold bg-[#1E1F24] border border-zinc-700 px-3 py-1 rounded-full">5 Tahapan Selesai Terverifikasi</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+<!-- Step 1 -->
+<div class="bg-[#1E1F24] border border-zinc-800 p-4 rounded-xl flex flex-col justify-between hover:border-[#F4B400]/40 transition-colors">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-sm text-[10px] text-[#F4B400] font-mono font-bold tracking-wider">HARI 01–04</span>
+<span class="material-symbols-outlined text-[#F4B400] text-[16px]">check_circle</span>
+</div>
+<h4 class="font-title-md text-[14px] text-white font-bold mb-1.5">1. Pembuatan Pola</h4>
+<p class="font-body-sm text-[12px] text-zinc-300 leading-relaxed">Pengukuran geometris dan pembuatan sketsa motif Sido Asih pada kain mori primissima.</p>
+</div>
+<div class="mt-4 pt-3 flex items-center gap-2 border-t border-zinc-800/80">
+<span class="material-symbols-outlined text-zinc-400 text-[15px]">draw</span>
+<span class="font-label-sm text-[11px] text-zinc-400 font-medium">Sketsa Desain</span>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="bg-[#1E1F24] border border-zinc-800 p-4 rounded-xl flex flex-col justify-between hover:border-[#F4B400]/40 transition-colors">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-sm text-[10px] text-[#F4B400] font-mono font-bold tracking-wider">HARI 05–16</span>
+<span class="material-symbols-outlined text-[#F4B400] text-[16px]">check_circle</span>
+</div>
+<h4 class="font-title-md text-[14px] text-white font-bold mb-1.5">2. Pencantingan Lilin</h4>
+<p class="font-body-sm text-[12px] text-zinc-300 leading-relaxed">Penorehan garis utama dan penutupan bidang motif menggunakan canting dan lilin panas.</p>
+</div>
+<div class="mt-4 pt-3 flex items-center gap-2 border-t border-zinc-800/80">
+<span class="material-symbols-outlined text-zinc-400 text-[15px]">brush</span>
+<span class="font-label-sm text-[11px] text-zinc-400 font-medium">Canting Halus</span>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="bg-[#1E1F24] border border-zinc-800 p-4 rounded-xl flex flex-col justify-between hover:border-[#F4B400]/40 transition-colors">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-sm text-[10px] text-[#F4B400] font-mono font-bold tracking-wider">HARI 17–23</span>
+<span class="material-symbols-outlined text-[#F4B400] text-[16px]">check_circle</span>
+</div>
+<h4 class="font-title-md text-[14px] text-white font-bold mb-1.5">3. Pewarnaan Alami</h4>
+<p class="font-body-sm text-[12px] text-zinc-300 leading-relaxed">14 siklus pencelupan bertahap dengan ekstrak bahan pewarna alami untuk warna maksimal.</p>
+</div>
+<div class="mt-4 pt-3 flex items-center gap-2 border-t border-zinc-800/80">
+<span class="material-symbols-outlined text-zinc-400 text-[15px]">palette</span>
+<span class="font-label-sm text-[11px] text-zinc-400 font-medium">14x Pencelupan</span>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="bg-[#1E1F24] border border-zinc-800 p-4 rounded-xl flex flex-col justify-between hover:border-[#F4B400]/40 transition-colors">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-sm text-[10px] text-[#F4B400] font-mono font-bold tracking-wider">HARI 24–26</span>
+<span class="material-symbols-outlined text-[#F4B400] text-[16px]">check_circle</span>
+</div>
+<h4 class="font-title-md text-[14px] text-white font-bold mb-1.5">4. Peluruhan Lilin</h4>
+<p class="font-body-sm text-[12px] text-zinc-300 leading-relaxed">Pembersihan lilin malam secara menyeluruh dengan air panas mendidih hingga motif tampak jelas.</p>
+</div>
+<div class="mt-4 pt-3 flex items-center gap-2 border-t border-zinc-800/80">
+<span class="material-symbols-outlined text-zinc-400 text-[15px]">water</span>
+<span class="font-label-sm text-[11px] text-zinc-400 font-medium">Pembersihan Akhir</span>
+</div>
+</div>
+<!-- Step 5 -->
+<div class="bg-[#1E1F24] border border-zinc-800 p-4 rounded-xl flex flex-col justify-between hover:border-[#F4B400]/40 transition-colors">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-sm text-[10px] text-[#F4B400] font-mono font-bold tracking-wider">HARI 27–28</span>
+<span class="material-symbols-outlined text-[#F4B400] text-[16px]">check_circle</span>
+</div>
+<h4 class="font-title-md text-[14px] text-white font-bold mb-1.5">5. Uji Mutu &amp; Kurasi</h4>
+<p class="font-body-sm text-[12px] text-zinc-300 leading-relaxed">Pemeriksaan kualitas kerapian canting dan kesempurnaan warna oleh kurator ahli.</p>
+</div>
+<div class="mt-4 pt-3 flex items-center gap-2 border-t border-zinc-800/80">
+<span class="material-symbols-outlined text-zinc-400 text-[15px]">verified</span>
+<span class="font-label-sm text-[11px] text-zinc-400 font-medium">Lolos Standar Mutu</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. Rincian Bagi Hasil Etis Transparan (Fair Split Breakdown) -->
+<section class="mt-14 w-full">
+<div class="bg-[#1A1A1E] border border-zinc-800 rounded-2xl p-6 md:p-8 lg:p-10 shadow-[0_8px_32px_-4px_rgba(0,0,0,0.7)]">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+<div>
+<span class="font-label-sm text-[11px] text-[#F4B400] font-bold tracking-widest uppercase">Prinsip Keadilan Finansial</span>
+<h2 class="font-headline-md text-2xl lg:text-[26px] text-white font-bold mt-1">Transparansi Pembagian Pendapatan Penjualan</h2>
+<p class="font-body-sm text-[13px] text-zinc-300 mt-1">Setiap dana dari pembelian karya ini dialokasikan secara transparan dan akuntabel guna mendukung kelestarian ekosistem kriya.</p>
+</div>
+<div class="flex items-center gap-2 bg-[#1E1F24] border border-zinc-800 px-4 py-2 rounded-xl">
+<span class="material-symbols-outlined text-[#F4B400] text-[20px]">account_balance_wallet</span>
+<span class="font-title-md text-[14px] text-white font-bold">Total Harga: Rp 1.650.000</span>
+</div>
+</div>
+<!-- Multi-Segment Visual Progress Bar -->
+<div class="w-full h-3.5 rounded-full overflow-hidden flex bg-zinc-800 shadow-inner">
+<div class="bg-[#F4B400] h-full" style="width: 75%;" title="75% Hak Pengrajin"></div>
+<div class="bg-amber-300 h-full" style="width: 10%;" title="10% Royalti Mentor"></div>
+<div class="bg-orange-400 h-full" style="width: 5%;" title="5% Dana Komunitas Pengrajin"></div>
+<div class="bg-zinc-600 h-full" style="width: 10%;" title="10% Operasional Platform"></div>
+</div>
+<!-- Segments Detailed Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+<div class="p-5 rounded-xl bg-[#1E1F24] border border-zinc-800 flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="w-3 h-3 rounded-full bg-[#F4B400] inline-block flex-shrink-0"></span>
+<span class="font-label-md text-[12px] text-[#F4B400] font-bold">75% Hak Pengrajin</span>
+</div>
+<p class="font-headline-sm text-xl text-white font-bold">Rp 1.237.500</p>
+<p class="font-body-sm text-[12px] text-zinc-300 mt-2 leading-relaxed">Disalurkan langsung kepada pengrajin pembuat sebagai imbalan jasa pengerjaan dan modal bahan baku.</p>
+</div>
+<span class="font-label-sm text-[11px] text-zinc-400 mt-4 block font-medium border-t border-zinc-800/80 pt-2.5">Penyaluran Langsung</span>
+</div>
+<div class="p-5 rounded-xl bg-[#1E1F24] border border-zinc-800 flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="w-3 h-3 rounded-full bg-amber-300 inline-block flex-shrink-0"></span>
+<span class="font-label-md text-[12px] text-amber-300 font-bold">10% Royalti Mentor</span>
+</div>
+<p class="font-headline-sm text-xl text-white font-bold">Rp 165.000</p>
+<p class="font-body-sm text-[12px] text-zinc-300 mt-2 leading-relaxed">Dialokasikan untuk mentor pembimbing atas bimbingan keahlian teknis dan kurasi karya.</p>
+</div>
+<span class="font-label-sm text-[11px] text-zinc-400 mt-4 block font-medium border-t border-zinc-800/80 pt-2.5">Apresiasi Keahlian</span>
+</div>
+<div class="p-5 rounded-xl bg-[#1E1F24] border border-zinc-800 flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="w-3 h-3 rounded-full bg-orange-400 inline-block flex-shrink-0"></span>
+<span class="font-label-md text-[12px] text-orange-400 font-bold">5% Dana Komunitas Pengrajin</span>
+</div>
+<p class="font-headline-sm text-xl text-white font-bold">Rp 82.500</p>
+<p class="font-body-sm text-[12px] text-zinc-300 mt-2 leading-relaxed">Digunakan untuk penyediaan bahan alami bersama dan pengembangan fasilitas perajin daerah.</p>
+</div>
+<span class="font-label-sm text-[11px] text-zinc-400 mt-4 block font-medium border-t border-zinc-800/80 pt-2.5">Kelestarian Bersama</span>
+</div>
+<div class="p-5 rounded-xl bg-[#1E1F24] border border-zinc-800 flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="w-3 h-3 rounded-full bg-zinc-500 inline-block flex-shrink-0"></span>
+<span class="font-label-md text-[12px] text-zinc-300 font-bold">10% Operasional Platform</span>
+</div>
+<p class="font-headline-sm text-xl text-white font-bold">Rp 165.000</p>
+<p class="font-body-sm text-[12px] text-zinc-300 mt-2 leading-relaxed">Pengelolaan sistem verifikasi digital, kemasan produk ramah lingkungan, dan asuransi pengiriman.</p>
+</div>
+<span class="font-label-sm text-[11px] text-zinc-400 mt-4 block font-medium border-t border-zinc-800/80 pt-2.5">Operasional &amp; Layanan</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 6. Hubungan Silang Edukasi (Cross-bridge Produk ke Jalur Belajar) -->
+<section class="mt-14 w-full">
+<div class="relative bg-gradient-to-r from-[#1A1A1E] via-[#1E1F24] to-[#1A1A1E] border border-zinc-800 rounded-2xl p-6 md:p-8 lg:p-10 overflow-hidden shadow-[0_8px_32px_-4px_rgba(0,0,0,0.7)]">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative">
+<div class="lg:col-span-8 flex flex-col gap-3">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F4B400]/20 border border-[#F4B400]/30 text-[#F4B400] font-label-sm text-[11px] font-bold w-max">
+<span class="material-symbols-outlined text-[15px]">school</span> Program Pembelajaran Kriya
+              </span>
+<h2 class="font-headline-md text-2xl lg:text-[26px] text-white font-bold leading-snug">
+                Tertarik membuat karya berkualitas tinggi ini secara mandiri?
+              </h2>
+<p class="font-body-md text-[14px] text-zinc-300 leading-relaxed">
+                Karya ini diproduksi melalui kurikulum intensif <span class="text-white font-semibold">Program Pelatihan Batik Tulis Halus</span>. Anda dapat belajar langsung dari mentor ahli, mulai dari pengenalan dasar mencanting, peracikan warna alami, hingga memperoleh sertifikat kompetensi resmi.
+              </p>
+<div class="flex items-center gap-5 pt-2 flex-wrap font-body-sm text-[13px] text-zinc-200">
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[#F4B400] text-[18px]">alarm</span> 6 Pekan Daring + 3 Hari Praktik Langsung</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[#F4B400] text-[18px]">inventory</span> Termasuk Perlengkapan Belajar Lengkap</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[#F4B400] text-[18px]">military_tech</span> Sertifikat Kompetensi Resmi</span>
+</div>
+</div>
+<div class="lg:col-span-4 flex flex-col gap-2.5 lg:items-end">
+<a class="w-full sm:w-auto bg-[#F4B400] hover:bg-[#EAA510] text-black font-title-md text-[14px] py-3.5 px-7 rounded-xl font-bold transition-all text-center shadow-sm" href="#">
+                Lihat Program Pelatihan Batik
+              </a>
+<span class="font-label-sm text-[11px] text-zinc-400 text-center lg:text-right">Tersisa 4 Kuota Peserta untuk Angkatan Terbaru</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 7. Kartu Atribusi Budaya & Nilai Filosofi Motif -->
+<section class="mt-14 w-full">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+<div class="lg:col-span-8 bg-[#1A1A1E] border border-zinc-800 rounded-2xl p-6 md:p-8 flex flex-col justify-between shadow-sm">
+<div class="space-y-4">
+<div>
+<span class="font-label-sm text-[11px] text-[#F4B400] font-bold uppercase tracking-widest">Makna Filosofis Karya</span>
+<h2 class="font-headline-md text-2xl lg:text-[26px] text-white font-bold mt-1">Filosofi Luhur Motif Sido Asih</h2>
+</div>
+<div class="text-zinc-300 font-body-md text-[14px] space-y-3 leading-relaxed">
+<p>
+                Kata <span class="text-white italic font-serif">"Sido"</span> mengandung arti terwujud atau berkesinambungan secara terus-menerus, sedangkan <span class="text-white italic font-serif">"Asih"</span> melambangkan kasih sayang yang tulus. Dalam filosofi busana tradisional Nusantara, motif ini dirancang sebagai doa visual agar pemakainya senantiasa memancarkan kelembutan budi pekerti, keharmonisan hubungan, serta diliputi kasih sayang di tengah masyarakat.
+              </p>
+<p>
+                Komposisi pola wajik yang dipadukan dengan ornamen dedaunan simetris merepresentasikan perlindungan dan keselarasan hidup manusia dengan alam sekitar. Ketelitian susunan motif ini dijaga secara konsisten guna mempertahankan kemurnian makna dan nilai estetikanya.
+              </p>
+</div>
+</div>
+<div class="pt-6 space-y-3 border-t border-zinc-800/80 mt-6">
+<div class="p-4 rounded-xl bg-[#1E1F24] border border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+<div>
+<span class="font-label-sm text-[11px] text-zinc-400 uppercase tracking-wider font-semibold">Rekomendasi Penggunaan</span>
+<p class="font-body-sm text-[13px] text-white font-medium mt-0.5">Sangat ideal dikenakan pada acara pernikahan, prosesi pertunangan, perayaan formal, dan upacara kebudayaan.</p>
+</div>
+<span class="px-3 py-1 bg-zinc-800 border border-zinc-700 text-[#F4B400] font-bold rounded-lg font-label-sm text-[11px] whitespace-nowrap">
+                Standar Motif Keraton
+              </span>
+</div>
+<p class="font-label-sm text-[11px] text-zinc-500">
+              Sumber Referensi: <span class="text-zinc-300 font-medium">Dokumentasi Balai Kajian Batik &amp; Arsip Sentra Pengrajin Giriloyo</span>
+</p>
+</div>
+</div>
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- Curatorial Seal Card -->
+<div class="bg-[#1A1A1E] border border-zinc-800 rounded-2xl p-6 flex flex-col gap-4 shadow-sm text-center items-center flex-1 justify-center">
+<div class="w-16 h-16 rounded-2xl bg-[#1E1F24] border border-zinc-700 flex items-center justify-center text-[#F4B400] shadow-inner">
+<span class="material-symbols-outlined text-[36px]">history_edu</span>
+</div>
+<div>
+<h3 class="font-title-lg text-lg text-white font-bold">Standar Mutu &amp; Kurasi Produk Tradisi</h3>
+<p class="font-body-sm text-[13px] text-zinc-300 mt-1">Karya ini telah melalui pemeriksaan kualitas dan kepatuhan standar motif secara ketat.</p>
+</div>
+<ul class="text-left font-body-sm text-[13px] text-zinc-300 space-y-2.5 w-full pt-1">
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#F4B400] text-[18px] flex-shrink-0">check</span>
+<span>Sesuai dengan ketentuan pakem motif asli</span>
+</li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#F4B400] text-[18px] flex-shrink-0">check</span>
+<span>Skema bagi hasil disepakati bersama secara adil</span>
+</li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#F4B400] text-[18px] flex-shrink-0">check</span>
+<span>Bahan pewarna ramah lingkungan tanpa zat kimia berbahaya</span>
+</li>
+</ul>
+</div>
+<!-- Return Guarantee Summary -->
+<div class="bg-[#1A1A1E] border border-zinc-800 rounded-2xl p-6 flex flex-col gap-2.5 shadow-sm">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[#F4B400] text-[22px]">verified</span>
+<h3 class="font-title-lg text-[15px] text-white font-bold">Jaminan Kepuasan 14 Hari</h3>
+</div>
+<p class="font-body-sm text-[13px] text-zinc-300 leading-relaxed">
+                Apabila kualitas kain, pewarnaan alami, atau hasil canting tidak sesuai dengan deskripsi resmi, Anda dapat mengembalikannya dalam kemasan asli untuk memperoleh pengembalian dana 100%.
+              </p>
+</div>
+</div>
+</div>
+</section>
+<!-- 8. Ulasan Pembeli Terverifikasi & Testimoni Kolektor -->
+<section class="mt-14 mb-16 w-full">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<span class="font-label-sm text-[11px] text-[#F4B400] font-bold uppercase tracking-widest">Testimoni Terverifikasi</span>
+<h2 class="font-headline-md text-2xl lg:text-[26px] text-white font-bold mt-1">Ulasan Pembeli &amp; Kolektor Terverifikasi</h2>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex text-[#F4B400]">
+<span class="material-symbols-outlined text-[19px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[19px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[19px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[19px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[19px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+</div>
+<span class="font-title-md text-[15px] text-white font-bold">5.0 / 5.0</span>
+<span class="font-body-sm text-[13px] text-zinc-400">(18 Ulasan Pembeli)</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-[#1A1A1E] border border-zinc-800 p-6 rounded-2xl flex flex-col justify-between shadow-sm">
+<div>
+<div class="flex items-center justify-between mb-3">
+<div class="flex text-[#F4B400]">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+</div>
+<span class="font-label-sm text-[11px] text-zinc-400">3 minggu lalu</span>
+</div>
+<p class="font-body-sm text-[13px] text-zinc-300 leading-relaxed italic">
+                "Aroma lilin dan pewarna alaminya sangat otentik. Saat kode QR pada sertifikat dipindai, muncul riwayat lengkap proses pembuatan kain oleh Mbak Sari. Ini adalah pengalaman pembelian karya seni yang sangat transparan dan berkelas."
+              </p>
+</div>
+<div class="flex items-center gap-3 pt-5 mt-4 border-t border-zinc-800/80">
+<div class="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Portrait of an art collector in glasses, subtle lighting, cultural enthusiast avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfNGfnPBd72A-NwpSc9QT7jaeWiTiwh1cEJkiDGQ7vLdeMG4eRqDX59zEICkuqkQqKm0be2FvTuSoVBsaUSozIH9jBfBnOlZGZ0wfmRLj92ZniD13jmQCAq4qnxuqCHgjInOwmObmNQUdsw_uuiV4hOJgu2bNbT4OS4z8cBW4FcJVX7hXKD2LrqB8yiyiFs3_LFMap5vQZvoHEoVZzJH7Uv5UxUONqFKQjhCz9dxI">
+</div>
+<div>
+<p class="font-title-md text-[14px] text-white font-bold leading-tight">Raden Bambang S.</p>
+<p class="font-label-sm text-[11px] text-[#F4B400] font-medium mt-0.5">Kolektor Wastra Nusantara • Jakarta Selatan</p>
+</div>
+</div>
+</div>
+<div class="bg-[#1A1A1E] border border-zinc-800 p-6 rounded-2xl flex flex-col justify-between shadow-sm">
+<div>
+<div class="flex items-center justify-between mb-3">
+<div class="flex text-[#F4B400]">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+</div>
+<span class="font-label-sm text-[11px] text-zinc-400">1 bulan lalu</span>
+</div>
+<p class="font-body-sm text-[13px] text-zinc-300 leading-relaxed italic">
+                "Transparansi pembagian pendapatannya membuat pembeli merasa tenang. 75% langsung diterima perajin dan terdapat royalti untuk mentor pembimbing. Kain ini kami gunakan pada upacara resmi keluarga dan mendapatkan apresiasi tinggi."
+              </p>
+</div>
+<div class="flex items-center gap-3 pt-5 mt-4 border-t border-zinc-800/80">
+<div class="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Portrait of female batik collector smiling warmly in a studio, elegant traditional styling." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMihffvBwTyDPaVSSXFJbQyFhSw07XpwuhtV2fE4Xgzi0J9Pu7Ov5KN-yixuvqJVuuXOD5NqILeDBtAOaMDGqdBaNsZRNgOLhBimskt77G4dl8_rEiGnKyJorzjI8Ulcq2_0dFM7iNX0jz7Rb4o35RbQHBbOCjQGsJokY74RlQu5Gxf9vHLD7w55PWOFNV6RMZ-dkucKauWXTQztv9ksayebuDCVJKwsUZj_5OihA">
+</div>
+<div>
+<p class="font-title-md text-[14px] text-white font-bold leading-tight">Dr. Anindita Kirana</p>
+<p class="font-label-sm text-[11px] text-[#F4B400] font-medium mt-0.5">Pemerhati Budaya • Surabaya</p>
+</div>
+</div>
+</div>
+<div class="bg-[#1A1A1E] border border-zinc-800 p-6 rounded-2xl flex flex-col justify-between shadow-sm">
+<div>
+<div class="flex items-center justify-between mb-3">
+<div class="flex text-[#F4B400]">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &quot;FILL&quot; 1;">star</span>
+</div>
+<span class="font-label-sm text-[11px] text-zinc-400">2 bulan lalu</span>
+</div>
+<p class="font-body-sm text-[13px] text-zinc-300 leading-relaxed italic">
+                "Garis cantingnya sangat rapi dan detail, memperlihatkan keahlian pengerjaan tangan yang teliti. Kemasan kotak anyaman bambunya tertata elegan dan aman. Kualitas produk ini sangat sebanding dengan waktu produksinya."
+              </p>
+</div>
+<div class="flex items-center gap-3 pt-5 mt-4 border-t border-zinc-800/80">
+<div class="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Portrait of an architect and designer smiling confidently in an urban studio with warm ethnic accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoLcAuTGfqxt-PACkQht_uMOO6UK-bGWMNhP1Tel7yHMoVvay17dRsUmOavDUMjG7QdP4qcoljdaxh-Yk26Q3OytQ89DYnweQDhOP4-gF2WIlJyyljJmq5zO4Z1Ll7nLDWjTiJdUyDTrNThYjy2UcRIOAgXmmAxht9C30QVab43r3X8eBZlRihnjxo88TmKviyFLPkf_S5yfuFs_pii5gOdjUkfUcNPBSUr0BWj28">
+</div>
+<div>
+<p class="font-title-md text-[14px] text-white font-bold leading-tight">Aryo Wicaksono</p>
+<p class="font-label-sm text-[11px] text-[#F4B400] font-medium mt-0.5">Arsitek Konservasi • Yogyakarta</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+<script>
+  function switchThumb(buttonElement, labelText) {
+    const parentContainer = buttonElement.parentElement;
+    const allButtons = parentContainer.querySelectorAll('button');
+    allButtons.forEach(btn => {
+      btn.classList.remove('ring-2', 'ring-[#F4B400]');
+    });
+    buttonElement.classList.add('ring-2', 'ring-[#F4B400]');
+    
+    // Quick micro-interaction feedback on main image
+    const mainView = document.getElementById('main-gallery-view');
+    if (mainView) {
+      mainView.style.opacity = '0.7';
+      setTimeout(() => {
+        mainView.style.opacity = '1';
+      }, 150);
+    }
+  }
+</script></main><footer class="w-full bg-[#0e0e0e] border-t border-zinc-800 pt-16 pb-12 shadow-[0_-8px_32px_-4px_rgba(0,0,0,0.6)]"><div class="max-w-7xl mx-auto px-6 lg:px-8"><div class="p-5 rounded-2xl bg-[#1A1A1E] border border-zinc-800 mb-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"><div class="flex items-center gap-3.5"><span class="material-symbols-outlined text-[#F4B400] text-[26px]">gavel</span><div><h4 class="font-title-md text-[14px] text-white font-bold">Piagam Etika &amp; Perlindungan Hak Cipta Komunal</h4><p class="font-body-sm text-[13px] text-zinc-300 mt-0.5">Seluruh kurikulum, rancangan motif, dan dokumentasi dilindungi oleh ketentuan hukum perlindungan hak kekayaan intelektual.</p></div></div><a class="font-label-md text-[12px] text-[#F4B400] hover:text-amber-300 font-bold whitespace-nowrap" data-path="etika-hak-budaya" href="#">Baca Dokumen Lengkap →</a></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-14"><div class="flex flex-col gap-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-[#F4B400] flex items-center justify-center text-black font-bold font-headline-sm text-lg shadow-sm">N</div><span class="font-headline-sm text-xl text-white font-bold tracking-tight">Nyantrik Digital</span></div><p class="font-body-sm text-zinc-400 max-w-sm leading-relaxed">Platform digital pelestarian kriya, seni rupa, dan warisan budaya Nusantara. Menghubungkan para praktisi ahli dengan peminat karya kontemporer melalui ketelitian mutu dan teknologi modern.</p><div class="flex flex-col gap-2 pt-1"><span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1A1A1E] border border-zinc-800 text-[#F4B400] font-label-sm text-[11px] font-semibold w-max"><span class="material-symbols-outlined text-[14px]">verified</span>Praktisi Terverifikasi</span><span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1A1A1E] border border-zinc-800 text-zinc-300 font-label-sm text-[11px] w-max"><span class="material-symbols-outlined text-[14px]">history_edu</span>Sertifikasi Resmi</span></div></div><div class="flex flex-col gap-3"><span class="font-title-md text-[14px] text-[#F4B400] font-bold tracking-wide uppercase">Program</span><a class="font-body-sm text-[13px] text-zinc-400 hover:text-white transition-colors" data-path="belajar-jalur" href="#">Program Belajar</a><a class="font-body-sm text-[13px] text-zinc-400 hover:text-white transition-colors" data-path="praktisi-pranatacara" href="#">Direktori Praktisi</a><a class="font-body-sm text-[13px] text-zinc-400 hover:text-white transition-colors" data-path="toko-karya-kit" href="#">Toko Karya &amp; Perangkat Belajar</a><a class="font-body-sm text-[13px] text-zinc-400 hover:text-white transition-colors" data-path="pustaka-mangsa" href="#">Pustaka Budaya</a></div><div class="flex flex-col gap-3"><span class="font-title-md text-[14px] text-[#F4B400] font-bold tracking-wide uppercase">Kelembagaan</span><a class="font-body-sm text-[13px] text-zinc-400 hover:text-white transition-colors" data-path="untuk-institusi" href="#">Kerja Sama Perguruan Tinggi &amp; Sentra</a><a class="font-body-sm text-[13px] text-zinc-400 hover:text-white transition-colors" data-path="etika-hak-budaya" href="#">Pedoman Hak Cipta Komunal</a><a class="font-body-sm text-[13px] text-zinc-400 hover:text-white transition-colors" data-path="audit-transparansi" href="#">Transparansi Pembagian Pendapatan</a><a class="font-body-sm text-[13px] text-zinc-400 hover:text-white transition-colors" data-path="arsip-sanad" href="#">Sertifikasi Indikasi Geografis</a></div><div class="flex flex-col gap-4"><span class="font-title-md text-[14px] text-[#F4B400] font-bold tracking-wide uppercase">Pilihan Bahasa &amp; Layanan</span><div class="flex flex-col gap-2"><span class="font-label-sm text-[11px] text-zinc-400 uppercase font-semibold">PILIHAN BAHASA</span><div class="inline-flex bg-[#1A1A1E] border border-zinc-800 p-1 rounded-lg w-max"><button class="font-label-sm text-[11px] px-3 py-1 bg-[#F4B400] text-black rounded font-bold">ID</button><button class="font-label-sm text-[11px] px-3 py-1 text-zinc-400 hover:text-white">EN</button></div></div><div class="flex flex-col gap-2 pt-2 border-t border-zinc-800/80"><span class="font-label-sm text-[11px] text-zinc-400 uppercase font-semibold">PENGATURAN AKSES</span><div class="flex items-center justify-between p-2.5 rounded-lg bg-[#1A1A1E] border border-zinc-800"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-[#F4B400]">bolt</span><span class="font-body-sm text-[12px] text-zinc-200 font-medium">Mode Hemat Kuota</span></div><button aria-checked="false" class="w-9 h-5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-full relative p-0.5 transition-colors inline-flex items-center" role="switch"><span class="w-3.5 h-3.5 bg-zinc-400 rounded-full transition-transform"></span></button></div></div><div class="flex flex-col gap-1 pt-2 border-t border-zinc-800/80"><span class="font-label-sm text-[11px] text-zinc-400 uppercase font-semibold">PUSAT LAYANAN INFORMASI</span><p class="font-body-sm text-[12px] text-zinc-300">Sekretariat Pelestarian Budaya Yogyakarta &amp; Surakarta</p></div></div></div><div class="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 font-body-sm text-[13px] text-zinc-500 border-t border-zinc-800/80"><p>© 2025 Nyantrik Digital (Yayasan Pelestarian Seni &amp; Budaya). Seluruh hak cipta dilindungi undang-undang.</p><div class="flex items-center gap-6 font-label-md text-[12px]"><a class="hover:text-zinc-300 transition-colors" data-path="kebijakan-privasi" href="#">Kebijakan Privasi</a><a class="hover:text-zinc-300 transition-colors" data-path="syarat-ketentuan" href="#">Syarat dan Ketentuan</a><a class="hover:text-zinc-300 transition-colors" data-path="audit-transparansi" href="#">Laporan Transparansi</a></div></div></div></footer>
+
+
+</body></html>

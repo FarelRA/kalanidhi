@@ -1,0 +1,141 @@
+"use client"
+
+import {
+  Compass,
+  GraduationCap,
+  Route,
+  Search,
+  ShoppingBag,
+} from "lucide-react"
+import { useMemo, useState } from "react"
+
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import type { SearchGroup, SearchIcon } from "@/lib/search"
+
+const iconMap: Record<SearchIcon, typeof Route> = {
+  path: Route,
+  teacher: GraduationCap,
+  work: ShoppingBag,
+  page: Compass,
+}
+
+export function SearchDialog({
+  groups,
+  open,
+  onOpenChange,
+}: {
+  groups: SearchGroup[]
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
+  const [query, setQuery] = useState("")
+
+  const filteredGroups = useMemo(() => {
+    const normalized = query.trim().toLowerCase()
+
+    if (!normalized) return groups
+
+    return groups
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) =>
+          `${item.label} ${item.description} ${group.heading}`
+            .toLowerCase()
+            .includes(normalized),
+        ),
+      }))
+      .filter((group) => group.items.length > 0)
+  }, [groups, query])
+
+  function handleOpenChange(nextOpen: boolean) {
+    onOpenChange(nextOpen)
+    if (!nextOpen) {
+      window.setTimeout(() => setQuery(""), 200)
+    }
+  }
+
+  function jumpTo(href: string) {
+    handleOpenChange(false)
+    const id = href.replace("#", "")
+    window.setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
+    }, 180)
+  }
+
+  return (
+    <CommandDialog
+      open={open}
+      onOpenChange={handleOpenChange}
+      title="Cari di KalaNidhi"
+      description="Cari jalur belajar, pengajar, karya, atau halaman."
+      className="top-[10%] max-w-xl translate-y-0 border border-soga/30 bg-ink-2 p-0 shadow-plate sm:max-w-xl"
+    >
+      <Command shouldFilter={false} className="bg-transparent p-0">
+        <CommandInput
+          value={query}
+          onValueChange={setQuery}
+          placeholder="Cari jalur, pengajar, karya…"
+        />
+        <CommandList className="max-h-[min(60svh,420px)] px-1 pb-1">
+          <CommandEmpty className="py-10 text-center text-sm text-muted-foreground">
+            Belum ada yang cocok untuk “{query.trim()}”. Coba kata kunci lain.
+          </CommandEmpty>
+          {filteredGroups.map((group) => {
+            const Icon = iconMap[group.icon]
+            return (
+              <CommandGroup key={group.heading} heading={group.heading}>
+                {group.items.map((item) => (
+                  <CommandItem
+                    key={`${group.heading}-${item.label}`}
+                    value={`${group.heading}-${item.label}`}
+                    onSelect={() => jumpTo(item.href)}
+                    className="gap-3 rounded-lg px-2.5 py-2.5"
+                  >
+                    <span className="flex size-8 shrink-0 items-center justify-center border border-paper/15 bg-paper/[0.03] text-soga">
+                      <Icon className="size-4" aria-hidden="true" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-medium text-paper">
+                        {item.label}
+                      </span>
+                      <span className="block truncate text-[11px] text-text-muted">
+                        {item.description}
+                      </span>
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )
+          })}
+        </CommandList>
+        <div className="flex items-center justify-between gap-3 border-t border-paper/12 px-4 py-2.5 text-[10px] text-text-muted">
+          <span className="inline-flex items-center gap-1.5">
+            <Search className="size-3" aria-hidden="true" />
+            Cari di seluruh halaman
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <kbd className="rounded border border-border bg-paper/[0.04] px-1.5 py-0.5 font-sans">
+              Esc
+            </kbd>
+            untuk menutup
+          </span>
+          <button
+            type="button"
+            onClick={() => handleOpenChange(false)}
+            className="rounded-[3px] border border-paper/20 px-2.5 py-1 text-[10px] font-semibold text-paper-dim transition-colors hover:border-soga/50 hover:text-soga"
+          >
+            Tutup
+          </button>
+        </div>
+      </Command>
+    </CommandDialog>
+  )
+}
