@@ -1,7 +1,6 @@
 "use client"
 
 import Image from "next/image"
-import { Star } from "lucide-react"
 import { useState } from "react"
 
 import { useOverlay } from "@/components/overlays/overlay-provider"
@@ -22,16 +21,11 @@ function MetaLine({ path }: { path: LearningPath }) {
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-text-muted">
       <span>{path.level}</span>
       <span aria-hidden="true" className="h-3 w-px bg-paper/15" />
+      <span>
+        {path.modules > 0 ? `${path.modules} modul` : "Kurikulum menyusul"}
+      </span>
+      <span aria-hidden="true" className="h-3 w-px bg-paper/15" />
       <span>{path.weeks > 0 ? `${path.weeks} pekan` : "Jadwal menyusul"}</span>
-      {path.rating ? (
-        <>
-          <span aria-hidden="true" className="h-3 w-px bg-paper/15" />
-          <span className="inline-flex items-center gap-1 text-soga">
-            <Star className="size-3 fill-current" aria-hidden="true" />
-            {path.rating.toFixed(1)} ({path.reviews})
-          </span>
-        </>
-      ) : null}
     </div>
   )
 }

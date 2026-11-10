@@ -1,7 +1,7 @@
 import { SectionHeading } from "@/components/shared/section-heading"
 import { steps } from "@/lib/content/landing"
 
-const ordinals = ["i", "ii", "iii", "iv"]
+const ordinals = ["i", "ii", "iii", "iv", "v"]
 
 export function HowItWorks() {
   return (
@@ -15,8 +15,8 @@ export function HowItWorks() {
           <div className="lg:sticky lg:top-28">
             <SectionHeading
               eyebrow="Cara kerja"
-              title="Dari modul pertama sampai karya yang dijual."
-              description="Belajar, dinilai pengajar, mendapat sertifikat platform, lalu bertemu pasar. Semuanya satu alur."
+              title="Dari modul pertama sampai kembali mengajar."
+              description="Belajar, dinilai pengajar, tersertifikasi platform, berkarya, lalu kembali mengajar. Lima tahap yang berputar: lulusan membuka jalur untuk pelajar berikutnya."
               titleId="cara-kerja-title"
             />
             <div className="mt-8 flex items-center gap-3 border-t border-paper/12 pt-4 text-[11px] text-text-muted">
@@ -24,7 +24,7 @@ export function HowItWorks() {
               Umpan balik pengajar di setiap tahap
             </div>
             <p className="mt-4 max-w-sm text-[11px] leading-relaxed text-text-muted">
-              Sertifikat KalaNidhi adalah sertifikat platform dengan kode
+              Sertifikat KalaNidhi Digital adalah sertifikat platform dengan kode
               verifikasi publik, bukan sertifikasi pemerintah atau BNSP.
             </p>
           </div>

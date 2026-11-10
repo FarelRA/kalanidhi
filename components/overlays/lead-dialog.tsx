@@ -16,7 +16,7 @@ const copy = {
   student: {
     title: "Daftar minat belajar",
     description:
-      "Pilih jalur yang ingin kamu mulai. Tim KalaNidhi akan menghubungimu untuk jadwal dan langkah berikutnya.",
+      "Pilih jalur yang ingin kamu mulai. Tim KalaNidhi Digital akan menghubungimu untuk jadwal dan langkah berikutnya.",
   },
   institution: {
     title: "Minta penawaran institusi",
@@ -26,7 +26,7 @@ const copy = {
   consultation: {
     title: "Tanya sebelum memesan",
     description:
-      "Tanyakan ketersediaan, ukuran, jadwal, atau jalur yang paling cocok. Tim KalaNidhi akan menghubungimu.",
+      "Tanyakan ketersediaan, ukuran, jadwal, atau jalur yang paling cocok. Tim KalaNidhi Digital akan menghubungimu.",
   },
   notify: {
     title: "Beri tahu saya",

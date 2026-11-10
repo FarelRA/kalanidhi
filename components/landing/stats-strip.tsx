@@ -4,12 +4,12 @@ import { formatNumber } from "@/lib/format"
 export function StatsStrip() {
   return (
     <section
-      aria-label="Ringkasan capaian KalaNidhi"
+      aria-label="Ringkasan uji coba KalaNidhi Digital"
       className="border-b border-paper/10 bg-ink-2/50"
     >
       <div className="section-shell py-12 sm:py-14">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-[12px] text-soga">Catatan komunitas</p>
+          <p className="text-[12px] text-soga">Uji coba terbatas 2026</p>
           <p className="text-[11px] text-text-muted">Per September 2026</p>
         </div>
 

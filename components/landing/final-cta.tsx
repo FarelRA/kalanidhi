@@ -17,11 +17,12 @@ export function FinalCta() {
           <h2 id="cta-title" className="heading-display mt-5">
             Mulai dari satu jalur.
             <br />
-            Bawa pulang satu karya.
+            Kembali sebagai pengajar.
           </h2>
           <p className="body-copy mt-5 max-w-[48ch]">
             Pilih jalur, ikuti prosesnya, dan biarkan pengajar menunjukkan bagian
-            yang perlu diperbaiki. Perjalanan dimulai dari karya pertama.
+            yang perlu diperbaiki. Setelah lulus, kamu bisa berkarya, berjualan,
+            atau kembali mengajar dan menilai untuk pelajar berikutnya.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-4">
@@ -43,7 +44,7 @@ export function FinalCta() {
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <span className="text-[10px] text-text-muted">
-              Pendaftaran jalur dibuka setiap bulan. Konsultasi awal gratis.
+              Uji coba terbatas 2026. Pendaftaran jalur dibuka bertahap.
             </span>
           </div>
         </div>
@@ -100,7 +101,7 @@ function WaxSeal() {
         letterSpacing="1.7"
         opacity="0.7"
       >
-        SEJAK 2024
+        RILIS BERTAHAP
       </text>
     </svg>
   )

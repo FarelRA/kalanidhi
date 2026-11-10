@@ -252,7 +252,8 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
                 Masuk
               </InfoButton>
               <p className="pt-2 text-[11px] leading-relaxed text-text-muted">
-                Belajar seni tradisi langsung dari pengajar, dari mana saja.
+                Belajar praktik budaya Nusantara langsung dari pengajar, dari
+                mana saja.
               </p>
             </div>
           </div>

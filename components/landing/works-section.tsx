@@ -14,7 +14,7 @@ export function WorksSection() {
         <SectionHeading
           eyebrow="Karya & jasa"
           title="Karya yang bisa kamu telusuri sampai pembuatnya."
-          description="Setiap karya punya Kartu Karya: siapa pembuatnya, teknik yang dipakai, dan bagaimana prosesnya berjalan."
+          description="Dua belas karya dan jasa dari uji coba terbatas 2026; empat di antaranya tampil di sini. Setiap karya punya Kartu Karya: siapa pembuatnya, teknik yang dipakai, dan bagaimana prosesnya berjalan. Etalase ini adalah muara dari jalur belajar."
           titleId="karya-title"
           action={
             <LeadButton

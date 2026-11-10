@@ -64,6 +64,14 @@ export function BrandLockup({
         >
           KalaNidhi
         </span>
+        <span
+          className={cn(
+            "mt-1 text-[9px] font-medium tracking-[0.2em]",
+            inverse ? "text-ink/60" : "text-soga/80",
+          )}
+        >
+          DIGITAL
+        </span>
       </span>
     </span>
   )

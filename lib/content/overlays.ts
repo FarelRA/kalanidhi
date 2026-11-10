@@ -33,14 +33,14 @@ export const infoContent: Record<InfoKey, InfoContent> = {
     description:
       "Prinsip yang kami pakai sebelum sebuah pengetahuan atau karya ditampilkan.",
     bullets: [
-      "Komunitas, pengajar, dan sumber pengetahuan tampil di setiap jalur dan karya.",
+      "Komunitas, pengajar, dan sumber pengetahuan tampil di setiap jalur dan karya, dari batik sampai keramik.",
       "Izin berbagi dicatat, diberi tanggal, dan ditampilkan bersama tingkat aksesnya.",
       "Rincian bagi hasil dapat dilihat sebelum transaksi, saat kamu masih bisa memutuskan.",
       "Pengetahuan terbatas dihormati. Tidak semua materi dibuka untuk publik.",
       "Motif sakral atau larangan tidak dipakai sebagai dekorasi antarmuka.",
     ],
     footnote:
-      "Kebijakan lengkap tersedia untuk pengajar, sanggar, dan mitra institusi. Untuk pertanyaan lain, hubungi tim kurator.",
+      "Kebijakan lengkap tersedia untuk pengajar, sanggar, dan mitra institusi. Katalog bidang dibuka bertahap bersama pemilik pengetahuannya. Untuk pertanyaan lain, hubungi tim kurator.",
     action: {
       label: "Tanyakan kebijakan",
       lead: { variant: "consultation", interest: "Etika & hak budaya" },
@@ -48,7 +48,7 @@ export const infoContent: Record<InfoKey, InfoContent> = {
   },
   login: {
     icon: "login",
-    title: "Masuk ke KalaNidhi",
+    title: "Masuk ke KalaNidhi Digital",
     description:
       "Dasbor pelajar, pengajar, dan mitra menyimpan alur belajar, tugas, dan sertifikat dalam satu tempat.",
     bullets: [
@@ -57,7 +57,7 @@ export const infoContent: Record<InfoKey, InfoContent> = {
       "Mitra institusi bisa memantau progres peserta dan rekap kehadiran.",
     ],
     footnote:
-      "Gunakan email yang sama saat mendaftar. Akun pengajar dan mitra dibuat oleh tim KalaNidhi.",
+      "Gunakan email yang sama saat mendaftar. Akun pengajar dan mitra dibuat oleh tim KalaNidhi Digital.",
     action: {
       label: "Daftar minat",
       lead: { variant: "student" },
@@ -101,18 +101,19 @@ export const infoContent: Record<InfoKey, InfoContent> = {
     icon: "about",
     title: "Tentang KalaNidhi Digital",
     description:
-      "KalaNidhi adalah ruang belajar seni dan kriya tradisi Nusantara yang dibangun bersama pengajar dan sanggar.",
+      "KalaNidhi Digital adalah ruang belajar berbagai praktik budaya Nusantara yang dibangun bersama pengajar, praktisi, dan sanggar.",
     bullets: [
       "Jalur belajar disusun bersama pengajar, kurator, dan praktisi sanggar.",
       "Setiap karya membawa Kartu Karya yang mencatat pembuat, teknik, dan proses.",
-      "Sertifikat KalaNidhi adalah sertifikat platform dengan kode verifikasi publik.",
+      "Sertifikat KalaNidhi Digital adalah sertifikat platform dengan kode verifikasi publik.",
       "Bagi hasil ditampilkan sebelum transaksi dan disalurkan ke pengajar serta komunitas.",
+      "Lulusan yang siap bisa kembali sebagai pengajar, penilai, atau pemasok, sehingga jalur dan pasokan baru lahir dari dalam.",
     ],
     footnote:
-      "Sekretariat kami berada di Yogyakarta dan Surakarta. Untuk kerja sama, gunakan formulir institusi.",
+      "Sekretariat kami berada di Yogyakarta dan Surakarta. Basis awal kami di Jawa, dan platform terbuka untuk praktisi dari berbagai daerah di Nusantara dengan rilis bertahap.",
     action: {
       label: "Hubungi kami",
-      lead: { variant: "consultation", interest: "Tentang KalaNidhi" },
+      lead: { variant: "consultation", interest: "Tentang KalaNidhi Digital" },
     },
   },
   privacy: {
@@ -132,10 +133,10 @@ export const infoContent: Record<InfoKey, InfoContent> = {
     icon: "terms",
     title: "Ketentuan layanan",
     description:
-      "Dengan menggunakan KalaNidhi, kamu setuju pada ketentuan yang berlaku untuk kelas, karya, dan layanan.",
+      "Dengan menggunakan KalaNidhi Digital, kamu setuju pada ketentuan yang berlaku untuk kelas, karya, dan layanan.",
     bullets: [
       "Harga, ketersediaan, dan jadwal dapat berubah sebelum transaksi dikonfirmasi.",
-      "Sertifikat dan Kartu Karya diterbitkan oleh KalaNidhi sebagai platform.",
+      "Sertifikat dan Kartu Karya diterbitkan oleh KalaNidhi Digital sebagai platform.",
       "Pembayaran, pengiriman, dan pembatalan mengikuti ketentuan yang tampil di halaman transaksi.",
     ],
     footnote:

@@ -74,7 +74,7 @@ export function SearchDialog({
     <CommandDialog
       open={open}
       onOpenChange={handleOpenChange}
-      title="Cari di KalaNidhi"
+      title="Cari di KalaNidhi Digital"
       description="Cari jalur belajar, pengajar, karya, atau halaman."
       className="top-[10%] max-w-xl translate-y-0 border border-soga/30 bg-ink-2 p-0 shadow-plate sm:max-w-xl"
     >

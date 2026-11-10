@@ -31,16 +31,23 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   metadataBase: new URL("https://kalanidhi.digital"),
   title: {
-    default: "KalaNidhi Digital: Belajar dari ahli, berkarya, berpenghasilan",
+    default: "KalaNidhi Digital: Belajar praktik budaya, berkarya, kembali mengajar",
     template: "%s | KalaNidhi Digital",
   },
   description:
-    "Platform belajar seni dan kriya tradisi Nusantara. Dibimbing pengajar, dinilai personal, tersertifikasi platform, lalu tersambung ke pasar karya dan jasa.",
+    "Platform belajar berbagai praktik budaya Nusantara. Dibimbing pengajar, dinilai personal, tersertifikasi platform, lalu berkarya atau berjualan. Lulusan yang siap kembali sebagai pengajar, penilai, atau pemasok.",
   applicationName: "KalaNidhi Digital",
   keywords: [
     "batik tulis",
+    "tenun",
+    "ukir",
+    "karawitan",
+    "tari",
     "pembawa acara adat",
-    "kriya tradisi",
+    "kuliner tradisi",
+    "jamu",
+    "wayang",
+    "keramik",
     "kursus budaya",
     "sertifikat platform",
     "KalaNidhi",
@@ -49,9 +56,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "id_ID",
     siteName: "KalaNidhi Digital",
-    title: "KalaNidhi Digital: Belajar langsung dari ahli",
+    title: "KalaNidhi Digital: Belajar praktik budaya Nusantara",
     description:
-      "Belajar batik, pembawa acara adat, dan kriya tradisi. Dinilai pengajar, tersertifikasi platform, lalu bertemu pembeli yang menghargai karya tangan.",
+      "Belajar berbagai praktik budaya Nusantara, dinilai pengajar, tersertifikasi platform, lalu berkarya atau berjualan. Lulusan bisa kembali sebagai pengajar.",
     images: [
       {
         url: "/images/hero-canting.jpg",
@@ -63,9 +70,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "KalaNidhi Digital: Belajar langsung dari ahli",
+    title: "KalaNidhi Digital: Belajar praktik budaya Nusantara",
     description:
-      "Jalur belajar seni tradisi Nusantara dengan koreksi pengajar dan sertifikat platform.",
+      "Jalur belajar budaya Nusantara dengan koreksi pengajar, sertifikat platform, dan Kartu Karya.",
     images: ["/images/hero-canting.jpg"],
   },
   robots: {

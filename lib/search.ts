@@ -50,6 +50,11 @@ export function buildSearchGroups(): SearchGroup[] {
       icon: "page",
       items: [
         {
+          label: "Cara kerja",
+          description: "Lima tahap, dari belajar sampai kembali mengajar",
+          href: "#cara-kerja",
+        },
+        {
           label: "Etika & bagi hasil",
           description: "Sumber, izin, dan distribusi pendapatan",
           href: "#etika",

@@ -1,7 +1,14 @@
 # KalaNidhi Digital
 
-Landing page untuk platform belajar seni dan kriya tradisi Nusantara.
-Alurnya: **belajar, dinilai pengajar, tersertifikasi platform, berkarya dan berpenghasilan**.
+Landing page untuk platform belajar berbagai praktik budaya Nusantara.
+Alurnya satu lingkaran: **belajar, dinilai pengajar, tersertifikasi platform dan
+Kartu Karya, berkarya atau berjualan, lalu kembali sebagai pengajar, penilai,
+atau pemasok**. Lulusan membuka jalur untuk pelajar berikutnya, sehingga pasokan
+praktisi dan karya tumbuh dari dalam.
+
+Katalog bidang tumbuh bertahap. Batik dan pranatacara adalah dua jalur pertama
+yang terbuka; tenun, ukir, karawitan, tari, kuliner tradisi, jamu, wayang, dan
+keramik dipetakan bersama pengajar di bidangnya.
 
 Sertifikat yang ditampilkan adalah sertifikat platform dengan kode verifikasi publik,
 bukan sertifikasi pemerintah atau BNSP.

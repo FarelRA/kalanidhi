@@ -13,7 +13,7 @@ export function TestimonialsSection() {
         <SectionHeading
           eyebrow="Cerita peserta"
           title="Yang berubah setelah karya pertama."
-          description="Kutipan dari peserta dan mitra yang setuju namanya ditampilkan."
+          description="Umpan balik dari peserta dan mitra uji coba terbatas 2026, ditampilkan dengan izin."
           titleId="testimoni-title"
         />
 
@@ -46,8 +46,9 @@ export function TestimonialsSection() {
               </figure>
             ))}
             <p className="border-t border-paper/15 pt-4 text-[10px] leading-relaxed text-text-muted">
-              Kutipan ditampilkan dengan izin peserta. Hasil setiap orang
-              berbeda.
+              Umpan balik dari peserta dan mitra uji coba terbatas 2026. Kohort
+              pertama diikuti 24 peserta. Kutipan ditampilkan dengan izin. Hasil
+              setiap orang berbeda.
             </p>
           </div>
         </div>

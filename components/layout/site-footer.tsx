@@ -29,7 +29,7 @@ export function SiteFooter() {
                 <ul className="space-y-3">
                   {column.links.map((link) => (
                     <li key={link.label}>
-                      {link.label === "Tentang KalaNidhi" ? (
+                      {link.label === "Tentang KalaNidhi Digital" ? (
                         <InfoLink
                           infoKey="about"
                           className="text-[13px] text-paper-dim transition-colors hover:text-paper"
@@ -75,7 +75,7 @@ export function SiteFooter() {
           </div>
           <div className="lg:col-span-3">
             <p className="text-[11px] text-soga">Sumber</p>
-            <p className="mt-2 text-[12px] text-paper">{attribution.community}</p>
+            <p className="mt-2 text-[12px] text-paper">{attribution.summary}</p>
             <p className="mt-1 text-[11px] leading-relaxed text-text-muted">
               {attribution.permission}
             </p>
@@ -92,8 +92,8 @@ export function SiteFooter() {
               Baca prinsip etika
             </InfoLink>
             <p className="mt-4 text-[10px] leading-relaxed text-text-muted">
-              Sertifikat menandai kompetensi di platform KalaNidhi. Sertifikasi
-              pemerintah dan BNSP memiliki jalur terpisah.
+              Sertifikat menandai kompetensi di platform KalaNidhi Digital.
+              Sertifikasi pemerintah dan BNSP memiliki jalur terpisah.
             </p>
           </div>
         </div>

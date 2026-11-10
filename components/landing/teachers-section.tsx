@@ -13,7 +13,7 @@ export function TeachersSection() {
         <SectionHeading
           eyebrow="Pengajar"
           title="Belajar dari orang yang masih mengerjakan tradisinya."
-          description="Pengajar meninjau proses, memberi koreksi, dan menjaga konteks budaya di balik setiap teknik."
+          description="Tiga dari 14 pengajar dan praktisi yang terlibat dalam uji coba terbatas 2026. Mereka meninjau proses, memberi koreksi, dan menjaga konteks budaya di balik setiap teknik."
           titleId="pengajar-title"
         />
         <TeacherCarousel teachers={teachers} />

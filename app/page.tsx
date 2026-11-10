@@ -17,10 +17,10 @@ import { buildLandingJsonLd } from "@/lib/structured-data"
 export const metadata: Metadata = {
   title: {
     absolute:
-      "KalaNidhi Digital: Belajar dari ahli, berkarya, berpenghasilan",
+      "KalaNidhi Digital: Belajar praktik budaya, berkarya, kembali mengajar",
   },
   description:
-    "KalaNidhi Digital menghubungkan pelajar dengan pengajar batik, pembawa acara adat, dan kriya tradisi. Belajar terstruktur, dinilai personal, tersertifikasi platform, lalu tersambung ke pasar karya dan jasa.",
+    "KalaNidhi Digital menghubungkan pelajar dengan pengajar berbagai praktik budaya Nusantara. Belajar terstruktur, dinilai personal, tersertifikasi platform, lalu berkarya atau berjualan. Lulusan yang siap kembali sebagai pengajar, penilai, atau pemasok.",
   alternates: {
     canonical: "/",
   },
