@@ -3,6 +3,9 @@ name: Docker Release
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "reference/**"
   workflow_dispatch:
 
 env:

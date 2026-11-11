@@ -7,6 +7,8 @@ berjualan, lalu kembali sebagai pengajar, penilai, atau pemasok.**
 Sertifikat yang ditampilkan adalah sertifikat platform dengan kode verifikasi publik,
 bukan sertifikasi pemerintah atau BNSP.
 
+**Live:** [https://kalanidhi.site](https://kalanidhi.site)
+
 Arah visual, token warna, dan aturan gerak dijelaskan di [DESIGN.md](./DESIGN.md).
 
 ## Stack
@@ -170,6 +172,18 @@ path, nama, harga, dan atribusi di Convex; komponen akan mengikuti.
   dan menu mobile.
 - Tidak ada horizontal overflow pada 360, 390, 768, 1024, dan 1440.
 - Semua route dirender statis saat `next build`.
+
+## Deployment
+
+- Repo: [FarelRA/kalanidhi](https://github.com/FarelRA/kalanidhi)
+- Image: `ghcr.io/farelra/kalanidhi:latest` (ARM64)
+- CI/CD: `.github/workflows/docker-release.yml` menjalankan lint, typecheck,
+  build image, lalu push `latest` dan tag commit SHA ke GHCR.
+- Infra: service `kalanidhi` di repo `FarelRA/nodus-infra`, route Traefik untuk
+  `kalanidhi.site` dan `www.kalanidhi.site`.
+- Deploy di server: `sudo -iu podman deploy kalanidhi`.
+- Runtime env: `/home/podman/services/data/kalanidhi/.env`. Isi `CONVEX_URL`
+  setelah deployment Convex tersedia, lalu jalankan deploy ulang.
 
 ## Batasan saat ini
 
