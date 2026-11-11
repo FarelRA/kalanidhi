@@ -145,15 +145,10 @@ export function MaterialShelf() {
           })}
         </div>
 
-        <div className="mt-12 grid gap-6 border-t border-ink/20 pt-6 md:grid-cols-12 md:items-center">
-          <p className="max-w-[54rem] text-[12px] leading-relaxed text-ink-soft md:col-span-8">
-            {catalog.note}
-          </p>
-          <div className="md:col-span-4 md:text-right">
-            <Button asChild className="bg-ink text-paper hover:bg-ink-2">
-              <a href="#jalur">Lihat jalur yang terbuka</a>
-            </Button>
-          </div>
+        <div className="mt-12 border-t border-ink/20 pt-6 text-right">
+          <Button asChild className="bg-ink text-paper hover:bg-ink-2">
+            <a href="#jalur">Lihat jalur yang terbuka</a>
+          </Button>
         </div>
       </div>
     </section>

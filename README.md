@@ -83,8 +83,8 @@ komponen akan mengikuti.
 
 - **Server-first**: hampir semua section adalah Server Component. Client island hanya
   untuk dialog, pencarian, preferensi, dan form.
-- **Satu momen gerak**: hanya foto hero, tag Kartu Karya, dan segel koreksi yang masuk
-  dengan animasi. Tidak ada fade-up per section. Reduced motion dan mode hemat kuota
+- **Satu momen gerak**: hanya foto hero dan tag Kartu Karya yang masuk dengan
+  animasi. Tidak ada fade-up per section. Reduced motion dan mode hemat kuota
   dihormati.
 - **Tipografi sebagai identitas**: Fraunces untuk headline dan kutipan, Karla untuk UI.
   Label section memakai stempel kapital, bukan eyebrow dekoratif.

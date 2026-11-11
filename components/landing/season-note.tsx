@@ -18,9 +18,6 @@ export function SeasonNote() {
             {mangsa.title}
           </h2>
           <p className="body-copy mt-5 max-w-[38rem]">{mangsa.description}</p>
-          <p className="mt-5 max-w-[40rem] border-l-2 border-copper pl-4 text-[11.5px] leading-relaxed text-ink-muted">
-            {mangsa.note}
-          </p>
         </div>
 
         <div className="lg:col-span-6">

@@ -1,4 +1,4 @@
-import { BadgeCheck, BookMarked, HandCoins, LockKeyhole } from "lucide-react"
+import { BookMarked, HandCoins, LockKeyhole } from "lucide-react"
 
 import { ethics } from "@/lib/content/landing"
 import { cn } from "cn"
@@ -53,15 +53,6 @@ export function WorkshopRules() {
                 )
               })}
             </ul>
-
-            <div className="mt-8 flex items-start gap-3 border-t border-paper/20 pt-5">
-              <BadgeCheck className="mt-0.5 size-4 shrink-0 text-brass" aria-hidden="true" />
-              <p className="max-w-[50ch] text-[11.5px] leading-relaxed text-paper/65">
-                Sertifikat diterbitkan KalaNidhi Digital sebagai sertifikat
-                platform, dengan kode verifikasi publik. Ini bukan sertifikasi
-                pemerintah atau BNSP.
-              </p>
-            </div>
           </div>
 
           <div className="lg:col-span-6">

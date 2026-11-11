@@ -25,16 +25,6 @@ export function QuestionsSection() {
             orang mengirim tugas pertama.
           </p>
 
-          <div className="mt-7 border-2 border-ink bg-paper-2 p-4 shadow-[4px_4px_0_var(--panel)]">
-            <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-copper-dark">
-              Sertifikat platform
-            </p>
-            <p className="mt-2 text-[12px] leading-relaxed text-ink/70">
-              KalaNidhi Digital menerbitkan sertifikat platform dengan kode verifikasi
-              publik. Sertifikat ini bukan sertifikasi pemerintah atau BNSP.
-            </p>
-          </div>
-
           <div className="mt-6 flex flex-wrap gap-2">
             <InfoButton infoKey="policy" variant="outline" className="border-ink/35">
               Baca aturan bengkel

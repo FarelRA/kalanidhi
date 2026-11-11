@@ -166,11 +166,6 @@ export function OpenPaths() {
             </article>
           ))}
         </div>
-
-        <p className="mt-6 max-w-[62rem] text-[11.5px] leading-relaxed text-ink-muted">
-          Harga mencakup akses modul, penilaian pengajar, dan paket bahan bila
-          jalur menyertakannya. Jalur ketiga belum menerima pendaftaran.
-        </p>
       </div>
 
       {selected ? (

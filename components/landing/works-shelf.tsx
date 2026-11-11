@@ -2,7 +2,7 @@ import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 
 import { LeadButton } from "@/components/overlays/overlay-buttons"
-import { works, worksNote } from "@/lib/content/landing"
+import { works } from "@/lib/content/landing"
 import { formatIDR } from "@/lib/format"
 
 export function WorksShelf() {
@@ -148,8 +148,6 @@ export function WorksShelf() {
             </li>
           ))}
         </ul>
-
-        <p className="mt-5 text-[11px] leading-relaxed text-ink-muted">{worksNote}</p>
       </div>
     </section>
   )

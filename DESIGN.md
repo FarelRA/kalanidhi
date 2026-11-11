@@ -46,7 +46,7 @@ Scale: hero `clamp(2.5rem, 6vw, 4.6rem)` at 0.95 line-height; section `clamp(2.1
 
 A 1200px shell and a 12-column desktop grid. The page alternates dark teak and cream working surfaces, with panel bands for the shelf, works, and institution. Sections use 64px / 80px / 96px vertical rhythm.
 
-- **Hero:** 6/6 split. Left: headline, description, and two actions. Right: a framed photograph, a copper correction seal, and a punched Kartu Karya tag overlapping the image.
+- **Hero:** 6/6 split. Left: headline, description, and two actions. Right: a framed photograph and a punched Kartu Karya tag overlapping the image.
 - **Loop:** 5/7 split. Left: the circular bench drawing. Right: five numbered stages, with the return stage boxed in copper.
 - **Shelf:** three readiness groups, each a row of chunky material tags over a wooden plank.
 - **Paths:** horizontal bench slips with a photograph, facts, tags, and two actions.
@@ -59,7 +59,7 @@ Radii stay at 2–4px. Plates are square, framed with a hairline, and captioned 
 
 ## Motion
 
-One arrival gesture: the hero photograph settles from a slight rotation, the Kartu Karya tag drops, and the correction seal presses in. Nothing fades in per section. Hover states are limited to a 2–4px lift on shelf tags and link colour. `prefers-reduced-motion` and the existing data-saver switch collapse all animation and remove the wood-grain textures.
+One arrival gesture: the hero photograph settles from a slight rotation and the Kartu Karya tag drops. Nothing fades in per section. Hover states are limited to a 2–4px lift on shelf tags and link colour. `prefers-reduced-motion` and the existing data-saver switch collapse all animation and remove the wood-grain textures.
 
 ## The loop
 
@@ -96,11 +96,11 @@ Representative lines:
 
 ## Cultural and ethical rules
 
-- The certificate is a **sertifikat platform** everywhere, with a public verification code. The ethics section, FAQ, footer, and path dialog all say it is not government or BNSP certification.
+- The certificate is a **sertifikat platform** everywhere, with a public verification code. The FAQ, footer, and verification dialog all say it is not government or BNSP certification.
 - The **Kartu Sumber Budaya** shows both knowledge sources, permission date, reference, and access level. The 70 / 15 / 15 split is shown before transaction.
 - No sacred or forbidden motif is used. The brand mark is an abstract bench ring with a finished-piece tag, not a batik pattern.
 - Cultural detail stays modest. The mangsa note is attributed to Giriloyo teacher interviews and explicitly disclaims weather forecasting and regional uniformity.
-- The base region is stated in the shelf note, the closing, and the footer. The platform is “terbuka untuk” practitioners elsewhere, not “beroperasi di” everywhere.
+- The base region is stated in the closing and the footer. The platform is “terbuka untuk” practitioners elsewhere, not “beroperasi di” everywhere.
 - Testimonials are labelled as participant and partner interviews with permission. No partnerships, coverage, or revenue figures are invented.
 - Commerce is the outlet of learning: works are documented with maker, technique, teacher, and Kartu Karya, and the learning loop is always the larger frame.
 

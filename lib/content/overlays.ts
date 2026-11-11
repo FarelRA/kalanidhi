@@ -110,7 +110,7 @@ export const infoContent: Record<InfoKey, InfoContent> = {
       "Layanan berjalan di Yogyakarta dan Jawa Tengah, terbuka untuk praktisi dari daerah lain secara bertahap.",
     ],
     footnote:
-      "Sekretariat kami berada di Yogyakarta dan Surakarta. Untuk kerja sama, gunakan formulir institusi.",
+      "Sekretariat kami berada di Trimurti, Srandakan, Bantul, Yogyakarta. Untuk kerja sama, gunakan formulir institusi.",
     action: {
       label: "Hubungi kami",
       lead: { variant: "consultation", interest: "Tentang KalaNidhi Digital" },

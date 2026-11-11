@@ -66,23 +66,6 @@ export function BenchHero() {
               </div>
             </div>
 
-            <div
-              className="hero-seal absolute -right-3 top-4 hidden size-[112px] rounded-full border-[3px] border-copper bg-deep/90 p-2 text-center text-cream-2 shadow-[0_10px_24px_-12px_rgba(0,0,0,0.8)] sm:block [--seal-rot:-8deg]"
-              aria-hidden="true"
-            >
-              <span className="flex size-full flex-col items-center justify-center gap-1 rounded-full border border-copper/70">
-                <span className="text-[8px] font-bold uppercase tracking-[0.14em] text-copper-light">
-                  Koreksi
-                </span>
-                <span className="font-heading text-[1rem] leading-none">
-                  pengajar
-                </span>
-                <span className="text-[8px] uppercase tracking-[0.1em] text-paper/60">
-                  langsung
-                </span>
-              </span>
-            </div>
-
             <div className="hero-tag relative z-10 mx-auto -mt-10 w-[min(94%,340px)] border-2 border-ink bg-paper-2 p-4 text-ink shadow-[8px_8px_0_#20130d] sm:absolute sm:-bottom-12 sm:left-1 sm:mt-0 sm:w-[310px] [--tag-rot:2.4deg]">
               <div className="tag-hole flex items-center justify-between gap-3 border-b border-ink/20 pb-2.5 pl-6">
                 <span className="stamp stamp-soft border-ink/45 text-ink">

@@ -178,7 +178,6 @@ export const catalog = {
   title: "Rak ini tumbuh satu per satu, bersama pengajarnya.",
   description:
     "Katalog tumbuh dari pengajar yang masuk. Rak di bawah menunjukkan mana yang sudah bisa dikerjakan sekarang, mana yang sedang disiapkan, dan mana yang masih menunggu pengajar.",
-  note: "Praktisi dari daerah lain bisa mengajukan jalur. Basis layanan saat ini Yogyakarta dan Jawa Tengah; pembukaan jalur mengikuti kesiapan kurikulum dan izin komunitas.",
   fields: [
     {
       name: "Batik tulis",
@@ -443,9 +442,6 @@ export const works: Work[] = [
   },
 ]
 
-export const worksNote =
-  "Sepanjang 2026 tercatat 12 karya dan jasa. Empat ditampilkan di halaman ini."
-
 export const mangsa = {
   label: "Musim di bangku",
   season: "Musim I",
@@ -456,7 +452,6 @@ export const mangsa = {
   description:
     "Kasa membuka penanggalan Pranata Mangsa. Cuaca cenderung terang dan kering, angin stabil, dan kelembapan rendah. Di Giriloyo, bulan ini dipakai untuk menjemur kain setelah pelorodan dan mengeringkan lapisan lilin sebelum pewarnaan berikutnya.",
   activities: ["Menjemur kain", "Fermentasi warna", "Menyiapkan motif"],
-  note: "Penanggalan dan ciri musim berbeda antar daerah. Catatan ini disusun dari wawancara pengajar Giriloyo, bukan prakiraan cuaca.",
 }
 
 export const ethics = {
@@ -638,7 +633,7 @@ export const footer = {
   ],
   secretariat: {
     label: "Sekretariat",
-    value: "Yogyakarta dan Surakarta, Indonesia",
+    value: "Trimurti, Srandakan, Bantul, Yogyakarta, Indonesia",
   },
   edition: "Edisi 2026",
   copyright: "© 2026 KalaNidhi Digital. Dibuat di Yogyakarta.",
