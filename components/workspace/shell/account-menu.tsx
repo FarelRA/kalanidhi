@@ -1,16 +1,19 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Check, ChevronDown, LogOut, Settings, UserRound } from "lucide-react"
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui"
 import { toast } from "sonner"
 
+import { authClient } from "@/lib/auth-client"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import { cn } from "cn"
 import type { PreviewKey } from "@/lib/workspace/types"
 
 export function AccountMenu() {
-  const { profile, preview, setPreview, profiles } = useViewer()
+  const router = useRouter()
+  const { profile, preview, setPreview, profiles, isPreview } = useViewer()
 
   function changePreview(value: string) {
     setPreview(value as PreviewKey)
@@ -22,13 +25,26 @@ export function AccountMenu() {
     })
   }
 
+  async function signOut() {
+    if (!isPreview) {
+      await authClient.signOut()
+      router.push("/masuk")
+      router.refresh()
+      return
+    }
+    toast("Sesi ditutup", {
+      description:
+        "Perangkat ini keluar dari ruang kerja. Sesi lain tetap aktif.",
+    })
+  }
+
   return (
     <DropdownMenuPrimitive.Root>
       <DropdownMenuPrimitive.Trigger asChild>
         <button
           type="button"
           className="group inline-flex min-h-11 items-center gap-2 border border-ink/20 bg-paper-2 px-1.5 py-1 text-left transition-colors hover:border-ink/40 focus-visible:border-ink"
-          aria-label={`Akun ${profile.user.name}. Buka menu akun dan pratinjau peran`}
+          aria-label={`Akun ${profile.user.name}. Buka menu akun`}
         >
           <span className="flex size-8 items-center justify-center border border-ink/30 bg-teak font-heading text-[11px] font-semibold text-paper">
             {profile.user.initials}
@@ -64,44 +80,48 @@ export function AccountMenu() {
             </p>
           </div>
 
-          <DropdownMenuPrimitive.Label className="px-2.5 pt-3 pb-1.5 text-[8.5px] font-bold uppercase tracking-[0.13em] text-ink-muted">
-            Pratinjau peran
-          </DropdownMenuPrimitive.Label>
-          <DropdownMenuPrimitive.RadioGroup
-            value={preview}
-            onValueChange={changePreview}
-          >
-            {profiles.map((item) => (
-              <DropdownMenuPrimitive.RadioItem
-                key={item.key}
-                value={item.key}
-                className="flex min-h-11 cursor-pointer items-center gap-2.5 px-2.5 py-2 text-[11.5px] outline-none data-highlighted:bg-panel/70"
+          {isPreview ? (
+            <>
+              <DropdownMenuPrimitive.Label className="px-2.5 pt-3 pb-1.5 text-[8.5px] font-bold uppercase tracking-[0.13em] text-ink-muted">
+                Pratinjau peran
+              </DropdownMenuPrimitive.Label>
+              <DropdownMenuPrimitive.RadioGroup
+                value={preview ?? "pengelola"}
+                onValueChange={changePreview}
               >
-                <span
-                  className={cn(
-                    "flex size-4 shrink-0 items-center justify-center border",
-                    preview === item.key
-                      ? "border-ink bg-ink text-paper"
-                      : "border-ink/25",
-                  )}
-                >
-                  {preview === item.key ? (
-                    <Check className="size-2.5" aria-hidden="true" />
-                  ) : null}
-                </span>
-                <span className="min-w-0">
-                  <span className="block font-semibold leading-tight">
-                    {item.label}
-                  </span>
-                  <span className="mt-0.5 block text-[9.5px] leading-snug text-ink-muted">
-                    {item.description}
-                  </span>
-                </span>
-              </DropdownMenuPrimitive.RadioItem>
-            ))}
-          </DropdownMenuPrimitive.RadioGroup>
+                {profiles.map((item) => (
+                  <DropdownMenuPrimitive.RadioItem
+                    key={item.key}
+                    value={item.key}
+                    className="flex min-h-11 cursor-pointer items-center gap-2.5 px-2.5 py-2 text-[11.5px] outline-none data-highlighted:bg-panel/70"
+                  >
+                    <span
+                      className={cn(
+                        "flex size-4 shrink-0 items-center justify-center border",
+                        preview === item.key
+                          ? "border-ink bg-ink text-paper"
+                          : "border-ink/25",
+                      )}
+                    >
+                      {preview === item.key ? (
+                        <Check className="size-2.5" aria-hidden="true" />
+                      ) : null}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block font-semibold leading-tight">
+                        {item.label}
+                      </span>
+                      <span className="mt-0.5 block text-[9.5px] leading-snug text-ink-muted">
+                        {item.description}
+                      </span>
+                    </span>
+                  </DropdownMenuPrimitive.RadioItem>
+                ))}
+              </DropdownMenuPrimitive.RadioGroup>
 
-          <DropdownMenuPrimitive.Separator className="my-1.5 h-px bg-ink/15" />
+              <DropdownMenuPrimitive.Separator className="my-1.5 h-px bg-ink/15" />
+            </>
+          ) : null}
 
           <DropdownMenuPrimitive.Item asChild>
             <Link
@@ -123,12 +143,9 @@ export function AccountMenu() {
           </DropdownMenuPrimitive.Item>
           <DropdownMenuPrimitive.Separator className="my-1.5 h-px bg-ink/15" />
           <DropdownMenuPrimitive.Item
-            onSelect={() =>
-              toast("Sesi ditutup", {
-                description:
-                  "Perangkat ini keluar dari ruang kerja. Sesi lain tetap aktif.",
-              })
-            }
+            onSelect={() => {
+              void signOut()
+            }}
             className="flex min-h-11 cursor-pointer items-center gap-2.5 px-2.5 text-[11.5px] text-[#8a2e1f] outline-none data-highlighted:bg-destructive/10"
           >
             <LogOut className="size-3.5" aria-hidden="true" />

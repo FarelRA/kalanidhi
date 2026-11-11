@@ -83,6 +83,7 @@ export default function RootLayout({
         </Script>
         <ConvexClientProvider
           url={process.env.CONVEX_URL ?? process.env.NEXT_PUBLIC_CONVEX_URL}
+          authEnabled={Boolean(process.env.NEXT_PUBLIC_CONVEX_SITE_URL)}
         >
           <TooltipProvider delayDuration={150}>
             {children}

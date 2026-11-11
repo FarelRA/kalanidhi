@@ -146,7 +146,7 @@ export const navItems: NavItem[] = [
     shortLabel: "Prospek",
     group: "Kelola",
     icon: Target,
-    anyOf: ["leads.manage"],
+    anyOf: ["leads.read", "leads.write"],
   },
   {
     href: "/ruang/orang",

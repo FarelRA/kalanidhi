@@ -41,6 +41,24 @@ npx convex dev
 `npx convex dev` membuat project Convex, menulis `NEXT_PUBLIC_CONVEX_URL` dan
 `CONVEX_DEPLOYMENT` ke `.env.local`, lalu menjalankan backend lokal.
 
+Untuk ruang kerja, isi juga `NEXT_PUBLIC_CONVEX_SITE_URL` dan `NEXT_PUBLIC_SITE_URL`
+(lihat `.env.example`), lalu set secret Better Auth pada deployment Convex:
+
+```bash
+npx convex env set BETTER_AUTH_SECRET=$(openssl rand -base64 32)
+npx convex env set SITE_URL http://localhost:3000
+```
+
+Admin pertama dibuat lewat internal mutation, bukan pendaftaran publik. Daftar
+dulu di `/masuk`, lalu jalankan:
+
+```bash
+npx convex run users:bootstrapAdmin '{"email":"admin@example.com","name":"Nama Admin"}'
+```
+
+Detail kontrak, matriks kemampuan, dan handoff ada di
+[docs/phase-0-foundation.md](./docs/phase-0-foundation.md).
+
 Di terminal lain, isi database dengan konten awal:
 
 ```bash
@@ -60,6 +78,9 @@ npm run build
 npm start
 npm run lint
 npm run typecheck
+npm test
+npm run test:watch
+npm run test:coverage
 npm run convex:deploy
 npm run convex:codegen
 npm run convex:seed

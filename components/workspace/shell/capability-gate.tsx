@@ -1,16 +1,17 @@
 "use client"
 
+import Link from "next/link"
 import { LockKeyhole } from "lucide-react"
 import { usePathname } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
-import { previewProfiles } from "@/lib/workspace/access"
-import { canAccessRoute } from "@/lib/workspace/access"
+import { canAccessRoute, previewProfiles } from "@/lib/workspace/access"
+import type { PreviewKey } from "@/lib/workspace/types"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 
 export function CapabilityGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const { capabilities, profile, setPreview } = useViewer()
+  const { capabilities, profile, setPreview, isPreview } = useViewer()
 
   if (canAccessRoute(capabilities, pathname)) {
     return <>{children}</>
@@ -29,22 +30,35 @@ export function CapabilityGate({ children }: { children: React.ReactNode }) {
       </h1>
       <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-ink-soft">
         Anda masuk sebagai <strong>{profile.user.roleLabel}</strong>. Navigasi
-        dan tindakan mengikuti kemampuan peran, bukan alamat rute. Pilih
-        pratinjau lain untuk membuka ruang ini.
+        dan tindakan mengikuti kemampuan peran, bukan alamat rute.
+        {isPreview
+          ? " Pilih pratinjau lain untuk membuka ruang ini."
+          : " Kembali ke ringkasan atau minta akses kepada pengelola."}
       </p>
-      <div className="mt-6 flex flex-wrap gap-2">
-        {previewProfiles.map((item) => (
-          <Button
-            key={item.key}
-            type="button"
-            variant={item.key === profile.key ? "default" : "outline"}
-            size="sm"
-            onClick={() => setPreview(item.key)}
-          >
-            {item.label}
+      {isPreview ? (
+        <div className="mt-6 flex flex-wrap gap-2">
+          {previewProfiles.map((item) => (
+            <Button
+              key={item.key}
+              type="button"
+              variant={item.key === profile.key ? "default" : "outline"}
+              size="sm"
+              onClick={() => setPreview(item.key as PreviewKey)}
+            >
+              {item.label}
+            </Button>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-6 flex flex-wrap gap-2">
+          <Button asChild size="sm">
+            <Link href="/ruang">Kembali ke ringkasan</Link>
           </Button>
-        ))}
-      </div>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/ruang/pengaturan">Buka pengaturan</Link>
+          </Button>
+        </div>
+      )}
       <p className="mt-5 border-t border-ink/15 pt-3 text-[10px] leading-relaxed text-ink-muted">
         Peran dan akses dikelola di Pengaturan. Perubahan peran berlaku pada
         sesi berikutnya.
