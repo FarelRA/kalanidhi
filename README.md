@@ -11,6 +11,11 @@ bukan sertifikasi pemerintah atau BNSP.
 
 Arah visual, token warna, dan aturan gerak dijelaskan di [DESIGN.md](./DESIGN.md).
 
+Dokumen produk:
+
+- [Rencana workspace lengkap](./docs/workspace-plan.md) — semua peran, konten, statistik, log, chat, dan panggilan.
+- [Arsitektur pembayaran](./docs/payments-gateway.md) — gateway QRIS GoPay dan integrasi Convex.
+
 ## Stack
 
 - **Next.js 16.4**: App Router, React Server Components, Server Actions, Turbopack
