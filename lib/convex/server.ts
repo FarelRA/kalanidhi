@@ -20,7 +20,10 @@ export async function getSiteData(): Promise<SiteData> {
   if (!convexUrl) return fallbackSiteData
 
   try {
-    const data = await fetchQuery(api.content.getSite, {})
+    const data = await fetchQuery(api.content.getSite, {}, {
+      url: convexUrl,
+      skipConvexDeploymentUrlCheck: true,
+    })
     return data ?? fallbackSiteData
   } catch (error) {
     console.error("[convex] Could not load site content. Using seed fallback.", error)
@@ -39,7 +42,10 @@ export async function persistLead(args: LeadArgs): Promise<boolean> {
   }
 
   try {
-    await fetchMutation(api.leads.create, args)
+    await fetchMutation(api.leads.create, args, {
+      url: convexUrl,
+      skipConvexDeploymentUrlCheck: true,
+    })
     return true
   } catch (error) {
     console.error("[convex] Could not store lead.", error)
