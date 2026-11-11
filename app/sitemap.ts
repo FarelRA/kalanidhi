@@ -4,7 +4,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: "https://kalanidhi.digital",
-      lastModified: new Date("2026-11-10"),
+      lastModified: new Date("2026-11-11"),
       changeFrequency: "weekly",
       priority: 1,
     },

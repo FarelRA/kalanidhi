@@ -54,7 +54,7 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 }
 
 const selectClassName =
-  "h-11 w-full appearance-none rounded-[4px] border border-input bg-transparent px-3.5 pr-10 text-sm text-paper outline-none transition-colors focus-visible:border-kunyit focus-visible:ring-2 focus-visible:ring-kunyit/20 aria-invalid:border-destructive"
+  "h-11 w-full appearance-none rounded-[2px] border border-input bg-transparent px-3.5 pr-10 text-sm text-ink outline-none transition-colors focus-visible:border-thread focus-visible:ring-2 focus-visible:ring-thread/20 aria-invalid:border-destructive"
 
 export function LeadForm({
   variant,
@@ -70,16 +70,16 @@ export function LeadForm({
   if (state.status === "success") {
     return (
       <div className="flex flex-col items-center gap-4 py-6 text-center">
-        <span className="flex size-14 items-center justify-center rounded-full border border-indigo-dust/30 bg-indigo-dust/10 text-indigo-dust">
+        <span className="flex size-14 items-center justify-center rounded-full border border-thread/30 bg-thread/[0.06] text-thread">
           <CircleCheck className="size-7" aria-hidden="true" />
         </span>
         <div className="space-y-2">
-          <h3 className="font-heading text-[1.7rem] font-medium text-paper">Tercatat.</h3>
-          <p className="mx-auto max-w-sm text-sm leading-relaxed text-paper-dim">
+          <h3 className="font-heading text-[1.7rem] font-normal text-ink">Tercatat.</h3>
+          <p className="mx-auto max-w-sm text-[13px] leading-relaxed text-ink-soft">
             {state.message}
           </p>
         </div>
-        <p className="inline-flex items-center gap-1.5 text-[11px] text-text-muted">
+        <p className="inline-flex items-center gap-1.5 text-[10.5px] text-ink-muted">
           <ShieldCheck className="size-3.5" aria-hidden="true" />
           Kami akan menghubungimu lewat email atau WhatsApp.
         </p>
@@ -286,12 +286,12 @@ export function LeadForm({
       </div>
 
       <div className="space-y-2">
-        <label className="flex cursor-pointer items-start gap-3 text-xs leading-relaxed text-paper-dim">
+        <label className="flex cursor-pointer items-start gap-3 text-[11.5px] leading-relaxed text-ink-soft">
           <input
             type="checkbox"
             name="consent"
             required
-            className="mt-0.5 size-4 shrink-0 rounded border-border bg-transparent accent-soga"
+            className="mt-0.5 size-4 shrink-0 rounded border-border bg-transparent accent-thread"
             aria-invalid={Boolean(errors.consent)}
             aria-describedby={errors.consent ? "lead-consent-error" : undefined}
           />

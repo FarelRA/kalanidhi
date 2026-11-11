@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button"
 
 export default function NotFound() {
   return (
-    <div className="section-shell flex min-h-[70svh] flex-col items-center justify-center py-16 text-center">
+    <div className="shell flex min-h-[70svh] flex-col items-center justify-center py-16 text-center">
       <BrandLockup markSize={44} />
-      <p className="eyebrow mt-10">Halaman tidak ditemukan</p>
-      <h1 className="heading-display mt-4 max-w-xl">
-        Anyaman ini belum tersambung.
+      <p className="mt-10 text-[10px] font-bold uppercase tracking-[0.14em] text-thread">
+        halaman tidak ditemukan
+      </p>
+      <h1 className="heading-section mt-4 max-w-xl">
+        Bangku ini belum tersambung.
       </h1>
       <p className="body-copy mt-4 max-w-md">
         Alamat yang kamu buka mungkin sudah berpindah. Kembali ke beranda untuk

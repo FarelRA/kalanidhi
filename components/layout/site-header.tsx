@@ -1,10 +1,9 @@
 "use client"
 
-import Link from "next/link"
 import dynamic from "next/dynamic"
-import { Menu, Search, ShoppingBag } from "lucide-react"
-import { useEffect, useState } from "react"
-import { toast } from "sonner"
+import Link from "next/link"
+import { Menu, Search } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 import { BrandLockup } from "@/components/brand/brand-mark"
 import { InfoButton, LeadButton } from "@/components/overlays/overlay-buttons"
@@ -16,11 +15,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { useActiveSection } from "@/hooks/use-active-section"
 import { navigation, sectionIds } from "@/lib/content/navigation"
 import type { SearchGroup } from "@/lib/search"
@@ -37,12 +31,18 @@ const SearchDialog = dynamic(
 export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
+  const searchTriggerRef = useRef<HTMLElement | null>(null)
   const active = useActiveSection(sectionIds)
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault()
+        searchTriggerRef.current =
+          document.activeElement instanceof HTMLElement
+            ? document.activeElement
+            : null
         setSearchOpen(true)
       }
     }
@@ -51,44 +51,56 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
     return () => window.removeEventListener("keydown", onKeyDown)
   }, [])
 
-  function openSearchFromMobile() {
-    setMobileOpen(false)
-    window.setTimeout(() => setSearchOpen(true), 160)
+  function openSearch(trigger?: HTMLElement | null) {
+    searchTriggerRef.current =
+      trigger ??
+      (document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null)
+    setSearchOpen(true)
   }
 
-  function showEmptyCart() {
-    toast("Keranjangmu masih kosong", {
-      description: "Mulai dari karya lulusan atau simpan karya favoritmu.",
-      action: {
-        label: "Lihat karya",
-        onClick: () =>
-          document
-            .getElementById("karya")
-            ?.scrollIntoView({ behavior: "smooth" }),
-      },
-    })
+  function closeSearch(open: boolean) {
+    setSearchOpen(open)
+    if (!open) {
+      window.setTimeout(
+        () => searchTriggerRef.current?.focus({ preventScroll: true }),
+        0,
+      )
+    }
+  }
+
+  function openSearchFromMobile() {
+    setMobileOpen(false)
+    menuButtonRef.current?.focus({ preventScroll: true })
+    window.setTimeout(() => openSearch(menuButtonRef.current), 160)
+  }
+
+  function handleMobileOpenChange(open: boolean) {
+    setMobileOpen(open)
+    if (!open) {
+      window.setTimeout(
+        () => menuButtonRef.current?.focus({ preventScroll: true }),
+        0,
+      )
+    }
   }
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-paper/10 bg-ink/90 backdrop-blur-xl">
-        <div className="section-shell flex h-[76px] items-center justify-between gap-4 lg:h-[84px]">
+      <header className="sticky top-0 z-40 border-b-2 border-ink/20 bg-cream/95 backdrop-blur-md">
+        <div className="shell flex h-[68px] items-center justify-between gap-4 lg:h-[76px]">
           <Link
             href="#top"
             aria-label="KalaNidhi Digital: kembali ke atas"
-            className="shrink-0 rounded-[4px] outline-none focus-visible:ring-2 focus-visible:ring-kunyit/50"
+            className="shrink-0"
           >
-            <span className="hidden sm:inline-flex">
-              <BrandLockup markSize={36} />
-            </span>
-            <span className="inline-flex sm:hidden">
-              <BrandLockup markSize={34} />
-            </span>
+            <BrandLockup markSize={35} />
           </Link>
 
           <nav
             aria-label="Navigasi utama"
-            className="hidden items-center gap-2 lg:flex xl:gap-7"
+            className="hidden items-center gap-0.5 lg:flex xl:gap-1"
           >
             {navigation.map((item) => {
               const id = item.href.slice(1)
@@ -100,10 +112,10 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
                   href={item.href}
                   aria-current={isActive ? "location" : undefined}
                   className={cn(
-                    "border-b pb-1 text-[13px] font-medium transition-colors",
+                    "inline-flex min-h-9 items-center border-b-2 px-2.5 text-[12px] font-semibold transition-colors",
                     isActive
-                      ? "border-soga text-paper"
-                      : "border-transparent text-paper-dim hover:border-paper/25 hover:text-paper",
+                      ? "border-copper-dark bg-ink/[0.04] text-ink"
+                      : "border-transparent text-ink-soft hover:border-copper/50 hover:text-ink",
                   )}
                 >
                   {item.label}
@@ -115,14 +127,14 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
           <div className="flex items-center gap-1">
             <button
               type="button"
-              onClick={() => setSearchOpen(true)}
-              aria-label="Cari jalur, pengajar, atau karya"
+              onClick={(event) => openSearch(event.currentTarget)}
+              aria-label="Cari jalur, pengajar, bidang, atau karya"
               aria-keyshortcuts="Meta+K Control+K"
-              className="mr-1 hidden h-9 items-center gap-2 rounded-[4px] px-2.5 text-[12px] text-paper-dim transition-colors hover:bg-paper/[0.05] hover:text-paper xl:flex"
+              className="mr-1 hidden h-9 items-center gap-2 px-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-muted transition-colors hover:text-ink xl:flex"
             >
-              <Search className="size-4" aria-hidden="true" />
+              <Search className="size-3.5" aria-hidden="true" />
               Cari
-              <kbd className="ml-1 rounded-[2px] border border-paper/15 px-1.5 py-0.5 text-[10px] text-text-muted">
+              <kbd className="border border-ink/25 px-1.5 py-0.5 text-[9px] text-ink-muted">
                 ⌘K
               </kbd>
             </button>
@@ -131,50 +143,29 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
               type="button"
               variant="ghost"
               size="icon"
-              onClick={() => setSearchOpen(true)}
+              onClick={(event) => openSearch(event.currentTarget)}
               aria-label="Cari"
               className="xl:hidden"
             >
               <Search aria-hidden="true" />
             </Button>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={showEmptyCart}
-                  aria-label="Keranjang belanja"
-                  className="hidden sm:inline-flex"
-                >
-                  <ShoppingBag aria-hidden="true" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="border border-soga/30 bg-ink-2 text-[11px] text-paper-dim">
-                Keranjang masih kosong
-              </TooltipContent>
-            </Tooltip>
-
-            <div className="ml-2 hidden items-center gap-2 border-l border-paper/12 pl-4 sm:flex">
+            <div className="ml-1 hidden items-center gap-1.5 border-l border-ink/20 pl-3 sm:flex">
               <InfoButton
                 infoKey="login"
                 variant="ghost"
                 size="sm"
-                className="px-2 text-paper-dim"
+                className="px-2 text-ink-soft hover:text-ink"
               >
                 Masuk
               </InfoButton>
-              <LeadButton
-                request={{ variant: "student" }}
-                size="sm"
-                className="px-4"
-              >
+              <LeadButton request={{ variant: "student" }} size="sm">
                 Daftar
               </LeadButton>
             </div>
 
             <Button
+              ref={menuButtonRef}
               type="button"
               variant="ghost"
               size="icon"
@@ -192,18 +183,18 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
         <SearchDialog
           groups={searchGroups}
           open
-          onOpenChange={setSearchOpen}
+          onOpenChange={closeSearch}
         />
       ) : null}
 
-      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+      <Sheet open={mobileOpen} onOpenChange={handleMobileOpenChange}>
         <SheetContent
           side="right"
-          className="w-[min(92vw,400px)] border-soga/25 bg-ink p-0"
+          className="w-[min(92vw,400px)] border-l-2 border-ink bg-cream p-0"
         >
           <div className="flex h-full flex-col overflow-y-auto p-6 pt-7">
             <SheetHeader className="gap-2 p-0 pr-8">
-              <BrandLockup markSize={34} />
+              <BrandLockup markSize={33} />
               <SheetTitle className="sr-only">Menu navigasi</SheetTitle>
               <SheetDescription className="sr-only">
                 Navigasi utama, pencarian, dan pendaftaran KalaNidhi Digital.
@@ -212,16 +203,19 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
 
             <nav
               aria-label="Navigasi mobile"
-              className="mt-10 flex flex-col divide-y divide-paper/10 border-y border-paper/10"
+              className="mt-9 flex flex-col border-t-2 border-ink/25"
             >
-              {navigation.map((item) => (
+              {navigation.map((item, index) => (
                 <a
                   key={item.href}
                   href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="py-4 font-heading text-[2rem] leading-none text-paper transition-colors hover:text-soga"
+                  onClick={() => handleMobileOpenChange(false)}
+                  className="flex min-h-14 items-center justify-between border-b border-ink/15 py-3 font-heading text-[1.9rem] leading-none text-ink transition-colors hover:text-copper-dark"
                 >
                   {item.label}
+                  <span className="text-[9px] font-bold tracking-[0.1em] text-ink-muted">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
                 </a>
               ))}
             </nav>
@@ -229,9 +223,9 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
             <button
               type="button"
               onClick={openSearchFromMobile}
-              className="mt-6 flex items-center gap-3 py-2 text-left text-sm text-paper-dim transition-colors hover:text-paper"
+              className="mt-6 flex min-h-11 items-center gap-3 text-left text-sm text-ink-soft transition-colors hover:text-ink"
             >
-              <Search className="size-4 text-soga" aria-hidden="true" />
+              <Search className="size-4 text-copper-dark" aria-hidden="true" />
               Cari jalur, pengajar, atau karya
             </button>
 
@@ -247,13 +241,12 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
                 infoKey="login"
                 variant="outline"
                 size="lg"
-                className="w-full"
+                className="w-full border-ink/35"
               >
                 Masuk
               </InfoButton>
-              <p className="pt-2 text-[11px] leading-relaxed text-text-muted">
-                Belajar praktik budaya Nusantara langsung dari pengajar, dari
-                mana saja.
+              <p className="pt-2 text-[10px] leading-relaxed text-ink-muted">
+                Uji coba terbatas 2026 / Yogyakarta dan Jawa Tengah
               </p>
             </div>
           </div>

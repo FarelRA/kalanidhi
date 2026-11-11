@@ -13,14 +13,14 @@ import {
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
-      theme="dark"
+      theme="light"
       position="bottom-right"
       className="toaster group"
       icons={{
-        success: <CircleCheckIcon className="size-4 text-indigo-dust" />,
-        info: <InfoIcon className="size-4 text-soga" />,
-        warning: <TriangleAlertIcon className="size-4 text-copper" />,
-        error: <OctagonXIcon className="size-4 text-destructive" />,
+        success: <CircleCheckIcon className="size-4 text-copper-light" />,
+        info: <InfoIcon className="size-4 text-brass" />,
+        warning: <TriangleAlertIcon className="size-4 text-copper-light" />,
+        error: <OctagonXIcon className="size-4 text-copper-light" />,
         loading: <Loader2Icon className="size-4 animate-spin" />,
       }}
       style={
@@ -34,8 +34,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "cn-toast border-soga/30! bg-ink-2! text-paper! shadow-plate!",
-          description: "text-muted-foreground!",
+            "cn-toast border-ink! bg-ink! text-paper!",
+          description: "text-paper/75!",
           actionButton: "bg-paper! text-ink! font-semibold!",
         },
       }}

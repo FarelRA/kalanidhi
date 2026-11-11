@@ -1,4 +1,4 @@
-import { culturalFields, faqs } from "@/lib/content/landing"
+import { faqs } from "@/lib/content/landing"
 
 export function buildLandingJsonLd() {
   const site = "https://kalanidhi.digital"
@@ -12,13 +12,11 @@ export function buildLandingJsonLd() {
         name: "KalaNidhi Digital",
         url: site,
         description:
-          "Platform belajar berbagai praktik budaya Nusantara. Pelajar dibimbing pengajar, dinilai, mendapat sertifikat platform dan Kartu Karya, lalu berkarya atau berjualan. Lulusan yang siap kembali sebagai pengajar, penilai, atau pemasok.",
-        slogan: "Belajar, dinilai, berkarya, kembali mengajar",
+          "Platform belajar praktik budaya Nusantara dengan penilaian pengajar, sertifikat platform, dan Kartu Karya. Lulusan dapat kembali sebagai pengajar, penilai, atau pemasok.",
         areaServed: {
           "@type": "AdministrativeArea",
-          name: "Daerah Istimewa Yogyakarta dan Jawa Tengah",
+          name: "Yogyakarta dan Jawa Tengah",
         },
-        knowsAbout: culturalFields.items,
         knowsLanguage: "id",
       },
       {

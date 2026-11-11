@@ -6,8 +6,8 @@ type BrandMarkProps = {
 }
 
 /**
- * A wax drop inside a woven frame. Specific to the material language of
- * batik (wax resist, indigo dust, terracotta canting) rather than a generic monogram.
+ * A circular bench seen from above, with a finished piece returning to the
+ * first station. The loop and the tag in one mark.
  */
 export function BrandMark({ className, size = 38 }: BrandMarkProps) {
   return (
@@ -19,26 +19,30 @@ export function BrandMark({ className, size = 38 }: BrandMarkProps) {
       fill="none"
       className={cn("shrink-0", className)}
     >
+      <circle
+        cx="20"
+        cy="20"
+        r="15.2"
+        stroke="currentColor"
+        strokeWidth="1"
+        strokeOpacity="0.24"
+      />
+      <path
+        d="M20 5.4a14.6 14.6 0 1 1-10.6 4.6"
+        stroke="var(--copper)"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
       <rect
-        x="1"
-        y="1"
-        width="38"
-        height="38"
-        rx="3"
-        stroke="var(--soga)"
-        strokeOpacity="0.55"
+        x="6.7"
+        y="6.9"
+        width="6.8"
+        height="6.8"
+        rx="0.8"
+        fill="var(--copper-dark)"
+        transform="rotate(-10 10.1 10.3)"
       />
-      <path
-        d="M20 8.5c4.3 5.4 7.4 9.1 7.4 13.1a7.4 7.4 0 0 1-14.8 0c0-4 3.1-7.7 7.4-13.1Z"
-        fill="var(--paper)"
-      />
-      <path
-        d="M20 8.5c4.3 5.4 7.4 9.1 7.4 13.1a7.4 7.4 0 0 1-14.8 0c0-4 3.1-7.7 7.4-13.1Z"
-        stroke="var(--soga)"
-        strokeOpacity="0.6"
-      />
-      <circle cx="20" cy="22" r="2.1" fill="var(--indigo-dust)" />
-      <path d="M7 32h8M25 32h8" stroke="var(--soga)" strokeLinecap="round" />
+      <circle cx="20" cy="20" r="2" fill="currentColor" />
     </svg>
   )
 }
@@ -46,28 +50,30 @@ export function BrandMark({ className, size = 38 }: BrandMarkProps) {
 export function BrandLockup({
   className,
   markSize = 36,
-  inverse = false,
+  tone = "ink",
 }: {
   className?: string
   markSize?: number
-  inverse?: boolean
+  tone?: "ink" | "paper"
 }) {
+  const dark = tone === "paper"
+
   return (
-    <span className={cn("inline-flex items-center gap-3", className)}>
+    <span className={cn("inline-flex items-center gap-2.5", className)}>
       <BrandMark size={markSize} />
       <span className="flex flex-col leading-none">
         <span
           className={cn(
-            "font-heading text-[1.45rem] tracking-[-0.02em]",
-            inverse ? "text-ink" : "text-paper",
+            "font-heading text-[1.42rem] font-semibold tracking-[-0.03em]",
+            dark ? "text-paper" : "text-ink",
           )}
         >
           KalaNidhi
         </span>
         <span
           className={cn(
-            "mt-1 text-[9px] font-medium tracking-[0.2em]",
-            inverse ? "text-ink/60" : "text-soga/80",
+            "mt-1 text-[8.5px] font-bold tracking-[0.22em]",
+            dark ? "text-paper/60" : "text-ink-muted",
           )}
         >
           DIGITAL

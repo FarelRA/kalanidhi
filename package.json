@@ -7,14 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
-    "gallery": "node tools/variation-gallery/server.mjs"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "class-variance-authority": "0.7.1",
     "cmdk": "1.1.1",
     "cn": "0.5.2",
-    "embla-carousel-react": "8.6.0",
     "lucide-react": "1.71.0",
     "next": "16.4.6",
     "radix-ui": "1.8.1",

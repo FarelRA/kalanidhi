@@ -13,6 +13,7 @@ import {
   ShieldCheck,
 } from "lucide-react"
 
+import { useReturnFocus } from "@/components/overlays/use-return-focus"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -50,6 +51,7 @@ export function InfoDialog({
   onClose: () => void
   onLeadAction: (request: LeadRequest) => void
 }) {
+  useReturnFocus()
   const content = infoContent[infoKey]
   const Icon = icons[content.icon] ?? Info
 
@@ -57,7 +59,7 @@ export function InfoDialog({
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader className="gap-3 pr-8">
-          <span className="flex size-10 items-center justify-center rounded-xl border border-soga/30 bg-soga/10 text-soga">
+          <span className="flex size-10 items-center justify-center rounded-[2px] border border-thread/30 bg-thread/[0.06] text-thread">
             <Icon className="size-5" aria-hidden />
           </span>
           <DialogTitle>{content.title}</DialogTitle>
@@ -71,9 +73,9 @@ export function InfoDialog({
             {content.bullets.map((bullet) => (
               <li
                 key={bullet}
-                className="flex items-start gap-2.5 text-sm leading-relaxed text-paper-dim"
+                className="flex items-start gap-2.5 text-[13px] leading-relaxed text-ink-soft"
               >
-                <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-indigo-dust/10 text-indigo-dust">
+                <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-thread/10 text-thread">
                   <Check className="size-3" aria-hidden="true" />
                 </span>
                 {bullet}
@@ -83,7 +85,7 @@ export function InfoDialog({
         ) : null}
 
         {content.footnote ? (
-          <p className="rounded-[4px] border border-paper/15 px-3.5 py-3 text-[11px] leading-relaxed text-text-muted">
+          <p className="rounded-[4px] border border-ink/20 px-3.5 py-3 text-[11px] leading-relaxed text-ink-muted">
             {content.footnote}
           </p>
         ) : null}

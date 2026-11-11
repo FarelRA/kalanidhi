@@ -43,7 +43,7 @@ export function InfoLink({
       type="button"
       onClick={() => openInfo(infoKey)}
       className={cn(
-        "text-left text-xs text-paper-dim transition-colors hover:text-soga",
+        "text-left text-xs text-ink-soft transition-colors hover:text-thread",
         className,
       )}
     >

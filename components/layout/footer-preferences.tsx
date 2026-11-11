@@ -28,7 +28,7 @@ export function FooterPreferences() {
   return (
     <div className="flex flex-col gap-3 text-[12px] text-paper-dim">
       <div className="flex items-center gap-4">
-        <span className="text-text-muted">Bahasa</span>
+        <span className="text-paper/60">Bahasa</span>
         <span className="inline-flex items-center gap-2">
           <button
             type="button"
@@ -49,7 +49,7 @@ export function FooterPreferences() {
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="text-text-muted">Hemat kuota</span>
+        <span className="text-paper/60">Hemat kuota</span>
         <button
           type="button"
           role="switch"
@@ -57,7 +57,7 @@ export function FooterPreferences() {
           aria-label="Aktifkan mode hemat kuota"
           onClick={toggleDataSaver}
           className={cn(
-            "relative h-5 w-9 shrink-0 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kunyit/50",
+            "relative h-5 w-9 shrink-0 rounded-full border transition-colors before:absolute before:-inset-3 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kunyit/50",
             dataSaver
               ? "border-soga/70 bg-soga/25"
               : "border-paper/25 bg-transparent",

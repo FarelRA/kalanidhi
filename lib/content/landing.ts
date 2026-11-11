@@ -12,31 +12,27 @@ import workNitik from "@/public/images/work-nitik.jpg"
 import workSutra from "@/public/images/work-sutra.jpg"
 import workPranatacara from "@/public/images/work-pranatacara.jpg"
 
-export type AuditNote = {
-  label: string
+export type PilotFigure = {
   value: string
-  note?: string
-}
-
-export type Stat = {
-  icon: "award" | "book" | "trending" | "handshake"
-  value: number
-  prefix?: string
-  suffix?: string
   label: string
-  note: string
 }
 
-export type Step = {
-  number: string
-  icon: "package" | "pen" | "qr" | "store" | "cycle"
+export type LoopStage = {
+  code: string
   title: string
   description: string
-  footer: string
+}
+
+export type CatalogField = {
+  name: string
+  region: string
+  status: "Terbuka" | "Sedang dipetakan" | "Direncanakan"
+  note: string
 }
 
 export type LearningPath = {
   slug: string
+  code: string
   title: string
   subtitle: string
   teacher: string
@@ -45,6 +41,7 @@ export type LearningPath = {
   level: string
   modules: number
   weeks: number
+  tasks: number
   price: number | null
   priceLabel?: string
   image: StaticImageData
@@ -102,12 +99,24 @@ export type Testimonial = {
 }
 
 export const hero = {
-  image: heroImage,
-  title: ["Belajar dari ahlinya.", "Berkarya dengan izin.", "Kembali membuka jalur."],
+  stamp: "Uji coba terbatas 2026",
+  region: "Yogyakarta dan Jawa Tengah",
+  title: ["Duduk di bangku ini.", "Nanti kamu yang mengajari."],
   description:
-    "KalaNidhi Digital mempertemukan pelajar dengan pengajar berbagai praktik budaya Nusantara, dari batik dan tenun sampai karawitan, tari, pranatacara, jamu, dan keramik. Belajar lewat modul dan paket bahan, kirim tugas untuk dikoreksi pengajar, lalu bawa karya atau jasamu ke pembeli. Lulusan yang siap bisa kembali sebagai pengajar, penilai, atau pemasok, sehingga jalur baru lahir dari orang yang sudah menjalaninya. Basis awal kami di Yogyakarta dan Jawa Tengah, dan platform terbuka untuk praktisi dari berbagai daerah.",
-  primaryCta: "Mulai belajar",
-  secondaryCta: "Jelajahi karya",
+    "KalaNidhi Digital mempertemukan pelajar dengan pengajar batik, tenun, ukir, karawitan, tari, pranatacara, dan praktik hidup lain di Nusantara. Kerjakan tugas dengan tangan, kirim hasilnya, terima koreksi pengajar, lalu bawa karya atau jasamu ke pembeli. Lulusan yang siap kembali mengajar dan membuka jalur untuk pelajar berikutnya.",
+  primaryCta: "Pilih jalur yang terbuka",
+  secondaryCta: "Lihat lingkarannya",
+  meta: [
+    { value: "10", label: "bidang dipetakan" },
+    { value: "2", label: "jalur terbuka" },
+    { value: "14", label: "pengajar dan praktisi" },
+  ] satisfies PilotFigure[],
+  plate: {
+    image: heroImage,
+    alt: "Tangan membatik dengan canting di atas kain",
+    caption: "Proses canting, Giriloyo",
+    note: "Difoto bersama pengajar, 2026",
+  },
   workCard: {
     title: "Kartu Karya",
     serial: "KN-8821",
@@ -115,98 +124,137 @@ export const hero = {
     maker: "Anisa Rahmawati",
     teacher: "Bambang Hardjono",
   },
+  seal: "Dinilai pengajar",
 }
 
-export const stats: Stat[] = [
-  {
-    icon: "book",
-    value: 10,
-    label: "Bidang budaya",
-    note: "Dari batik sampai keramik, dipetakan bertahap",
-  },
-  {
-    icon: "award",
-    value: 14,
-    label: "Pengajar & praktisi",
-    note: "Yogyakarta, Surakarta, Lasem, dan Jepara",
-  },
-  {
-    icon: "handshake",
-    value: 24,
-    label: "Peserta uji coba",
-    note: "Kohort pertama, Juli-September 2026",
-  },
-  {
-    icon: "trending",
-    value: 36,
-    label: "Tugas dinilai",
-    note: "Koreksi langsung oleh pengajar",
-  },
-]
-
-export const culturalFields = {
-  label: "Bidang yang sedang dipetakan",
-  note: "Sepuluh bidang ini adalah katalog yang tumbuh. Jalur baru dibuka bertahap bersama pengajar di bidangnya.",
-  items: [
-    "Batik",
-    "Tenun",
-    "Ukir",
-    "Karawitan",
-    "Tari",
-    "Pranatacara",
-    "Kuliner tradisi",
-    "Jamu",
-    "Wayang",
-    "Keramik",
-  ],
+export const pilot = {
+  label: "Uji coba terbatas 2026",
+  note: "Angka capaian uji coba di Yogyakarta dan Jawa Tengah, bukan proyeksi nasional.",
+  figures: [
+    { value: "10", label: "bidang budaya dipetakan" },
+    { value: "14", label: "pengajar dan praktisi" },
+    { value: "24", label: "peserta uji coba" },
+    { value: "36", label: "tugas dinilai" },
+    { value: "12", label: "karya dan jasa" },
+  ] satisfies PilotFigure[],
 }
 
-export const steps: Step[] = [
-  {
-    number: "01",
-    icon: "package",
-    title: "Materi & paket bahan",
-    description:
-      "Belajar per modul lewat video, bacaan, dan latihan. Paket bahan untuk jalur pilihan dikirim ke alamatmu.",
-    footer: "Paket terkirim",
-  },
-  {
-    number: "02",
-    icon: "pen",
-    title: "Bimbingan langsung dari pengajar",
-    description:
-      "Unggah foto atau rekaman proses. Pengajar memberi koreksi teknis lewat catatan, anotasi, dan voice note.",
-    footer: "Dinilai langsung",
-  },
-  {
-    number: "03",
-    icon: "qr",
-    title: "Sertifikat platform & Kartu Karya",
-    description:
-      "Selesaikan tugas praktik dan dapatkan sertifikat dengan kode verifikasi publik, sekaligus Kartu Karya untuk karya pertamamu. Sertifikat mencatat pengajar penilai dan kompetensi yang kamu capai.",
-    footer: "Bisa diverifikasi",
-  },
-  {
-    number: "04",
-    icon: "store",
-    title: "Karya, jasa, dan pesanan",
-    description:
-      "Tampilkan karya di etalase atau buka layanan. Pembeli melihat Kartu Karya dan rincian bagi hasil sebelum memesan.",
-    footer: "Karya menemukan pembeli",
-  },
-  {
-    number: "05",
-    icon: "cycle",
-    title: "Kembali mengajar",
-    description:
-      "Lulusan yang sudah siap bisa mengajar, menilai tugas, atau memasok bahan dan karya. Dari situ jalur baru dibuka untuk pelajar berikutnya, dan lingkaran berjalan lagi.",
-    footer: "Lingkaran berlanjut",
-  },
-]
+export const loop = {
+  label: "Cara kerja",
+  title: "Satu bangku, lima langkah, lalu kembali ke awal.",
+  description:
+    "Belajar, dinilai, tersertifikasi, berkarya. Empat langkah inti itu berputar di bangku yang sama. Langkah kelima membuka jalur kembali: lulusan bisa menjadi pengajar pendamping, penilai, atau pemasok. Dari situ jalur baru dibuka, dan pelajar baru masuk.",
+  returnLabel: "jalur kembali",
+  returnNote:
+    "Karya yang selesai dibawa kembali ke bangku pertama. Lulusan yang mengajar menaruh alatnya di rak, dan pelajar berikutnya duduk.",
+  stages: [
+    {
+      code: "01",
+      title: "Belajar",
+      description:
+        "Modul, bacaan, dan latihan dari pengajar yang masih mengerjakan praktiknya.",
+    },
+    {
+      code: "02",
+      title: "Dinilai",
+      description:
+        "Kirim foto atau rekaman proses. Pengajar memberi catatan, anotasi, dan keputusan lanjut atau revisi.",
+    },
+    {
+      code: "03",
+      title: "Tersertifikat",
+      description:
+        "Sertifikat platform dengan kode verifikasi publik, ditambah Kartu Karya yang mencatat proses.",
+    },
+    {
+      code: "04",
+      title: "Berkarya",
+      description:
+        "Karya atau jasa tampil dengan Kartu Karya. Pembeli melihat pembuat, teknik, dan bagi hasil.",
+    },
+    {
+      code: "05",
+      title: "Kembali mengajar",
+      description:
+        "Lulusan dapat mengajukan diri sebagai pengajar pendamping, penilai, atau pemasok. Pasokan dan jalur baru tumbuh dari sini.",
+    },
+  ] satisfies LoopStage[],
+}
+
+export const catalog = {
+  label: "Rak bahan",
+  title: "Rak ini tumbuh satu per satu, bersama pengajarnya.",
+  description:
+    "Katalog tumbuh dari pengajar yang masuk. Rak di bawah menunjukkan mana yang sudah bisa dikerjakan sekarang, mana yang sedang disiapkan, dan mana yang masih menunggu pengajar.",
+  note: "Praktisi dari daerah lain bisa mengajukan jalur. Basis uji coba saat ini Yogyakarta dan Jawa Tengah; pembukaan jalur mengikuti kesiapan kurikulum dan izin komunitas.",
+  fields: [
+    {
+      name: "Batik tulis",
+      region: "Giriloyo, Yogyakarta",
+      status: "Terbuka",
+      note: "Jalur aktif",
+    },
+    {
+      name: "Pranatacara",
+      region: "Surakarta",
+      status: "Terbuka",
+      note: "Jalur aktif",
+    },
+    {
+      name: "Kriya ukir kayu",
+      region: "Jepara",
+      status: "Sedang dipetakan",
+      note: "Kurikulum disusun",
+    },
+    {
+      name: "Tenun",
+      region: "Troso, Jepara",
+      status: "Sedang dipetakan",
+      note: "Pengajar dijajaki",
+    },
+    {
+      name: "Karawitan",
+      region: "Surakarta",
+      status: "Sedang dipetakan",
+      note: "Pengajar dijajaki",
+    },
+    {
+      name: "Tari tradisi",
+      region: "Yogyakarta",
+      status: "Direncanakan",
+      note: "Belum ada pengajar",
+    },
+    {
+      name: "Keramik",
+      region: "Jawa Tengah",
+      status: "Direncanakan",
+      note: "Belum ada pengajar",
+    },
+    {
+      name: "Kuliner tradisi",
+      region: "Yogyakarta",
+      status: "Direncanakan",
+      note: "Belum ada pengajar",
+    },
+    {
+      name: "Jamu",
+      region: "Surakarta",
+      status: "Direncanakan",
+      note: "Belum ada pengajar",
+    },
+    {
+      name: "Wayang",
+      region: "Surakarta",
+      status: "Direncanakan",
+      note: "Belum ada pengajar",
+    },
+  ] satisfies CatalogField[],
+}
 
 export const paths: LearningPath[] = [
   {
     slug: "batik-tulis-soga",
+    code: "Jalur 01",
     title: "Batik Tulis Soga",
     subtitle: "Dari canting pertama sampai kain siap karya",
     teacher: "Bambang Hardjono",
@@ -215,9 +263,10 @@ export const paths: LearningPath[] = [
     level: "Pemula sampai menengah",
     modules: 8,
     weeks: 6,
+    tasks: 3,
     price: 1_450_000,
     image: pathBatik,
-    tags: ["Dengan kit", "Bersertifikat"],
+    tags: ["Dengan paket bahan", "Sertifikat platform"],
     outcome:
       "Sepotong kain batik tulis dengan motif geometris, lengkap dengan catatan proses untuk Kartu Karya.",
     includes: [
@@ -229,6 +278,7 @@ export const paths: LearningPath[] = [
   },
   {
     slug: "pranatacara-jawa",
+    code: "Jalur 02",
     title: "Seni Pembawa Acara Tradisi Jawa",
     subtitle: "Tata wicara, urutan acara, dan etiket panggung",
     teacher: "Widagdo Saputra",
@@ -237,20 +287,22 @@ export const paths: LearningPath[] = [
     level: "Terbuka umum",
     modules: 6,
     weeks: 4,
+    tasks: 3,
     price: 980_000,
     image: pathPranatacara,
-    tags: ["Kelas live", "Bersertifikat"],
+    tags: ["Kelas live", "Sertifikat platform"],
     outcome:
       "Rekaman praktik dengan susunan acara lengkap, catatan pengajar, dan sertifikat platform.",
     includes: [
       "6 modul video dan latihan tata wicara",
       "2 sesi live bersama pengajar",
-      "Umpan balik rekaman praktik",
+      "3 rekaman praktik yang dinilai",
       "Sertifikat platform dan portofolio jasa",
     ],
   },
   {
     slug: "kriya-ukir-jepara",
+    code: "Jalur 03",
     title: "Kriya Ukir Kayu Jepara",
     subtitle: "Prinsip ukir, alat, dan ornamen sulur",
     teacher: "Pengajar dari Jepara",
@@ -259,10 +311,11 @@ export const paths: LearningPath[] = [
     level: "Pemula",
     modules: 0,
     weeks: 0,
+    tasks: 0,
     price: null,
-    priceLabel: "Segera hadir",
+    priceLabel: "Sedang disusun",
     image: pathUkir,
-    tags: ["Segera hadir"],
+    tags: ["Sedang disusun"],
     outcome:
       "Pengantar prinsip ukir kayu, perawatan alat, dan perancangan ornamen sulur. Kurikulum sedang disusun bersama pengrajin Jepara.",
     includes: [
@@ -379,13 +432,13 @@ export const works: Work[] = [
   },
   {
     slug: "pranatacara-siraman",
-    title: "Pembawa Acara Siraman & Midodareni",
+    title: "Pembawa Acara Siraman dan Midodareni",
     category: "layanan",
     kind: "service",
     maker: "Rani Wikaningsih",
     makerRole: "Praktisi tersertifikasi platform",
     teacher: "Widagdo Saputra",
-    region: "Yogyakarta & sekitarnya",
+    region: "Yogyakarta dan sekitarnya",
     price: 2_500_000,
     priceLabel: "Mulai dari",
     unit: "Layanan acara, 1 hari",
@@ -398,59 +451,86 @@ export const works: Work[] = [
   },
 ]
 
+export const worksNote =
+  "Uji coba 2026 mencatat 12 karya dan jasa. Empat ditampilkan di halaman ini."
+
 export const mangsa = {
+  label: "Musim di bangku",
   season: "Musim I",
   name: "Kasa",
   period: "22 Juni - 1 Agustus",
-  eyebrow: "Pranata Mangsa",
+  eyebrow: "Pranata mangsa",
   title: "Musim kering, waktu kain dijemur dan warna dimatangkan.",
   description:
-    "Kasa membuka tahun Pranata Mangsa. Cuaca cenderung terang dan kering, angin stabil, dan kelembapan rendah. Di Giriloyo, bulan ini dipakai untuk menjemur kain setelah pelorodan dan mengeringkan lapisan lilin sebelum pewarnaan berikutnya.",
-  metrics: [
-    { label: "Suhu rata-rata", value: "27-30°C", icon: "sun" as const },
-    { label: "Kelembapan", value: "60%", icon: "droplets" as const },
-    { label: "Angin", value: "Tenggara, stabil", icon: "wind" as const },
-  ],
+    "Kasa membuka penanggalan Pranata Mangsa. Cuaca cenderung terang dan kering, angin stabil, dan kelembapan rendah. Di Giriloyo, bulan ini dipakai untuk menjemur kain setelah pelorodan dan mengeringkan lapisan lilin sebelum pewarnaan berikutnya.",
   activities: ["Menjemur kain", "Fermentasi warna", "Menyiapkan motif"],
+  note: "Penanggalan dan ciri musim berbeda antar daerah. Catatan ini disusun dari wawancara pengajar Giriloyo, bukan prakiraan cuaca.",
 }
 
-export const shareBreakdown = [
-  {
-    label: "Pengajar & pembuat karya",
-    value: 70,
-    note: "Imbalan bimbingan dan kompensasi langsung pembuat karya.",
-  },
-  {
-    label: "Dana komunitas & sanggar",
-    value: 15,
-    note: "Konservasi bahan, perawatan alat, dan kegiatan sanggar.",
-  },
-  {
-    label: "Operasional platform",
-    value: 15,
-    note: "Verifikasi, sertifikat, dan pengelolaan pengiriman paket.",
-  },
-]
-
-export const attribution = {
-  label: "Kartu sumber budaya",
-  permission: "Izin berbagi pengetahuan tercatat 12 Maret 2026",
-  access: "Publik",
-  summary: "Sanggar Soga Giriloyo (batik) dan Sanggar Wicara Surakarta (pranatacara)",
-  reference: "Rujukan: arsip sanggar dan wawancara pengajar, 2026",
-  sources: [
+export const ethics = {
+  label: "Aturan bengkel",
+  title: "Setiap pengetahuan membawa nama, izin, dan pembagian.",
+  description:
+    "Kartu Sumber Budaya tampil di jalur, karya, dan pustaka. Isinya mencatat komunitas sumber, pemberi izin, tanggal persetujuan, tingkat akses, dan aliran nilai ekonomi. Kami menuliskannya sebelum kamu memutuskan.",
+  principles: [
     {
-      initials: "SG",
-      name: "Sanggar Soga Giriloyo",
-      field: "Batik tulis dan pewarnaan soga",
+      title: "Sumber yang bisa dilacak",
+      description:
+        "Komunitas, pengajar, dan rujukan tercatat di setiap jalur dan karya. Tidak ada pengetahuan tanpa asal.",
     },
     {
-      initials: "SW",
-      name: "Sanggar Wicara Surakarta",
-      field: "Pranatacara dan tata upacara Jawa",
+      title: "Izin dan tingkat akses",
+      description:
+        "Pengetahuan bisa publik, berbayar, atau terbatas komunitas. Materi terbatas tidak dibuka tanpa persetujuan.",
+    },
+    {
+      title: "Bagi hasil sebelum transaksi",
+      description:
+        "Rincian pembagian ditampilkan saat kamu masih bisa memutuskan, bukan setelah uang berpindah.",
     },
   ],
-  note: "Dua sumber ini menaungi jalur yang sudah terbuka. Bidang lain menyusul bersama pengajar dan komunitasnya.",
+  accessLevels: [
+    { label: "Publik", note: "Terbuka untuk semua pengunjung." },
+    { label: "Berbayar", note: "Terbuka untuk pelajar yang terdaftar." },
+    {
+      label: "Terbatas komunitas",
+      note: "Dibagikan hanya dengan izin pemilik pengetahuan.",
+    },
+  ],
+  share: [
+    {
+      label: "Pengajar dan pembuat karya",
+      value: 70,
+      note: "Imbalan bimbingan dan kompensasi langsung pembuat karya.",
+    },
+    {
+      label: "Dana komunitas dan sanggar",
+      value: 15,
+      note: "Konservasi bahan, perawatan alat, dan kegiatan sanggar.",
+    },
+    {
+      label: "Operasional platform",
+      value: 15,
+      note: "Verifikasi, sertifikat, dan pengelolaan pengiriman paket.",
+    },
+  ],
+  attribution: {
+    permission: "Izin berbagi pengetahuan tercatat 12 Maret 2026",
+    access: "Publik",
+    reference: "Rujukan: arsip sanggar dan wawancara pengajar, 2026",
+    sources: [
+      {
+        initials: "SG",
+        name: "Sanggar Soga Giriloyo",
+        field: "Batik tulis dan pewarnaan soga",
+      },
+      {
+        initials: "SW",
+        name: "Sanggar Wicara Surakarta",
+        field: "Pranatacara dan tata upacara",
+      },
+    ],
+  },
 }
 
 export const testimonials: Testimonial[] = [
@@ -458,15 +538,15 @@ export const testimonials: Testimonial[] = [
     quote:
       "Saya kira belajar dari video sudah cukup. Setelah pengajar menandai bagian canting yang tekanannya terlalu kuat, kain saya jadi lebih rata. Tiga bulan kemudian saya berani membuka pesanan kecil.",
     name: "Sari Wulandari",
-    role: "Peserta uji coba, pelajar batik",
-    city: "Jakarta",
+    role: "Karyawan kreatif, pelajar batik",
+    city: "Yogyakarta",
     initials: "SW",
   },
   {
     quote:
       "Kami memakai jalur batik untuk muatan lokal. Laporan progres membantu saya melihat siswa mana yang perlu pendampingan, bukan hanya nilai akhir.",
     name: "Dwi Lestari",
-    role: "Guru SD, mitra uji coba",
+    role: "Guru SD, mitra institusi",
     city: "Sleman",
     initials: "DL",
   },
@@ -474,31 +554,29 @@ export const testimonials: Testimonial[] = [
     quote:
       "Saya butuh pembawa acara yang hafal urutan siraman dan bisa datang lebih awal. Portofolio video di halaman profil membuat saya bisa memilih tanpa menelepon satu per satu.",
     name: "Bayu Pratama",
-    role: "Pemilik wedding organizer, pengguna uji coba",
-    city: "Surabaya",
+    role: "Pemilik wedding organizer",
+    city: "Surakarta",
     initials: "BP",
   },
 ]
 
 export const institution = {
-  eyebrow: "Untuk institusi",
-  title: "Belajar budaya untuk kelas, tim, dan tamu.",
+  label: "Untuk institusi",
+  title: "Bawa kelasmu ke bangku.",
   description:
-    "Susun program muatan lokal, pelatihan tim, workshop satu hari, atau hadiah korporat bersama kurator dan pengajar. Peserta bisa melanjutkan ke jalur penuh sampai karya atau jasa.",
-  segments: ["Sekolah", "EO & wedding organizer", "Desa wisata & hotel", "Korporat"],
+    "Program institusi disusun setelah sesi pemetaan kebutuhan. Belum ada paket siap pakai; kurikulum, jumlah peserta, dan izin dibicarakan lebih dulu.",
+  segments: ["Sekolah", "EO dan wedding organizer", "Desa wisata dan hotel", "Korporat"],
   points: [
     "Kurikulum disesuaikan dengan jumlah peserta dan durasi",
     "Laporan progres dan rekap kehadiran setiap pekan",
     "Alokasi kursi, jadwal, dan penagihan institusi",
     "Pendampingan kurator untuk konteks budaya dan izin",
-    "Lulusan lokal bisa bergabung sebagai pengajar atau pemasok",
   ],
   brief: [
-    ["Format", "Kelas mandiri + sesi kurator"],
+    ["Format", "Kelas mandiri dan sesi kurator"],
     ["Durasi", "4-6 pekan"],
-    ["Laporan", "Progres & kehadiran"],
-    ["Jalur terbuka", "2 dari 10 bidang"],
-    ["Peserta", "Mulai 8 orang"],
+    ["Laporan", "Progres dan kehadiran"],
+    ["Kursi minimum", "12 peserta"],
   ],
   cta: "Minta penawaran",
   note: "Paket dan harga disusun setelah sesi pemetaan kebutuhan.",
@@ -506,24 +584,24 @@ export const institution = {
 
 export const faqs: Faq[] = [
   {
-    question: "Bidang budaya apa saja yang bisa dipelajari?",
+    question: "Apa yang membuat KalaNidhi Digital berbeda dari kursus video?",
     answer:
-      "Katalog kami mencakup sepuluh bidang: batik, tenun, ukir, karawitan, tari, pranatacara, kuliner tradisi, jamu, wayang, dan keramik. Batik dan pranatacara sudah terbuka; bidang lain dibuka bertahap bersama pengajar di bidangnya.",
+      "Kamu mengirim proses kerja, bukan hanya menonton. Pengajar memeriksa foto atau rekaman, memberi catatan pada bagian tertentu, dan memutuskan lanjut atau revisi. Penilaian manusia itu yang menghubungkan belajar dengan sertifikat dan karya.",
   },
   {
-    question: "Apakah saya perlu pengalaman seni sebelumnya?",
+    question: "Bagaimana lulusan bisa kembali sebagai pengajar?",
     answer:
-      "Tidak. Jalur pemula dimulai dari hal dasar: posisi duduk, cara memegang alat, sampai latihan tata wicara. Kalau sudah punya pengalaman, kamu bisa memilih jalur menengah setelah konsultasi singkat.",
+      "Setelah menyelesaikan jalur lanjutan dan dinilai, lulusan bisa mengajukan diri sebagai pengajar pendamping, penilai tugas, atau pemasok bahan dan karya. Pengajuan ditinjau bersama pengajar senior dan kurator. Jalur baru dibuka bila pengajar, kurikulum, dan izinnya sudah siap.",
+  },
+  {
+    question: "Bidang apa saja yang bisa dipelajari?",
+    answer:
+      "Sepuluh bidang sudah dipetakan, dari batik tulis dan pranatacara sampai tenun, karawitan, tari, keramik, kuliner tradisi, jamu, dan wayang. Dua jalur sudah terbuka. Jalur lain dibuka bertahap setelah kurikulum dan izin komunitas selesai.",
   },
   {
     question: "Bagaimana pengajar menilai tugas praktik saya?",
     answer:
       "Unggah foto jarak dekat atau rekaman suara dari aplikasi. Pengajar memberi catatan pada bagian tertentu, voice note, dan keputusan lanjut atau revisi. Umpan balik dikirim dalam 3 hari kerja.",
-  },
-  {
-    question: "Apa saja isi paket bahan yang dikirim?",
-    answer:
-      "Isi paket berbeda per jalur. Jalur batik menerima canting tembaga, malam alami, kain primis, dan pewarna pilihan; jalur lain menyesuaikan alat dan bahan praktiknya. Kamu juga bisa memilih opsi membawa alat sendiri.",
   },
   {
     question: "Apakah sertifikat ini diakui pemerintah?",
@@ -533,38 +611,33 @@ export const faqs: Faq[] = [
   {
     question: "Bagaimana hak budaya dan bagi hasil dijaga?",
     answer:
-      "Setiap jalur dan karya menampilkan Kartu Sumber Budaya: komunitas sumber, pemberi izin, tanggal persetujuan, dan tingkat akses. Setiap bidang budaya menampilkan sumbernya sendiri. Rincian bagi hasil ditampilkan sebelum transaksi, saat kamu masih bisa memutuskan.",
-  },
-  {
-    question: "Bisakah lulusan kembali mengajar?",
-    answer:
-      "Bisa. Lulusan yang sudah punya portofolio dan lolos peninjauan bisa mengajar, menilai tugas, atau menjadi pemasok bahan dan karya. Setiap pengajar baru membuka jalur untuk pelajar berikutnya, dan bagi hasilnya tercatat seperti pengajar lain.",
+      "Setiap jalur dan karya menampilkan Kartu Sumber Budaya: komunitas sumber, pemberi izin, tanggal persetujuan, dan tingkat akses. Rincian bagi hasil ditampilkan sebelum transaksi, saat kamu masih bisa memutuskan.",
   },
   {
     question: "Saya hanya ingin membeli karya. Apakah harus ikut kelas?",
     answer:
-      "Tidak. Kamu bisa langsung menjelajahi etalase karya lulusan dan pengajar. Etalase ini adalah muara dari jalur belajar: setiap karya dibuat di kelas dan punya Kartu Karya yang menjelaskan pembuat, teknik, dan jejak prosesnya.",
+      "Tidak. Kamu bisa langsung menjelajahi etalase karya lulusan dan pengajar. Setiap karya punya Kartu Karya yang menjelaskan pembuat, teknik, dan jejak prosesnya.",
   },
 ]
 
 export const footer = {
   description:
-    "Platform belajar berbagai praktik budaya Nusantara. Pelajar dibimbing pengajar, dinilai, mendapat sertifikat platform dan Kartu Karya, lalu berkarya atau berjualan. Lulusan yang siap kembali sebagai pengajar, penilai, atau pemasok, sehingga jalur baru terus terbuka.",
+    "Platform belajar praktik budaya Nusantara. Dinilai pengajar, tersertifikasi platform, lalu tersambung ke karya dan jasa. Lulusan dapat kembali sebagai pengajar, penilai, atau pemasok.",
   columns: [
     {
-      title: "Program",
+      title: "Isi bangku",
       links: [
-        { label: "Cara kerja", href: "#cara-kerja" },
+        { label: "Lingkaran", href: "#lingkaran" },
+        { label: "Rak bahan", href: "#indeks" },
         { label: "Jalur belajar", href: "#jalur" },
-        { label: "Karya lulusan", href: "#karya" },
         { label: "Pengajar", href: "#pengajar" },
-        { label: "Kalender mangsa", href: "#mangsa" },
+        { label: "Karya dan jasa", href: "#karya" },
       ],
     },
     {
       title: "Platform",
       links: [
-        { label: "Etika & hak budaya", href: "#etika" },
+        { label: "Etika dan hak budaya", href: "#etika" },
         { label: "Untuk institusi", href: "#institusi" },
         { label: "Pertanyaan umum", href: "#faq" },
         { label: "Tentang KalaNidhi Digital", href: "#faq" },
@@ -573,7 +646,8 @@ export const footer = {
   ],
   secretariat: {
     label: "Sekretariat",
-    value: "Yogyakarta & Surakarta, Indonesia",
+    value: "Yogyakarta dan Surakarta, Indonesia",
   },
+  edition: "Edisi uji coba terbatas / 2026",
   copyright: "© 2026 KalaNidhi Digital. Dibuat di Yogyakarta.",
 }

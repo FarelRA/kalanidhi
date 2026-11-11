@@ -1,0 +1,150 @@
+import Image from "next/image"
+
+import { Button } from "@/components/ui/button"
+import { hero } from "@/lib/content/landing"
+
+export function BenchHero() {
+  return (
+    <section
+      aria-labelledby="hero-title"
+      className="wood-deep relative overflow-hidden text-paper"
+    >
+      <div className="shell relative grid gap-14 pb-24 pt-14 sm:pt-16 lg:grid-cols-12 lg:gap-10 lg:pb-32 lg:pt-24">
+        <div className="lg:col-span-6">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+            <span className="stamp -rotate-2 bg-copper-dark text-cream-2">
+              {hero.stamp}
+            </span>
+            <span className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-paper/60">
+              {hero.region}
+            </span>
+          </div>
+
+          <h1 id="hero-title" className="heading-hero mt-8 text-paper">
+            {hero.title.map((line) => (
+              <span key={line} className="block">
+                {line}
+              </span>
+            ))}
+          </h1>
+
+          <p className="mt-7 max-w-[56ch] text-[16px] leading-[1.68] text-paper/80 sm:text-[16.5px]">
+            {hero.description}
+          </p>
+
+          <div className="mt-9 flex flex-wrap items-center gap-3">
+            <Button
+              asChild
+              size="lg"
+              className="border-2 border-copper-dark bg-copper-dark text-cream-2 hover:border-copper hover:bg-copper"
+            >
+              <a href="#jalur">{hero.primaryCta}</a>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="border-paper/35 text-paper hover:border-brass hover:bg-paper/5 hover:text-brass"
+            >
+              <a href="#lingkaran">{hero.secondaryCta}</a>
+            </Button>
+          </div>
+
+          <dl className="mt-12 grid max-w-lg grid-cols-3 border-t border-paper/20 pt-5">
+            {hero.meta.map((item, index) => (
+              <div
+                key={item.label}
+                className={
+                  index < hero.meta.length - 1
+                    ? "border-r border-paper/20 pr-4"
+                    : "pl-0"
+                }
+              >
+                <dd className="font-heading text-[1.9rem] leading-none text-brass">
+                  {item.value}
+                </dd>
+                <dt className="mt-2 text-[10px] font-semibold uppercase leading-tight tracking-[0.08em] text-paper/60">
+                  {item.label}
+                </dt>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <div className="relative lg:col-span-6 lg:pl-8">
+          <figure className="relative mx-auto max-w-[560px]">
+            <div className="hero-photo paper-frame border-[10px] border-[#e7d5b8] bg-[#e7d5b8] [--photo-rot:-1.4deg]">
+              <div className="relative aspect-[4/3] overflow-hidden bg-teak">
+                <Image
+                  src={hero.plate.image}
+                  alt={hero.plate.alt}
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 560px, 92vw"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-deep/90 via-deep/25 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-2 p-3.5">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-cream-2">
+                    {hero.plate.caption}
+                  </p>
+                  <p className="text-[9px] uppercase tracking-[0.08em] text-cream-2/70">
+                    {hero.plate.note}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              className="hero-seal absolute -right-3 top-4 hidden size-[112px] rounded-full border-[3px] border-copper bg-deep/90 p-2 text-center text-cream-2 shadow-[0_10px_24px_-12px_rgba(0,0,0,0.8)] sm:block [--seal-rot:-8deg]"
+              aria-hidden="true"
+            >
+              <span className="flex size-full flex-col items-center justify-center gap-1 rounded-full border border-copper/70">
+                <span className="text-[8px] font-bold uppercase tracking-[0.14em] text-copper-light">
+                  Koreksi
+                </span>
+                <span className="font-heading text-[1rem] leading-none">
+                  pengajar
+                </span>
+                <span className="text-[8px] uppercase tracking-[0.1em] text-paper/60">
+                  langsung
+                </span>
+              </span>
+            </div>
+
+            <div className="hero-tag relative z-10 mx-auto -mt-10 w-[min(94%,340px)] border-2 border-ink bg-paper-2 p-4 text-ink shadow-[8px_8px_0_#20130d] sm:absolute sm:-bottom-12 sm:left-1 sm:mt-0 sm:w-[310px] [--tag-rot:2.4deg]">
+              <div className="tag-hole flex items-center justify-between gap-3 border-b border-ink/20 pb-2.5 pl-6">
+                <span className="stamp stamp-soft border-ink/45 text-ink">
+                  {hero.workCard.title}
+                </span>
+                <span className="text-[10px] font-bold tracking-[0.08em] text-ink/70">
+                  {hero.workCard.serial}
+                </span>
+              </div>
+              <p className="mt-3 pl-6 font-heading text-[1.15rem] leading-tight">
+                {hero.workCard.work}
+              </p>
+              <dl className="mt-3 grid gap-1.5 pl-6 text-[10.5px] leading-snug">
+                <div className="flex justify-between gap-3">
+                  <dt className="text-ink-muted">Pembuat</dt>
+                  <dd className="font-semibold">{hero.workCard.maker}</dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-ink-muted">Pengajar</dt>
+                  <dd className="font-semibold">{hero.workCard.teacher}</dd>
+                </div>
+              </dl>
+            </div>
+          </figure>
+
+          <div className="ruler mt-8 hidden text-brass/70 sm:block" aria-hidden="true" />
+          <p className="mt-7 hidden text-[10px] font-semibold uppercase leading-relaxed tracking-[0.1em] text-paper/60 sm:block">
+            Belajar / dinilai / berkarya / kembali mengajar
+          </p>
+        </div>
+      </div>
+
+      <div className="bench-plank absolute inset-x-0 bottom-0 h-3" aria-hidden="true" />
+    </section>
+  )
+}

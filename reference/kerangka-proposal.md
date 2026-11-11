@@ -1,5 +1,9 @@
 # Kerangka Proposal BUDAYA GO! — [Nama Produk]
 
+> **Catatan implementasi.** Dokumen ini adalah kerangka proposal, bukan spec UI.
+> Istilah “maestro” di sini tidak dipakai di antarmuka; produk memakai “pengajar”.
+> “Paspor Karya” di dokumen ini setara dengan “Kartu Karya” di produk.
+
 **Status dokumen:** kerangka kerja (bukan teks jadi). Setiap butir menjelaskan *fungsi paragraf*, *isi wajib*, *sumber bukti*, dan *sambungan* ke paragraf berikutnya, sehingga tim tinggal mengembangkan menjadi kalimat.
 
 **Cara pakai:** kerjakan berurutan dari Bagian 1 sampai 17. Isi dulu **Bagian 0 (keputusan)** karena semua angka dan klaim di bagian lain bergantung pada keputusan itu. Bagian 18 dan Lampiran 2 dikerjakan terakhir, setelah seluruh tautan bukti tersedia.

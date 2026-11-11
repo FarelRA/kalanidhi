@@ -1,8 +1,9 @@
 export const navigation = [
+  { label: "Lingkaran", href: "#lingkaran" },
+  { label: "Rak bahan", href: "#indeks" },
   { label: "Jalur", href: "#jalur" },
-  { label: "Karya", href: "#karya" },
   { label: "Pengajar", href: "#pengajar" },
-  { label: "Mangsa", href: "#mangsa" },
+  { label: "Karya", href: "#karya" },
   { label: "Etika", href: "#etika" },
 ] as const
 

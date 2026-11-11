@@ -41,7 +41,7 @@ function AccordionTrigger({
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "group/accordion-trigger relative flex flex-1 items-start justify-between gap-6 border border-transparent py-6 text-left font-heading text-[1.15rem] leading-snug text-paper transition-colors outline-none hover:text-soga focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-soga",
+          "group/accordion-trigger relative flex flex-1 items-start justify-between gap-6 border border-transparent py-6 text-left font-heading text-[1.15rem] leading-snug text-ink transition-colors outline-none hover:text-thread focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-thread",
           className
         )}
         {...props}
@@ -67,7 +67,7 @@ function AccordionContent({
     >
       <div
         className={cn(
-          "h-(--radix-accordion-content-height) pb-6 pr-10 pt-0 text-[14px] leading-[1.7] text-paper-dim [&_a]:text-soga [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-paper [&_p:not(:last-child)]:mb-4",
+          "h-(--radix-accordion-content-height) pb-6 pr-10 pt-0 text-[13.5px] leading-[1.7] text-ink-soft [&_a]:text-thread [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-ink [&_p:not(:last-child)]:mb-4",
           className
         )}
       >

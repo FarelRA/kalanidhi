@@ -1,4 +1,4 @@
-import { paths, teachers, works, faqs } from "@/lib/content/landing"
+import { catalog, paths, teachers, works } from "@/lib/content/landing"
 
 export type SearchIcon = "path" | "teacher" | "work" | "page"
 
@@ -22,7 +22,7 @@ export function buildSearchGroups(): SearchGroup[] {
       items: paths.map((path) => ({
         label: path.title,
         description: path.comingSoon
-          ? "Segera hadir, daftar tunggu"
+          ? "Sedang disusun, daftar tunggu dibuka"
           : `${path.teacher}, ${path.level}`,
         href: "#jalur",
       })),
@@ -37,7 +37,7 @@ export function buildSearchGroups(): SearchGroup[] {
       })),
     },
     {
-      heading: "Karya & jasa",
+      heading: "Karya dan jasa",
       icon: "work",
       items: works.map((work) => ({
         label: work.title,
@@ -46,22 +46,31 @@ export function buildSearchGroups(): SearchGroup[] {
       })),
     },
     {
+      heading: "Bidang budaya",
+      icon: "page",
+      items: catalog.fields.map((field) => ({
+        label: field.name,
+        description: `${field.region}, ${field.status.toLowerCase()}`,
+        href: "#indeks",
+      })),
+    },
+    {
       heading: "Halaman",
       icon: "page",
       items: [
         {
-          label: "Cara kerja",
-          description: "Lima tahap, dari belajar sampai kembali mengajar",
-          href: "#cara-kerja",
+          label: "Cara kerja lingkaran",
+          description: "Belajar, dinilai, berkarya, kembali mengajar",
+          href: "#lingkaran",
         },
         {
-          label: "Etika & bagi hasil",
-          description: "Sumber, izin, dan distribusi pendapatan",
+          label: "Etika dan bagi hasil",
+          description: "Sumber, izin, tingkat akses, dan distribusi pendapatan",
           href: "#etika",
         },
         {
           label: "Kalender mangsa",
-          description: "Pranata mangsa dan pengetahuan musim",
+          description: "Catatan musim dari pengajar Giriloyo",
           href: "#mangsa",
         },
         {
@@ -71,7 +80,7 @@ export function buildSearchGroups(): SearchGroup[] {
         },
         {
           label: "Pertanyaan umum",
-          description: `Jawaban untuk ${faqs.length} pertanyaan populer`,
+          description: "Jawaban tentang penilaian, sertifikat, dan hak budaya",
           href: "#faq",
         },
       ],

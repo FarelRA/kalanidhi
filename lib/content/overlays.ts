@@ -29,21 +29,21 @@ export type InfoContent = {
 export const infoContent: Record<InfoKey, InfoContent> = {
   policy: {
     icon: "policy",
-    title: "Etika & hak budaya",
+    title: "Etika dan hak budaya",
     description:
       "Prinsip yang kami pakai sebelum sebuah pengetahuan atau karya ditampilkan.",
     bullets: [
-      "Komunitas, pengajar, dan sumber pengetahuan tampil di setiap jalur dan karya, dari batik sampai keramik.",
+      "Komunitas, pengajar, dan sumber pengetahuan tampil di setiap jalur dan karya.",
       "Izin berbagi dicatat, diberi tanggal, dan ditampilkan bersama tingkat aksesnya.",
       "Rincian bagi hasil dapat dilihat sebelum transaksi, saat kamu masih bisa memutuskan.",
       "Pengetahuan terbatas dihormati. Tidak semua materi dibuka untuk publik.",
       "Motif sakral atau larangan tidak dipakai sebagai dekorasi antarmuka.",
     ],
     footnote:
-      "Kebijakan lengkap tersedia untuk pengajar, sanggar, dan mitra institusi. Katalog bidang dibuka bertahap bersama pemilik pengetahuannya. Untuk pertanyaan lain, hubungi tim kurator.",
+      "Kebijakan lengkap tersedia untuk pengajar, sanggar, dan mitra institusi. Untuk pertanyaan lain, hubungi tim kurator.",
     action: {
       label: "Tanyakan kebijakan",
-      lead: { variant: "consultation", interest: "Etika & hak budaya" },
+      lead: { variant: "consultation", interest: "Etika dan hak budaya" },
     },
   },
   login: {
@@ -57,7 +57,7 @@ export const infoContent: Record<InfoKey, InfoContent> = {
       "Mitra institusi bisa memantau progres peserta dan rekap kehadiran.",
     ],
     footnote:
-      "Gunakan email yang sama saat mendaftar. Akun pengajar dan mitra dibuat oleh tim KalaNidhi Digital.",
+      "Gunakan email yang sama saat mendaftar. Akun pengajar dan mitra dibuat bersama tim KalaNidhi Digital.",
     action: {
       label: "Daftar minat",
       lead: { variant: "student" },
@@ -77,12 +77,12 @@ export const infoContent: Record<InfoKey, InfoContent> = {
       "Entri disusun dari arsip sanggar dan wawancara pengajar. Untuk keputusan tanam atau produksi, tetap cek prakiraan cuaca resmi.",
     action: {
       label: "Beri tahu saya",
-      lead: { variant: "notify", interest: "Pustaka & kalender mangsa" },
+      lead: { variant: "notify", interest: "Pustaka dan kalender mangsa" },
     },
   },
   verify: {
     icon: "verify",
-    title: "Verifikasi sertifikat & Kartu Karya",
+    title: "Verifikasi sertifikat dan Kartu Karya",
     description:
       "Masukkan kode sertifikat atau kode Kartu Karya dari label QR untuk melihat statusnya.",
     bullets: [
@@ -101,16 +101,16 @@ export const infoContent: Record<InfoKey, InfoContent> = {
     icon: "about",
     title: "Tentang KalaNidhi Digital",
     description:
-      "KalaNidhi Digital adalah ruang belajar berbagai praktik budaya Nusantara yang dibangun bersama pengajar, praktisi, dan sanggar.",
+      "KalaNidhi Digital adalah ruang belajar praktik budaya Nusantara yang dibangun bersama pengajar dan sanggar. Sepuluh bidang sudah dipetakan; dua jalur sudah terbuka.",
     bullets: [
       "Jalur belajar disusun bersama pengajar, kurator, dan praktisi sanggar.",
       "Setiap karya membawa Kartu Karya yang mencatat pembuat, teknik, dan proses.",
       "Sertifikat KalaNidhi Digital adalah sertifikat platform dengan kode verifikasi publik.",
-      "Bagi hasil ditampilkan sebelum transaksi dan disalurkan ke pengajar serta komunitas.",
-      "Lulusan yang siap bisa kembali sebagai pengajar, penilai, atau pemasok, sehingga jalur dan pasokan baru lahir dari dalam.",
+      "Lulusan dapat mengajukan diri sebagai pengajar pendamping, penilai, atau pemasok.",
+      "Uji coba terbatas 2026 berjalan di Yogyakarta dan Jawa Tengah, terbuka untuk praktisi dari daerah lain secara bertahap.",
     ],
     footnote:
-      "Sekretariat kami berada di Yogyakarta dan Surakarta. Basis awal kami di Jawa, dan platform terbuka untuk praktisi dari berbagai daerah di Nusantara dengan rilis bertahap.",
+      "Sekretariat kami berada di Yogyakarta dan Surakarta. Untuk kerja sama, gunakan formulir institusi.",
     action: {
       label: "Hubungi kami",
       lead: { variant: "consultation", interest: "Tentang KalaNidhi Digital" },

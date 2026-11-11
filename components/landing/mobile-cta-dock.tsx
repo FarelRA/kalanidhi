@@ -37,17 +37,19 @@ export function MobileCtaDock() {
       aria-label="Ajakan mendaftar"
       data-state={visible ? "open" : "closed"}
       className={cn(
-        "safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-soga/40 bg-ink/95 px-4 pt-3 backdrop-blur-xl transition-transform duration-300 md:hidden",
+        "safe-bottom fixed inset-x-0 bottom-0 z-30 border-t-2 border-copper-dark bg-cream-2 px-4 pt-3 shadow-[0_-14px_30px_-24px_rgba(32,19,13,0.65)] transition-transform duration-300 md:hidden",
         visible ? "translate-y-0" : "pointer-events-none translate-y-full",
       )}
       aria-hidden={!visible}
     >
       <div className="flex items-center gap-4">
         <div className="min-w-0">
-          <p className="text-[10px] text-text-muted">Mulai dari</p>
-          <p className="font-heading text-[1.35rem] leading-tight text-paper">
+          <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-ink-muted">
+            Mulai dari
+          </p>
+          <p className="font-heading text-[1.35rem] leading-tight text-ink">
             {formatIDR(startingPrice)}
-            <span className="ml-1 font-sans text-[10px] text-text-muted">
+            <span className="ml-1 font-sans text-[10px] font-semibold text-ink-muted">
               / jalur
             </span>
           </p>
@@ -55,14 +57,14 @@ export function MobileCtaDock() {
         <Button
           type="button"
           tabIndex={visible ? undefined : -1}
-          className="ml-auto shrink-0"
+          className="ml-auto min-h-11 shrink-0 border-2 border-copper-dark bg-copper-dark px-4 text-cream-2 hover:border-copper hover:bg-copper"
           onClick={() => openLead({ variant: "student" })}
         >
           Daftar minat
         </Button>
       </div>
-      <p className="mt-1.5 text-[10px] text-text-muted">
-        Harga termasuk paket bahan
+      <p className="mt-1.5 text-[10px] leading-snug text-ink-muted">
+        Sudah termasuk penilaian pengajar
       </p>
     </aside>
   )

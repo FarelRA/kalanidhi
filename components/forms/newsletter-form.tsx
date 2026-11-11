@@ -17,7 +17,7 @@ export function NewsletterForm() {
   if (state.status === "success") {
     return (
       <div
-        className="flex items-start gap-2.5 border-t border-indigo-dust/40 pt-3 text-xs leading-relaxed text-indigo-dust"
+        className="flex items-start gap-2.5 border-t border-thread-light/40 pt-3 text-xs leading-relaxed text-thread-light"
         role="status"
         aria-live="polite"
       >
@@ -30,7 +30,7 @@ export function NewsletterForm() {
   return (
     <form action={formAction} className="space-y-2">
       <input type="hidden" name="intent" value="notify" />
-      <input type="hidden" name="interest" value="Kabar jalur & karya baru" />
+      <input type="hidden" name="interest" value="Kabar jalur dan karya baru" />
       <input type="hidden" name="source" value="footer" />
       <input type="hidden" name="consent" value="on" />
       <div aria-hidden="true" className="hidden">
@@ -46,7 +46,7 @@ export function NewsletterForm() {
       <label htmlFor="newsletter-email" className="sr-only">
         Alamat email untuk kabar jalur baru
       </label>
-      <div className="flex items-end gap-3 border-b border-paper/25 pb-2 focus-within:border-soga">
+      <div className="flex items-end gap-3 border-b border-paper/30 pb-1 focus-within:border-thread-light">
         <Input
           id="newsletter-email"
           name="email"
@@ -59,13 +59,13 @@ export function NewsletterForm() {
           aria-describedby={
             state.status === "error" ? "newsletter-error" : undefined
           }
-          className="h-8 rounded-none border-0 bg-transparent px-0 text-[14px] placeholder:text-text-muted focus-visible:ring-0"
+          className="h-9 rounded-none border-0 bg-transparent px-0 text-[14px] text-paper placeholder:text-paper/60 focus-visible:ring-0"
         />
         <Button
           type="submit"
           variant="ghost"
           size="sm"
-          className="-mb-1 shrink-0 rounded-none border-0 border-b border-soga/60 px-1 text-soga hover:bg-transparent hover:text-paper"
+          className="-mb-0.5 shrink-0 rounded-none border-0 border-b border-thread-light/60 px-1 text-thread-light hover:bg-transparent hover:text-paper"
           disabled={pending}
         >
           {pending ? (
@@ -75,11 +75,11 @@ export function NewsletterForm() {
         </Button>
       </div>
       {state.status === "error" ? (
-        <p id="newsletter-error" className="text-[11px] text-destructive" role="alert">
+        <p id="newsletter-error" className="text-[11px] text-thread-light" role="alert">
           {state.message} Periksa alamat emailmu.
         </p>
       ) : null}
-      <p className="text-[10px] leading-relaxed text-text-muted">
+      <p className="text-[10px] leading-relaxed text-paper/60">
         Kami hanya mengirim kabar jalur dan karya baru. Berhenti kapan saja.
       </p>
     </form>

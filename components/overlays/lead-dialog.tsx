@@ -3,6 +3,7 @@
 import { BadgeCheck, Send } from "lucide-react"
 
 import { LeadForm } from "@/components/forms/lead-form"
+import { useReturnFocus } from "@/components/overlays/use-return-focus"
 import {
   Dialog,
   DialogContent,
@@ -42,13 +43,14 @@ export function LeadDialog({
   request: LeadRequest
   onClose: () => void
 }) {
+  useReturnFocus()
   const content = copy[request.variant]
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader className="gap-3 pr-8">
-          <span className="flex size-10 items-center justify-center rounded-xl border border-soga/30 bg-soga/10 text-soga">
+          <span className="flex size-10 items-center justify-center rounded-[2px] border border-thread/30 bg-thread/[0.06] text-thread">
             {request.variant === "notify" ? (
               <BadgeCheck className="size-5" aria-hidden="true" />
             ) : (
