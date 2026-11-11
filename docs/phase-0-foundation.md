@@ -38,6 +38,11 @@ npx convex env set BETTER_AUTH_SECRET=$(openssl rand -base64 32)
 npx convex env set SITE_URL http://localhost:3000
 ```
 
+`npx convex dev` also regenerates `convex/_generated`, adding the
+`components.betterAuth` reference from `convex/convex.config.ts`. The checked-in
+`_generated/api.ts` keeps typecheck, tests, and the landing build working on a
+machine without a deployment; do not treat it as a substitute for codegen.
+
 Without Convex, `npm run build` and the landing page still work from
 `lib/content/fallback.ts`. In development, `/ruang` renders the preview shell
 with a visible development banner. In production, `/ruang` renders a
