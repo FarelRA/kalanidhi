@@ -6,12 +6,16 @@ This brief is mandatory for every implementation subagent. Read it in full, then
 
 1. `docs/workspace-plan.md` — the complete product and workspace plan. Read every section, including the appendices.
 2. `docs/payments-gateway.md` — payment architecture and the hardened gateway.
-3. This brief.
-4. `DESIGN.md` — Bangku Kayu visual rules.
-5. `README.md` — current stack and run commands.
-6. The existing code in your assigned area.
+3. `docs/phase-0-foundation.md` — the merged foundation contracts, auth setup, capability matrix, and handoff rules.
+4. `docs/test-plan.md` — the cross-phase TDD and acceptance matrix. Read the sections for your phase.
+5. This brief.
+6. `DESIGN.md` — Bangku Kayu visual rules.
+7. `README.md` — current stack and run commands.
+8. The existing code in your assigned area.
 
 Do not skim. Do not rely on a summary. If this brief and the plan conflict, the plan wins; stop and report the conflict.
+
+**Phase 0 is merged.** The shell renders feature pages for real sessions. Preview data is only allowed when the shell is in explicit preview mode. In a live session, never render `lib/workspace/mock-data.ts` or any local fixture as production data. If a module is not wired yet, render an explicit empty state.
 
 ---
 
@@ -103,7 +107,7 @@ If a gate cannot run because the environment lacks Convex credentials, report ex
 | Phase | Owns | May read |
 |---|---|---|
 | 0 Foundation | `convex/schema.ts`, `convex/tables/*`, `convex/users.ts`, `convex/access.ts`, `convex/auth.ts`, `convex/http.ts`, `convex/auth.config.ts`, `lib/access/*`, `lib/auth/*`, `app/(auth)/*`, `app/api/auth/*`, `app/ruang/layout.tsx`, `components/workspace/shell/viewer-provider.tsx`, providers, test config | Everything |
-| 1 Admin core | `convex/content.ts`, `convex/media.ts`, `convex/leads.ts`, `convex/people.ts`, `convex/stats.ts`, `convex/audit.ts`, content/people/leads/stats/log pages and components | Phase 0 contracts |
+| 1 Admin core | `convex/content.ts`, `convex/media.ts`, `convex/leads.ts`, `convex/people.ts`, `convex/stats.ts`, `convex/audit.ts`, `app/ruang/page.tsx`, `components/workspace/overview/*`, content/people/leads/stats/log pages and components | Phase 0 contracts |
 | 2 Learning | `convex/learning.ts`, `convex/assessments.ts`, `convex/certificates.ts`, learning/credentials pages and components | Phase 0 contracts |
 | 3 Commerce | `convex/commerce.ts`, `convex/payments.ts`, `convex/payouts.ts`, `app/api/payments/*`, commerce pages and components | Phase 0 + gateway contract |
 | 4 Messaging | `convex/messaging.ts`, `convex/notifications.ts`, chat/voice-note UI | Phase 0 |

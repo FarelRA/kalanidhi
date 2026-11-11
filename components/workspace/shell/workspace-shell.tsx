@@ -51,9 +51,7 @@ export function WorkspaceShell({
             className="mx-auto w-full max-w-[1500px] min-w-0 px-3 py-5 pb-24 sm:px-5 lg:px-7 lg:py-7 lg:pb-12"
           >
             {preview ? <PreviewBanner /> : null}
-            <CapabilityGate>
-              {preview ? children : <LiveFoundation viewer={viewer} />}
-            </CapabilityGate>
+            <CapabilityGate>{children}</CapabilityGate>
           </main>
         </div>
         <MobileNav />
@@ -73,41 +71,6 @@ function PreviewBanner() {
         Data lokal untuk pengembangan. Tidak tersambung ke Convex dan bukan
         data produksi.
       </span>
-    </div>
-  )
-}
-
-function LiveFoundation({ viewer }: { viewer: Viewer | null }) {
-  return (
-    <div className="mx-auto max-w-2xl border border-ink/25 bg-paper-2 p-5 sm:p-8">
-      <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-copper-dark">
-        Fondasi ruang kerja
-      </p>
-      <h1 className="heading-section mt-2 text-[clamp(1.8rem,4vw,2.7rem)]">
-        Sesi dan peran sudah tersambung.
-      </h1>
-      <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-ink-soft">
-        {viewer?.name ?? "Akun ini"} masuk sebagai{" "}
-        <strong>{viewer?.roleLabel ?? "tanpa peran"}</strong>. Modul fitur
-        dibuka pada fase berikutnya; ruang ini tidak menampilkan data lokal
-        sebagai data nyata.
-      </p>
-      <dl className="mt-6 grid gap-2 border-t border-ink/15 pt-4 text-[11px] sm:grid-cols-2">
-        <div>
-          <dt className="font-bold uppercase tracking-[0.08em] text-ink-muted">
-            Kemampuan aktif
-          </dt>
-          <dd className="mt-1 text-ink">{viewer?.capabilities.length ?? 0}</dd>
-        </div>
-        <div>
-          <dt className="font-bold uppercase tracking-[0.08em] text-ink-muted">
-            Cakupan jual
-          </dt>
-          <dd className="mt-1 text-ink">
-            {viewer?.sellScopes.length ? viewer.sellScopes.join(", ") : "Belum ada"}
-          </dd>
-        </div>
-      </dl>
     </div>
   )
 }

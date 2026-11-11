@@ -17,8 +17,11 @@ Phase 0 implementation.
 
 Feature pages under `/ruang/*` still contain the approved visual prototype.
 Those prototypes render only in the development preview. With a real session,
-the shell renders a foundation state instead of presenting local records as
-production data. Feature phases replace that state with real modules.
+the shell renders the feature pages directly; each phase replaces its pages
+with real Convex queries and must never present local records as production
+data. The shared `LiveFoundation` gate was removed before Phase 1 so feature
+agents can test real sessions. Any module not yet wired must render an explicit
+empty state, not preview data.
 
 ## Environment
 
@@ -167,6 +170,9 @@ and `tests/convex-access.test.ts`.
 `siteContent.value`, revision snapshots, provider payloads, audit before/after,
 settings, and notification payloads are documented JSON bags. Every other field
 has a typed `v` validator.
+
+`siteContent.value` is an explicit Phase 0 boundary: Phase 1 adds Zod validation
+for content drafts and publish, and no unvalidated content may be published.
 
 ## Session revocation
 
