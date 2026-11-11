@@ -385,8 +385,8 @@ export function PeopleDirectory() {
               className="mt-2 min-h-24"
               placeholder={
                 review === "approve"
-                  ? "Contoh: dokumen izin komunitas lengkap, rekomendasi pengajar senior diterima."
-                  : "Contoh: dokumen izin komunitas belum lengkap."
+                  ? "Misalnya: dokumen izin komunitas lengkap, rekomendasi pengajar senior diterima."
+                  : "Misalnya: dokumen izin komunitas belum lengkap."
               }
             />
           </div>

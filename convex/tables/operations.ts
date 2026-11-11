@@ -31,6 +31,9 @@ export const operationsTables = {
       v.literal("spam"),
     ),
     createdAt: v.number(),
+    /** Phase 1 CRM projection fields; optional for existing rows. */
+    updatedAt: v.optional(v.number()),
+    convertedAt: v.optional(v.number()),
   })
     .index("by_createdAt", ["createdAt"])
     .index("by_email", ["email"])
