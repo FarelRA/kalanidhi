@@ -1,7 +1,24 @@
-import type { Capability, PreviewKey, WorkspaceRole } from "./types"
+import {
+  can,
+  canAccessRoute,
+  computeCapabilities,
+  deriveViewer,
+  routeCapability,
+} from "@/lib/access/policy"
+import type { Capability, WorkspaceRole } from "@/lib/access/capabilities"
+import type { Viewer, ViewerCertificate, ViewerEnrollment } from "@/lib/access/viewer"
+import type { PreviewKey } from "./types"
 
+/**
+ * Development-only preview profiles. They are never used when a real session
+ * exists, and never in a production build without an explicit flag.
+ *
+ * Seller access in the preview is derived exactly like the real policy: it
+ * comes from issued certificates and teacher profile paths, never from a
+ * stored seller role.
+ */
 export type PreviewProfile = {
-  key: PreviewKey
+  key: PreviewKey | "live"
   label: string
   shortLabel: string
   description: string
@@ -16,7 +33,28 @@ export type PreviewProfile = {
   roles: WorkspaceRole[]
   certificates: string[]
   teacherScopes: string[]
+  cohortPathIds: string[]
+  sellerStatus: "pending" | "active" | "suspended" | null
 }
+
+function courseCertificates(pathIds: string[]): ViewerCertificate[] {
+  return pathIds.map((pathId, index) => ({
+    id: `preview-cert-${index + 1}`,
+    pathId,
+    publicCode: `KN-PREVIEW-${index + 1}`,
+    status: "issued",
+    issuedAt: Date.now(),
+  }))
+}
+
+const previewEnrollment: ViewerEnrollment[] = [
+  {
+    id: "preview-enrollment-1",
+    pathId: "pranatacara",
+    cohortId: "preview-cohort-1",
+    status: "active",
+  },
+]
 
 export const previewProfiles: PreviewProfile[] = [
   {
@@ -32,9 +70,11 @@ export const previewProfiles: PreviewProfile[] = [
       region: "Giriloyo, Yogyakarta",
       roleLabel: "Peserta",
     },
-    roles: ["peserta"],
+    roles: ["student"],
     certificates: [],
     teacherScopes: [],
+    cohortPathIds: [],
+    sellerStatus: null,
   },
   {
     key: "peserta-penjual",
@@ -49,9 +89,11 @@ export const previewProfiles: PreviewProfile[] = [
       region: "Giriloyo, Yogyakarta",
       roleLabel: "Peserta · Penjual",
     },
-    roles: ["peserta"],
-    certificates: ["cert-anisa-01"],
+    roles: ["student"],
+    certificates: ["batik-tulis-soga"],
     teacherScopes: [],
+    cohortPathIds: [],
+    sellerStatus: "active",
   },
   {
     key: "pengajar",
@@ -66,9 +108,11 @@ export const previewProfiles: PreviewProfile[] = [
       region: "Giriloyo, Yogyakarta",
       roleLabel: "Pengajar · Penjual",
     },
-    roles: ["pengajar"],
+    roles: ["teacher"],
     certificates: [],
     teacherScopes: ["batik-tulis-soga"],
+    cohortPathIds: ["batik-tulis-soga"],
+    sellerStatus: "active",
   },
   {
     key: "pengajar-peserta",
@@ -83,9 +127,11 @@ export const previewProfiles: PreviewProfile[] = [
       region: "Lasem, Jawa Tengah",
       roleLabel: "Pengajar · Peserta · Penjual",
     },
-    roles: ["pengajar", "peserta"],
-    certificates: ["cert-sri-02"],
+    roles: ["teacher", "student"],
+    certificates: ["pranatacara"],
     teacherScopes: ["batik-tulis-soga"],
+    cohortPathIds: ["batik-tulis-soga"],
+    sellerStatus: "active",
   },
   {
     key: "pengelola",
@@ -100,179 +146,95 @@ export const previewProfiles: PreviewProfile[] = [
       region: "Yogyakarta",
       roleLabel: "Pengelola",
     },
-    roles: ["pengelola"],
+    roles: ["admin"],
     certificates: [],
     teacherScopes: [],
+    cohortPathIds: [],
+    sellerStatus: null,
   },
 ]
 
-const learnerCapabilities: Capability[] = [
-  "learn",
-  "submissions.submit",
-  "certificates.read.own",
-  "orders.buy",
-  "works.own",
-  "messages.read.own",
-  "calls.start",
-  "schedule.read.own",
-  "support.request",
-]
+export function viewerForPreview(profile: PreviewProfile): Viewer {
+  const viewer = deriveViewer({
+    userId: profile.user.id,
+    authUserId: `preview:${profile.user.id}`,
+    name: profile.user.name,
+    email: profile.user.email,
+    initials: profile.user.initials,
+    region: profile.user.region,
+    roles: profile.roles,
+    status: "active",
+    teacherProfile:
+      profile.roles.includes("teacher") && profile.teacherScopes.length > 0
+        ? {
+            id: `preview-teacher-${profile.user.id}`,
+            status: "active",
+            pathIds: profile.teacherScopes,
+          }
+        : null,
+    sellerProfile:
+      profile.sellerStatus !== null
+        ? {
+            id: `preview-seller-${profile.user.id}`,
+            status: profile.sellerStatus,
+          }
+        : null,
+    certificates: courseCertificates(profile.certificates),
+    enrollments: profile.roles.includes("student")
+      ? previewEnrollment
+      : [],
+    cohortPathIds: profile.cohortPathIds,
+  })
 
-const teacherCapabilities: Capability[] = [
-  "teach",
-  "assess",
-  "submissions.grade",
-  "certificates.read.cohort",
-  "orders.sell",
-  "works.review",
-  "payouts.view.own",
-  "schedule.manage",
-  "stats.teach",
-  "messages.read.own",
-  "calls.start",
-  "support.request",
-]
-
-const operatorCapabilities: Capability[] = [
-  "operate",
-  "people.read",
-  "people.manage",
-  "content.publish",
-  "stats.read",
-  "payments.manage",
-  "payouts.release",
-  "leads.manage",
-  "logs.read",
-  "flows.manage",
-  "support.manage",
-  "governance.manage",
-  "settings.platform",
-  "orders.read.all",
-  "works.moderate",
-  "messages.read.own",
-  "messages.moderate",
-  "calls.monitor",
-  "schedule.read.all",
-  "certificates.manage",
-  "submissions.escalate",
-]
-
-const sellerCapabilities: Capability[] = [
-  "sell",
-  "orders.sell",
-  "payouts.view.own",
-]
+  return {
+    ...viewer,
+    initials: profile.user.initials,
+    region: profile.user.region,
+    roleLabel: profile.user.roleLabel,
+  }
+}
 
 export function capabilitiesFor(profile: PreviewProfile): Capability[] {
-  const capabilities = new Set<Capability>()
+  const viewer = viewerForPreview(profile)
+  return computeCapabilities({
+    roles: viewer.roles,
+    status: viewer.status,
+    teacherProfile: viewer.teacherProfile,
+    sellerProfile: viewer.sellerProfile,
+    certificates: viewer.certificates,
+    enrollments: viewer.enrollments,
+    cohortPathIds: viewer.assessScopes,
+  })
+}
 
-  for (const role of profile.roles) {
-    if (role === "peserta") {
-      learnerCapabilities.forEach((item) => capabilities.add(item))
-    }
-    if (role === "pengajar") {
-      teacherCapabilities.forEach((item) => capabilities.add(item))
-    }
-    if (role === "pengelola") {
-      operatorCapabilities.forEach((item) => capabilities.add(item))
-    }
+/** Adapts a live server viewer to the shell's profile contract. */
+export function profileForViewer(viewer: Viewer): PreviewProfile {
+  return {
+    key: "live",
+    label: viewer.roleLabel,
+    shortLabel: viewer.roleLabel,
+    description: viewer.entitlements.operate
+      ? "Operasi platform, konten, statistik, dan tata kelola."
+      : viewer.entitlements.teach
+        ? "Kohort, penilaian, dan kredensial yang ditugaskan."
+        : "Jalur belajar, tugas, dan kredensial.",
+    user: {
+      id: viewer.userId,
+      name: viewer.name,
+      initials: viewer.initials,
+      email: viewer.email,
+      region: viewer.region,
+      roleLabel: viewer.roleLabel,
+    },
+    roles: viewer.roles,
+    certificates: viewer.certificates
+      .filter((certificate) => certificate.status === "issued")
+      .map((certificate) => certificate.pathId),
+    teacherScopes: viewer.teachScopes,
+    cohortPathIds: viewer.assessScopes,
+    sellerStatus: viewer.sellerProfile?.status ?? null,
   }
-
-  const sells =
-    profile.teacherScopes.length > 0 || profile.certificates.length > 0
-  if (sells && (profile.roles.includes("peserta") || profile.roles.includes("pengajar"))) {
-    sellerCapabilities.forEach((item) => capabilities.add(item))
-  }
-
-  return Array.from(capabilities)
 }
 
-export function can(
-  capabilities: Capability[],
-  capability: Capability,
-): boolean {
-  return capabilities.includes(capability)
-}
-
-const routeCapabilities: { path: string; anyOf: Capability[] }[] = [
-  { path: "/ruang", anyOf: [] },
-  {
-    path: "/ruang/belajar",
-    anyOf: ["learn", "teach", "operate"],
-  },
-  {
-    path: "/ruang/tugas",
-    anyOf: ["submissions.submit", "submissions.grade", "submissions.escalate"],
-  },
-  {
-    path: "/ruang/kredensial",
-    anyOf: [
-      "certificates.read.own",
-      "certificates.read.cohort",
-      "certificates.manage",
-    ],
-  },
-  {
-    path: "/ruang/karya",
-    anyOf: ["works.own", "works.review", "works.moderate", "operate"],
-  },
-  {
-    path: "/ruang/pesanan/pembayaran",
-    anyOf: ["payments.manage"],
-  },
-  {
-    path: "/ruang/pesanan/payout",
-    anyOf: ["payouts.view.own", "payouts.release"],
-  },
-  {
-    path: "/ruang/pesanan",
-    anyOf: ["orders.buy", "orders.sell", "orders.read.all"],
-  },
-  {
-    path: "/ruang/pesan",
-    anyOf: ["messages.read.own", "messages.moderate"],
-  },
-  {
-    path: "/ruang/panggilan",
-    anyOf: ["calls.start", "calls.monitor"],
-  },
-  {
-    path: "/ruang/jadwal",
-    anyOf: ["schedule.read.own", "schedule.manage", "schedule.read.all"],
-  },
-  { path: "/ruang/prospek", anyOf: ["leads.manage"] },
-  { path: "/ruang/orang", anyOf: ["people.read"] },
-  { path: "/ruang/konten", anyOf: ["content.publish"] },
-  { path: "/ruang/statistik", anyOf: ["stats.read", "stats.teach"] },
-  { path: "/ruang/alur", anyOf: ["flows.manage"] },
-  { path: "/ruang/log", anyOf: ["logs.read"] },
-  {
-    path: "/ruang/dukungan",
-    anyOf: ["support.request", "support.manage"],
-  },
-  { path: "/ruang/pengaturan", anyOf: [] },
-]
-
-export function routeCapability(pathname: string): Capability[] {
-  const match = [...routeCapabilities]
-    .sort((a, b) => b.path.length - a.path.length)
-    .find(
-      (entry) =>
-        pathname === entry.path || pathname.startsWith(`${entry.path}/`),
-    )
-
-  return match?.anyOf ?? []
-}
-
-export function canAccessRoute(
-  capabilities: Capability[],
-  pathname: string,
-): boolean {
-  const required = routeCapability(pathname)
-  if (required.length === 0) return true
-  return required.some((capability) => capabilities.includes(capability))
-}
-
-export function roleLabelFor(profile: PreviewProfile): string {
-  return profile.user.roleLabel
-}
+export { can, canAccessRoute, routeCapability }
+export type { Capability }

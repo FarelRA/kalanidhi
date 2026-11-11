@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "convex:dev": "convex dev",
     "convex:deploy": "convex deploy",
     "convex:codegen": "convex codegen",
@@ -15,6 +18,8 @@
     "convex:seed:if-empty": "convex run seed:runIfEmpty"
   },
   "dependencies": {
+    "@convex-dev/better-auth": "^0.13.0",
+    "better-auth": "^1.7.21",
     "class-variance-authority": "0.7.1",
     "cmdk": "1.1.1",
     "cn": "0.5.2",
@@ -34,10 +39,13 @@
     "@types/node": "26.6.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "@vitest/coverage-v8": "^5.1.0",
+    "convex-test": "^0.0.70",
     "eslint": "10.14.0",
     "eslint-config-next": "16.4.6",
     "shadcn": "4.23.0",
     "tailwindcss": "4.3.5",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "vitest": "^5.1.0"
   }
 }

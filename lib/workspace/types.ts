@@ -1,4 +1,4 @@
-export type WorkspaceRole = "peserta" | "pengajar" | "pengelola"
+export type { Capability, WorkspaceRole } from "@/lib/access/capabilities"
 
 export type PreviewKey =
   | "peserta"
@@ -7,46 +7,7 @@ export type PreviewKey =
   | "pengajar-peserta"
   | "pengelola"
 
-export type Capability =
-  | "learn"
-  | "submissions.submit"
-  | "certificates.read.own"
-  | "orders.buy"
-  | "works.own"
-  | "messages.read.own"
-  | "calls.start"
-  | "schedule.read.own"
-  | "support.request"
-  | "teach"
-  | "assess"
-  | "submissions.grade"
-  | "certificates.read.cohort"
-  | "orders.sell"
-  | "works.review"
-  | "payouts.view.own"
-  | "schedule.manage"
-  | "stats.teach"
-  | "sell"
-  | "operate"
-  | "people.read"
-  | "people.manage"
-  | "content.publish"
-  | "stats.read"
-  | "payments.manage"
-  | "payouts.release"
-  | "leads.manage"
-  | "logs.read"
-  | "flows.manage"
-  | "support.manage"
-  | "governance.manage"
-  | "settings.platform"
-  | "orders.read.all"
-  | "works.moderate"
-  | "messages.moderate"
-  | "calls.monitor"
-  | "schedule.read.all"
-  | "certificates.manage"
-  | "submissions.escalate"
+export type DisplayRole = "peserta" | "pengajar" | "pengelola"
 
 export type StatusTone =
   | "open"
@@ -65,7 +26,7 @@ export type Person = {
   email: string
   whatsapp: string
   region: string
-  roles: WorkspaceRole[]
+  roles: DisplayRole[]
   status: "active" | "suspended" | "invited" | "review"
   joinedAt: string
   lastActive: string
