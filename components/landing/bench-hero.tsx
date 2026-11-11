@@ -11,16 +11,7 @@ export function BenchHero() {
     >
       <div className="shell relative grid gap-14 pb-24 pt-14 sm:pt-16 lg:grid-cols-12 lg:gap-10 lg:pb-32 lg:pt-24">
         <div className="lg:col-span-6">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-            <span className="stamp -rotate-2 bg-copper-dark text-cream-2">
-              {hero.stamp}
-            </span>
-            <span className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-paper/60">
-              {hero.region}
-            </span>
-          </div>
-
-          <h1 id="hero-title" className="heading-hero mt-8 text-paper">
+          <h1 id="hero-title" className="heading-hero text-paper">
             {hero.title.map((line) => (
               <span key={line} className="block">
                 {line}
@@ -49,26 +40,6 @@ export function BenchHero() {
               <a href="#lingkaran">{hero.secondaryCta}</a>
             </Button>
           </div>
-
-          <dl className="mt-12 grid max-w-lg grid-cols-3 border-t border-paper/20 pt-5">
-            {hero.meta.map((item, index) => (
-              <div
-                key={item.label}
-                className={
-                  index < hero.meta.length - 1
-                    ? "border-r border-paper/20 pr-4"
-                    : "pl-0"
-                }
-              >
-                <dd className="font-heading text-[1.9rem] leading-none text-brass">
-                  {item.value}
-                </dd>
-                <dt className="mt-2 text-[10px] font-semibold uppercase leading-tight tracking-[0.08em] text-paper/60">
-                  {item.label}
-                </dt>
-              </div>
-            ))}
-          </dl>
         </div>
 
         <div className="relative lg:col-span-6 lg:pl-8">
@@ -138,9 +109,6 @@ export function BenchHero() {
           </figure>
 
           <div className="ruler mt-8 hidden text-brass/70 sm:block" aria-hidden="true" />
-          <p className="mt-7 hidden text-[10px] font-semibold uppercase leading-relaxed tracking-[0.1em] text-paper/60 sm:block">
-            Belajar / dinilai / berkarya / kembali mengajar
-          </p>
         </div>
       </div>
 

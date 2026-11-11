@@ -246,7 +246,7 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
                 Masuk
               </InfoButton>
               <p className="pt-2 text-[10px] leading-relaxed text-ink-muted">
-                Uji coba terbatas 2026 / Yogyakarta dan Jawa Tengah
+                Yogyakarta dan Jawa Tengah
               </p>
             </div>
           </div>

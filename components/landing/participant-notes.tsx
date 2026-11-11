@@ -18,8 +18,8 @@ export function ParticipantNotes() {
             </h2>
           </div>
           <p className="body-copy max-w-[34rem] lg:col-span-5">
-            Tiga catatan dari peserta dan mitra uji coba 2026, dikutip dengan
-            izin. Isinya pengalaman yang bisa diperiksa.
+            Tiga catatan dari peserta dan mitra, dikutip dengan izin. Isinya
+            pengalaman yang bisa diperiksa.
           </p>
         </div>
 

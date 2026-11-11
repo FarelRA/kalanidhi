@@ -107,7 +107,7 @@ export const infoContent: Record<InfoKey, InfoContent> = {
       "Setiap karya membawa Kartu Karya yang mencatat pembuat, teknik, dan proses.",
       "Sertifikat KalaNidhi Digital adalah sertifikat platform dengan kode verifikasi publik.",
       "Lulusan dapat mengajukan diri sebagai pengajar pendamping, penilai, atau pemasok.",
-      "Uji coba terbatas 2026 berjalan di Yogyakarta dan Jawa Tengah, terbuka untuk praktisi dari daerah lain secara bertahap.",
+      "Layanan berjalan di Yogyakarta dan Jawa Tengah, terbuka untuk praktisi dari daerah lain secara bertahap.",
     ],
     footnote:
       "Sekretariat kami berada di Yogyakarta dan Surakarta. Untuk kerja sama, gunakan formulir institusi.",

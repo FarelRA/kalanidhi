@@ -69,7 +69,7 @@ reference/                 Dokumen konteks proposal (bukan bagian runtime)
 
 Semua teks utama, nama, harga, jadwal, dan atribusi berada di:
 
-- `lib/content/landing.ts` untuk hero, angka uji coba, lingkaran, rak bahan, jalur,
+- `lib/content/landing.ts` untuk hero, capaian, lingkaran, rak bahan, jalur,
   pengajar, karya, musim, etika, institusi, catatan peserta, FAQ, dan footer.
 - `lib/content/overlays.ts` untuk dialog kebijakan, login, verifikasi, tentang, privasi,
   dan ketentuan.

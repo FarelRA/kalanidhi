@@ -31,9 +31,6 @@ export function BenchTeachers() {
               Mereka masih mengerjakan praktiknya. Itu sebabnya koreksinya
               spesifik: tekanan canting, arah jarum, napas kalimat.
             </p>
-            <p className="mt-3 text-[11px] leading-relaxed text-ink-muted">
-              Profil pengajar uji coba 2026, ditampilkan dengan izin.
-            </p>
           </div>
         </div>
 

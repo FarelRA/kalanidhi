@@ -60,7 +60,7 @@ export function buildSearchGroups(): SearchGroup[] {
       items: [
         {
           label: "Cara kerja lingkaran",
-          description: "Belajar, dinilai, berkarya, kembali mengajar",
+          description: "Lima tahap di bangku yang sama",
           href: "#lingkaran",
         },
         {

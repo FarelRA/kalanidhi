@@ -12,7 +12,7 @@ import workNitik from "@/public/images/work-nitik.jpg"
 import workSutra from "@/public/images/work-sutra.jpg"
 import workPranatacara from "@/public/images/work-pranatacara.jpg"
 
-export type PilotFigure = {
+export type Metric = {
   value: string
   label: string
 }
@@ -99,18 +99,11 @@ export type Testimonial = {
 }
 
 export const hero = {
-  stamp: "Uji coba terbatas 2026",
-  region: "Yogyakarta dan Jawa Tengah",
   title: ["Duduk di bangku ini.", "Nanti kamu yang mengajari."],
   description:
     "KalaNidhi Digital mempertemukan pelajar dengan pengajar batik, tenun, ukir, karawitan, tari, pranatacara, dan praktik hidup lain di Nusantara. Kerjakan tugas dengan tangan, kirim hasilnya, terima koreksi pengajar, lalu bawa karya atau jasamu ke pembeli. Lulusan yang siap kembali mengajar dan membuka jalur untuk pelajar berikutnya.",
   primaryCta: "Pilih jalur yang terbuka",
   secondaryCta: "Lihat lingkarannya",
-  meta: [
-    { value: "10", label: "bidang dipetakan" },
-    { value: "2", label: "jalur terbuka" },
-    { value: "14", label: "pengajar dan praktisi" },
-  ] satisfies PilotFigure[],
   plate: {
     image: heroImage,
     alt: "Tangan membatik dengan canting di atas kain",
@@ -124,19 +117,18 @@ export const hero = {
     maker: "Anisa Rahmawati",
     teacher: "Bambang Hardjono",
   },
-  seal: "Dinilai pengajar",
 }
 
-export const pilot = {
-  label: "Uji coba terbatas 2026",
-  note: "Angka capaian uji coba di Yogyakarta dan Jawa Tengah, bukan proyeksi nasional.",
+export const traction = {
+  label: "Capaian 2026",
+  note: "Angka capaian di Yogyakarta dan Jawa Tengah, bukan proyeksi nasional.",
   figures: [
     { value: "10", label: "bidang budaya dipetakan" },
     { value: "14", label: "pengajar dan praktisi" },
-    { value: "24", label: "peserta uji coba" },
+    { value: "24", label: "peserta" },
     { value: "36", label: "tugas dinilai" },
     { value: "12", label: "karya dan jasa" },
-  ] satisfies PilotFigure[],
+  ] satisfies Metric[],
 }
 
 export const loop = {
@@ -186,7 +178,7 @@ export const catalog = {
   title: "Rak ini tumbuh satu per satu, bersama pengajarnya.",
   description:
     "Katalog tumbuh dari pengajar yang masuk. Rak di bawah menunjukkan mana yang sudah bisa dikerjakan sekarang, mana yang sedang disiapkan, dan mana yang masih menunggu pengajar.",
-  note: "Praktisi dari daerah lain bisa mengajukan jalur. Basis uji coba saat ini Yogyakarta dan Jawa Tengah; pembukaan jalur mengikuti kesiapan kurikulum dan izin komunitas.",
+  note: "Praktisi dari daerah lain bisa mengajukan jalur. Basis layanan saat ini Yogyakarta dan Jawa Tengah; pembukaan jalur mengikuti kesiapan kurikulum dan izin komunitas.",
   fields: [
     {
       name: "Batik tulis",
@@ -452,7 +444,7 @@ export const works: Work[] = [
 ]
 
 export const worksNote =
-  "Uji coba 2026 mencatat 12 karya dan jasa. Empat ditampilkan di halaman ini."
+  "Sepanjang 2026 tercatat 12 karya dan jasa. Empat ditampilkan di halaman ini."
 
 export const mangsa = {
   label: "Musim di bangku",
@@ -648,6 +640,6 @@ export const footer = {
     label: "Sekretariat",
     value: "Yogyakarta dan Surakarta, Indonesia",
   },
-  edition: "Edisi uji coba terbatas / 2026",
+  edition: "Edisi 2026",
   copyright: "© 2026 KalaNidhi Digital. Dibuat di Yogyakarta.",
 }

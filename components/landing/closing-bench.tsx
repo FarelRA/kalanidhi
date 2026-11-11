@@ -1,7 +1,7 @@
 import { BrandMark } from "@/components/brand/brand-mark"
 import { LeadButton } from "@/components/overlays/overlay-buttons"
 import { Button } from "@/components/ui/button"
-import { pilot } from "@/lib/content/landing"
+import { traction } from "@/lib/content/landing"
 
 export function ClosingBench() {
   return (
@@ -40,7 +40,7 @@ export function ClosingBench() {
           </div>
 
           <dl className="mt-10 grid max-w-xl grid-cols-2 gap-x-6 gap-y-5 border-t border-paper/20 pt-5 sm:grid-cols-5">
-            {pilot.figures.map((figure) => (
+            {traction.figures.map((figure) => (
               <div key={figure.label}>
                 <dt className="font-heading text-[1.55rem] leading-none text-brass">
                   {figure.value}
@@ -54,10 +54,10 @@ export function ClosingBench() {
 
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-paper/20 pt-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-paper/65">
-              {pilot.label}
+              {traction.label}
             </p>
             <p className="text-[10.5px] leading-relaxed text-paper/65">
-              {pilot.note} Terbuka untuk praktisi dari daerah lain secara
+              {traction.note} Terbuka untuk praktisi dari daerah lain secara
               bertahap.
             </p>
           </div>
@@ -66,22 +66,6 @@ export function ClosingBench() {
         <div className="hidden justify-center lg:col-span-5 lg:flex">
           <div className="relative size-[300px]">
             <BrandMark size={300} className="text-paper/25" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="size-[176px] rounded-full border border-paper/20 bg-deep/40 p-5 text-center backdrop-blur-[1px]">
-                <p className="font-heading text-[1.7rem] leading-none text-paper">
-                  satu
-                </p>
-                <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.16em] text-brass">
-                  bangku
-                </p>
-                <p className="mt-3 font-heading text-[1.7rem] leading-none text-paper">
-                  lima
-                </p>
-                <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.16em] text-brass">
-                  langkah
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

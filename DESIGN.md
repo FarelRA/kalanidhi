@@ -46,14 +46,14 @@ Scale: hero `clamp(2.5rem, 6vw, 4.6rem)` at 0.95 line-height; section `clamp(2.1
 
 A 1200px shell and a 12-column desktop grid. The page alternates dark teak and cream working surfaces, with panel bands for the shelf, works, and institution. Sections use 64px / 80px / 96px vertical rhythm.
 
-- **Hero:** 6/6 split. Left: stamp, region, four-line headline, description, two actions, three pilot figures. Right: a framed photograph, a copper correction seal, and a punched Kartu Karya tag overlapping the image.
+- **Hero:** 6/6 split. Left: headline, description, and two actions. Right: a framed photograph, a copper correction seal, and a punched Kartu Karya tag overlapping the image.
 - **Loop:** 5/7 split. Left: the circular bench drawing. Right: five numbered stages, with the return stage boxed in copper.
 - **Shelf:** three readiness groups, each a row of chunky material tags over a wooden plank.
 - **Paths:** horizontal bench slips with a photograph, facts, tags, and two actions.
 - **Teachers:** three staggered portraits with offset name plates and a quote.
 - **Works:** one large featured piece with a Kartu Karya caption, then a compact list.
 - **Ethics:** dark bench with a Kartu Sumber Budaya card and a 70 / 15 / 15 share bar.
-- **Closing:** dark bench with the pilot series, a circular brand seal, and the final invitation.
+- **Closing:** dark bench with the 2026 metrics, a circular brand seal, and the final invitation.
 
 Radii stay at 2–4px. Plates are square, framed with a hairline, and captioned underneath. Offset shadows and wood planks do the work that soft shadows usually do.
 
@@ -72,7 +72,7 @@ The loop is the second section and the centre of gravity.
 - The fifth stage is boxed in copper and labelled **Jalur kembali**.
 - The note under the drawing says the return path is a door, not a promise: graduates can apply as teaching assistants, assessors, or suppliers, and each filled door opens a new path.
 
-The same loop is echoed in the hero’s mono line, the FAQ, the closing seal, and the footer description. A first-time visitor sees the return path before the catalog.
+The same loop is echoed in the FAQ, the closing section, and the footer description. A first-time visitor sees the return path before the catalog.
 
 ## Catalog breadth
 
@@ -100,8 +100,8 @@ Representative lines:
 - The **Kartu Sumber Budaya** shows both knowledge sources, permission date, reference, and access level. The 70 / 15 / 15 split is shown before transaction.
 - No sacred or forbidden motif is used. The brand mark is an abstract bench ring with a finished-piece tag, not a batik pattern.
 - Cultural detail stays modest. The mangsa note is attributed to Giriloyo teacher interviews and explicitly disclaims weather forecasting and regional uniformity.
-- The base region is stated in the hero, the shelf note, the closing, and the footer. The platform is “terbuka untuk” practitioners elsewhere, not “beroperasi di” everywhere.
-- Testimonials are labelled as pilot interviews with permission. No partnerships, coverage, or revenue figures are invented.
+- The base region is stated in the shelf note, the closing, and the footer. The platform is “terbuka untuk” practitioners elsewhere, not “beroperasi di” everywhere.
+- Testimonials are labelled as participant and partner interviews with permission. No partnerships, coverage, or revenue figures are invented.
 - Commerce is the outlet of learning: works are documented with maker, technique, teacher, and Kartu Karya, and the learning loop is always the larger frame.
 
 ## Accessibility
@@ -121,6 +121,6 @@ Representative lines:
 - Rounded-card kits or soft SaaS shadows.
 - Four-step linear “how it works” rows that stop at “sell”.
 - A catalog that implies every field is live.
-- Ratings, review counts, or revenue claims that do not come from the pilot.
+- Ratings, review counts, or revenue claims that do not come from actual records.
 - Government/BNSP accreditation language.
 - “Maestro”, sample/dummy labels, or Nyantrik branding.
