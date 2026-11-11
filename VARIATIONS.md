@@ -4,6 +4,14 @@ Ten independent redesigns of the landing page, each built in its own worktree fr
 
 A visual index is in [`docs/variations/heroes.jpg`](docs/variations/heroes.jpg).
 
+## View all ten at one address
+
+```bash
+npm run gallery
+```
+
+Open **http://localhost:3500**. The gallery is a single control room with all ten previews in one iframe, a concept switcher, desktop/tablet/mobile viewport presets, keyboard shortcuts (`[`, `]`, `1`–`0`), and an overview grid. It expects the ten preview servers on ports 3401–3410 to be running.
+
 ## The set
 
 | # | Concept | Direction | Key palette | Type | Loop device | Commit | Port |
