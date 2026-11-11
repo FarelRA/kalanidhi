@@ -100,7 +100,7 @@ export default async function RootLayout({
         >
           Lewati ke konten utama
         </a>
-        <ConvexClientProvider url={process.env.NEXT_PUBLIC_CONVEX_URL}>
+        <ConvexClientProvider url={process.env.CONVEX_URL ?? process.env.NEXT_PUBLIC_CONVEX_URL}>
           <TooltipProvider delayDuration={150}>
             <OverlayProvider
               overlays={data.overlays}

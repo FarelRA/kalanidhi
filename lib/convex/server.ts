@@ -6,7 +6,8 @@ import type { LeadArgs } from "@/lib/convex/types"
 import { fallbackSiteData } from "@/lib/content/fallback"
 import type { SiteData } from "@/lib/content/types"
 
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL
+const convexUrl =
+  process.env.CONVEX_URL ?? process.env.NEXT_PUBLIC_CONVEX_URL
 
 export function isConvexConfigured() {
   return Boolean(convexUrl)
