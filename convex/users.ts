@@ -32,6 +32,13 @@ async function sha256Hex(value: string): Promise<string> {
     .join("")
 }
 
+function randomToken(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(32))
+  return Array.from(bytes)
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("")
+}
+
 async function currentUser(
   ctx: QueryCtx | MutationCtx,
 ): Promise<{ user: Doc<"users">; viewer: Viewer } | null> {
@@ -146,7 +153,7 @@ export const invite = mutation({
       }
     }
 
-    const token = crypto.randomUUID()
+    const token = randomToken()
     const tokenHash = await sha256Hex(token)
     const expiresAt = timestamp + Math.max(1, args.ttlDays ?? 7) * DAY_MS
 
