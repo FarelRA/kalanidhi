@@ -1,8 +1,9 @@
 # Payments Gateway — Architecture and Integration
 
-**Status:** design, v1.0  
+**Status:** gateway implemented (private), v0.1.0  
 **Provider:** GoPay Merchant / GoBiz, unofficial QRIS  
 **Core:** hardened fork of `alhifnywahid/merchantid`  
+**Service:** [`FarelRA/kalanidhi-payments`](https://github.com/FarelRA/kalanidhi-payments) (private)  
 **Companion:** `docs/workspace-plan.md`
 
 ---
@@ -89,6 +90,72 @@ Convex is the business system of record. The gateway is a replaceable provider a
 - **Clock dependence.** Quarantine deadlines use wall-clock time; hosts must run NTP and stay within `clockSkewMs`.
 - **Custom store contract.** Durable quarantine only works when a store implements the quarantine methods and rejects quarantined amounts in `create()`. A partial custom store remains unsafe across processes.
 - **Store `update()` guard.** `SqlitePaymentStore.update()` does not re-check quarantine; `PaymentService` never writes a pending row through it, but external callers must not resurrect a terminal payment with a quarantined amount.
+
+---
+
+## 2A. Gateway implementation
+
+**Repo:** private [`FarelRA/kalanidhi-payments`](https://github.com/FarelRA/kalanidhi-payments)  
+**Branch:** `main` at `d6109f9`  
+**Version:** `0.1.0`  
+**Stack:** Hono, Node 24, TypeScript strict, SQLite, no UI, no public port.
+
+### Delivered
+
+- `POST /v1/charges` — idempotent by `orderId`; 201 create, 200 existing, 409 amount conflict.
+- `GET /v1/charges/:id` — stored status only; never polls upstream.
+- `POST /v1/charges/:id/cancel` — pending only.
+- `POST /v1/reconcile` — one guarded `tick()`.
+- `GET /v1/health` — session state, pending count, last reconcile, uptime; no secrets.
+- OTP session routes: request, verify, status.
+- `x-internal-key` auth with SHA-256 and `timingSafeEqual`; query-string keys rejected.
+- SQLite charges, durable unique amounts, consumed transaction claims, quarantine, webhook outbox.
+- AES-256-GCM session vault.
+- HMAC webhooks with stable event/idempotency IDs, retries, dead-lettering.
+- Single-instance reconciler with jitter and overlap guard.
+- Multi-stage Dockerfile, non-root runtime, no secrets, no public port, named SQLite volume.
+- README, `.env.example`, Docker Compose, tests.
+
+### Dependency pin
+
+`merchantid` is vendored as a packed tarball:
+
+```text
+vendor/merchantid-0.1.1-db51ed9.tgz
+SHA-256 238e89b1243583954a6b7028ee7f3361597e28e21ddd66c504bf7d3b78d4a09d
+```
+
+Pinned to `FarelRA/merchantid#kalanidhi-hardening@db51ed9`. This avoids build-time git/GitHub access and ensures the hardened `dist/` is present. Provenance is documented in `vendor/README.md`.
+
+### Verification
+
+| Gate | Result |
+|---|---|
+| `npm ci` | Passed |
+| `npm run typecheck` | Passed |
+| `npm run lint` | Passed |
+| `npm run format:check` | Passed |
+| `npm test` | 69 tests / 11 files |
+| `npm run build` | Passed |
+| `npm audit --omit=dev` | 0 runtime vulnerabilities |
+| Docker build | Passed |
+| Container smoke test | Health 200, read-only root, named volume |
+
+### Gateway remaining risks
+
+- No live GoPay transaction test; fakes and fixtures only.
+- Unofficial provider endpoints can change without notice.
+- Refunds remain manual.
+- Late payments after expiry are not auto-settled; no unmatched-transfer queue yet.
+- DNS rebinding residual risk between webhook validation and `fetch`; pair with an egress firewall.
+- `node:sqlite` remains experimental; pin Node 24.
+- Single-instance SQLite; no horizontal scaling.
+- Clock skew safety depends on NTP.
+- No rate limiter; private network only.
+- Outbox/charge tables need a retention policy.
+- No webhook replay endpoint; dead letters are operator-handled.
+- `payment.failed` is application-level and has no public route.
+- No load or chaos suite yet.
 
 ---
 

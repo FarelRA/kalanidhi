@@ -1214,19 +1214,18 @@ Server components load the shell and guard routes. Client components subscribe w
 
 ### 18.3 Payment gateway service
 
-Separate deployable, same repo, own image:
+Separate deployable in a private repo: [`FarelRA/kalanidhi-payments`](https://github.com/FarelRA/kalanidhi-payments), `main` at `d6109f9`.
 
 ```text
-payments-gateway/
-  src/server.ts        private HTTP API
-  src/store.ts         SQLite PaymentStore, atomic unique amount
-  src/session.ts       AES-256-GCM session vault
-  src/webhook.ts       HMAC delivery, retries, idempotency
-  src/poller.ts        tick() scheduler
+kalanidhi-payments/
+  src/http/app.ts      private HTTP API
+  src/domain/*         charges, reconcile, session, webhook
+  src/db.ts            SQLite
+  vendor/              pinned merchantid tarball
   Dockerfile
 ```
 
-It calls the hardened `merchantid` fork. It never writes orders or payouts. It emits signed events to Next.js.
+It calls the hardened `merchantid` fork. It never writes orders or payouts. It emits signed events to Next.js. No public port; one instance; SQLite volume.
 
 ### 18.4 LiveKit
 
