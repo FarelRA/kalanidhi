@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://kalanidhi.digital/sitemap.xml",
-    host: "https://kalanidhi.digital",
+    sitemap: "https://kalanidhi.site/sitemap.xml",
+    host: "https://kalanidhi.site",
   }
 }

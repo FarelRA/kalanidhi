@@ -11,7 +11,7 @@ import type {
 export const siteSeed: SiteCopy = {
   metadata: {
     siteName: "KalaNidhi Digital",
-    siteUrl: "https://kalanidhi.digital",
+    siteUrl: "https://kalanidhi.site",
     areaServed: "Yogyakarta dan Jawa Tengah",
     title: "KalaNidhi Digital: belajar sampai bisa, bisa sampai mengajari",
     description:
@@ -509,7 +509,7 @@ export const siteSeed: SiteCopy = {
         "Kamu bisa meminta akses, koreksi, atau penghapusan data kapan saja.",
       ],
       footnote:
-        "Untuk permintaan terkait data pribadi, hubungi privasi@kalanidhi.digital.",
+        "Untuk permintaan terkait data pribadi, hubungi privasi@kalanidhi.site.",
     },
     terms: {
       icon: "terms",
