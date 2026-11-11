@@ -12,8 +12,10 @@ import {
 
 import type {
   InfoKey,
+  LeadDialogCopy,
   LeadRequest,
-} from "@/lib/content/overlays"
+  Overlays,
+} from "@/lib/content/types"
 
 const LeadDialog = dynamic(
   () =>
@@ -39,7 +41,15 @@ type OverlayContextValue = {
 
 const OverlayContext = createContext<OverlayContextValue | null>(null)
 
-export function OverlayProvider({ children }: { children: ReactNode }) {
+export function OverlayProvider({
+  children,
+  overlays,
+  leadDialogs,
+}: {
+  children: ReactNode
+  overlays: Overlays
+  leadDialogs: LeadDialogCopy
+}) {
   const [lead, setLead] = useState<LeadRequest | null>(null)
   const [info, setInfo] = useState<InfoKey | null>(null)
 
@@ -74,12 +84,13 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
       {lead ? (
         <LeadDialog
           request={lead}
+          copy={leadDialogs}
           onClose={() => setLead(null)}
         />
       ) : null}
       {info ? (
         <InfoDialog
-          infoKey={info}
+          content={overlays[info]}
           onClose={() => setInfo(null)}
           onLeadAction={runInfoAction}
         />

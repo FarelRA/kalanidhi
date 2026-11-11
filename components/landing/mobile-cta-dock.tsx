@@ -4,17 +4,17 @@ import { useEffect, useState } from "react"
 
 import { useOverlay } from "@/components/overlays/overlay-provider"
 import { Button } from "@/components/ui/button"
-import { paths } from "@/lib/content/landing"
+import type { MobileCtaCopy } from "@/lib/content/types"
 import { formatIDR } from "@/lib/format"
 import { cn } from "cn"
 
-const startingPrice = Math.min(
-  ...paths
-    .map((path) => path.price)
-    .filter((price): price is number => typeof price === "number"),
-)
-
-export function MobileCtaDock() {
+export function MobileCtaDock({
+  startingPrice,
+  copy,
+}: {
+  startingPrice: number
+  copy: MobileCtaCopy
+}) {
   const { openLead } = useOverlay()
   const [visible, setVisible] = useState(false)
 
@@ -45,12 +45,12 @@ export function MobileCtaDock() {
       <div className="flex items-center gap-4">
         <div className="min-w-0">
           <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-ink-muted">
-            Mulai dari
+            {copy.label}
           </p>
           <p className="font-heading text-[1.35rem] leading-tight text-ink">
             {formatIDR(startingPrice)}
             <span className="ml-1 font-sans text-[10px] font-semibold text-ink-muted">
-              / jalur
+              {copy.priceSuffix}
             </span>
           </p>
         </div>
@@ -60,11 +60,11 @@ export function MobileCtaDock() {
           className="ml-auto min-h-11 shrink-0 border-2 border-copper-dark bg-copper-dark px-4 text-cream-2 hover:border-copper hover:bg-copper"
           onClick={() => openLead({ variant: "student" })}
         >
-          Daftar minat
+          {copy.registerCta}
         </Button>
       </div>
       <p className="mt-1.5 text-[10px] leading-snug text-ink-muted">
-        Sudah termasuk penilaian pengajar
+        {copy.note}
       </p>
     </aside>
   )

@@ -4,11 +4,12 @@ import { useActionState } from "react"
 import { CircleCheck, LoaderCircle } from "lucide-react"
 
 import { submitLead } from "@/app/actions/lead"
+import type { FooterContent } from "@/lib/content/types"
 import { initialLeadState, type LeadState } from "@/lib/forms/lead"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-export function NewsletterForm() {
+export function NewsletterForm({ copy }: { copy: FooterContent["newsletter"] }) {
   const [state, formAction, pending] = useActionState<LeadState, FormData>(
     submitLead,
     initialLeadState,
@@ -30,8 +31,8 @@ export function NewsletterForm() {
   return (
     <form action={formAction} className="space-y-2">
       <input type="hidden" name="intent" value="notify" />
-      <input type="hidden" name="interest" value="Kabar jalur dan karya baru" />
-      <input type="hidden" name="source" value="footer" />
+      <input type="hidden" name="interest" value={copy.interest} />
+      <input type="hidden" name="source" value={copy.source} />
       <input type="hidden" name="consent" value="on" />
       <div aria-hidden="true" className="hidden">
         <label htmlFor="newsletter-website">Jangan diisi</label>
@@ -53,7 +54,7 @@ export function NewsletterForm() {
           type="email"
           inputMode="email"
           autoComplete="email"
-          placeholder="Email untuk kabar jalur baru"
+          placeholder={copy.placeholder}
           required
           aria-invalid={state.status === "error"}
           aria-describedby={
@@ -71,16 +72,16 @@ export function NewsletterForm() {
           {pending ? (
             <LoaderCircle className="animate-spin" aria-hidden="true" />
           ) : null}
-          {pending ? "Mengirim" : "Ikuti kabar"}
+          {pending ? copy.pending : copy.cta}
         </Button>
       </div>
       {state.status === "error" ? (
         <p id="newsletter-error" className="text-[11px] text-thread-light" role="alert">
-          {state.message} Periksa alamat emailmu.
+          {state.message} {copy.errorNote}
         </p>
       ) : null}
       <p className="text-[10px] leading-relaxed text-paper/60">
-        Kami hanya mengirim kabar jalur dan karya baru. Berhenti kapan saja.
+        {copy.note}
       </p>
     </form>
   )

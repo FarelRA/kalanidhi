@@ -1,10 +1,10 @@
-import { FlaskConical, PenTool, Sun } from "lucide-react"
+import { Droplets, LandPlot, Sprout } from "lucide-react"
 
-import { mangsa } from "@/lib/content/landing"
+import type { MangsaContent } from "@/lib/content/types"
 
-const activityIcons = [Sun, FlaskConical, PenTool] as const
+const activityIcons = [Sprout, Droplets, LandPlot] as const
 
-export function SeasonNote() {
+export function SeasonNote({ mangsa }: { mangsa: MangsaContent }) {
   return (
     <section
       id="mangsa"
@@ -41,11 +41,11 @@ export function SeasonNote() {
 
             <div className="mt-6 border-t border-ink/15 pt-4">
               <p className="text-[9.5px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                Yang dikerjakan
+                {mangsa.activityLabel}
               </p>
               <ul className="mt-3 space-y-2.5">
                 {mangsa.activities.map((activity, index) => {
-                  const Icon = activityIcons[index] ?? Sun
+                  const Icon = activityIcons[index] ?? Sprout
                   return (
                     <li key={activity} className="flex items-center gap-3">
                       <span className="flex size-8 items-center justify-center bg-panel text-ink">
@@ -59,7 +59,7 @@ export function SeasonNote() {
             </div>
 
             <p className="mt-5 border-t border-ink/15 pt-3 text-[10px] leading-relaxed text-ink-muted">
-              Catatan dari wawancara pengajar Giriloyo. Bukan prakiraan cuaca.
+              {mangsa.provenance}
             </p>
           </div>
         </div>

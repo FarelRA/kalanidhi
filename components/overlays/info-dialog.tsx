@@ -22,12 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import {
-  infoContent,
-  type InfoContent,
-  type InfoKey,
-  type LeadRequest,
-} from "@/lib/content/overlays"
+import type { InfoContent, LeadRequest } from "@/lib/content/types"
 
 const icons: Record<
   InfoContent["icon"],
@@ -43,16 +38,15 @@ const icons: Record<
 }
 
 export function InfoDialog({
-  infoKey,
+  content,
   onClose,
   onLeadAction,
 }: {
-  infoKey: InfoKey
+  content: InfoContent
   onClose: () => void
   onLeadAction: (request: LeadRequest) => void
 }) {
   useReturnFocus()
-  const content = infoContent[infoKey]
   const Icon = icons[content.icon] ?? Info
 
   return (

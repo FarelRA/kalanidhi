@@ -3,10 +3,11 @@
 import { toast } from "sonner"
 
 import { useDataSaver } from "@/hooks/use-data-saver"
+import type { FooterContent } from "@/lib/content/types"
 import { setDataSaverPreference } from "@/lib/preferences"
 import { cn } from "cn"
 
-export function FooterPreferences() {
+export function FooterPreferences({ copy }: { copy: FooterContent }) {
   const dataSaver = useDataSaver()
 
   function toggleDataSaver() {
@@ -28,7 +29,7 @@ export function FooterPreferences() {
   return (
     <div className="flex flex-col gap-3 text-[12px] text-paper-dim">
       <div className="flex items-center gap-4">
-        <span className="text-paper/60">Bahasa</span>
+        <span className="text-paper/60">{copy.languageLabel}</span>
         <span className="inline-flex items-center gap-2">
           <button
             type="button"
@@ -49,7 +50,7 @@ export function FooterPreferences() {
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="text-paper/60">Hemat kuota</span>
+        <span className="text-paper/60">{copy.dataSaverLabel}</span>
         <button
           type="button"
           role="switch"

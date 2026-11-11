@@ -13,6 +13,7 @@ Arah visual, token warna, dan aturan gerak dijelaskan di [DESIGN.md](./DESIGN.md
 
 - **Next.js 16.4**: App Router, React Server Components, Server Actions, Turbopack
 - **React 19.3** dan **TypeScript 6**
+- **Convex 1.49**: database, query/mutation, seed, dan penyimpanan lead
 - **Tailwind CSS 4.3**: token desain di `app/globals.css`
 - **shadcn/ui (Radix)**: primitif aksesibel untuk dialog, sheet, accordion, tooltip
 - **Fraunces + Karla**: display editorial dan body
@@ -26,63 +27,126 @@ Arah visual, token warna, dan aturan gerak dijelaskan di [DESIGN.md](./DESIGN.md
 
 ```bash
 npm install
+cp .env.example .env.local
+npx convex dev
+```
+
+`npx convex dev` membuat project Convex, menulis `NEXT_PUBLIC_CONVEX_URL` dan
+`CONVEX_DEPLOYMENT` ke `.env.local`, lalu menjalankan backend lokal.
+
+Di terminal lain, isi database dengan konten awal:
+
+```bash
+npm run convex:seed
+```
+
+Lalu jalankan aplikasi:
+
+```bash
 npm run dev
+```
+
+Perintah lain:
+
+```bash
 npm run build
 npm start
 npm run lint
 npm run typecheck
+npm run convex:deploy
+npm run convex:codegen
+npm run convex:seed
+npm run convex:seed:if-empty
 ```
+
+Untuk mengisi deployment produksi, jalankan
+`npx convex run seed:run --prod` setelah `npx convex deploy`.
+
+Tanpa `NEXT_PUBLIC_CONVEX_URL`, aplikasi tetap bisa dibangun dan dijalankan memakai
+fallback dari `lib/content/fallback.ts`. Fallback itu membaca `convex/seedData.ts`,
+sehingga tampilan tidak kosong saat backend belum tersambung.
 
 ## Struktur
 
 ```
 app/
-  actions/lead.ts          Server Action + validasi Zod untuk formulir minat
+  actions/lead.ts          Server Action + validasi Zod, menyimpan lead ke Convex
   globals.css              Token warna, tipografi, tekstur kayu, reduced-motion, data saver
   layout.tsx               Font, metadata, header, footer, overlay provider, toaster
   page.tsx                 Komposisi landing page + JSON-LD
   not-found.tsx            Halaman 404
   robots.ts, sitemap.ts    SEO
+convex/
+  schema.ts                Skema tabel: siteContent, catalogFields, paths, teachers,
+                           works, testimonials, faqs, leads
+  content.ts               Query getSite untuk merakit seluruh konten landing
+  leads.ts                 Mutation create untuk formulir minat
+  seed.ts                  Mutation internal untuk mengisi dan mengosongkan konten
+  seedData.ts              Sumber data awal untuk seed dan fallback
 components/
   landing/                 Section landing: bangku, lingkaran, rak bahan, jalur, pengajar,
                            karya, etika, musim, institusi, catatan peserta, FAQ, penutup
   layout/                  Header, footer, preferensi hemat kuota dan bahasa
   overlays/                Provider dialog, lead dialog, info dialog, tombol overlay
   forms/                   Form lead dan newsletter dengan useActionState
+  providers/               Convex client provider untuk fitur real-time berikutnya
   search/                  Command palette
   ui/                      Primitif shadcn/ui yang disesuaikan
   brand/                   Logo bench ring dan wordmark
 lib/
-  content/                 Sumber konten landing, navigasi, dan konten overlay
+  content/types.ts         Tipe konten yang dipakai app dan Convex
+  content/fallback.ts      Data fallback saat Convex belum dikonfigurasi
+  convex/server.ts         getSiteData, persistLead, dan deteksi konfigurasi Convex
   forms/lead.ts            Tipe dan state awal form lead
   preferences.ts           Store preferensi hemat kuota
-  structured-data.ts       JSON-LD
+  structured-data.ts       JSON-LD dari konten Convex
   format.ts, search.ts     Helper
 hooks/
   use-active-section.ts    Navigasi aktif via IntersectionObserver
   use-data-saver.ts        Preferensi hemat kuota
-public/images/             Aset visual landing page
+public/images/             Aset visual landing page, dirujuk sebagai path string
 reference/                 Dokumen konteks proposal (bukan bagian runtime)
 ```
 
-## Mengganti konten
+## Konten dari Convex
 
-Semua teks utama, nama, harga, jadwal, dan atribusi berada di:
+Semua teks utama, nama, harga, jadwal, atribusi, navigasi, dialog, metadata, dan copy
+section disimpan di Convex. Tabel `siteContent` menyimpan satu dokumen `site` berisi
+konten tunggal; tabel lain menyimpan entitas yang bisa berubah sendiri-sendiri:
 
-- `lib/content/landing.ts` untuk hero, capaian, lingkaran, rak bahan, jalur,
-  pengajar, karya, musim, etika, institusi, catatan peserta, FAQ, dan footer.
-- `lib/content/overlays.ts` untuk dialog kebijakan, login, verifikasi, tentang, privasi,
-  dan ketentuan.
-- `lib/content/navigation.ts` untuk menu utama.
+- `catalogFields`: bidang budaya dan status kesiapannya
+- `paths`: jalur belajar
+- `teachers`: pengajar dan praktisi
+- `works`: karya dan jasa
+- `testimonials`: catatan peserta dan mitra
+- `faqs`: pertanyaan umum
+- `leads`: pendaftaran, konsultasi, institusi, dan langganan kabar
 
-Gambar berada di `public/images/` dan diimpor sebagai static import di
-`lib/content/landing.ts`. Ganti nama, harga, dan atribusi langsung di file tersebut;
-komponen akan mengikuti.
+`convex/content.ts` merakit semuanya menjadi satu objek `SiteData` yang dipakai
+`app/layout.tsx` dan `app/page.tsx`. Server Component mengambil data lewat
+`getSiteData()` di `lib/convex/server.ts`, lalu meneruskannya sebagai props ke section.
+Dengan begitu tidak ada copy landing yang diimpor langsung dari file statis.
+
+### Mengubah konten
+
+1. Setelah `npx convex dev` berjalan, buka dashboard Convex untuk mengedit dokumen.
+2. Atau ubah data awal di `convex/seedData.ts`, lalu jalankan
+   `npm run convex:seed`. Seed mengosongkan tabel konten dan mengisinya ulang; tabel
+   `leads` tidak dihapus.
+3. Untuk menambah jalur, pengajar, karya, atau bidang, tambahkan entri di
+   `convex/seedData.ts` atau dashboard. Urutan tampil memakai field `order`.
+
+Gambar berada di `public/images/` dan disimpan sebagai path string di konten. Ganti
+path, nama, harga, dan atribusi di Convex; komponen akan mengikuti.
 
 ## Keputusan implementasi
 
 - **Server-first**: hampir semua section adalah Server Component. Client island hanya
   untuk dialog, pencarian, preferensi, dan form.
+- **Convex sebagai sumber data**: konten diambil di server dengan `fetchQuery`, bukan
+  diimpor dari file. Form memakai `fetchMutation` dan menyimpan lead ke tabel `leads`.
+- **Fallback aman**: tanpa URL Convex, app memakai seed yang sama agar build, preview,
+  dan pengembangan UI tetap berjalan.
 - **Satu momen gerak**: hanya foto hero dan tag Kartu Karya yang masuk dengan
   animasi. Tidak ada fade-up per section. Reduced motion dan mode hemat kuota
   dihormati.
@@ -95,7 +159,7 @@ komponen akan mengikuti.
   sentuh, `aria-live` pada hasil, kontras teks dijaga.
 - **Kepercayaan dan etika**: Kartu Sumber Budaya untuk dua sumber pengetahuan, rincian
   bagi hasil 70/15/15, penjelasan sertifikat platform, dan atribusi komunitas.
-- **Gambar**: static import agar width, height, dan blur placeholder otomatis.
+- **Gambar**: path string dari konten, dirender dengan `next/image` dan `fill`.
 - **TypeScript 7 belum dipakai**: `typescript-eslint` di `eslint-config-next` belum
   mendukung TS 7. Proyek memakai TS 6.0 terbaru agar lint tetap berjalan.
 
@@ -111,5 +175,5 @@ komponen akan mengikuti.
 
 Landing page ini adalah etalase produk dan alur pendaftaran. Autentikasi, katalog jalur
 penuh, ruang belajar, verifikasi sertifikat, toko, dan dashboard peran masih berupa
-dialog atau halaman rintisan. Form mendemonstrasikan validasi dan status sukses. Untuk
-menyimpan data, sambungkan `app/actions/lead.ts` ke CRM atau basis data.
+dialog atau halaman rintisan. Form sudah menyimpan lead ke Convex bila
+`NEXT_PUBLIC_CONVEX_URL` tersedia; tanpa itu, pengiriman hanya dicatat di server log.

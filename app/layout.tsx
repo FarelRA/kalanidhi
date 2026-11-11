@@ -6,11 +6,14 @@ import { MobileCtaDock } from "@/components/landing/mobile-cta-dock"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
 import { OverlayProvider } from "@/components/overlays/overlay-provider"
+import { ConvexClientProvider } from "@/components/providers/convex-client-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { getSiteData } from "@/lib/convex/server"
 import { buildSearchGroups } from "@/lib/search"
 
 import "./globals.css"
+
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -28,57 +31,38 @@ const karla = Karla({
   preload: true,
 })
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://kalanidhi.digital"),
-  title: {
-    default: "KalaNidhi Digital: belajar sampai bisa, bisa sampai mengajari",
-    template: "%s | KalaNidhi Digital",
-  },
-  description:
-    "Platform belajar praktik budaya Nusantara. Tugas dinilai pengajar, sertifikat platform bisa diverifikasi, karya punya Kartu Karya. Lulusan dapat kembali sebagai pengajar, penilai, atau pemasok.",
-  applicationName: "KalaNidhi Digital",
-  keywords: [
-    "batik tulis",
-    "pranatacara",
-    "tenun",
-    "karawitan",
-    "tari tradisi",
-    "keramik",
-    "jamu",
-    "wayang",
-    "kriya tradisi",
-    "kursus budaya",
-    "sertifikat platform",
-    "KalaNidhi",
-  ],
-  openGraph: {
-    type: "website",
-    locale: "id_ID",
-    siteName: "KalaNidhi Digital",
-    title: "KalaNidhi Digital: belajar sampai bisa, bisa sampai mengajari",
-    description:
-      "Sepuluh bidang budaya dipetakan, dua jalur terbuka. Belajar langsung dari pengajar, dinilai manusia, lalu berkarya dengan Kartu Karya.",
-    images: [
-      {
-        url: "/images/hero-canting.jpg",
-        width: 1408,
-        height: 768,
-        alt: "Proses membatik dengan canting",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "KalaNidhi Digital: belajar sampai bisa, bisa sampai mengajari",
-    description:
-      "Jalur belajar praktik budaya Nusantara dengan penilaian pengajar dan sertifikat platform.",
-    images: ["/images/hero-canting.jpg"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-  category: "education",
+export async function generateMetadata(): Promise<Metadata> {
+  const { metadata } = await getSiteData()
+
+  return {
+    metadataBase: new URL(metadata.siteUrl),
+    title: {
+      default: metadata.title,
+      template: `%s | ${metadata.siteName}`,
+    },
+    description: metadata.description,
+    applicationName: metadata.siteName,
+    keywords: metadata.keywords,
+    openGraph: {
+      type: "website",
+      locale: "id_ID",
+      siteName: metadata.siteName,
+      title: metadata.ogTitle,
+      description: metadata.ogDescription,
+      images: [metadata.image],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: metadata.twitterTitle,
+      description: metadata.twitterDescription,
+      images: [metadata.image.url],
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+    category: metadata.category,
+  }
 }
 
 export const viewport: Viewport = {
@@ -88,8 +72,17 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const searchGroups = buildSearchGroups()
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const data = await getSiteData()
+  const searchGroups = buildSearchGroups(data)
+  const prices = data.paths
+    .map((path) => path.price)
+    .filter((price): price is number => typeof price === "number")
+  const startingPrice = prices.length ? Math.min(...prices) : 0
 
   return (
     <html
@@ -107,17 +100,30 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Lewati ke konten utama
         </a>
-        <TooltipProvider delayDuration={150}>
-          <OverlayProvider>
-            <SiteHeader searchGroups={searchGroups} />
-            <main id="konten" tabIndex={-1} className="flex-1">
-              {children}
-            </main>
-            <SiteFooter />
-            <MobileCtaDock />
-            <Toaster />
-          </OverlayProvider>
-        </TooltipProvider>
+        <ConvexClientProvider url={process.env.NEXT_PUBLIC_CONVEX_URL}>
+          <TooltipProvider delayDuration={150}>
+            <OverlayProvider
+              overlays={data.overlays}
+              leadDialogs={data.leadDialogs}
+            >
+              <SiteHeader
+                navigation={data.navigation}
+                searchGroups={searchGroups}
+                copy={data.header}
+                searchCopy={data.search}
+              />
+              <main id="konten" tabIndex={-1} className="flex-1">
+                {children}
+              </main>
+              <SiteFooter footer={data.footer} ethics={data.ethics} />
+              <MobileCtaDock
+                startingPrice={startingPrice}
+                copy={data.mobileCta}
+              />
+              <Toaster />
+            </OverlayProvider>
+          </TooltipProvider>
+        </ConvexClientProvider>
       </body>
     </html>
   )

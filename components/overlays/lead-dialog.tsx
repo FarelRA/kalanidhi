@@ -11,36 +11,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import type { LeadRequest } from "@/lib/content/overlays"
+import type { LeadDialogCopy, LeadRequest } from "@/lib/content/types"
 
-const copy = {
-  student: {
-    title: "Daftar minat belajar",
-    description:
-      "Pilih jalur yang ingin kamu mulai. Tim KalaNidhi Digital akan menghubungimu untuk jadwal dan langkah berikutnya.",
-  },
-  institution: {
-    title: "Minta penawaran institusi",
-    description:
-      "Ceritakan kebutuhan kelas, tim, atau tamu. Tim institusi akan menyiapkan penawaran dan jadwal sesi.",
-  },
-  consultation: {
-    title: "Tanya sebelum memesan",
-    description:
-      "Tanyakan ketersediaan, ukuran, jadwal, atau jalur yang paling cocok. Tim KalaNidhi Digital akan menghubungimu.",
-  },
-  notify: {
-    title: "Beri tahu saya",
-    description:
-      "Tinggalkan email agar kami bisa mengabari saat bagian ini dibuka.",
-  },
-} as const
+
 
 export function LeadDialog({
   request,
+  copy,
   onClose,
 }: {
   request: LeadRequest
+  copy: LeadDialogCopy
   onClose: () => void
 }) {
   useReturnFocus()

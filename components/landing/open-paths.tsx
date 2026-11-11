@@ -6,14 +6,19 @@ import { useState } from "react"
 
 import { LeadButton } from "@/components/overlays/overlay-buttons"
 import { Button } from "@/components/ui/button"
-import type { LearningPath } from "@/lib/content/landing"
-import { paths } from "@/lib/content/landing"
+import type { LearningPath, SectionCopy } from "@/lib/content/types"
 import { formatIDR } from "@/lib/format"
 import { cn } from "cn"
 
 import { PathDialog } from "./path-dialog"
 
-export function OpenPaths() {
+export function OpenPaths({
+  paths,
+  copy,
+}: {
+  paths: LearningPath[]
+  copy: SectionCopy["paths"]
+}) {
   const [selected, setSelected] = useState<LearningPath | null>(null)
 
   return (
@@ -25,14 +30,13 @@ export function OpenPaths() {
       <div className="shell">
         <div className="grid gap-6 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-7">
-            <span className="stamp border-ink/35 text-ink">Jalur belajar</span>
+            <span className="stamp border-ink/35 text-ink">{copy.label}</span>
             <h2 id="paths-title" className="heading-section mt-5 max-w-[18ch]">
-              Dua jalur sudah terbuka. Satu masih disusun.
+              {copy.title}
             </h2>
           </div>
           <p className="body-copy max-w-[34rem] lg:col-span-5">
-            Setiap jalur punya pengajar, modul, dan tugas praktik yang dinilai
-            manusia. Pilih yang paling dekat dengan tanganmu sekarang.
+            {copy.description}
           </p>
         </div>
 
@@ -81,7 +85,7 @@ export function OpenPaths() {
                     </div>
                     <div className="text-left sm:text-right">
                       <p className="text-[9.5px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                        {path.comingSoon ? "Status" : "Biaya jalur"}
+                        {path.comingSoon ? copy.statusLabel : copy.priceLabel}
                       </p>
                       <p className="mt-1 font-heading text-[1.55rem] leading-none text-ink">
                         {path.price ? formatIDR(path.price) : path.priceLabel}
@@ -120,7 +124,7 @@ export function OpenPaths() {
                       </dt>
                       <dd className="mt-1 font-semibold leading-snug">
                         {path.comingSoon
-                          ? "Kurikulum disusun"
+                          ? copy.curriculumPending
                           : `${path.modules} modul / ${path.weeks} pekan`}
                       </dd>
                     </div>
@@ -147,7 +151,7 @@ export function OpenPaths() {
                         onClick={() => setSelected(path)}
                         className="border-ink/35"
                       >
-                        Buka rincian
+                        {copy.detailCta}
                         <ArrowUpRight aria-hidden="true" />
                       </Button>
                       <LeadButton
@@ -157,7 +161,7 @@ export function OpenPaths() {
                             : { variant: "student", interest: path.title }
                         }
                       >
-                        {path.comingSoon ? "Catat minat" : "Daftar minat"}
+                        {path.comingSoon ? copy.plannedCta : copy.openCta}
                       </LeadButton>
                     </div>
                   </div>
@@ -169,7 +173,11 @@ export function OpenPaths() {
       </div>
 
       {selected ? (
-        <PathDialog path={selected} onClose={() => setSelected(null)} />
+        <PathDialog
+          path={selected}
+          copy={copy}
+          onClose={() => setSelected(null)}
+        />
       ) : null}
     </section>
   )

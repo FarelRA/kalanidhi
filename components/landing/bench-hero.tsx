@@ -1,9 +1,9 @@
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
-import { hero } from "@/lib/content/landing"
+import type { HeroContent } from "@/lib/content/types"
 
-export function BenchHero() {
+export function BenchHero({ hero }: { hero: HeroContent }) {
   return (
     <section
       aria-labelledby="hero-title"

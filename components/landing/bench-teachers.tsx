@@ -4,12 +4,18 @@ import Image from "next/image"
 import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
-import { teachers, type Teacher } from "@/lib/content/landing"
+import type { SectionCopy, Teacher } from "@/lib/content/types"
 import { cn } from "cn"
 
 import { TeacherDialog } from "./teacher-dialog"
 
-export function BenchTeachers() {
+export function BenchTeachers({
+  teachers,
+  copy,
+}: {
+  teachers: Teacher[]
+  copy: SectionCopy["teachers"]
+}) {
   const [selected, setSelected] = useState<Teacher | null>(null)
 
   return (
@@ -21,16 +27,13 @@ export function BenchTeachers() {
       <div className="shell">
         <div className="grid gap-6 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-7">
-            <span className="stamp border-ink/35 text-ink">Pengajar</span>
+            <span className="stamp border-ink/35 text-ink">{copy.label}</span>
             <h2 id="teachers-title" className="heading-section mt-5 max-w-[16ch]">
-              Tangan yang mengajari.
+              {copy.title}
             </h2>
           </div>
           <div className="lg:col-span-5">
-            <p className="body-copy max-w-[34rem]">
-              Mereka masih mengerjakan praktiknya. Itu sebabnya koreksinya
-              spesifik: tekanan canting, arah jarum, napas kalimat.
-            </p>
+            <p className="body-copy max-w-[34rem]">{copy.description}</p>
           </div>
         </div>
 
@@ -82,7 +85,7 @@ export function BenchTeachers() {
                   aria-label={`Baca profil ${teacher.name}`}
                   className="shrink-0 border-ink/35"
                 >
-                  Baca profil
+                  {copy.profileCta}
                 </Button>
               </div>
             </article>
@@ -91,7 +94,11 @@ export function BenchTeachers() {
       </div>
 
       {selected ? (
-        <TeacherDialog teacher={selected} onClose={() => setSelected(null)} />
+        <TeacherDialog
+        teacher={selected}
+        copy={copy}
+        onClose={() => setSelected(null)}
+      />
       ) : null}
     </section>
   )

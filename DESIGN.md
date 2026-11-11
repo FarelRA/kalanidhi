@@ -99,7 +99,7 @@ Representative lines:
 - The certificate is a **sertifikat platform** everywhere, with a public verification code. The FAQ, footer, and verification dialog all say it is not government or BNSP certification.
 - The **Kartu Sumber Budaya** shows both knowledge sources, permission date, reference, and access level. The 70 / 15 / 15 split is shown before transaction.
 - No sacred or forbidden motif is used. The brand mark is an abstract bench ring with a finished-piece tag, not a batik pattern.
-- Cultural detail stays modest. The mangsa note is attributed to Giriloyo teacher interviews and explicitly disclaims weather forecasting and regional uniformity.
+- Cultural detail stays modest. The mangsa entry follows the Kasunanan Surakarta Pranata Mangsa, describes rice transplanting in Kapitu, and notes that the calendar is local and can shift with weather.
 - The base region is stated in the closing and the footer. The platform is “terbuka untuk” practitioners elsewhere, not “beroperasi di” everywhere.
 - Testimonials are labelled as participant and partner interviews with permission. No partnerships, coverage, or revenue figures are invented.
 - Commerce is the outlet of learning: works are documented with maker, technique, teacher, and Kartu Karya, and the learning loop is always the larger frame.

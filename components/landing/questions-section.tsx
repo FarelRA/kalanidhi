@@ -5,9 +5,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { InfoButton, LeadButton } from "@/components/overlays/overlay-buttons"
-import { faqs } from "@/lib/content/landing"
+import type { Faq, SectionCopy } from "@/lib/content/types"
 
-export function QuestionsSection() {
+export function QuestionsSection({
+  faqs,
+  copy,
+}: {
+  faqs: Faq[]
+  copy: SectionCopy["faq"]
+}) {
   return (
     <section
       id="faq"
@@ -16,25 +22,24 @@ export function QuestionsSection() {
     >
       <div className="shell grid gap-12 lg:grid-cols-12 lg:gap-16">
         <div className="lg:col-span-5">
-          <span className="stamp border-ink/35 text-ink">Pertanyaan</span>
+          <span className="stamp border-ink/35 text-ink">{copy.label}</span>
           <h2 id="faq-title" className="heading-section mt-5 max-w-[13ch]">
-            Tanya dulu sebelum duduk.
+            {copy.title}
           </h2>
           <p className="body-copy mt-5 max-w-[34rem]">
-            Jawaban singkat untuk hal yang paling sering ditanyakan sebelum
-            orang mengirim tugas pertama.
+            {copy.description}
           </p>
 
           <div className="mt-6 flex flex-wrap gap-2">
             <InfoButton infoKey="policy" variant="outline" className="border-ink/35">
-              Baca aturan bengkel
+              {copy.policyCta}
             </InfoButton>
             <LeadButton
               request={{ variant: "consultation", interest: "Pertanyaan umum" }}
               variant="ghost"
               className="text-ink/70 hover:bg-ink/5 hover:text-ink"
             >
-              Tanya lewat formulir
+              {copy.askCta}
             </LeadButton>
           </div>
         </div>

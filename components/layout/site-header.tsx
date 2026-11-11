@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { Menu, Search } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 import { BrandLockup } from "@/components/brand/brand-mark"
 import { InfoButton, LeadButton } from "@/components/overlays/overlay-buttons"
@@ -16,7 +16,11 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { useActiveSection } from "@/hooks/use-active-section"
-import { navigation, sectionIds } from "@/lib/content/navigation"
+import type {
+  HeaderCopy,
+  NavigationItem,
+  SearchCopy,
+} from "@/lib/content/types"
 import type { SearchGroup } from "@/lib/search"
 import { cn } from "cn"
 
@@ -28,11 +32,25 @@ const SearchDialog = dynamic(
   { ssr: false },
 )
 
-export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
+export function SiteHeader({
+  navigation,
+  searchGroups,
+  copy,
+  searchCopy,
+}: {
+  navigation: NavigationItem[]
+  searchGroups: SearchGroup[]
+  copy: HeaderCopy
+  searchCopy: SearchCopy
+}) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const searchTriggerRef = useRef<HTMLElement | null>(null)
+  const sectionIds = useMemo(
+    () => navigation.map((item) => item.href.slice(1)),
+    [navigation],
+  )
   const active = useActiveSection(sectionIds)
 
   useEffect(() => {
@@ -92,14 +110,14 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
         <div className="shell flex h-[68px] items-center justify-between gap-4 lg:h-[76px]">
           <Link
             href="#top"
-            aria-label="KalaNidhi Digital: kembali ke atas"
+            aria-label={copy.brandAria}
             className="shrink-0"
           >
             <BrandLockup markSize={35} />
           </Link>
 
           <nav
-            aria-label="Navigasi utama"
+            aria-label={copy.mainNavAria}
             className="hidden items-center gap-0.5 lg:flex xl:gap-1"
           >
             {navigation.map((item) => {
@@ -128,12 +146,12 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
             <button
               type="button"
               onClick={(event) => openSearch(event.currentTarget)}
-              aria-label="Cari jalur, pengajar, bidang, atau karya"
+              aria-label={copy.searchAria}
               aria-keyshortcuts="Meta+K Control+K"
               className="mr-1 hidden h-9 items-center gap-2 px-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-muted transition-colors hover:text-ink xl:flex"
             >
               <Search className="size-3.5" aria-hidden="true" />
-              Cari
+              {copy.searchLabel}
               <kbd className="border border-ink/25 px-1.5 py-0.5 text-[9px] text-ink-muted">
                 ⌘K
               </kbd>
@@ -144,7 +162,7 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
               variant="ghost"
               size="icon"
               onClick={(event) => openSearch(event.currentTarget)}
-              aria-label="Cari"
+              aria-label={copy.searchAria}
               className="xl:hidden"
             >
               <Search aria-hidden="true" />
@@ -157,10 +175,10 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
                 size="sm"
                 className="px-2 text-ink-soft hover:text-ink"
               >
-                Masuk
+                {copy.loginCta}
               </InfoButton>
               <LeadButton request={{ variant: "student" }} size="sm">
-                Daftar
+                {copy.registerCta}
               </LeadButton>
             </div>
 
@@ -170,7 +188,7 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
               variant="ghost"
               size="icon"
               onClick={() => setMobileOpen(true)}
-              aria-label="Buka menu navigasi"
+              aria-label={copy.menuAria}
               className="lg:hidden"
             >
               <Menu aria-hidden="true" />
@@ -182,6 +200,7 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
       {searchOpen ? (
         <SearchDialog
           groups={searchGroups}
+          copy={searchCopy}
           open
           onOpenChange={closeSearch}
         />
@@ -195,14 +214,14 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
           <div className="flex h-full flex-col overflow-y-auto p-6 pt-7">
             <SheetHeader className="gap-2 p-0 pr-8">
               <BrandLockup markSize={33} />
-              <SheetTitle className="sr-only">Menu navigasi</SheetTitle>
+              <SheetTitle className="sr-only">{copy.sheetTitle}</SheetTitle>
               <SheetDescription className="sr-only">
-                Navigasi utama, pencarian, dan pendaftaran KalaNidhi Digital.
+                {copy.sheetDescription}
               </SheetDescription>
             </SheetHeader>
 
             <nav
-              aria-label="Navigasi mobile"
+              aria-label={copy.mobileNavAria}
               className="mt-9 flex flex-col border-t-2 border-ink/25"
             >
               {navigation.map((item, index) => (
@@ -226,7 +245,7 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
               className="mt-6 flex min-h-11 items-center gap-3 text-left text-sm text-ink-soft transition-colors hover:text-ink"
             >
               <Search className="size-4 text-copper-dark" aria-hidden="true" />
-              Cari jalur, pengajar, atau karya
+              {copy.mobileSearch}
             </button>
 
             <div className="mt-auto space-y-3 pt-10">
@@ -235,7 +254,7 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
                 size="lg"
                 className="w-full"
               >
-                Daftar minat
+                {copy.mobileRegisterCta}
               </LeadButton>
               <InfoButton
                 infoKey="login"
@@ -243,10 +262,10 @@ export function SiteHeader({ searchGroups }: { searchGroups: SearchGroup[] }) {
                 size="lg"
                 className="w-full border-ink/35"
               >
-                Masuk
+                {copy.loginCta}
               </InfoButton>
               <p className="pt-2 text-[10px] leading-relaxed text-ink-muted">
-                Yogyakarta dan Jawa Tengah
+                {copy.region}
               </p>
             </div>
           </div>

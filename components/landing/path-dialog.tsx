@@ -13,14 +13,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import type { LearningPath } from "@/lib/content/landing"
+import type { LearningPath, SectionCopy } from "@/lib/content/types"
 import { formatIDR } from "@/lib/format"
 
 export function PathDialog({
   path,
+  copy,
   onClose,
 }: {
   path: LearningPath
+  copy: SectionCopy["paths"]
   onClose: () => void
 }) {
   const { openLead } = useOverlay()
@@ -103,7 +105,7 @@ export function PathDialog({
             [
               "Isi",
               path.comingSoon
-                ? "Kurikulum disusun"
+                ? copy.curriculumPending
                 : `${path.modules} modul, ${path.weeks} pekan`,
             ],
           ].map(([label, value]) => (
@@ -119,7 +121,7 @@ export function PathDialog({
         <div className="flex flex-col gap-3 border-t border-ink/15 pt-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-[9.5px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-              {path.comingSoon ? "Status" : "Biaya jalur"}
+              {path.comingSoon ? copy.statusLabel : copy.priceLabel}
             </p>
             <p className="mt-1 font-heading text-[1.55rem] leading-none">
               {path.price ? formatIDR(path.price) : path.priceLabel}
@@ -130,7 +132,7 @@ export function PathDialog({
               Tutup
             </Button>
             <Button onClick={handleLead}>
-              {path.comingSoon ? "Catat minat" : "Daftar minat"}
+              {path.comingSoon ? copy.plannedCta : copy.openCta}
               <ArrowRight aria-hidden="true" />
             </Button>
           </div>

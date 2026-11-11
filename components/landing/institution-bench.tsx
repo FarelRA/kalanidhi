@@ -1,9 +1,9 @@
 import { Check } from "lucide-react"
 
 import { LeadButton } from "@/components/overlays/overlay-buttons"
-import { institution } from "@/lib/content/landing"
+import type { InstitutionContent } from "@/lib/content/types"
 
-export function InstitutionBench() {
+export function InstitutionBench({ institution }: { institution: InstitutionContent }) {
   return (
     <section
       id="institusi"
@@ -49,14 +49,14 @@ export function InstitutionBench() {
             <div className="flex items-start justify-between gap-4 border-b border-ink/20 pb-3 pt-2">
               <div>
                 <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-ink-muted">
-                  Ringkasan program
+                  {institution.summaryLabel}
                 </p>
                 <p className="mt-1 font-heading text-[1.35rem] leading-tight">
-                  Kerangka awal
+                  {institution.summaryTitle}
                 </p>
               </div>
               <span className="stamp stamp-soft border-ink/35 text-ink-soft">
-                2026
+                {institution.year}
               </span>
             </div>
 

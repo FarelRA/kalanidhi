@@ -2,9 +2,15 @@ import { BrandLockup } from "@/components/brand/brand-mark"
 import { NewsletterForm } from "@/components/forms/newsletter-form"
 import { FooterPreferences } from "@/components/layout/footer-preferences"
 import { InfoLink } from "@/components/overlays/overlay-buttons"
-import { ethics, footer } from "@/lib/content/landing"
+import type { EthicsContent, FooterContent } from "@/lib/content/types"
 
-export function SiteFooter() {
+export function SiteFooter({
+  footer,
+  ethics,
+}: {
+  footer: FooterContent
+  ethics: EthicsContent
+}) {
   return (
     <footer className="wood-deep border-t-2 border-copper-dark pb-28 text-paper md:pb-0">
       <div className="shell py-14 lg:py-20">
@@ -16,10 +22,10 @@ export function SiteFooter() {
             </p>
             <div className="mt-8 max-w-sm">
               <p className="text-[9.5px] font-bold uppercase tracking-[0.1em] text-brass">
-                Kabar jalur dan karya baru
+                {footer.newsletter.label}
               </p>
               <div className="mt-3">
-                <NewsletterForm />
+                <NewsletterForm copy={footer.newsletter} />
               </div>
             </div>
           </div>
@@ -56,10 +62,10 @@ export function SiteFooter() {
 
             <div>
               <p className="text-[9.5px] font-bold uppercase tracking-[0.1em] text-brass">
-                Preferensi
+                {footer.preferencesLabel}
               </p>
               <div className="mt-4">
-                <FooterPreferences />
+                <FooterPreferences copy={footer} />
               </div>
               <div className="mt-6 border-t border-paper/20 pt-3">
                 <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-paper/65">
@@ -76,17 +82,15 @@ export function SiteFooter() {
         <div className="mt-14 grid gap-8 border-t border-paper/20 pt-6 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-brass">
-              Catatan sumber
+              {footer.sourceLabel}
             </p>
             <p className="mt-2 max-w-md text-[11.5px] leading-relaxed text-paper/60">
-              Pengetahuan pada halaman ini ditampilkan dengan sumber komunitas.
-              Setiap karya mencantumkan pembuat, pengajar pendamping, dan sumber
-              pengetahuan.
+              {footer.sourceDescription}
             </p>
           </div>
           <div className="lg:col-span-4">
             <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-brass">
-              Sumber
+              {footer.sourcesLabel}
             </p>
             <p className="mt-2 text-[12px] text-paper">
               {ethics.attribution.sources.map((source) => source.name).join(" · ")}
@@ -100,17 +104,16 @@ export function SiteFooter() {
           </div>
           <div className="lg:col-span-3">
             <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-brass">
-              Hak budaya
+              {footer.cultureLabel}
             </p>
             <InfoLink
               infoKey="policy"
               className="mt-2 inline-flex min-h-11 items-center border-b border-copper-light/50 pb-0.5 text-[11.5px] text-paper hover:text-copper-light"
             >
-              Baca prinsip etika
+              {footer.culturePolicyCta}
             </InfoLink>
             <p className="mt-4 text-[9.5px] leading-relaxed text-paper/65">
-              Sertifikat menandai kompetensi di platform KalaNidhi Digital. Sertifikasi
-              pemerintah dan BNSP memiliki jalur terpisah.
+              {footer.certificateNote}
             </p>
           </div>
         </div>
@@ -121,16 +124,16 @@ export function SiteFooter() {
           </p>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
             <InfoLink infoKey="privacy" className="inline-flex min-h-11 items-center text-[10.5px] text-paper/65 hover:text-paper">
-              Kebijakan privasi
+              {footer.privacyLabel}
             </InfoLink>
             <InfoLink infoKey="terms" className="inline-flex min-h-11 items-center text-[10.5px] text-paper/65 hover:text-paper">
-              Ketentuan layanan
+              {footer.termsLabel}
             </InfoLink>
             <a
               href="#top"
               className="flex min-h-11 items-center text-paper/70 transition-colors hover:text-paper"
             >
-              Kembali ke atas
+              {footer.backToTopLabel}
             </a>
           </div>
         </div>

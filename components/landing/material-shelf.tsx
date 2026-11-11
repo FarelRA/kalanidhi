@@ -1,28 +1,6 @@
 import { Button } from "@/components/ui/button"
-import { catalog, type CatalogField } from "@/lib/content/landing"
+import type { CatalogField, SiteData } from "@/lib/content/types"
 import { cn } from "cn"
-
-const groups: {
-  status: CatalogField["status"]
-  title: string
-  blurb: string
-}[] = [
-  {
-    status: "Terbuka",
-    title: "Sudah di bangku",
-    blurb: "Bisa dimulai sekarang, dengan pengajar dan kurikulum yang siap.",
-  },
-  {
-    status: "Sedang dipetakan",
-    title: "Sedang disiapkan",
-    blurb: "Kurikulum dan pengajar sedang ditata. Belum dibuka untuk pendaftaran.",
-  },
-  {
-    status: "Direncanakan",
-    title: "Menunggu pengajar",
-    blurb: "Bidangnya ada. Pengajar yang mau membuka jalur belum bergabung.",
-  },
-]
 
 function StatusMark({ status }: { status: CatalogField["status"] }) {
   return (
@@ -39,7 +17,7 @@ function StatusMark({ status }: { status: CatalogField["status"] }) {
   )
 }
 
-export function MaterialShelf() {
+export function MaterialShelf({ catalog }: { catalog: SiteData["catalog"] }) {
   return (
     <section
       id="indeks"
@@ -58,7 +36,7 @@ export function MaterialShelf() {
         </div>
 
         <div className="mt-12 space-y-12 lg:mt-16">
-          {groups.map((group) => {
+          {catalog.groups.map((group) => {
             const fields = catalog.fields.filter(
               (field) => field.status === group.status,
             )
@@ -147,7 +125,7 @@ export function MaterialShelf() {
 
         <div className="mt-12 border-t border-ink/20 pt-6 text-right">
           <Button asChild className="bg-ink text-paper hover:bg-ink-2">
-            <a href="#jalur">Lihat jalur yang terbuka</a>
+            <a href="#jalur">{catalog.cta}</a>
           </Button>
         </div>
       </div>

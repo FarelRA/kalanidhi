@@ -1,9 +1,15 @@
-import { testimonials } from "@/lib/content/landing"
+import type { SectionCopy, Testimonial } from "@/lib/content/types"
 import { cn } from "cn"
 
 const rotations = ["md:-rotate-[0.6deg]", "md:rotate-[0.5deg]", "md:-rotate-[0.4deg]"] as const
 
-export function ParticipantNotes() {
+export function ParticipantNotes({
+  testimonials,
+  copy,
+}: {
+  testimonials: Testimonial[]
+  copy: SectionCopy["notes"]
+}) {
   return (
     <section
       aria-labelledby="notes-title"
@@ -12,14 +18,13 @@ export function ParticipantNotes() {
       <div className="shell">
         <div className="grid gap-6 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-7">
-            <span className="stamp border-ink/35 text-ink">Catatan peserta</span>
+            <span className="stamp border-ink/35 text-ink">{copy.label}</span>
             <h2 id="notes-title" className="heading-section mt-5 max-w-[16ch]">
-              Catatan dari peserta.
+              {copy.title}
             </h2>
           </div>
           <p className="body-copy max-w-[34rem] lg:col-span-5">
-            Tiga catatan dari peserta dan mitra, dikutip dengan izin. Isinya
-            pengalaman yang bisa diperiksa.
+            {copy.description}
           </p>
         </div>
 

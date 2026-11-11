@@ -1,6 +1,6 @@
 import { BookMarked, HandCoins, LockKeyhole } from "lucide-react"
 
-import { ethics } from "@/lib/content/landing"
+import type { EthicsContent } from "@/lib/content/types"
 import { cn } from "cn"
 
 const principleIcons = [BookMarked, LockKeyhole, HandCoins] as const
@@ -11,7 +11,7 @@ const shareStyles = [
   "bg-brass text-ink",
 ] as const
 
-export function WorkshopRules() {
+export function WorkshopRules({ ethics }: { ethics: EthicsContent }) {
   return (
     <section
       id="etika"
@@ -59,7 +59,7 @@ export function WorkshopRules() {
             <div className="relative border-2 border-ink bg-paper-2 p-5 text-ink shadow-[8px_8px_0_rgba(0,0,0,0.28)] sm:p-6 lg:rotate-[1.1deg]">
               <div className="flex flex-wrap items-start justify-between gap-3 border-b border-ink/20 pb-3">
                 <span className="stamp stamp-soft border-ink/45 text-ink">
-                  Kartu Sumber Budaya
+                  {ethics.card.sourceTitle}
                 </span>
                 <span className="stamp border-moss bg-moss text-cream-2">
                   {ethics.attribution.access}
@@ -85,7 +85,7 @@ export function WorkshopRules() {
               <dl className="mt-4 space-y-3">
                 <div>
                   <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                    Izin
+                    {ethics.card.permissionLabel}
                   </dt>
                   <dd className="mt-0.5 text-[12px] leading-snug text-ink/75">
                     {ethics.attribution.permission}
@@ -93,7 +93,7 @@ export function WorkshopRules() {
                 </div>
                 <div>
                   <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                    Rujukan
+                    {ethics.card.referenceLabel}
                   </dt>
                   <dd className="mt-0.5 text-[12px] leading-snug text-ink/75">
                     {ethics.attribution.reference}
@@ -120,17 +120,17 @@ export function WorkshopRules() {
             <div className="mt-8 border-2 border-paper/25 p-4 sm:p-5">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h3 className="font-heading text-[1.3rem] text-paper">
-                  Bagi hasil
+                  {ethics.shareTitle}
                 </h3>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-paper/65">
-                  Ditampilkan sebelum transaksi
+                  {ethics.shareNote}
                 </p>
               </div>
 
               <div
                 className="mt-4 flex h-16 overflow-hidden border-2 border-paper/40"
                 role="img"
-                aria-label="Bagi hasil 70 persen untuk pengajar dan pembuat karya, 15 persen untuk dana komunitas dan sanggar, 15 persen untuk operasional platform"
+                aria-label={ethics.shareAriaLabel}
               >
                 {ethics.share.map((item, index) => (
                   <div

@@ -1,9 +1,15 @@
 import { BrandMark } from "@/components/brand/brand-mark"
 import { LeadButton } from "@/components/overlays/overlay-buttons"
 import { Button } from "@/components/ui/button"
-import { traction } from "@/lib/content/landing"
+import type { SectionCopy, TractionContent } from "@/lib/content/types"
 
-export function ClosingBench() {
+export function ClosingBench({
+  traction,
+  copy,
+}: {
+  traction: TractionContent
+  copy: SectionCopy["closing"]
+}) {
   return (
     <section
       aria-labelledby="closing-title"
@@ -11,14 +17,12 @@ export function ClosingBench() {
     >
       <div className="shell relative z-10 grid gap-12 lg:grid-cols-12 lg:items-center">
         <div className="lg:col-span-7">
-          <span className="stamp border-paper/35 text-paper">Mulai dari sini</span>
+          <span className="stamp border-paper/35 text-paper">{copy.label}</span>
           <h2 id="closing-title" className="heading-hero mt-6 max-w-[15ch] text-paper">
-            Bangku berikutnya kosong.
+            {copy.title}
           </h2>
           <p className="mt-6 max-w-[52ch] text-[15px] leading-relaxed text-paper/75">
-            Pilih jalur, kerjakan tugas pertama, dan kirim untuk dikoreksi.
-            Kalau sudah siap, kamu bisa kembali mengajar dan membuka jalur untuk
-            orang berikutnya.
+            {copy.description}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -27,7 +31,7 @@ export function ClosingBench() {
               size="lg"
               className="border-2 border-copper-dark bg-copper-dark text-cream-2 hover:border-copper hover:bg-copper"
             >
-              Daftar minat
+              {copy.primaryCta}
             </LeadButton>
             <Button
               asChild
@@ -35,7 +39,7 @@ export function ClosingBench() {
               size="lg"
               className="border-paper/35 text-paper hover:border-brass hover:bg-paper/5 hover:text-brass"
             >
-              <a href="#jalur">Lihat jalur</a>
+              <a href="#jalur">{copy.secondaryCta}</a>
             </Button>
           </div>
 
@@ -57,8 +61,7 @@ export function ClosingBench() {
               {traction.label}
             </p>
             <p className="text-[10.5px] leading-relaxed text-paper/65">
-              {traction.note} Terbuka untuk praktisi dari daerah lain secara
-              bertahap.
+              {traction.note} {copy.noteSuffix}
             </p>
           </div>
         </div>

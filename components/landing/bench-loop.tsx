@@ -7,7 +7,7 @@ import {
   Users,
 } from "lucide-react"
 
-import { loop } from "@/lib/content/landing"
+import type { LoopContent } from "@/lib/content/types"
 
 const stageIcons = [BookOpen, PenLine, BadgeCheck, Store, Users] as const
 
@@ -26,7 +26,7 @@ const forwardArrows = [
   { x: 120.2, y: 331.9, angle: 252 },
 ] as const
 
-export function BenchLoop() {
+export function BenchLoop({ loop }: { loop: LoopContent }) {
   return (
     <section
       id="lingkaran"
@@ -53,14 +53,8 @@ export function BenchLoop() {
                 aria-labelledby="loop-svg-title loop-svg-desc"
                 className="h-auto w-full overflow-visible"
               >
-                <title id="loop-svg-title">
-                  Bangku kerja melingkar dengan lima tahap
-                </title>
-                <desc id="loop-svg-desc">
-                  Lima tahap tersusun mengelilingi bangku. Jalur kembali
-                  membawa karya yang selesai ke bangku pertama, tempat lulusan
-                  mulai mengajar.
-                </desc>
+                <title id="loop-svg-title">{loop.diagram.title}</title>
+                <desc id="loop-svg-desc">{loop.diagram.description}</desc>
 
                 {/* Return rail: the finished piece travels back to the first seat. */}
                 <path

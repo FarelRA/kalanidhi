@@ -2,7 +2,9 @@
 
 import { z } from "zod"
 
+import type { LeadArgs } from "@/lib/convex/types"
 import type { LeadState } from "@/lib/forms/lead"
+import { isConvexConfigured, persistLead } from "@/lib/convex/server"
 
 const leadSchema = z
   .object({
@@ -74,13 +76,29 @@ export async function submitLead(
     return { status: "success", message: "Terima kasih." }
   }
 
-  // TODO: Persist to the CRM or database once the backend is available.
-  // Never log raw contact details in production.
-  console.info("[lead]", {
+  const lead: LeadArgs = {
     intent: parsed.data.intent,
-    hasInstitution: Boolean(parsed.data.institution),
-    hasWhatsapp: Boolean(parsed.data.whatsapp),
-  })
+    name: parsed.data.name,
+    email: parsed.data.email,
+    whatsapp: parsed.data.whatsapp,
+    institution: parsed.data.institution,
+    institutionType: parsed.data.institutionType,
+    participants: parsed.data.participants,
+    interest: parsed.data.interest,
+    message: parsed.data.message,
+    source: parsed.data.source,
+    consent: parsed.data.consent === "on",
+  }
+
+  const stored = await persistLead(lead)
+
+  if (isConvexConfigured() && !stored) {
+    return {
+      status: "error",
+      message:
+        "Pendaftaranmu belum bisa disimpan. Coba lagi sebentar, atau hubungi kami lewat email.",
+    }
+  }
 
   const messages: Record<typeof parsed.data.intent, string> = {
     student:

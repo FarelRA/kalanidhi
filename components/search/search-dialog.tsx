@@ -18,6 +18,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
+import type { SearchCopy } from "@/lib/content/types"
 import type { SearchGroup, SearchIcon } from "@/lib/search"
 
 const iconMap: Record<SearchIcon, typeof Route> = {
@@ -29,10 +30,12 @@ const iconMap: Record<SearchIcon, typeof Route> = {
 
 export function SearchDialog({
   groups,
+  copy,
   open,
   onOpenChange,
 }: {
   groups: SearchGroup[]
+  copy: SearchCopy
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
@@ -74,19 +77,21 @@ export function SearchDialog({
     <CommandDialog
       open={open}
       onOpenChange={handleOpenChange}
-      title="Cari di KalaNidhi Digital"
-      description="Cari jalur belajar, pengajar, karya, atau halaman."
+      title={copy.title}
+      description={copy.description}
       className="top-[10%] max-w-xl translate-y-0 border border-ink/30 bg-paper-2 p-0 sm:max-w-xl"
     >
       <Command shouldFilter={false} className="bg-transparent p-0">
         <CommandInput
           value={query}
           onValueChange={setQuery}
-          placeholder="Cari jalur, pengajar, karya…"
+          placeholder={copy.placeholder}
         />
         <CommandList className="max-h-[min(60svh,420px)] px-1 pb-1">
           <CommandEmpty className="py-10 text-center text-sm text-ink-muted">
-            Belum ada yang cocok untuk “{query.trim()}”. Coba kata kunci lain.
+            {copy.emptyPrefix}
+            {query.trim()}
+            {copy.emptySuffix}
           </CommandEmpty>
           {filteredGroups.map((group) => {
             const Icon = iconMap[group.icon]
@@ -119,20 +124,20 @@ export function SearchDialog({
         <div className="flex items-center justify-between gap-3 border-t border-ink/15 px-4 py-2.5 text-[9.5px] text-ink-muted">
           <span className="inline-flex items-center gap-1.5">
             <Search className="size-3" aria-hidden="true" />
-            Cari di seluruh halaman
+            {copy.footerLabel}
           </span>
           <span className="inline-flex items-center gap-1">
             <kbd className="rounded border border-border bg-ink/[0.04] px-1.5 py-0.5 font-mono">
               Esc
             </kbd>
-            untuk menutup
+            {copy.escLabel}
           </span>
           <button
             type="button"
             onClick={() => handleOpenChange(false)}
             className="rounded-[3px] border border-ink/25 px-2.5 py-1 text-[10px] font-medium text-ink-soft transition-colors hover:border-thread/50 hover:text-thread"
           >
-            Tutup
+            {copy.closeLabel}
           </button>
         </div>
       </Command>

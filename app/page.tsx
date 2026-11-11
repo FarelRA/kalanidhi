@@ -12,21 +12,27 @@ import { QuestionsSection } from "@/components/landing/questions-section"
 import { SeasonNote } from "@/components/landing/season-note"
 import { WorksShelf } from "@/components/landing/works-shelf"
 import { WorkshopRules } from "@/components/landing/workshop-rules"
+import { getSiteData } from "@/lib/convex/server"
 import { buildLandingJsonLd } from "@/lib/structured-data"
 
-export const metadata: Metadata = {
-  title: {
-    absolute: "KalaNidhi Digital: belajar sampai bisa, bisa sampai mengajari",
-  },
-  description:
-    "KalaNidhi Digital mempertemukan pelajar dengan pengajar praktik budaya Nusantara. Tugas dinilai manusia, sertifikat platform bisa diverifikasi, karya punya Kartu Karya. Lulusan dapat kembali sebagai pengajar, penilai, atau pemasok.",
-  alternates: {
-    canonical: "/",
-  },
+
+export async function generateMetadata(): Promise<Metadata> {
+  const data = await getSiteData()
+
+  return {
+    title: {
+      absolute: data.metadata.title,
+    },
+    description: data.metadata.description,
+    alternates: {
+      canonical: "/",
+    },
+  }
 }
 
-export default function HomePage() {
-  const jsonLd = buildLandingJsonLd()
+export default async function HomePage() {
+  const data = await getSiteData()
+  const jsonLd = buildLandingJsonLd(data)
 
   return (
     <div id="top">
@@ -34,18 +40,21 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <BenchHero />
-      <BenchLoop />
-      <MaterialShelf />
-      <OpenPaths />
-      <BenchTeachers />
-      <WorksShelf />
-      <WorkshopRules />
-      <SeasonNote />
-      <InstitutionBench />
-      <ParticipantNotes />
-      <QuestionsSection />
-      <ClosingBench />
+      <BenchHero hero={data.hero} />
+      <BenchLoop loop={data.loop} />
+      <MaterialShelf catalog={data.catalog} />
+      <OpenPaths paths={data.paths} copy={data.sections.paths} />
+      <BenchTeachers teachers={data.teachers} copy={data.sections.teachers} />
+      <WorksShelf works={data.works} copy={data.sections.works} />
+      <WorkshopRules ethics={data.ethics} />
+      <SeasonNote mangsa={data.mangsa} />
+      <InstitutionBench institution={data.institution} />
+      <ParticipantNotes
+        testimonials={data.testimonials}
+        copy={data.sections.notes}
+      />
+      <QuestionsSection faqs={data.faqs} copy={data.sections.faq} />
+      <ClosingBench traction={data.traction} copy={data.sections.closing} />
     </div>
   )
 }

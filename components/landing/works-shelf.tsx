@@ -2,10 +2,16 @@ import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 
 import { LeadButton } from "@/components/overlays/overlay-buttons"
-import { works } from "@/lib/content/landing"
+import type { SectionCopy, Work } from "@/lib/content/types"
 import { formatIDR } from "@/lib/format"
 
-export function WorksShelf() {
+export function WorksShelf({
+  works,
+  copy,
+}: {
+  works: Work[]
+  copy: SectionCopy["works"]
+}) {
   const featured = works[0]
   const rest = works.slice(1)
 
@@ -18,14 +24,13 @@ export function WorksShelf() {
       <div className="shell">
         <div className="grid gap-6 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-7">
-            <span className="stamp border-ink/35 text-ink">Karya dan jasa</span>
+            <span className="stamp border-ink/35 text-ink">{copy.label}</span>
             <h2 id="works-title" className="heading-section mt-5 max-w-[17ch]">
-              Dari bangku ke pembeli.
+              {copy.title}
             </h2>
           </div>
           <p className="body-copy max-w-[34rem] lg:col-span-5">
-            Karya di bawah ini lahir dari tugas yang dinilai. Setiap karya
-            membawa Kartu Karya: pembuat, teknik, pengajar, dan jejak prosesnya.
+            {copy.description}
           </p>
         </div>
 
@@ -50,7 +55,7 @@ export function WorksShelf() {
 
           <div className="flex flex-col justify-center lg:col-span-5">
             <p className="text-[9.5px] font-bold uppercase tracking-[0.1em] text-copper-dark">
-              {featured.kind === "service" ? "Jasa" : "Karya"} pilihan
+              {featured.kind === "service" ? copy.serviceLabel : copy.featuredLabel}
             </p>
             <h3 className="mt-2 font-heading text-[clamp(1.7rem,3.2vw,2.4rem)] leading-[1.03]">
               {featured.title}
@@ -80,7 +85,7 @@ export function WorksShelf() {
             <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="text-[9.5px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                  {featured.priceLabel ?? "Harga karya"}
+                  {featured.priceLabel ?? copy.priceLabel}
                 </p>
                 <p className="mt-1 font-heading text-[1.8rem] leading-none">
                   {formatIDR(featured.price)}
@@ -91,7 +96,7 @@ export function WorksShelf() {
                 variant="outline"
                 className="border-ink/35"
               >
-                Tanya karya ini
+                {copy.askCta}
                 <ArrowRight aria-hidden="true" />
               </LeadButton>
             </div>
@@ -141,7 +146,7 @@ export function WorksShelf() {
                   size="sm"
                   className="mt-2 h-auto min-h-9 px-0 text-copper-dark hover:bg-transparent hover:text-ink"
                 >
-                  Tanya karya ini
+                  {copy.askCta}
                   <ArrowRight aria-hidden="true" />
                 </LeadButton>
               </div>

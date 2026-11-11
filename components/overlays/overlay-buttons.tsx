@@ -4,7 +4,7 @@ import type { ComponentProps, ReactNode } from "react"
 
 import { useOverlay } from "@/components/overlays/overlay-provider"
 import { Button } from "@/components/ui/button"
-import type { InfoKey, LeadRequest } from "@/lib/content/overlays"
+import type { InfoKey, LeadRequest } from "@/lib/content/types"
 import { cn } from "cn"
 
 type LeadButtonProps = Omit<ComponentProps<typeof Button>, "onClick"> & {

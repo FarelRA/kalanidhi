@@ -13,13 +13,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import type { Teacher } from "@/lib/content/landing"
+import type { SectionCopy, Teacher } from "@/lib/content/types"
 
 export function TeacherDialog({
   teacher,
+  copy,
   onClose,
 }: {
   teacher: Teacher
+  copy: SectionCopy["teachers"]
   onClose: () => void
 }) {
   const { openLead } = useOverlay()
@@ -42,7 +44,7 @@ export function TeacherDialog({
       <DialogContent className="max-h-[min(90svh,760px)] gap-5 border-2 border-ink bg-paper-2 sm:max-w-xl">
         <DialogHeader className="gap-2 pr-8">
           <span className="stamp stamp-soft w-fit border-copper-dark/50 text-copper-dark">
-            Profil pengajar
+            {copy.dialogLabel}
           </span>
           <DialogTitle className="text-[1.9rem] leading-[1.02]">
             {teacher.name}
@@ -91,7 +93,7 @@ export function TeacherDialog({
             Tutup
           </Button>
           <Button onClick={handleLead}>
-            Tanya lewat formulir
+            {copy.askCta}
             <ArrowRight aria-hidden="true" />
           </Button>
         </div>
