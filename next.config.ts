@@ -11,18 +11,10 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: convexHost,
-        pathname: "/api/storage/**",
-      },
-      {
-        protocol: "http",
-        hostname: "localhost",
-        pathname: "/api/storage/**",
-      },
-    ],
+    // Convex storage already serves optimized, cacheable image responses.
+    // Bypass the Next.js optimizer so the browser fetches the storage URL
+    // directly and no remote-pattern allowlist can block it.
+    unoptimized: true,
   },
   turbopack: {
     rules: {
