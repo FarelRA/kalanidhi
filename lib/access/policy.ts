@@ -250,6 +250,7 @@ export const ROUTE_CAPABILITIES: { path: string; anyOf: Capability[] }[] = [
   { path: "/ruang/statistik", anyOf: ["stats.read", "stats.teach"] },
   { path: "/ruang/alur", anyOf: ["flows.manage"] },
   { path: "/ruang/log", anyOf: ["logs.read"] },
+  { path: "/ruang/tata-kelola", anyOf: ["governance.manage"] },
   { path: "/ruang/dukungan", anyOf: ["support.request", "support.manage"] },
   { path: "/ruang/pengaturan", anyOf: [] },
 ]

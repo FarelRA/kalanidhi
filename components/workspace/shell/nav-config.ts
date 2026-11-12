@@ -14,6 +14,7 @@ import {
   Palette,
   ScrollText,
   Settings,
+  ShieldCheck,
   ShoppingBag,
   Target,
   Users,
@@ -188,6 +189,14 @@ export const navItems: NavItem[] = [
     group: "Kelola",
     icon: ScrollText,
     anyOf: ["logs.read"],
+  },
+  {
+    href: "/ruang/tata-kelola",
+    label: "Tata kelola",
+    shortLabel: "Tata kelola",
+    group: "Kelola",
+    icon: ShieldCheck,
+    anyOf: ["governance.manage"],
   },
   {
     href: "/ruang/dukungan",
