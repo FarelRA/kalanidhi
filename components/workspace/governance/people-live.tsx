@@ -368,6 +368,29 @@ function PersonDrawer({
   const revokeSessions = useMutation(api.people.revokeSessions)
   const verifyTeacher = useMutation(api.people.verifyTeacher)
   const setPublication = useMutation(api.people.setTeacherPublication)
+  const activateSeller = useMutation(api.people.activateSeller)
+  const createTeacher = useMutation(api.people.createTeacherProfile)
+  const site = useQuery(api.content.getSite)
+  const [sellerOpen, setSellerOpen] = React.useState(false)
+  const [sellerName, setSellerName] = React.useState("")
+  const [sellerReason, setSellerReason] = React.useState("")
+  const [sellerChecklist, setSellerChecklist] = React.useState({
+    payoutAccount: false,
+    consent: false,
+    firstWorkCard: false,
+    taxDetails: false,
+  })
+  const [teacherOpen, setTeacherOpen] = React.useState(false)
+  const [teacherReason, setTeacherReason] = React.useState("")
+  const [teacherDraft, setTeacherDraft] = React.useState({
+    specialty: "",
+    region: "",
+    experience: "",
+    quote: "",
+    focus: "",
+    community: "",
+    pathId: "",
+  })
   const [roleDraft, setRoleDraft] = React.useState<{
     userId: string
     roles: string[]
@@ -389,7 +412,8 @@ function PersonDrawer({
   }
 
   return (
-    <DetailDrawer
+    <>
+      <DetailDrawer
       open
       onOpenChange={(open) => !open && onClose()}
       eyebrow="Akun"
@@ -648,6 +672,103 @@ function PersonDrawer({
             </DrawerSection>
           ) : null}
 
+          <DrawerSection
+            title="Profil penjual"
+            aside={
+              detail.seller ? (
+                <StatusStamp
+                  label={detail.seller.status}
+                  tone={
+                    detail.seller.status === "active"
+                      ? "done"
+                      : detail.seller.status === "suspended"
+                        ? "danger"
+                        : "wait"
+                  }
+                />
+              ) : (
+                <StatusStamp label="Belum aktif" tone="muted" />
+              )
+            }
+          >
+            {detail.seller ? (
+              <dl className="space-y-2 text-[11.5px]">
+                <div className="flex justify-between gap-3">
+                  <dt className="text-ink-muted">Nama tampil</dt>
+                  <dd className="text-right text-ink">{detail.seller.displayName}</dd>
+                </div>
+                {(
+                  [
+                    ["Rekening pencairan", detail.seller.onboardingChecklist.payoutAccount],
+                    ["Persetujuan", detail.seller.onboardingChecklist.consent],
+                    ["Kartu Karya pertama", detail.seller.onboardingChecklist.firstWorkCard],
+                    ["Data pajak", detail.seller.onboardingChecklist.taxDetails],
+                  ] as const
+                ).map(([label, done]) => (
+                  <div key={label} className="flex justify-between gap-3">
+                    <dt className="text-ink-muted">{label}</dt>
+                    <dd className="text-right text-ink">{done ? "Lengkap" : "Belum"}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <>
+                <p className="text-[11.5px] leading-relaxed text-ink-soft">
+                  Penjual aktif hanya setelah dossier pengajar terverifikasi atau
+                  sertifikat terbit, dan seluruh checklist onboarding lengkap.
+                </p>
+                <Button
+                  size="sm"
+                  className="mt-3"
+                  onClick={() => {
+                    setSellerName(detail.user.name)
+                    setSellerReason("")
+                    setSellerChecklist({
+                      payoutAccount: false,
+                      consent: false,
+                      firstWorkCard: false,
+                      taxDetails: false,
+                    })
+                    setSellerOpen(true)
+                  }}
+                >
+                  Aktifkan penjual
+                </Button>
+              </>
+            )}
+          </DrawerSection>
+
+          {!detail.teacher && detail.user.roles.includes("teacher") ? (
+            <DrawerSection
+              title="Dossier pengajar"
+              aside={<StatusStamp label="Belum ada" tone="muted" />}
+            >
+              <p className="text-[11.5px] leading-relaxed text-ink-soft">
+                Akun ini sudah berperan pengajar tetapi belum punya dossier.
+                Lengkapi dossier agar jalur dan verifikasinya tercatat.
+              </p>
+              <Button
+                size="sm"
+                className="mt-3"
+                onClick={() => {
+                  setTeacherDraft({
+                    specialty: "",
+                    region: detail.user.region,
+                    experience: "",
+                    quote: "",
+                    focus: "",
+                    community: "",
+                    pathId: site?.paths[0]?.slug ?? "",
+                  })
+                  setTeacherReason("")
+                  setTeacherOpen(true)
+                }}
+              >
+                Buat profil pengajar
+              </Button>
+            </DrawerSection>
+          ) : null}
+
           <DrawerSection title="Pendaftaran dan kredensial">
             <div className="grid gap-2 sm:grid-cols-2">
               {detail.enrollments.map((item) => (
@@ -746,5 +867,250 @@ function PersonDrawer({
         <p className="text-[12px] text-ink-muted">Memuat detail akun.</p>
       )}
     </DetailDrawer>
+
+      <Dialog open={sellerOpen} onOpenChange={setSellerOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Aktifkan profil penjual</DialogTitle>
+            <DialogDescription>
+              Checklist ini adalah gerbang. Semua butir wajib lengkap sebelum
+              penjual dapat menerbitkan karya.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="seller-name">Nama tampil</Label>
+              <Input
+                id="seller-name"
+                value={sellerName}
+                onChange={(event) => setSellerName(event.target.value)}
+                className="mt-1.5"
+              />
+            </div>
+            <div className="space-y-2">
+              {(
+                [
+                  ["payoutAccount", "Rekening pencairan terverifikasi"],
+                  ["consent", "Persetujuan bagi hasil dan ketentuan"],
+                  ["firstWorkCard", "Kartu Karya pertama siap"],
+                  ["taxDetails", "Data pajak lengkap"],
+                ] as const
+              ).map(([key, label]) => (
+                <label
+                  key={key}
+                  className="flex items-center gap-2 text-[11.5px] text-ink"
+                >
+                  <input
+                    type="checkbox"
+                    checked={sellerChecklist[key]}
+                    onChange={(event) =>
+                      setSellerChecklist((current) => ({
+                        ...current,
+                        [key]: event.target.checked,
+                      }))
+                    }
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+            <div>
+              <Label htmlFor="seller-reason">Alasan</Label>
+              <Textarea
+                id="seller-reason"
+                value={sellerReason}
+                onChange={(event) => setSellerReason(event.target.value)}
+                className="mt-1.5 min-h-20"
+                placeholder="Dasar aktivasi, tercatat di audit."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSellerOpen(false)}>
+              Batal
+            </Button>
+            <Button
+              onClick={async () => {
+                try {
+                  await activateSeller({
+                    userId,
+                    displayName: sellerName,
+                    checklist: sellerChecklist,
+                    reason: sellerReason,
+                  })
+                  toast("Profil penjual aktif")
+                  setSellerOpen(false)
+                } catch (error) {
+                  toast("Aktivasi gagal", {
+                    description:
+                      error instanceof Error ? error.message : "Periksa checklist.",
+                  })
+                }
+              }}
+            >
+              Aktifkan penjual
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={teacherOpen} onOpenChange={setTeacherOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Buat profil pengajar</DialogTitle>
+            <DialogDescription>
+              Dossier dibuat sebagai draf. Verifikasi tetap keputusan terpisah.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="teacher-specialty">Spesialisasi</Label>
+              <Input
+                id="teacher-specialty"
+                value={teacherDraft.specialty}
+                onChange={(event) =>
+                  setTeacherDraft((current) => ({
+                    ...current,
+                    specialty: event.target.value,
+                  }))
+                }
+                className="mt-1.5"
+              />
+            </div>
+            <div>
+              <Label htmlFor="teacher-region">Wilayah</Label>
+              <Input
+                id="teacher-region"
+                value={teacherDraft.region}
+                onChange={(event) =>
+                  setTeacherDraft((current) => ({
+                    ...current,
+                    region: event.target.value,
+                  }))
+                }
+                className="mt-1.5"
+              />
+            </div>
+            <div>
+              <Label htmlFor="teacher-community">Komunitas</Label>
+              <Input
+                id="teacher-community"
+                value={teacherDraft.community}
+                onChange={(event) =>
+                  setTeacherDraft((current) => ({
+                    ...current,
+                    community: event.target.value,
+                  }))
+                }
+                className="mt-1.5"
+              />
+            </div>
+            <div>
+              <Label htmlFor="teacher-focus">Fokus</Label>
+              <Input
+                id="teacher-focus"
+                value={teacherDraft.focus}
+                onChange={(event) =>
+                  setTeacherDraft((current) => ({
+                    ...current,
+                    focus: event.target.value,
+                  }))
+                }
+                className="mt-1.5"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="teacher-path">Jalur</Label>
+              <select
+                id="teacher-path"
+                value={teacherDraft.pathId}
+                onChange={(event) =>
+                  setTeacherDraft((current) => ({
+                    ...current,
+                    pathId: event.target.value,
+                  }))
+                }
+                className="mt-1.5 flex h-9 w-full border border-ink/20 bg-paper-2 px-2 text-[12px]"
+              >
+                {(site?.paths ?? []).map((path) => (
+                  <option key={path.slug} value={path.slug}>
+                    {path.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="teacher-experience">Pengalaman</Label>
+              <Textarea
+                id="teacher-experience"
+                value={teacherDraft.experience}
+                onChange={(event) =>
+                  setTeacherDraft((current) => ({
+                    ...current,
+                    experience: event.target.value,
+                  }))
+                }
+                className="mt-1.5 min-h-16"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="teacher-quote">Kutipan</Label>
+              <Input
+                id="teacher-quote"
+                value={teacherDraft.quote}
+                onChange={(event) =>
+                  setTeacherDraft((current) => ({
+                    ...current,
+                    quote: event.target.value,
+                  }))
+                }
+                className="mt-1.5"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="teacher-reason">Alasan</Label>
+              <Input
+                id="teacher-reason"
+                value={teacherReason}
+                onChange={(event) => setTeacherReason(event.target.value)}
+                className="mt-1.5"
+                placeholder="Dasar pembuatan dossier, tercatat di audit."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTeacherOpen(false)}>
+              Batal
+            </Button>
+            <Button
+              onClick={async () => {
+                try {
+                  await createTeacher({
+                    userId,
+                    specialty: teacherDraft.specialty,
+                    region: teacherDraft.region,
+                    experience: teacherDraft.experience,
+                    quote: teacherDraft.quote,
+                    focus: teacherDraft.focus,
+                    community: teacherDraft.community,
+                    pathIds: teacherDraft.pathId ? [teacherDraft.pathId] : [],
+                    reason: teacherReason,
+                  })
+                  toast("Dossier pengajar dibuat")
+                  setTeacherOpen(false)
+                } catch (error) {
+                  toast("Dossier gagal dibuat", {
+                    description:
+                      error instanceof Error ? error.message : "Periksa isian.",
+                  })
+                }
+              }}
+            >
+              Simpan dossier
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

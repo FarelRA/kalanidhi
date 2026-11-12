@@ -413,7 +413,13 @@ export function PaymentConsoleLive() {
                 { label: "Referensi", value: selected.providerReference ?? "—" },
                 { label: "Nominal dasar", value: formatIDR(selected.baseAmount) },
                 { label: "Nilai unik", value: formatIDR(selected.uniqueAmount) },
-                { label: "Biaya gerbang", value: formatIDR(selected.gatewayFee) },
+                {
+                  label: "Biaya gerbang",
+                  value:
+                    selected.gatewayFee === null
+                      ? "Belum dilaporkan"
+                      : formatIDR(selected.gatewayFee),
+                },
                 { label: "Dibuat", value: formatCommerceDateTime(selected.createdAt) },
                 {
                   label: "Kedaluwarsa",

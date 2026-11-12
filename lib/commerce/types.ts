@@ -181,7 +181,7 @@ export type PaymentIntentView = {
   providerTransactionId: string | null
   baseAmount: number
   uniqueAmount: number
-  gatewayFee: number
+  gatewayFee: number | null
   qrString: string | null
   qrImageUrl: string | null
   status: "pending" | "paid" | "expired" | "failed" | "cancelled" | "refunded"

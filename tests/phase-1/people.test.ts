@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import { api } from "../../convex/_generated/api"
 import type { Id } from "../../convex/_generated/dataModel"
 import { createTestDb } from "../helpers/convex"
-import { NOW, seedAdmin, seedStudent } from "./fixtures"
+import { NOW, seedAdmin, seedContent, seedStudent } from "./fixtures"
 
 async function seedTeacherDossier(
   t: ReturnType<typeof createTestDb>,
@@ -299,5 +299,137 @@ describe("people / account actions", () => {
         .collect(),
     )
     expect(sessions[0]?.revokedReason).toBe("Perangkat hilang")
+  })
+})
+
+describe("people / seller onboarding", () => {
+  it("[P1-TCH-04] creates a dossier for an account and verification grants the teacher role", async () => {
+    const t = createTestDb()
+    await seedAdmin(t, "auth-admin")
+    await seedContent(t)
+    const teacherId = await seedStudent(t, "auth-teacher", "Bambang Hardjono")
+    const identity = t.withIdentity({ subject: "auth-admin" })
+
+    const dossierId = await identity.mutation(api.people.createTeacherProfile, {
+      userId: teacherId,
+      specialty: "Batik tulis Giriloyo",
+      region: "Yogyakarta",
+      experience: "Dua puluh tahun membatik",
+      quote: "Canting yang tenang menghasilkan garis yang tenang.",
+      focus: "Canting dan malam",
+      community: "Sanggar Soga Giriloyo",
+      pathIds: ["batik-tulis-soga"],
+      reason: "Dossier pengajar baru dari undangan",
+    })
+
+    let dossier = await t.run(async (ctx) => ctx.db.get(dossierId))
+    expect(dossier?.status).toBe("review")
+    expect(dossier?.userId).toBe(teacherId)
+    expect(dossier?.verificationStatus).toBe("submitted")
+
+    await identity.mutation(api.people.verifyTeacher, {
+      teacherId: dossierId,
+      decision: "verify",
+      reason: "Dossier lengkap dan jalur sudah ditetapkan",
+    })
+
+    dossier = await t.run(async (ctx) => ctx.db.get(dossierId))
+    expect(dossier?.status).toBe("active")
+
+    const user = await t.run(async (ctx) => ctx.db.get(teacherId))
+    expect(user?.roles).toContain("teacher")
+
+    const grants = await t.run(async (ctx) =>
+      ctx.db
+        .query("roleAssignments")
+        .withIndex("by_userId", (q) => q.eq("userId", teacherId))
+        .collect(),
+    )
+    expect(
+      grants.some((row) => row.role === "teacher" && row.action === "grant"),
+    ).toBe(true)
+  })
+
+  it("[P1-SEL-01] activates a seller only with a complete checklist and an earned scope", async () => {
+    const t = createTestDb()
+    await seedAdmin(t, "auth-admin")
+    const teacherId = await seedStudent(t, "auth-teacher", "Bambang Hardjono")
+    const dossierId = await seedTeacherDossier(t, teacherId)
+    const identity = t.withIdentity({ subject: "auth-admin" })
+
+    await identity.mutation(api.people.verifyTeacher, {
+      teacherId: dossierId,
+      decision: "verify",
+      reason: "Dossier pengajar lolos verifikasi",
+    })
+
+    const result = await identity.mutation(api.people.activateSeller, {
+      userId: teacherId,
+      displayName: "Bambang Hardjono",
+      checklist: {
+        payoutAccount: true,
+        consent: true,
+        firstWorkCard: true,
+        taxDetails: true,
+      },
+      reason: "Rekening, persetujuan, Kartu Karya, dan data pajak lengkap",
+    })
+    expect(result.status).toBe("active")
+
+    const summary = await identity.query(api.people.list, { tab: "teachers" })
+    expect(summary.find((row) => row.id === teacherId)?.sellerStatus).toBe(
+      "active",
+    )
+
+    const audit = await t.run(async (ctx) =>
+      ctx.db
+        .query("auditLogs")
+        .withIndex("by_entity", (q) =>
+          q.eq("entityType", "sellerProfiles").eq("entityId", result.sellerProfileId),
+        )
+        .collect(),
+    )
+    expect(audit.map((row) => row.action)).toContain("people.activateSeller")
+  })
+
+  it("[P1-SEL-02] rejects an incomplete checklist and an account without a seller scope", async () => {
+    const t = createTestDb()
+    await seedAdmin(t, "auth-admin")
+    const teacherId = await seedStudent(t, "auth-teacher", "Bambang Hardjono")
+    const studentId = await seedStudent(t, "auth-student", "Anisa Rahmawati")
+    const dossierId = await seedTeacherDossier(t, teacherId)
+    const identity = t.withIdentity({ subject: "auth-admin" })
+
+    await identity.mutation(api.people.verifyTeacher, {
+      teacherId: dossierId,
+      decision: "verify",
+      reason: "Dossier pengajar lolos verifikasi",
+    })
+
+    await expect(
+      identity.mutation(api.people.activateSeller, {
+        userId: teacherId,
+        checklist: {
+          payoutAccount: true,
+          consent: false,
+          firstWorkCard: true,
+          taxDetails: true,
+        },
+        reason: "Persetujuan belum ada",
+      }),
+    ).rejects.toThrow()
+
+    await expect(
+      identity.mutation(api.people.activateSeller, {
+        userId: studentId,
+        checklist: {
+          payoutAccount: true,
+          consent: true,
+          firstWorkCard: true,
+          taxDetails: true,
+        },
+        reason: "Peserta belum punya jalur penjualan",
+      }),
+    ).rejects.toThrow()
   })
 })

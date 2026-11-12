@@ -74,7 +74,7 @@ async function toIntentView(
     providerTransactionId: payment.providerTransactionId ?? null,
     baseAmount: payment.baseAmount,
     uniqueAmount: payment.uniqueAmount,
-    gatewayFee: payment.gatewayFee ?? 0,
+    gatewayFee: payment.gatewayFee ?? null,
     qrString: payment.qrString ?? null,
     qrImageUrl: payment.qrImageUrl ?? null,
     status: payment.status,
@@ -455,7 +455,7 @@ type SettlementInput = {
   providerTransactionId: string
   amount: number
   paidAt: number
-  gatewayFee: number
+  gatewayFee?: number
   eventId: string
   actorId: string
   actorRole: string
@@ -543,7 +543,7 @@ async function settle(
     status: "paid",
     paidAt: input.paidAt,
     providerTransactionId: input.providerTransactionId,
-    gatewayFee: input.gatewayFee,
+    ...(input.gatewayFee !== undefined ? { gatewayFee: input.gatewayFee } : {}),
     settledEventId: input.eventId,
     reconciliationState: "none",
     reconciliationReason: undefined,
@@ -569,7 +569,7 @@ async function settle(
       providerTransactionId: input.providerTransactionId,
       amount: input.amount,
       paidAt: input.paidAt,
-      gatewayFee: input.gatewayFee,
+      gatewayFee: input.gatewayFee ?? null,
     },
     createdAt: timestamp,
   })
@@ -596,7 +596,7 @@ async function settle(
     })
   }
 
-  if (input.gatewayFee > 0) {
+  if ((input.gatewayFee ?? 0) > 0) {
     // The gateway fee is absorbed by the platform share; teacher and community
     // shares never change.
     await ctx.db.insert("ledgerEntries", {
@@ -606,7 +606,7 @@ async function settle(
       teacherId: order.sellerId,
       account: "gateway_fee",
       direction: "debit",
-      amount: input.gatewayFee,
+      amount: input.gatewayFee!,
       currency: "IDR",
       entryType: "adjustment",
       createdBy: input.actorId,
@@ -747,8 +747,11 @@ export const settleFromWebhook = mutation({
       commerceError("INVALID_STATE", "Tagihan ini tidak menunggu pembayaran.")
     }
 
-    const gatewayFee = args.gatewayFee ?? 0
-    if (!Number.isInteger(gatewayFee) || gatewayFee < 0) {
+    const gatewayFee = args.gatewayFee
+    if (
+      gatewayFee !== undefined &&
+      (!Number.isInteger(gatewayFee) || gatewayFee < 0)
+    ) {
       commerceError("INVALID_AMOUNT", "Biaya gerbang tidak sah.")
     }
 
@@ -842,7 +845,6 @@ export const manualMatch = mutation({
       providerTransactionId: args.providerTransactionId,
       amount: args.amount,
       paidAt,
-      gatewayFee: 0,
       eventId: `manual:${payment._id}:${user._id}`,
       actorId: user._id,
       actorRole: viewer.roleLabel,
@@ -867,6 +869,87 @@ export const manualMatch = mutation({
     })
 
     return result
+  },
+})
+
+/**
+ * Records the provider fee after settlement when the feed did not report it.
+ * The fee is a platform cost: teacher and community shares never change.
+ */
+export const recordGatewayFee = mutation({
+  args: {
+    paymentId: v.id("payments"),
+    gatewayFee: v.number(),
+    reason: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { user, viewer } = await requireViewer(ctx, "payments.manage")
+    const reason = assertReason(args.reason, "Alasan biaya gerbang")
+    const payment = await ctx.db.get(args.paymentId)
+    if (!payment) notFound("Pembayaran tidak ditemukan.")
+    if (payment.status !== "paid") {
+      commerceError(
+        "INVALID_STATE",
+        "Biaya gerbang hanya dicatat untuk pembayaran yang sudah lunas.",
+      )
+    }
+    if (payment.gatewayFee !== undefined) {
+      commerceError(
+        "ALREADY_RECORDED",
+        "Biaya gerbang untuk pembayaran ini sudah tercatat.",
+      )
+    }
+    if (
+      !Number.isInteger(args.gatewayFee) ||
+      args.gatewayFee < 0 ||
+      args.gatewayFee > payment.baseAmount
+    ) {
+      commerceError("INVALID_AMOUNT", "Biaya gerbang tidak sah.")
+    }
+    const order = await ctx.db.get(payment.orderId)
+    if (!order) notFound("Pesanan tidak ditemukan.")
+    assertNotOwnMoney(viewer, "record_gateway_fee", order)
+
+    const payout = await ctx.db
+      .query("payouts")
+      .withIndex("by_orderId", (q) => q.eq("orderId", order._id))
+      .first()
+    const timestamp = now()
+    await ctx.db.patch(payment._id, {
+      gatewayFee: args.gatewayFee,
+      updatedAt: timestamp,
+    })
+
+    if (args.gatewayFee > 0) {
+      await ctx.db.insert("ledgerEntries", {
+        orderId: order._id,
+        paymentId: payment._id,
+        payoutId: payout?._id,
+        teacherId: order.sellerId,
+        account: "gateway_fee",
+        direction: "debit",
+        amount: args.gatewayFee,
+        currency: "IDR",
+        entryType: "adjustment",
+        createdBy: user._id,
+        reason: "Biaya gerbang diserap bagian platform.",
+        createdAt: timestamp,
+      })
+    }
+
+    await writeAudit(ctx, {
+      actorId: user._id,
+      actorRole: viewer.roleLabel,
+      action: "payments.recordGatewayFee",
+      entityType: "payments",
+      entityId: payment._id,
+      reason,
+      before: { gatewayFee: null },
+      after: { gatewayFee: args.gatewayFee },
+      severity: "warning",
+    })
+
+    return { paymentId: payment._id, gatewayFee: args.gatewayFee }
   },
 })
 

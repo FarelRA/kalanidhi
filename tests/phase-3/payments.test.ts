@@ -569,6 +569,63 @@ describe("settlement accounting", () => {
     )
   })
 
+  it("[P3-PAY-07] an unreported gateway fee stays unknown instead of becoming zero", async () => {
+    const t = createTestDb()
+    const { checkout, charge } = await setupCheckout(t)
+    await settleViaWebhook(t, {
+      chargeId: charge.chargeId,
+      orderCode: charge.code,
+      amount: charge.uniqueAmount,
+      paidAt: charge.paymentCreatedAt + 1_000,
+    })
+
+    const payment = await t.run(async (ctx) => ctx.db.get(charge.paymentId))
+    expect(payment?.gatewayFee).toBeUndefined()
+    const entries = await ledgerCount(t, checkout.orderId)
+    expect(entries.some((entry) => entry.account === "gateway_fee")).toBe(false)
+  })
+
+  it("[P3-PAY-08] an operator records a late gateway fee once, without changing the split", async () => {
+    const t = createTestDb()
+    const { checkout, charge } = await setupCheckout(t)
+    await settleViaWebhook(t, {
+      chargeId: charge.chargeId,
+      orderCode: charge.code,
+      amount: charge.uniqueAmount,
+      paidAt: charge.paymentCreatedAt + 1_000,
+    })
+    await seedAccount(t, {
+      authUserId: "auth-fee-admin",
+      roles: ["admin"],
+      name: "Nadia Kusuma",
+    })
+    const identity = t.withIdentity({ subject: "auth-fee-admin" })
+
+    await identity.mutation(api.payments.recordGatewayFee, {
+      paymentId: charge.paymentId,
+      gatewayFee: 5_000,
+      reason: "Biaya MDR dari laporan settlement GoBiz",
+    })
+
+    const payment = await t.run(async (ctx) => ctx.db.get(charge.paymentId))
+    expect(payment?.gatewayFee).toBe(5_000)
+    const entries = await ledgerCount(t, checkout.orderId)
+    expect(entries.find((entry) => entry.account === "teacher")?.amount).toBe(
+      1_015_000,
+    )
+    expect(entries.find((entry) => entry.account === "gateway_fee")?.amount).toBe(
+      5_000,
+    )
+
+    await expect(
+      identity.mutation(api.payments.recordGatewayFee, {
+        paymentId: charge.paymentId,
+        gatewayFee: 5_000,
+        reason: "Percobaan pencatatan kedua",
+      }),
+    ).rejects.toThrow()
+  })
+
   it("[P3-PAY-05] the unique offset is not recorded as revenue", async () => {
     const t = createTestDb()
     const { checkout, charge } = await setupCheckout(t)

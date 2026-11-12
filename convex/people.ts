@@ -430,6 +430,23 @@ export const verifyTeacher = mutation({
         pathIds: args.pathIds ?? teacher.pathIds,
         applicationNote: reason,
       })
+      if (teacher.userId) {
+        const account = await ctx.db.get(teacher.userId)
+        if (account && !account.roles.includes("teacher")) {
+          await ctx.db.patch(account._id, {
+            roles: [...account.roles, "teacher"],
+            updatedAt: timestamp,
+          })
+          await ctx.db.insert("roleAssignments", {
+            userId: account._id,
+            role: "teacher",
+            action: "grant",
+            actorId: viewer.userId,
+            reason: "Peran pengajar mengikuti verifikasi dossier.",
+            createdAt: timestamp,
+          })
+        }
+      }
     } else if (args.decision === "reject") {
       await ctx.db.patch(teacher._id, {
         status: "review",
@@ -518,5 +535,228 @@ export const setTeacherPublication = mutation({
       after: { published: args.published },
     })
     return null
+  },
+})
+
+function slugifyTeacher(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60)
+}
+
+function initialsOf(name: string): string {
+  const parts = name.trim().split(/\s+/).slice(0, 2)
+  const initials = parts.map((part) => part[0]?.toUpperCase() ?? "").join("")
+  return initials || "KN"
+}
+
+/**
+ * Links a real account to a teacher dossier. Verification stays a separate
+ * decision; this only creates the dossier an operator can review.
+ */
+export const createTeacherProfile = mutation({
+  args: {
+    userId: v.id("users"),
+    name: v.optional(v.string()),
+    specialty: v.string(),
+    region: v.string(),
+    experience: v.string(),
+    quote: v.string(),
+    focus: v.string(),
+    community: v.string(),
+    pathIds: v.array(v.string()),
+    image: v.optional(v.string()),
+    reason: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { viewer } = await requireAdmin(ctx, "people.manage")
+    const reason = requireReason(args.reason)
+    const user = await ctx.db.get(args.userId)
+    if (!user) {
+      throw new ConvexError({ code: "NOT_FOUND", message: "Akun tidak ditemukan." })
+    }
+    if (user.roles.includes("admin")) {
+      throw new ConvexError({
+        code: "ADMIN_ROLE_EXCLUDED",
+        message: "Pengelola tidak dapat memiliki profil pengajar atau penjual.",
+      })
+    }
+    const existing = await ctx.db
+      .query("teachers")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect()
+    if (existing.length > 0) {
+      throw new ConvexError({
+        code: "TEACHER_EXISTS",
+        message: "Akun ini sudah memiliki profil pengajar.",
+      })
+    }
+
+    const paths = await ctx.db.query("paths").collect()
+    const knownPaths = new Set(paths.map((path) => path.slug))
+    const pathIds = Array.from(new Set(args.pathIds.map((id) => id.trim())))
+    if (pathIds.length === 0 || pathIds.some((id) => !knownPaths.has(id))) {
+      throw new ConvexError({
+        code: "INVALID_PATH",
+        message: "Pilih setidaknya satu jalur yang valid.",
+      })
+    }
+
+    const name = (args.name?.trim() || user.name).slice(0, 120)
+    const baseSlug = slugifyTeacher(name)
+    let slug = baseSlug
+    let suffix = 2
+    while (
+      await ctx.db
+        .query("teachers")
+        .withIndex("by_slug", (q) => q.eq("slug", slug))
+        .unique()
+    ) {
+      slug = `${baseSlug}-${suffix}`
+      suffix += 1
+    }
+
+    const teachers = await ctx.db.query("teachers").collect()
+    const teacherId = await ctx.db.insert("teachers", {
+      order: Math.max(0, ...teachers.map((teacher) => teacher.order)) + 1,
+      slug,
+      name,
+      initials: initialsOf(name),
+      specialty: args.specialty.trim(),
+      region: args.region.trim(),
+      experience: args.experience.trim(),
+      quote: args.quote.trim(),
+      focus: args.focus.trim(),
+      path: paths.find((path) => path.slug === pathIds[0])?.title ?? pathIds[0],
+      community: args.community.trim(),
+      image: args.image?.trim() || "/images/teacher-sudarsono.jpg",
+      verified: false,
+      userId: user._id,
+      pathIds,
+      status: "review",
+      verificationStatus: "submitted",
+      published: false,
+    })
+
+    await appendAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "people.createTeacherProfile",
+      entityType: "teachers",
+      entityId: teacherId,
+      reason,
+      after: { userId: user._id, pathIds },
+    })
+
+    return teacherId
+  },
+})
+
+/**
+ * Activates the earned, path-scoped seller entitlement. The checklist is a
+ * gate: an incomplete dossier cannot be activated, and the resulting seller
+ * scope still comes from an active teacher dossier or an issued certificate.
+ */
+export const activateSeller = mutation({
+  args: {
+    userId: v.id("users"),
+    displayName: v.optional(v.string()),
+    checklist: v.object({
+      payoutAccount: v.boolean(),
+      consent: v.boolean(),
+      firstWorkCard: v.boolean(),
+      taxDetails: v.boolean(),
+    }),
+    reason: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { viewer } = await requireAdmin(ctx, "people.manage")
+    const reason = requireReason(args.reason)
+    const user = await ctx.db.get(args.userId)
+    if (!user) {
+      throw new ConvexError({ code: "NOT_FOUND", message: "Akun tidak ditemukan." })
+    }
+    if (user.status !== "active") {
+      throw new ConvexError({
+        code: "ACCOUNT_INACTIVE",
+        message: "Akun harus aktif sebelum profil penjual diaktifkan.",
+      })
+    }
+    if (user.roles.includes("admin")) {
+      throw new ConvexError({
+        code: "ADMIN_ROLE_EXCLUDED",
+        message: "Pengelola tidak dapat memiliki profil penjual.",
+      })
+    }
+    const checklist = args.checklist
+    if (
+      !checklist.payoutAccount ||
+      !checklist.consent ||
+      !checklist.firstWorkCard ||
+      !checklist.taxDetails
+    ) {
+      throw new ConvexError({
+        code: "CHECKLIST_INCOMPLETE",
+        message:
+          "Rekening pencairan, persetujuan, Kartu Karya pertama, dan data pajak wajib lengkap.",
+      })
+    }
+
+    const entitlements = await viewerForUser(ctx, user)
+    if (entitlements.sellScopes.length === 0) {
+      throw new ConvexError({
+        code: "SELLER_SCOPE_EMPTY",
+        message:
+          "Aktifkan dossier pengajar atau terbitkan sertifikat sebelum mengaktifkan penjual.",
+      })
+    }
+
+    const existing = await ctx.db
+      .query("sellerProfiles")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect()
+    const timestamp = now()
+    const displayName = (args.displayName?.trim() || user.name).slice(0, 120)
+
+    let sellerProfileId
+    if (existing[0]) {
+      sellerProfileId = existing[0]._id
+      await ctx.db.patch(sellerProfileId, {
+        displayName,
+        status: "active",
+        onboardingChecklist: checklist,
+        activatedAt: existing[0].activatedAt ?? timestamp,
+        suspendedReason: undefined,
+        updatedAt: timestamp,
+      })
+    } else {
+      sellerProfileId = await ctx.db.insert("sellerProfiles", {
+        userId: args.userId,
+        displayName,
+        status: "active",
+        onboardingChecklist: checklist,
+        activatedAt: timestamp,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      })
+    }
+
+    await appendAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "people.activateSeller",
+      entityType: "sellerProfiles",
+      entityId: sellerProfileId,
+      reason,
+      before: existing[0]
+        ? { status: existing[0].status, displayName: existing[0].displayName }
+        : undefined,
+      after: { status: "active", displayName, checklist },
+    })
+
+    return { sellerProfileId, status: "active" as const }
   },
 })
