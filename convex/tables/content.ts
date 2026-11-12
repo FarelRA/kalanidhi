@@ -188,11 +188,27 @@ export const contentTables = {
         v.literal("suspended"),
       ),
     ),
+    /** Phase 1 verification dossier projection. */
+    verificationStatus: v.optional(
+      v.union(
+        v.literal("submitted"),
+        v.literal("under_review"),
+        v.literal("verified"),
+        v.literal("rejected"),
+        v.literal("suspended"),
+      ),
+    ),
+    applicationNote: v.optional(v.string()),
+    verifiedBy: v.optional(v.string()),
+    verifiedAt: v.optional(v.number()),
+    published: v.optional(v.boolean()),
+    publishedAt: v.optional(v.number()),
   })
     .index("by_order", ["order"])
     .index("by_slug", ["slug"])
     .index("by_userId", ["userId"])
-    .index("by_status", ["status"]),
+    .index("by_status", ["status"])
+    .index("by_published", ["published"]),
 
   works: defineTable({
     order: v.number(),
@@ -268,4 +284,16 @@ export const contentTables = {
     robots: v.optional(v.string()),
     updatedAt: v.number(),
   }).index("by_route", ["route"]),
+
+  /** Phase 1: one scoped, expiring preview token per content revision. */
+  contentPreviews: defineTable({
+    contentKey: v.string(),
+    version: v.number(),
+    tokenHash: v.string(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    expiresAt: v.number(),
+  })
+    .index("by_tokenHash", ["tokenHash"])
+    .index("by_createdAt", ["createdAt"]),
 }
