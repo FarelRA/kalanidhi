@@ -1016,7 +1016,13 @@ function RevisionDrawer({
       open={version !== null}
       onOpenChange={onOpenChange}
       eyebrow="Revisi"
-      title={version === null ? "Revisi" : `Revisi v${version}`}
+      title={
+        version === null
+          ? "Revisi"
+          : revision === null
+            ? `Revisi v${version} tidak ditemukan`
+            : `Revisi v${version}`
+      }
       description={revision?.note}
       footer={
         revision ? (
@@ -1089,6 +1095,10 @@ function RevisionDrawer({
             </dl>
           </div>
         </div>
+      ) : revision === null ? (
+        <p className="text-[12px] leading-relaxed text-ink-muted">
+          Revisi ini tidak tersedia, atau sudah dihapus.
+        </p>
       ) : (
         <p className="text-[12px] text-ink-muted">Memuat revisi.</p>
       )}

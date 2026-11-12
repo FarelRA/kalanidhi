@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Download, RefreshCw } from "lucide-react"
+import { Download } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -121,21 +121,10 @@ export function StatsLive() {
           </span>
         }
         actions={
-          <>
-            <Button variant="outline" onClick={() => void exportCsv()}>
-              <Download aria-hidden="true" />
-              Ekspor CSV
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setGeneratedAt(Date.now())
-              }}
-            >
-              <RefreshCw aria-hidden="true" />
-              Segarkan
-            </Button>
-          </>
+          <Button variant="outline" onClick={() => void exportCsv()}>
+            <Download aria-hidden="true" />
+            Ekspor CSV
+          </Button>
         }
       />
 

@@ -421,7 +421,9 @@ function LeadDrawer({
       open
       onOpenChange={(open) => !open && onClose()}
       eyebrow={lead ? `Lead · ${intentLabel(lead.intent)}` : "Lead"}
-      title={lead?.name ?? "Memuat lead"}
+      title={
+        lead?.name ?? (detail === null ? "Lead tidak ditemukan" : "Memuat lead")
+      }
       stamp={lead?.status}
       tone={lead ? statusTone(lead.status) : "muted"}
       description={lead?.email}
@@ -629,6 +631,10 @@ function LeadDrawer({
             </div>
           </DrawerSection>
         </div>
+      ) : detail === null ? (
+        <p className="text-[12px] leading-relaxed text-ink-muted">
+          Lead ini tidak tersedia untuk peranmu, atau sudah dihapus.
+        </p>
       ) : (
         <p className="text-[12px] text-ink-muted">Memuat detail lead.</p>
       )}

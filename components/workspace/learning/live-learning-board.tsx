@@ -606,7 +606,13 @@ function CohortDrawer({
         if (!open) onClose()
       }}
       eyebrow="Kohort"
-      title={cohort ? `${cohort.code} · ${cohort.pathTitle}` : "Kohort"}
+      title={
+        cohort
+          ? `${cohort.code} · ${cohort.pathTitle}`
+          : detail === null
+            ? "Kohort tidak ditemukan"
+            : "Kohort"
+      }
       stamp={cohort ? cohortLabel(cohort.status) : undefined}
       tone={cohort ? cohortTone(cohort.status) : "muted"}
       description={
@@ -672,6 +678,10 @@ function CohortDrawer({
             )}
           </DrawerSection>
         </>
+      ) : detail === null ? (
+        <p className="text-[12px] leading-relaxed text-ink-muted">
+          Kohort ini tidak tersedia untuk akun ini, atau sudah dipindahkan.
+        </p>
       ) : null}
     </DetailDrawer>
   )
@@ -697,7 +707,10 @@ function EnrollmentDrawer({
         if (!open) onClose()
       }}
       eyebrow="Pendaftaran"
-      title={enrollment?.studentName ?? "Pendaftaran"}
+      title={
+        enrollment?.studentName ??
+        (detail === null ? "Pendaftaran tidak ditemukan" : "Pendaftaran")
+      }
       description={enrollment?.pathTitle}
       stamp={enrollment ? enrollmentLabel(enrollment.status) : undefined}
       tone={enrollment ? enrollmentTone(enrollment.status) : "muted"}
@@ -808,6 +821,10 @@ function EnrollmentDrawer({
             )}
           </DrawerSection>
         </>
+      ) : detail === null ? (
+        <p className="text-[12px] leading-relaxed text-ink-muted">
+          Pendaftaran ini tidak tersedia untuk akun ini, atau sudah dipindahkan.
+        </p>
       ) : null}
     </DetailDrawer>
   )

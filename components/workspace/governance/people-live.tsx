@@ -422,7 +422,10 @@ function PersonDrawer({
       open
       onOpenChange={(open) => !open && onClose()}
       eyebrow="Akun"
-      title={detail?.user.name ?? "Memuat akun"}
+      title={
+        detail?.user.name ??
+        (detail === null ? "Akun tidak ditemukan" : "Memuat akun")
+      }
       stamp={detail?.user.roleLabel}
       tone={detail ? roleTone(detail.user.status) : "muted"}
       description={detail?.user.email}
@@ -868,6 +871,10 @@ function PersonDrawer({
             </ul>
           </DrawerSection>
         </div>
+      ) : detail === null ? (
+        <p className="text-[12px] leading-relaxed text-ink-muted">
+          Akun ini tidak tersedia untuk peranmu, atau sudah dihapus.
+        </p>
       ) : (
         <p className="text-[12px] text-ink-muted">Memuat detail akun.</p>
       )}

@@ -239,7 +239,10 @@ function LogDrawer({
       open
       onOpenChange={(open) => !open && onClose()}
       eyebrow={`Log · ${selection.kind}`}
-      title={detail?.action ?? "Memuat catatan"}
+      title={
+        detail?.action ??
+        (detail === null ? "Catatan tidak ditemukan" : "Memuat catatan")
+      }
       stamp={detail?.severity}
       tone={detail ? severityTone(detail.severity) : "muted"}
       description={detail?.detail}
@@ -292,6 +295,10 @@ function LogDrawer({
             )}
           </DrawerSection>
         </div>
+      ) : detail === null ? (
+        <p className="text-[12px] leading-relaxed text-ink-muted">
+          Catatan ini tidak tersedia untuk peranmu, atau sudah dipindahkan.
+        </p>
       ) : (
         <p className="text-[12px] text-ink-muted">Memuat catatan log.</p>
       )}

@@ -617,6 +617,12 @@ export function SupportInboxLive() {
               </div>
             ) : null}
           </section>
+        ) : selected && detail === null ? (
+          <EmptyState
+            title="Tiket tidak ditemukan"
+            description="Tiket ini tidak tersedia untuk akun ini, atau sudah dipindahkan."
+            className="min-h-[40vh]"
+          />
         ) : (
           <EmptyState
             title="Pilih tiket"
