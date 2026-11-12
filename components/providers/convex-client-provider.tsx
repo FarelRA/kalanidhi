@@ -6,6 +6,20 @@ import { useState, type ReactNode } from "react"
 
 import { authClient } from "@/lib/auth-client"
 
+/**
+ * One client per URL per process. The client must also exist during server
+ * rendering: workspace components call `useQuery` while the shell is rendered
+ * on the server, and a missing provider throws before hydration.
+ */
+let sharedClient: { url: string; client: ConvexReactClient } | null = null
+
+function clientFor(url: string): ConvexReactClient {
+  if (!sharedClient || sharedClient.url !== url) {
+    sharedClient = { url, client: new ConvexReactClient(url) }
+  }
+  return sharedClient.client
+}
+
 export function ConvexClientProvider({
   children,
   url,
@@ -16,7 +30,7 @@ export function ConvexClientProvider({
   authEnabled?: boolean
 }) {
   const [client] = useState<ConvexReactClient | null>(() =>
-    typeof window !== "undefined" && url ? new ConvexReactClient(url) : null,
+    url ? clientFor(url) : null,
   )
 
   if (!client) return <>{children}</>

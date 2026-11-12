@@ -55,4 +55,13 @@ describe("workspace / real versus preview data", () => {
     const admin = source.slice(source.indexOf("function AdminOverviewLive"))
     expect(admin).toContain("useQuery(api.stats.overview)")
   })
+
+  it("[P0-SHL-06] the Convex client exists during server rendering", () => {
+    const source = readFileSync(
+      path.join(ROOT, "components/providers/convex-client-provider.tsx"),
+      "utf8",
+    )
+    expect(source).not.toContain('typeof window !== "undefined"')
+    expect(source).toContain("new ConvexReactClient(url)")
+  })
 })
