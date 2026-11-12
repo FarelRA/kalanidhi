@@ -759,11 +759,16 @@ const ENROLLMENTS: {
     cohortKey: "pra-2026-01",
     status: "active" as const,
   })),
-  ...["ratih", "yusuf", "melati"].map((studentKey) => ({
+  ...["ratih", "yusuf"].map((studentKey) => ({
     studentKey,
     cohortKey: "pra-2026-02",
     status: "pending_payment" as const,
   })),
+  {
+    studentKey: "melati",
+    cohortKey: "pra-2026-02",
+    status: "withdrawn" as const,
+  },
   ...["arif", "dewi"].map((studentKey) => ({
     studentKey,
     cohortKey: "bts-2026-03",
@@ -1561,6 +1566,7 @@ export const seedCurriculum = internalMutation({
 export const seedLearning = internalMutation({
   args: {},
   handler: async (ctx) => {
+    const admin = await userByEmail(ctx, "farel@farel.is-a.dev")
     const cohortIds = new Map<string, Id<"cohorts">>()
     for (const seed of COHORTS) {
       const path = await pathBySlug(ctx, seed.pathSlug)
@@ -1633,6 +1639,11 @@ export const seedLearning = internalMutation({
         enrolledAt:
           seed.status === "pending_payment" ? ago(3) : ago(40),
         completedAt: seed.status === "completed" ? ago(330) : undefined,
+        withdrawnAt: seed.status === "withdrawn" ? ago(15) : undefined,
+        withdrawReason:
+          seed.status === "withdrawn"
+            ? "Jadwal kerja berubah; peserta menunda ke angkatan berikutnya."
+            : undefined,
         lastActivityAt: ago(1),
         deadlineAt: ahead(14),
         createdAt: ago(40),
@@ -1741,6 +1752,15 @@ export const seedLearning = internalMutation({
         await ctx.db.patch(submissionId, { assetIds: [assetId] })
       }
 
+      if (seed.key === "bayu-bts-1") {
+        await ctx.db.patch(submissionId, {
+          escalatedAt: ago(1),
+          escalatedBy: admin._id,
+          escalationReason:
+            "Melewati SLA penilaian 3 hari kerja; dinaikkan ke pengajar senior.",
+        })
+      }
+
       if (seed.status === "draft") continue
 
       const assessor = await userByEmail(
@@ -1788,6 +1808,13 @@ export const seedLearning = internalMutation({
         updatedAt: NOW,
       })
       assessmentIds.set(seed.key, assessmentId)
+      if (seed.key === "dwi-bts-1") {
+        await ctx.db.patch(assessmentId, {
+          overrideReason:
+            "Skor disesuaikan setelah peninjauan kedua atas dokumentasi proses.",
+          secondReviewerId: admin._id,
+        })
+      }
 
       await ctx.db.insert("assessmentEvents", {
         assessmentId,
@@ -1937,6 +1964,69 @@ export const seedCredentials = internalMutation({
       )
       if (completed) {
         await ctx.db.patch(completed._id, { certificateId })
+      }
+    }
+
+    // A revoked certificate exercises the revocation history in the
+    // certificate drawer without leaving a dangling work card.
+    const dwi = await userByEmail(ctx, "dwi@kalanidhi.site")
+    const dwiSubmission = await ctx.db
+      .query("submissions")
+      .withIndex("by_code", (q) => q.eq("code", "TUG-DWI-BTS-1"))
+      .unique()
+    if (dwiSubmission) {
+      const dwiAssessment = await ctx.db
+        .query("assessments")
+        .withIndex("by_submissionId", (q) =>
+          q.eq("submissionId", dwiSubmission._id),
+        )
+        .unique()
+      if (dwiAssessment) {
+        const path = await pathBySlug(ctx, "batik-tulis-soga")
+        const teacher = await userByEmail(
+          ctx,
+          "bambang@kalanidhi.site",
+        )
+        const issuedAt = ago(300)
+        const revokedAt = ago(40)
+        const certificateId = await ctx.db.insert("certificates", {
+          serial: "KN-2026-0005",
+          publicCode: "KN-DWI-2025",
+          studentId: dwi._id,
+          pathId: path.slug,
+          teacherId: teacher._id,
+          assessmentId: dwiAssessment._id,
+          status: "revoked",
+          issuedAt,
+          revokedAt,
+          revokeReason:
+            "Sertifikat lama diganti setelah koreksi nama dan penilaian ulang.",
+          revokedBy: admin._id,
+          snapshot: {
+            studentName: dwi.name,
+            pathTitle: path.title,
+            teacherName: teacher.name,
+            assessmentScore: 88,
+            issuedAt,
+          },
+          createdAt: issuedAt,
+          updatedAt: revokedAt,
+        })
+        await ctx.db.insert("certificateEvents", {
+          certificateId,
+          kind: "issue",
+          actorId: teacher._id,
+          reason: "Penerbitan sertifikat angkatan perintis.",
+          createdAt: issuedAt,
+        })
+        await ctx.db.insert("certificateEvents", {
+          certificateId,
+          kind: "revoke",
+          actorId: admin._id,
+          reason:
+            "Koreksi nama dan penilaian ulang; sertifikat pengganti diterbitkan terpisah.",
+          createdAt: revokedAt,
+        })
       }
     }
 
@@ -2091,6 +2181,7 @@ export const seedCommerce = internalMutation({
     const orderIds = new Map<string, Id<"orders">>()
     const paymentIds = new Map<string, Id<"payments">>()
     const payoutIds = new Map<string, Id<"payouts">>()
+    const saleLedgerIds = new Map<string, Id<"ledgerEntries">>()
 
     for (const seed of orders) {
       const buyer = await userByEmail(
@@ -2176,6 +2267,8 @@ export const seedCommerce = internalMutation({
         qrString: `00020101021226${seed.code}5802ID`,
         qrImageUrl: undefined,
         reconciliationState: "none",
+        settledEventId: paidAt ? `seed-event-settled-${seed.key}` : undefined,
+        idempotencyKey: `seed-payment-idem-${seed.key}`,
         createdAt,
         updatedAt: NOW,
       })
@@ -2255,7 +2348,7 @@ export const seedCommerce = internalMutation({
         })
         payoutIds.set(seed.key, payoutId)
 
-        await ctx.db.insert("ledgerEntries", {
+        const teacherEntryId = await ctx.db.insert("ledgerEntries", {
           orderId,
           paymentId,
           payoutId,
@@ -2268,6 +2361,7 @@ export const seedCommerce = internalMutation({
           reason: "Bagi hasil pengajar dan pembuat karya 70%",
           createdAt: paidAt ?? createdAt,
         })
+        saleLedgerIds.set(seed.key, teacherEntryId)
         await ctx.db.insert("ledgerEntries", {
           orderId,
           paymentId,
@@ -2372,6 +2466,7 @@ export const seedCommerce = internalMutation({
           amount: 1_015_000,
           currency: "IDR",
           entryType: "reversal",
+          reversalOf: saleLedgerIds.get("order-5"),
           reason: "Pembalikan bagi hasil setelah refund",
           createdAt: ago(35),
         })

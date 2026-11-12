@@ -667,10 +667,45 @@ export const seedMessaging = internalMutation({
       createdAt: ago(4) + 60_000,
     })
 
+    const cancelledCallId = await ctx.db.insert("callSessions", {
+      roomName: "kalanidhi-sri-dimas-cancelled",
+      kind: "voice",
+      initiatorId: sri._id,
+      hostId: sri._id,
+      conversationId: dimasConversationId,
+      title: "Konsultasi pewarnaan nila",
+      status: "cancelled",
+      scheduledAt: ago(3),
+      scheduledEndsAt: ago(3) + 30 * 60_000,
+      cancelledAt: ago(3) - 10 * 60_000,
+      endReason: "Jadwal bentrok dengan sesi kohort.",
+      recordingConsent: "pending",
+      createdAt: ago(4),
+    })
+    for (const [member, role] of [
+      [sri, "host"],
+      [dimas, "guest"],
+    ] as const) {
+      await ctx.db.insert("callParticipants", {
+        callId: cancelledCallId,
+        userId: member._id,
+        role,
+        status: "declined",
+        invitedAt: ago(4),
+      })
+    }
+    await ctx.db.insert("callEvents", {
+      callId: cancelledCallId,
+      kind: "cancelled",
+      actorId: sri._id,
+      payload: { source: "seed", reason: "Jadwal bentrok" },
+      createdAt: ago(3) - 10 * 60_000,
+    })
+
     return {
       conversations: 7,
       messages: directMessageIds.length + cohortMessages.length + 6,
-      calls: 3,
+      calls: 4,
     }
   },
 })
@@ -1466,6 +1501,27 @@ export const seedSettings = internalMutation({
       })
     }
 
+    const allKeys = await ctx.db.query("apiKeys").collect()
+    const gatewayKey = allKeys.find(
+      (key) => key.name === "Gateway pembayaran",
+    )
+    if (gatewayKey) {
+      const previousKeyId = await ctx.db.insert("apiKeys", {
+        name: "Gateway pembayaran (lama)",
+        keyHash: await sha256("seed-gateway-key-previous"),
+        scopes: ["payments.write", "orders.read"],
+        status: "revoked",
+        createdBy: admin._id,
+        createdAt: ago(200),
+        lastUsedAt: ago(61),
+        expiresAt: ago(60),
+        revokedAt: ago(60),
+        keyPrefix: "kn_old_",
+        rotatedTo: gatewayKey._id,
+      })
+      await ctx.db.patch(gatewayKey._id, { rotatedFrom: previousKeyId })
+    }
+
     const endpoints = [
       {
         name: "Gateway pembayaran",
@@ -1999,6 +2055,8 @@ export const seedAudit = internalMutation({
         reason: "Verifikasi pengajar batik Giriloyo.",
         severity: "info" as const,
         daysAgo: 110,
+        before: { roles: ["student"] },
+        after: { roles: ["teacher"] },
       },
       {
         actorId: admin._id,
@@ -2009,6 +2067,8 @@ export const seedAudit = internalMutation({
         reason: "Pembaruan konten landing edisi 2026.",
         severity: "info" as const,
         daysAgo: 60,
+        before: { version: 1 },
+        after: { version: 2 },
       },
       {
         actorId: bambang._id,
@@ -2049,6 +2109,8 @@ export const seedAudit = internalMutation({
         reason: "Pembayaran QRIS cocok dengan nominal unik.",
         severity: "info" as const,
         daysAgo: 24,
+        before: { status: "awaiting_payment" },
+        after: { status: "paid" },
       },
       {
         actorId: admin._id,
@@ -2131,6 +2193,8 @@ export const seedAudit = internalMutation({
         entityId: event.entityId,
         reason: event.reason,
         severity: event.severity,
+        before: "before" in event ? event.before : undefined,
+        after: "after" in event ? event.after : undefined,
         createdAt: ago(event.daysAgo),
       })
     }
