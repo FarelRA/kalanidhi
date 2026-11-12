@@ -156,6 +156,18 @@ LIVEKIT_API_SECRET=<secret>
 
 Already self-hosted as a private service. It is not publicly routed. Next.js calls it over the internal network with `x-internal-key`. The GoPay merchant account remains external.
 
+- Image: `ghcr.io/farelra/kalanidhi-payments:latest`
+- Internal URL: `http://kalanidhi-payments:8080`
+- Volume: `data/kalanidhi/payments-data:/var/lib/kalanidhi`
+- Env: `data/kalanidhi/payments.env` (mode 600)
+- Health: `/v1/health` with `x-internal-key`
+- No Traefik route, no published port
+- `PAYMENTS_INTERNAL_KEY` is shared by app, Convex, and gateway
+- `PAYMENTS_WEBHOOK_SECRET` is shared by app and gateway
+- `GOPAY_MERCHANT_ID` and `GOPAY_STATIC_QRIS` stay empty until the merchant config is ready
+
+The gateway exits until GoPay credentials are filled. The app may start first because the dependency is `service_started`; payment creation remains unavailable until the gateway is healthy.
+
 ---
 
 ## 7. Email
