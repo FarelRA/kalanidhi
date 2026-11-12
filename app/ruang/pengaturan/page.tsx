@@ -1,11 +1,11 @@
 import type { Metadata } from "next"
 
-import { SettingsPanel } from "@/components/workspace/governance/settings-panel"
+import { SettingsPanelGate } from "@/components/workspace/governance/settings-panel-gate"
 
 export const metadata: Metadata = {
   title: "Pengaturan",
 }
 
 export default function Page() {
-  return <SettingsPanel />
+  return <SettingsPanelGate />
 }
