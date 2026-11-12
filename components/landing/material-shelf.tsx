@@ -1,5 +1,8 @@
+import Link from "next/link"
+
 import { Button } from "@/components/ui/button"
 import type { CatalogField, SiteData } from "@/lib/content/types"
+import { PUBLIC_ROUTES } from "@/lib/content/routes"
 import { cn } from "cn"
 
 function StatusMark({ status }: { status: CatalogField["status"] }) {
@@ -87,15 +90,15 @@ export function MaterialShelf({ catalog }: { catalog: SiteData["catalog"] }) {
                     if (field.status === "Terbuka") {
                       return (
                         <li key={field.name} className="w-full sm:w-auto">
-                          <a
-                            href="#jalur"
+                          <Link
+                            href={PUBLIC_ROUTES.paths}
                             className={cn(
                               base,
                               "border-ink bg-paper-2 text-ink shadow-[4px_4px_0_var(--copper-dark)] transition-transform hover:-translate-y-0.5 focus-visible:-translate-y-0.5",
                             )}
                           >
                             {content}
-                          </a>
+                          </Link>
                         </li>
                       )
                     }
@@ -125,7 +128,7 @@ export function MaterialShelf({ catalog }: { catalog: SiteData["catalog"] }) {
 
         <div className="mt-12 border-t border-ink/20 pt-6 text-right">
           <Button asChild className="bg-ink text-paper hover:bg-ink-2">
-            <a href="#jalur">{catalog.cta}</a>
+            <Link href={PUBLIC_ROUTES.paths}>{catalog.cta}</Link>
           </Button>
         </div>
       </div>

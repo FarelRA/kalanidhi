@@ -1,10 +1,11 @@
 "use client"
 
+import Link from "next/link"
 import { useEffect, useState } from "react"
 
-import { useOverlay } from "@/components/overlays/overlay-provider"
 import { Button } from "@/components/ui/button"
 import type { MobileCtaCopy } from "@/lib/content/types"
+import { interestHref } from "@/lib/content/routes"
 import { formatIDR } from "@/lib/format"
 import { cn } from "cn"
 
@@ -15,7 +16,6 @@ export function MobileCtaDock({
   startingPrice: number
   copy: MobileCtaCopy
 }) {
-  const { openLead } = useOverlay()
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -55,12 +55,13 @@ export function MobileCtaDock({
           </p>
         </div>
         <Button
-          type="button"
+          asChild
           tabIndex={visible ? undefined : -1}
           className="ml-auto min-h-11 shrink-0 border-2 border-copper-dark bg-copper-dark px-4 text-cream-2 hover:border-copper hover:bg-copper"
-          onClick={() => openLead({ variant: "student" })}
         >
-          {copy.registerCta}
+          <Link href={interestHref({ intent: "student" })}>
+            {copy.registerCta}
+          </Link>
         </Button>
       </div>
       <p className="mt-1.5 text-[10px] leading-snug text-ink-muted">

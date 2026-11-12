@@ -12,6 +12,8 @@ import type {
   FeaturedSelection,
   HeroWorkCard,
   LearningPath,
+  PublicPathDetail,
+  PublicTeacherDetail,
   SeoOverride,
   SiteData,
   Teacher,
@@ -280,6 +282,176 @@ function orderByKeys<T>(
     .filter((item): item is T => item !== undefined)
 }
 
+type PathSnapshot = {
+  modules: Doc<"pathModules">[]
+  lessons: Doc<"lessons">[]
+  cohorts: Doc<"cohorts">[]
+}
+
+async function pathSnapshot(
+  ctx: AnyCtx,
+  slug: string,
+): Promise<PathSnapshot> {
+  const [modules, lessons, cohorts] = await Promise.all([
+    ctx.db
+      .query("pathModules")
+      .withIndex("by_path_order", (q) => q.eq("pathId", slug))
+      .collect(),
+    ctx.db
+      .query("lessons")
+      .withIndex("by_path", (q) => q.eq("pathId", slug))
+      .collect(),
+    ctx.db
+      .query("cohorts")
+      .withIndex("by_pathId", (q) => q.eq("pathId", slug))
+      .collect(),
+  ])
+  return {
+    modules: modules
+      .filter((module) => module.status === "published")
+      .sort((a, b) => a.order - b.order),
+    lessons: lessons
+      .filter((lesson) => lesson.status === "published")
+      .sort((a, b) => a.order - b.order),
+    cohorts: cohorts.sort((a, b) => a.startDate - b.startDate),
+  }
+}
+
+async function resolveLearningPath(
+  ctx: AnyCtx,
+  path: Doc<"paths">,
+  cache: AssetUrlCache,
+  teacherByUserId: Map<string, Doc<"teachers">>,
+  snapshot?: PathSnapshot,
+): Promise<LearningPath | null> {
+  if (path.status === "archived") return null
+
+  const image = await optionalAssetUrl(ctx, path.imageAssetId, cache)
+  if (!image) return null
+
+  const facts = snapshot ?? (await pathSnapshot(ctx, path.slug))
+  if (
+    !path.comingSoon &&
+    (facts.modules.length === 0 ||
+      facts.lessons.length === 0 ||
+      facts.cohorts.length === 0)
+  ) {
+    return null
+  }
+
+  const profile = path.teacherId
+    ? teacherByUserId.get(path.teacherId)
+    : undefined
+  return {
+    slug: path.slug,
+    code: path.code,
+    title: path.title,
+    subtitle: path.subtitle,
+    teacher: profile?.name ?? path.teacher,
+    teacherRole: path.teacherRole || profile?.specialty || "Pengajar",
+    teacherId: path.teacherId,
+    region: path.region,
+    level: path.level,
+    modules: facts.modules.length,
+    weeks: path.weeks,
+    tasks: path.tasks,
+    price: path.price,
+    priceLabel: path.priceLabel,
+    image,
+    tags: path.tags,
+    outcome: path.outcome,
+    includes: path.includes,
+    comingSoon: path.comingSoon,
+  }
+}
+
+async function resolveTeacher(
+  ctx: AnyCtx,
+  teacher: Doc<"teachers">,
+  cache: AssetUrlCache,
+): Promise<Teacher | null> {
+  if (!teacher.userId) return null
+  const user = await ctx.db.get(teacher.userId)
+  if (!user) return null
+  const image = await optionalAssetUrl(ctx, teacher.imageAssetId, cache)
+  return {
+    slug: teacher.slug,
+    name: teacher.name,
+    initials: teacher.initials,
+    specialty: teacher.specialty,
+    region: teacher.region,
+    experience: teacher.experience,
+    quote: teacher.quote,
+    focus: teacher.focus,
+    path: teacher.path,
+    community: teacher.community,
+    image: image ?? "",
+    verified: teacher.verified,
+  }
+}
+
+async function resolveWork(
+  ctx: AnyCtx,
+  work: Doc<"works">,
+  pathBySlug: Map<string, Doc<"paths">>,
+  teacherByUserId: Map<string, Doc<"teachers">>,
+  cache: AssetUrlCache,
+): Promise<Work | null> {
+  if (work.status !== "published") return null
+  if (!work.makerId || !work.pathId || !work.certificateId) return null
+
+  const [card, maker, certificate] = await Promise.all([
+    ctx.db
+      .query("workCards")
+      .withIndex("by_workId", (q) => q.eq("workId", work._id))
+      .unique(),
+    ctx.db.get(work.makerId),
+    ctx.db.get(work.certificateId),
+  ])
+  const path = work.pathId ? pathBySlug.get(work.pathId) : undefined
+  if (!card || !maker || !path || !certificate) return null
+  if (card.status !== "published" || certificate.status !== "issued") {
+    return null
+  }
+  const image = await optionalAssetUrl(ctx, work.imageAssetId, cache)
+  if (!image) return null
+
+  const profile = path.teacherId
+    ? teacherByUserId.get(path.teacherId)
+    : undefined
+  return {
+    slug: work.slug,
+    title: work.title,
+    category: work.category,
+    kind: work.kind,
+    maker: maker.name,
+    makerRole: work.makerRole,
+    teacher: profile?.name ?? path.teacher,
+    region: work.region,
+    price: work.price,
+    priceLabel: work.priceLabel,
+    unit: work.unit,
+    technique: work.technique,
+    techniqueNote: work.techniqueNote,
+    workCard: card.serial,
+    permission: card.permission,
+    provenance: card.provenance,
+    materials: card.materials,
+    certificateSerial: certificate.serial,
+    pathSlug: path.slug,
+    description: work.description,
+    image,
+  }
+}
+
+function isPublishedTeacher(teacher: Doc<"teachers">): boolean {
+  return (
+    teacher.published === true &&
+    teacher.status !== "review" &&
+    teacher.status !== "suspended"
+  )
+}
+
 export async function assemblePublishedSite(
   ctx: AnyCtx,
 ): Promise<SiteData | null> {
@@ -314,145 +486,8 @@ export async function assemblePublishedSite(
   )
   const pathBySlug = new Map(paths.map((path) => [path.slug, path] as const))
 
-  const resolvePath = async (
-    path: Doc<"paths">,
-  ): Promise<LearningPath | null> => {
-    const image = await optionalAssetUrl(ctx, path.imageAssetId, cache)
-    if (!image) return null
-
-    const [modules, lessons, cohorts] = await Promise.all([
-      ctx.db
-        .query("pathModules")
-        .withIndex("by_path_order", (q) => q.eq("pathId", path.slug))
-        .collect(),
-      ctx.db
-        .query("lessons")
-        .withIndex("by_path", (q) => q.eq("pathId", path.slug))
-        .collect(),
-      ctx.db
-        .query("cohorts")
-        .withIndex("by_pathId", (q) => q.eq("pathId", path.slug))
-        .collect(),
-    ])
-    const publishedModules = modules.filter(
-      (module) => module.status === "published",
-    )
-    const publishedLessons = lessons.filter(
-      (lesson) => lesson.status === "published",
-    )
-    if (
-      !path.comingSoon &&
-      (publishedModules.length === 0 ||
-        publishedLessons.length === 0 ||
-        cohorts.length === 0)
-    ) {
-      return null
-    }
-
-    const profile = path.teacherId
-      ? teacherByUserId.get(path.teacherId)
-      : undefined
-    return {
-      slug: path.slug,
-      code: path.code,
-      title: path.title,
-      subtitle: path.subtitle,
-      teacher: profile?.name ?? path.teacher,
-      teacherRole: path.teacherRole || profile?.specialty || "Pengajar",
-      teacherId: path.teacherId,
-      region: path.region,
-      level: path.level,
-      modules: publishedModules.length,
-      weeks: path.weeks,
-      tasks: path.tasks,
-      price: path.price,
-      priceLabel: path.priceLabel,
-      image,
-      tags: path.tags,
-      outcome: path.outcome,
-      includes: path.includes,
-      comingSoon: path.comingSoon,
-    }
-  }
-
-  const resolveTeacher = async (
-    teacher: Doc<"teachers">,
-  ): Promise<Teacher | null> => {
-    if (!teacher.userId) return null
-    const user = await ctx.db.get(teacher.userId)
-    if (!user) return null
-    const image = await optionalAssetUrl(ctx, teacher.imageAssetId, cache)
-    return {
-      slug: teacher.slug,
-      name: teacher.name,
-      initials: teacher.initials,
-      specialty: teacher.specialty,
-      region: teacher.region,
-      experience: teacher.experience,
-      quote: teacher.quote,
-      focus: teacher.focus,
-      path: teacher.path,
-      community: teacher.community,
-      image: image ?? "",
-      verified: teacher.verified,
-    }
-  }
-
-  const resolveWork = async (work: Doc<"works">): Promise<Work | null> => {
-    if (work.status !== "published") return null
-    if (!work.makerId || !work.pathId || !work.certificateId) return null
-
-    const [card, maker, certificate] = await Promise.all([
-      ctx.db
-        .query("workCards")
-        .withIndex("by_workId", (q) => q.eq("workId", work._id))
-        .unique(),
-      ctx.db.get(work.makerId),
-      ctx.db.get(work.certificateId),
-    ])
-    const path = work.pathId ? pathBySlug.get(work.pathId) : undefined
-    if (!card || !maker || !path || !certificate) return null
-    if (card.status !== "published" || certificate.status !== "issued") {
-      return null
-    }
-    const image = await optionalAssetUrl(ctx, work.imageAssetId, cache)
-    if (!image) return null
-
-    const profile = path.teacherId
-      ? teacherByUserId.get(path.teacherId)
-      : undefined
-    return {
-      slug: work.slug,
-      title: work.title,
-      category: work.category,
-      kind: work.kind,
-      maker: maker.name,
-      makerRole: work.makerRole,
-      teacher: profile?.name ?? path.teacher,
-      region: work.region,
-      price: work.price,
-      priceLabel: work.priceLabel,
-      unit: work.unit,
-      technique: work.technique,
-      techniqueNote: work.techniqueNote,
-      workCard: card.serial,
-      permission: card.permission,
-      provenance: card.provenance,
-      materials: card.materials,
-      certificateSerial: certificate.serial,
-      pathSlug: path.slug,
-      description: work.description,
-      image,
-    }
-  }
-
   const publishedPaths = paths.filter((path) => path.status !== "archived")
-  const publishedTeachers = teachers.filter(
-    (teacher) =>
-      teacher.published === true &&
-      teacher.status !== "review" &&
-      teacher.status !== "suspended",
-  )
+  const publishedTeachers = teachers.filter(isPublishedTeacher)
   const publishedWorks = works.filter((work) => work.status === "published")
 
   const selectedPaths = featured
@@ -497,13 +532,23 @@ export async function assemblePublishedSite(
     : faqs
 
   const resolvedPaths = (
-    await Promise.all(selectedPaths.map((path) => resolvePath(path)))
+    await Promise.all(
+      selectedPaths.map((path) =>
+        resolveLearningPath(ctx, path, cache, teacherByUserId),
+      ),
+    )
   ).filter((path): path is LearningPath => path !== null)
   const resolvedTeachers = (
-    await Promise.all(selectedTeachers.map((teacher) => resolveTeacher(teacher)))
+    await Promise.all(
+      selectedTeachers.map((teacher) => resolveTeacher(ctx, teacher, cache)),
+    )
   ).filter((teacher): teacher is Teacher => teacher !== null)
   const resolvedWorks = (
-    await Promise.all(selectedWorks.map((work) => resolveWork(work)))
+    await Promise.all(
+      selectedWorks.map((work) =>
+        resolveWork(ctx, work, pathBySlug, teacherByUserId, cache),
+      ),
+    )
   ).filter((work): work is Work => work !== null)
 
   const displayWorks = featured
@@ -559,6 +604,199 @@ export const getSite = query({
   args: {},
   handler: async (ctx): Promise<SiteData | null> => {
     return await assemblePublishedSite(ctx)
+  },
+})
+
+/** Every published path, independent of the landing selection. */
+export const listPublicPaths = query({
+  args: {},
+  handler: async (ctx): Promise<LearningPath[]> => {
+    const [paths, teachers] = await Promise.all([
+      ctx.db.query("paths").withIndex("by_order").collect(),
+      ctx.db.query("teachers").collect(),
+    ])
+    const teacherByUserId = new Map(
+      teachers
+        .filter((teacher) => teacher.userId)
+        .map((teacher) => [teacher.userId as string, teacher] as const),
+    )
+    const cache: AssetUrlCache = new Map()
+    const resolved = await Promise.all(
+      paths
+        .filter((path) => path.status !== "archived")
+        .map((path) =>
+          resolveLearningPath(ctx, path, cache, teacherByUserId),
+        ),
+    )
+    return resolved.filter((path): path is LearningPath => path !== null)
+  },
+})
+
+/** One published path with its published modules, lessons, and cohorts. */
+export const getPublicPath = query({
+  args: { slug: v.string() },
+  handler: async (ctx, args): Promise<PublicPathDetail | null> => {
+    const path = await ctx.db
+      .query("paths")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique()
+    if (!path || path.status === "archived") return null
+
+    const [teachers, snapshot] = await Promise.all([
+      ctx.db.query("teachers").collect(),
+      pathSnapshot(ctx, path.slug),
+    ])
+    const teacherByUserId = new Map(
+      teachers
+        .filter((teacher) => teacher.userId)
+        .map((teacher) => [teacher.userId as string, teacher] as const),
+    )
+    const cache: AssetUrlCache = new Map()
+    const summary = await resolveLearningPath(
+      ctx,
+      path,
+      cache,
+      teacherByUserId,
+      snapshot,
+    )
+    if (!summary) return null
+
+    return {
+      ...summary,
+      lessons: snapshot.lessons.length,
+      curriculum: snapshot.modules.map((module) => ({
+        title: module.title,
+        summary: module.summary,
+        estimatedMinutes: module.estimatedMinutes,
+        lessons: snapshot.lessons
+          .filter(
+            (lesson) =>
+              lesson.moduleId === module._id && lesson.pathId === path.slug,
+          )
+          .map((lesson) => ({
+            title: lesson.title,
+            kind: lesson.kind,
+            estimatedMinutes: lesson.estimatedMinutes,
+            accessLevel: lesson.accessLevel,
+          })),
+      })),
+      cohorts: snapshot.cohorts.map((cohort) => ({
+        code: cohort.code,
+        title: cohort.title,
+        startDate: cohort.startDate,
+        endDate: cohort.endDate,
+        capacity: cohort.capacity,
+        timezone: cohort.timezone,
+        status: cohort.status,
+      })),
+    }
+  },
+})
+
+/** Every published teacher, independent of the landing selection. */
+export const listPublicTeachers = query({
+  args: {},
+  handler: async (ctx): Promise<Teacher[]> => {
+    const teachers = await ctx.db.query("teachers").withIndex("by_order").collect()
+    const cache: AssetUrlCache = new Map()
+    const resolved = await Promise.all(
+      teachers
+        .filter(isPublishedTeacher)
+        .map((teacher) => resolveTeacher(ctx, teacher, cache)),
+    )
+    return resolved.filter((teacher): teacher is Teacher => teacher !== null)
+  },
+})
+
+/** One published teacher plus the paths and works they are linked to. */
+export const getPublicTeacher = query({
+  args: { slug: v.string() },
+  handler: async (ctx, args): Promise<PublicTeacherDetail | null> => {
+    const teacher = await ctx.db
+      .query("teachers")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique()
+    if (!teacher || !isPublishedTeacher(teacher)) return null
+
+    const [paths, works, teachers] = await Promise.all([
+      ctx.db.query("paths").withIndex("by_order").collect(),
+      ctx.db.query("works").withIndex("by_order").collect(),
+      ctx.db.query("teachers").collect(),
+    ])
+    const teacherByUserId = new Map(
+      teachers
+        .filter((item) => item.userId)
+        .map((item) => [item.userId as string, item] as const),
+    )
+    const cache: AssetUrlCache = new Map()
+    const profile = await resolveTeacher(ctx, teacher, cache)
+    if (!profile) return null
+
+    const assigned = new Set(teacher.pathIds ?? [])
+    if (teacher.userId) {
+      for (const path of paths) {
+        if (path.teacherId === teacher.userId) assigned.add(path.slug)
+      }
+    }
+
+    const pathBySlug = new Map(paths.map((path) => [path.slug, path] as const))
+    const resolvedPaths = await Promise.all(
+      paths
+        .filter((path) => assigned.has(path.slug))
+        .map((path) => resolveLearningPath(ctx, path, cache, teacherByUserId)),
+    )
+    const visiblePaths = resolvedPaths.filter(
+      (path): path is LearningPath => path !== null,
+    )
+
+    const resolvedWorks = await Promise.all(
+      works
+        .filter(
+          (work) =>
+            work.status === "published" &&
+            work.pathId !== undefined &&
+            assigned.has(work.pathId),
+        )
+        .map((work) =>
+          resolveWork(ctx, work, pathBySlug, teacherByUserId, cache),
+        ),
+    )
+
+    return {
+      ...profile,
+      paths: visiblePaths.map((path) => ({
+        slug: path.slug,
+        code: path.code,
+        title: path.title,
+        level: path.level,
+        region: path.region,
+        price: path.price,
+        priceLabel: path.priceLabel,
+        comingSoon: path.comingSoon,
+      })),
+      works: resolvedWorks
+        .filter((work): work is Work => work !== null)
+        .map((work) => ({
+          slug: work.slug,
+          title: work.title,
+          kind: work.kind,
+          price: work.price,
+          priceLabel: work.priceLabel,
+          image: work.image,
+        })),
+    }
+  },
+})
+
+/** Public FAQ list for the standalone FAQ page. */
+export const listPublicFaqs = query({
+  args: {},
+  handler: async (ctx) => {
+    const faqs = await ctx.db.query("faqs").withIndex("by_order").collect()
+    return faqs.map((faq) => ({
+      question: faq.question,
+      answer: faq.answer,
+    }))
   },
 })
 

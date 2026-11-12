@@ -1,7 +1,9 @@
+import Link from "next/link"
 import { Check } from "lucide-react"
 
-import { LeadButton } from "@/components/overlays/overlay-buttons"
+import { Button } from "@/components/ui/button"
 import type { InstitutionContent } from "@/lib/content/types"
+import { interestHref } from "@/lib/content/routes"
 
 export function InstitutionBench({ institution }: { institution: InstitutionContent }) {
   return (
@@ -76,13 +78,11 @@ export function InstitutionBench({ institution }: { institution: InstitutionCont
               ))}
             </dl>
 
-            <LeadButton
-              request={{ variant: "institution" }}
-              className="mt-6 w-full"
-              size="lg"
-            >
-              {institution.cta}
-            </LeadButton>
+            <Button asChild className="mt-6 w-full" size="lg">
+              <Link href={interestHref({ intent: "institution" })}>
+                {institution.cta}
+              </Link>
+            </Button>
             <p className="mt-3 text-center text-[10px] leading-relaxed text-ink-muted">
               {institution.note}
             </p>

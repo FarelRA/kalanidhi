@@ -2,11 +2,11 @@
 
 import dynamic from "next/dynamic"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Menu, Search } from "lucide-react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { BrandLockup } from "@/components/brand/brand-mark"
-import { InfoButton, LeadButton } from "@/components/overlays/overlay-buttons"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -15,12 +15,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
-import { useActiveSection } from "@/hooks/use-active-section"
 import type {
   HeaderCopy,
   NavigationItem,
   SearchCopy,
 } from "@/lib/content/types"
+import { interestHref, PUBLIC_ROUTES, publicHref } from "@/lib/content/routes"
 import type { SearchGroup } from "@/lib/search"
 import { cn } from "cn"
 
@@ -43,15 +43,21 @@ export function SiteHeader({
   copy: HeaderCopy
   searchCopy: SearchCopy
 }) {
+  const pathname = usePathname()
   const [searchOpen, setSearchOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const searchTriggerRef = useRef<HTMLElement | null>(null)
-  const sectionIds = useMemo(
-    () => navigation.map((item) => item.href.slice(1)),
-    [navigation],
-  )
-  const active = useActiveSection(sectionIds)
+  const nextQuery =
+    pathname && pathname !== "/" && !pathname.startsWith("/masuk") && !pathname.startsWith("/daftar")
+      ? `?next=${encodeURIComponent(pathname)}`
+      : ""
+
+  function isActive(href: string) {
+    const base = href.split("#")[0] || "/"
+    if (base === "/") return pathname === "/"
+    return pathname === base || pathname.startsWith(`${base}/`)
+  }
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -109,7 +115,7 @@ export function SiteHeader({
       <header className="sticky top-0 z-40 border-b-2 border-ink/20 bg-cream/95 backdrop-blur-md">
         <div className="shell flex h-[68px] items-center justify-between gap-4 lg:h-[76px]">
           <Link
-            href="#top"
+            href={PUBLIC_ROUTES.home}
             aria-label={copy.brandAria}
             className="shrink-0"
           >
@@ -121,23 +127,23 @@ export function SiteHeader({
             className="hidden items-center gap-0.5 lg:flex xl:gap-1"
           >
             {navigation.map((item) => {
-              const id = item.href.slice(1)
-              const isActive = active === id
+              const href = publicHref(item.href)
+              const active = isActive(href)
 
               return (
-                <a
+                <Link
                   key={item.href}
-                  href={item.href}
-                  aria-current={isActive ? "location" : undefined}
+                  href={href}
+                  aria-current={active ? "location" : undefined}
                   className={cn(
                     "inline-flex min-h-9 items-center border-b-2 px-2.5 text-[12px] font-semibold transition-colors",
-                    isActive
+                    active
                       ? "border-copper-dark bg-ink/[0.04] text-ink"
                       : "border-transparent text-ink-soft hover:border-copper/50 hover:text-ink",
                   )}
                 >
                   {item.label}
-                </a>
+                </Link>
               )
             })}
           </nav>
@@ -169,17 +175,21 @@ export function SiteHeader({
             </Button>
 
             <div className="ml-1 hidden items-center gap-1.5 border-l border-ink/20 pl-3 sm:flex">
-              <InfoButton
-                infoKey="login"
+              <Button
+                asChild
                 variant="ghost"
                 size="sm"
                 className="px-2 text-ink-soft hover:text-ink"
               >
-                {copy.loginCta}
-              </InfoButton>
-              <LeadButton request={{ variant: "student" }} size="sm">
-                {copy.registerCta}
-              </LeadButton>
+                <Link href={`${PUBLIC_ROUTES.signIn}${nextQuery}`}>
+                  {copy.loginCta}
+                </Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link href={`${PUBLIC_ROUTES.signUp}${nextQuery}`}>
+                  {copy.registerCta}
+                </Link>
+              </Button>
             </div>
 
             <Button
@@ -225,9 +235,9 @@ export function SiteHeader({
               className="mt-9 flex flex-col border-t-2 border-ink/25"
             >
               {navigation.map((item, index) => (
-                <a
+                <Link
                   key={item.href}
-                  href={item.href}
+                  href={publicHref(item.href)}
                   onClick={() => handleMobileOpenChange(false)}
                   className="flex min-h-14 items-center justify-between border-b border-ink/15 py-3 font-heading text-[1.9rem] leading-none text-ink transition-colors hover:text-copper-dark"
                 >
@@ -235,7 +245,7 @@ export function SiteHeader({
                   <span className="text-[9px] font-bold tracking-[0.1em] text-ink-muted">
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                </a>
+                </Link>
               ))}
             </nav>
 
@@ -249,21 +259,27 @@ export function SiteHeader({
             </button>
 
             <div className="mt-auto space-y-3 pt-10">
-              <LeadButton
-                request={{ variant: "student" }}
-                size="lg"
-                className="w-full"
-              >
-                {copy.mobileRegisterCta}
-              </LeadButton>
-              <InfoButton
-                infoKey="login"
+              <Button asChild size="lg" className="w-full">
+                <Link
+                  href={interestHref({ intent: "student" })}
+                  onClick={() => handleMobileOpenChange(false)}
+                >
+                  {copy.mobileRegisterCta}
+                </Link>
+              </Button>
+              <Button
+                asChild
                 variant="outline"
                 size="lg"
                 className="w-full border-ink/35"
               >
-                {copy.loginCta}
-              </InfoButton>
+                <Link
+                  href={`${PUBLIC_ROUTES.signIn}${nextQuery}`}
+                  onClick={() => handleMobileOpenChange(false)}
+                >
+                  {copy.loginCta}
+                </Link>
+              </Button>
               <p className="pt-2 text-[10px] leading-relaxed text-ink-muted">
                 {copy.region}
               </p>

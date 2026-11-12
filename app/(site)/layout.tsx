@@ -1,7 +1,6 @@
 import { MobileCtaDock } from "@/components/landing/mobile-cta-dock"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
-import { OverlayProvider } from "@/components/overlays/overlay-provider"
 import { getSiteData } from "@/lib/convex/server"
 import { buildSearchGroups } from "@/lib/search"
 
@@ -25,19 +24,17 @@ export default async function SiteLayout({
       >
         Lewati ke konten utama
       </a>
-      <OverlayProvider overlays={data.overlays} leadDialogs={data.leadDialogs}>
-        <SiteHeader
-          navigation={data.navigation}
-          searchGroups={searchGroups}
-          copy={data.header}
-          searchCopy={data.search}
-        />
-        <main id="konten" tabIndex={-1} className="flex-1">
-          {children}
-        </main>
-        <SiteFooter footer={data.footer} ethics={data.ethics} />
-        <MobileCtaDock startingPrice={startingPrice} copy={data.mobileCta} />
-      </OverlayProvider>
+      <SiteHeader
+        navigation={data.navigation}
+        searchGroups={searchGroups}
+        copy={data.header}
+        searchCopy={data.search}
+      />
+      <main id="konten" tabIndex={-1} className="flex-1">
+        {children}
+      </main>
+      <SiteFooter footer={data.footer} ethics={data.ethics} />
+      <MobileCtaDock startingPrice={startingPrice} copy={data.mobileCta} />
     </div>
   )
 }

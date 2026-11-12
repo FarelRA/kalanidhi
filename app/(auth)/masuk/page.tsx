@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default async function MasukPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>
+  searchParams: Promise<{ next?: string; mode?: string }>
 }) {
   const params = await searchParams
   const nextPath = safeNextPath(params.next)
@@ -32,5 +32,11 @@ export default async function MasukPage({
     }
   }
 
-  return <SignInForm nextPath={nextPath} configured={configured} />
+  return (
+    <SignInForm
+      nextPath={nextPath}
+      configured={configured}
+      initialMode={params.mode === "daftar" ? "signup" : "signin"}
+    />
+  )
 }

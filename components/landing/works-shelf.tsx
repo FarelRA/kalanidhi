@@ -1,8 +1,9 @@
 import Image from "next/image"
+import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 
-import { LeadButton } from "@/components/overlays/overlay-buttons"
 import type { SectionCopy, Work } from "@/lib/content/types"
+import { interestHref, workHref } from "@/lib/content/routes"
 import { formatIDR } from "@/lib/format"
 
 export function WorksShelf({
@@ -14,6 +15,28 @@ export function WorksShelf({
 }) {
   const featured = works[0]
   const rest = works.slice(1)
+
+  if (!featured) {
+    return (
+      <section
+        id="karya"
+        aria-labelledby="works-title"
+        className="border-b border-ink/15 bg-panel py-16 sm:py-20 lg:py-24"
+      >
+        <div className="shell">
+          <span className="stamp border-ink/35 text-ink">{copy.label}</span>
+          <h2 id="works-title" className="heading-section mt-5 max-w-[17ch]">
+            {copy.title}
+          </h2>
+          <p className="body-copy mt-5 max-w-[34rem]">{copy.description}</p>
+          <p className="mt-8 max-w-xl border border-ink/25 bg-paper-2 p-5 text-[12.5px] leading-relaxed text-ink-soft">
+            Belum ada karya terbit di Convex. Karya akan muncul di sini setelah
+            Kartu Karya dan sertifikat platformnya terbit.
+          </p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section
@@ -93,14 +116,24 @@ export function WorksShelf({
                   {formatIDR(featured.price)}
                 </p>
               </div>
-              <LeadButton
-                request={{ variant: "consultation", interest: featured.title }}
-                variant="outline"
-                className="border-ink/35"
-              >
-                {copy.askCta}
-                <ArrowRight aria-hidden="true" />
-              </LeadButton>
+              <div className="flex flex-wrap items-center gap-2">
+                <Link
+                  href={workHref(featured.slug)}
+                  className="inline-flex min-h-11 items-center border border-ink/35 px-4 text-[11px] font-bold uppercase tracking-[0.06em] text-ink transition-colors hover:border-copper-dark hover:text-copper-dark"
+                >
+                  Buka karya
+                </Link>
+                <Link
+                  href={interestHref({
+                    work: featured.slug,
+                    intent: "consultation",
+                  })}
+                  className="inline-flex min-h-11 items-center gap-2 border border-ink/35 px-4 text-[11px] font-bold uppercase tracking-[0.06em] text-ink transition-colors hover:border-copper-dark hover:text-copper-dark"
+                >
+                  {copy.askCta}
+                  <ArrowRight aria-hidden="true" className="size-3.5" />
+                </Link>
+              </div>
             </div>
           </div>
         </article>
@@ -144,15 +177,24 @@ export function WorksShelf({
                     {work.workCard}
                   </span>
                 </p>
-                <LeadButton
-                  request={{ variant: "consultation", interest: work.title }}
-                  variant="ghost"
-                  size="sm"
-                  className="mt-2 h-auto min-h-9 px-0 text-copper-dark hover:bg-transparent hover:text-ink"
-                >
-                  {copy.askCta}
-                  <ArrowRight aria-hidden="true" />
-                </LeadButton>
+                <div className="mt-2 flex flex-wrap items-center gap-4">
+                  <Link
+                    href={workHref(work.slug)}
+                    className="inline-flex min-h-9 items-center text-[10.5px] font-bold uppercase tracking-[0.06em] text-ink hover:text-copper-dark"
+                  >
+                    Buka karya
+                  </Link>
+                  <Link
+                    href={interestHref({
+                      work: work.slug,
+                      intent: "consultation",
+                    })}
+                    className="inline-flex min-h-9 items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.06em] text-copper-dark hover:text-ink"
+                  >
+                    {copy.askCta}
+                    <ArrowRight aria-hidden="true" className="size-3" />
+                  </Link>
+                </div>
               </div>
             </li>
           ))}

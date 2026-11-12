@@ -1,7 +1,9 @@
 import Image from "next/image"
+import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import type { HeroContent, HeroWorkCard } from "@/lib/content/types"
+import { PUBLIC_ROUTES } from "@/lib/content/routes"
 
 export function BenchHero({
   hero,
@@ -35,7 +37,7 @@ export function BenchHero({
               size="lg"
               className="border-2 border-copper-dark bg-copper-dark text-cream-2 hover:border-copper hover:bg-copper"
             >
-              <a href="#jalur">{hero.primaryCta}</a>
+              <Link href={PUBLIC_ROUTES.paths}>{hero.primaryCta}</Link>
             </Button>
             <Button
               asChild
@@ -43,7 +45,9 @@ export function BenchHero({
               size="lg"
               className="border-paper/35 text-paper hover:border-brass hover:bg-paper/5 hover:text-brass"
             >
-              <a href="#lingkaran">{hero.secondaryCta}</a>
+              <Link href={`${PUBLIC_ROUTES.about}#lingkaran`}>
+                {hero.secondaryCta}
+              </Link>
             </Button>
           </div>
         </div>

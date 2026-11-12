@@ -178,9 +178,12 @@ function VerificationShell({ children }: { children: React.ReactNode }) {
           >
             KalaNidhi Digital
           </Link>
-          <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-ink-muted">
+          <Link
+            href="/verifikasi"
+            className="text-[9px] font-bold uppercase tracking-[0.1em] text-ink-muted hover:text-ink"
+          >
             Registry kredensial
-          </span>
+          </Link>
         </div>
         {children}
       </div>

@@ -50,8 +50,21 @@ export function isPreviewAllowed(
 
 /** Prevents an open redirect through the `next` query parameter. */
 export function safeNextPath(value: string | undefined): string {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) {
+  if (
+    !value ||
+    !value.startsWith("/") ||
+    value.startsWith("//") ||
+    value.includes("\\")
+  ) {
     return "/ruang"
   }
-  return value
+
+  try {
+    const base = "https://kalanidhi.site"
+    const url = new URL(value, base)
+    if (url.origin !== base) return "/ruang"
+    return `${url.pathname}${url.search}${url.hash}`
+  } catch {
+    return "/ruang"
+  }
 }

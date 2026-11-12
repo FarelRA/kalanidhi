@@ -1,8 +1,10 @@
+import Link from "next/link"
+
 import { BrandLockup } from "@/components/brand/brand-mark"
 import { NewsletterForm } from "@/components/forms/newsletter-form"
 import { FooterPreferences } from "@/components/layout/footer-preferences"
-import { InfoLink } from "@/components/overlays/overlay-buttons"
 import type { EthicsContent, FooterContent } from "@/lib/content/types"
+import { footerHref, PUBLIC_ROUTES } from "@/lib/content/routes"
 
 export function SiteFooter({
   footer,
@@ -39,21 +41,12 @@ export function SiteFooter({
                 <ul className="mt-4 border-t border-paper/20">
                   {column.links.map((link) => (
                     <li key={link.label} className="border-b border-paper/10">
-                      {link.label === "Tentang KalaNidhi Digital" ? (
-                        <InfoLink
-                          infoKey="about"
-                          className="flex min-h-11 items-center py-2 text-[12.5px] text-paper/70 transition-colors hover:text-paper"
-                        >
-                          {link.label}
-                        </InfoLink>
-                      ) : (
-                        <a
-                          href={link.href}
-                          className="flex min-h-11 items-center py-2 text-[12.5px] text-paper/70 transition-colors hover:text-paper"
-                        >
-                          {link.label}
-                        </a>
-                      )}
+                      <Link
+                        href={footerHref(link.label, link.href)}
+                        className="flex min-h-11 items-center py-2 text-[12.5px] text-paper/70 transition-colors hover:text-paper"
+                      >
+                        {link.label}
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -106,12 +99,12 @@ export function SiteFooter({
             <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-brass">
               {footer.cultureLabel}
             </p>
-            <InfoLink
-              infoKey="policy"
+            <Link
+              href={PUBLIC_ROUTES.ethics}
               className="mt-2 inline-flex min-h-11 items-center border-b border-copper-light/50 pb-0.5 text-[11.5px] text-paper hover:text-copper-light"
             >
               {footer.culturePolicyCta}
-            </InfoLink>
+            </Link>
             <p className="mt-4 text-[9.5px] leading-relaxed text-paper/65">
               {footer.certificateNote}
             </p>
@@ -123,18 +116,24 @@ export function SiteFooter({
             {footer.edition} / {footer.copyright}
           </p>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            <InfoLink infoKey="privacy" className="inline-flex min-h-11 items-center text-[10.5px] text-paper/65 hover:text-paper">
+            <Link
+              href={PUBLIC_ROUTES.privacy}
+              className="inline-flex min-h-11 items-center text-[10.5px] text-paper/65 hover:text-paper"
+            >
               {footer.privacyLabel}
-            </InfoLink>
-            <InfoLink infoKey="terms" className="inline-flex min-h-11 items-center text-[10.5px] text-paper/65 hover:text-paper">
+            </Link>
+            <Link
+              href={PUBLIC_ROUTES.terms}
+              className="inline-flex min-h-11 items-center text-[10.5px] text-paper/65 hover:text-paper"
+            >
               {footer.termsLabel}
-            </InfoLink>
-            <a
-              href="#top"
+            </Link>
+            <Link
+              href={`${PUBLIC_ROUTES.home}#top`}
               className="flex min-h-11 items-center text-paper/70 transition-colors hover:text-paper"
             >
               {footer.backToTopLabel}
-            </a>
+            </Link>
           </div>
         </div>
       </div>

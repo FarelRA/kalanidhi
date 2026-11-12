@@ -28,37 +28,43 @@ export function ParticipantNotes({
           </p>
         </div>
 
-        <div className="mt-14 grid gap-10 md:grid-cols-3 md:gap-6 lg:gap-8">
-          {testimonials.map((testimonial, index) => (
-            <article
-              key={testimonial.name}
-              className={cn(
-                "clip-top relative border-2 border-ink bg-paper-2 p-5 pt-7 shadow-[5px_5px_0_var(--panel)]",
-                rotations[index],
-              )}
-            >
-              <blockquote className="font-heading text-[1.16rem] italic leading-[1.42] text-ink/85">
-                &ldquo;{testimonial.quote}&rdquo;
-              </blockquote>
-              <footer className="mt-5 flex items-center gap-3 border-t border-ink/15 pt-3">
-                <span className="flex size-9 shrink-0 items-center justify-center bg-panel font-heading text-[13px] font-semibold text-ink">
-                  {testimonial.initials}
-                </span>
-                <div>
-                  <p className="text-[12px] font-semibold leading-tight">
-                    {testimonial.name}
-                  </p>
-                  <p className="mt-0.5 text-[10px] leading-snug text-ink-muted">
-                    {testimonial.role}
-                  </p>
-                  <p className="text-[10px] leading-snug text-ink-muted">
-                    {testimonial.city}
-                  </p>
-                </div>
-              </footer>
-            </article>
-          ))}
-        </div>
+        {testimonials.length === 0 ? (
+          <p className="mt-12 max-w-xl border border-ink/25 bg-paper-2 p-5 text-[12.5px] leading-relaxed text-ink-soft">
+            Belum ada catatan peserta yang terbit di Convex.
+          </p>
+        ) : (
+          <div className="mt-14 grid gap-10 md:grid-cols-3 md:gap-6 lg:gap-8">
+            {testimonials.map((testimonial, index) => (
+              <article
+                key={testimonial.name}
+                className={cn(
+                  "clip-top relative border-2 border-ink bg-paper-2 p-5 pt-7 shadow-[5px_5px_0_var(--panel)]",
+                  rotations[index],
+                )}
+              >
+                <blockquote className="font-heading text-[1.16rem] italic leading-[1.42] text-ink/85">
+                  &ldquo;{testimonial.quote}&rdquo;
+                </blockquote>
+                <footer className="mt-5 flex items-center gap-3 border-t border-ink/15 pt-3">
+                  <span className="flex size-9 shrink-0 items-center justify-center bg-panel font-heading text-[13px] font-semibold text-ink">
+                    {testimonial.initials}
+                  </span>
+                  <div>
+                    <p className="text-[12px] font-semibold leading-tight">
+                      {testimonial.name}
+                    </p>
+                    <p className="mt-0.5 text-[10px] leading-snug text-ink-muted">
+                      {testimonial.role}
+                    </p>
+                    <p className="text-[10px] leading-snug text-ink-muted">
+                      {testimonial.city}
+                    </p>
+                  </div>
+                </footer>
+              </article>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

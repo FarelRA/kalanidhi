@@ -1,7 +1,9 @@
+import Link from "next/link"
+
 import { BrandMark } from "@/components/brand/brand-mark"
-import { LeadButton } from "@/components/overlays/overlay-buttons"
 import { Button } from "@/components/ui/button"
 import type { SectionCopy, TractionContent } from "@/lib/content/types"
+import { interestHref, PUBLIC_ROUTES } from "@/lib/content/routes"
 
 export function ClosingBench({
   traction,
@@ -26,20 +28,22 @@ export function ClosingBench({
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <LeadButton
-              request={{ variant: "student" }}
+            <Button
+              asChild
               size="lg"
               className="border-2 border-copper-dark bg-copper-dark text-cream-2 hover:border-copper hover:bg-copper"
             >
-              {copy.primaryCta}
-            </LeadButton>
+              <Link href={interestHref({ intent: "student" })}>
+                {copy.primaryCta}
+              </Link>
+            </Button>
             <Button
               asChild
               variant="outline"
               size="lg"
               className="border-paper/35 text-paper hover:border-brass hover:bg-paper/5 hover:text-brass"
             >
-              <a href="#jalur">{copy.secondaryCta}</a>
+              <Link href={PUBLIC_ROUTES.paths}>{copy.secondaryCta}</Link>
             </Button>
           </div>
 

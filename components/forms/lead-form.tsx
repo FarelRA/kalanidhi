@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useActionState } from "react"
 import {
   CircleCheck,
@@ -21,7 +22,10 @@ type LeadFormProps = {
   variant: LeadVariant
   interest?: string
   source?: string
-  onSuccess: () => void
+  onSuccess?: () => void
+  successHref?: string
+  successLabel?: string
+  showMessage?: boolean
 }
 
 const institutionTypes = [
@@ -61,6 +65,9 @@ export function LeadForm({
   interest,
   source = "landing",
   onSuccess,
+  successHref = "/",
+  successLabel = "Kembali ke beranda",
+  showMessage = false,
 }: LeadFormProps) {
   const [state, formAction, pending] = useActionState<LeadState, FormData>(
     submitLead,
@@ -83,9 +90,15 @@ export function LeadForm({
           <ShieldCheck className="size-3.5" aria-hidden="true" />
           Kami akan menghubungimu lewat email atau WhatsApp.
         </p>
-        <Button type="button" onClick={onSuccess} className="mt-1" size="lg">
-          Selesai
-        </Button>
+        {onSuccess ? (
+          <Button type="button" onClick={onSuccess} className="mt-1" size="lg">
+            Selesai
+          </Button>
+        ) : (
+          <Button asChild className="mt-1" size="lg">
+            <Link href={successHref}>{successLabel}</Link>
+          </Button>
+        )}
       </div>
     )
   }
@@ -265,7 +278,7 @@ export function LeadForm({
           </div>
         </div>
 
-        {variant === "consultation" || isInstitution ? (
+        {variant === "consultation" || isInstitution || showMessage ? (
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="lead-message">
               {isInstitution ? "Kebutuhan program" : "Pertanyaanmu"}

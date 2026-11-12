@@ -7,6 +7,7 @@ import {
   Search,
   ShoppingBag,
 } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 
 import {
@@ -39,6 +40,7 @@ export function SearchDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const router = useRouter()
   const [query, setQuery] = useState("")
 
   const filteredGroups = useMemo(() => {
@@ -65,8 +67,12 @@ export function SearchDialog({
     }
   }
 
-  function jumpTo(href: string) {
+  function openResult(href: string) {
     handleOpenChange(false)
+    if (href.startsWith("/")) {
+      router.push(href)
+      return
+    }
     const id = href.replace("#", "")
     window.setTimeout(() => {
       document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
@@ -101,7 +107,7 @@ export function SearchDialog({
                   <CommandItem
                     key={`${group.heading}-${item.label}`}
                     value={`${group.heading}-${item.label}`}
-                    onSelect={() => jumpTo(item.href)}
+                    onSelect={() => openResult(item.href)}
                     className="gap-3 rounded-lg px-2.5 py-2.5"
                   >
                     <span className="flex size-8 shrink-0 items-center justify-center border border-ink/20 bg-ink/[0.03] text-thread">

@@ -1,4 +1,11 @@
 import type { SiteData } from "@/lib/content/types"
+import {
+  pathHref,
+  PUBLIC_ROUTES,
+  publicHref,
+  teacherHref,
+  workHref,
+} from "@/lib/content/routes"
 
 export type SearchIcon = "path" | "teacher" | "work" | "page"
 
@@ -26,7 +33,7 @@ export function buildSearchGroups(
         description: path.comingSoon
           ? data.search.pathComingSoon
           : `${path.teacher}, ${path.level}`,
-        href: "#jalur",
+        href: pathHref(path.slug),
       })),
     },
     {
@@ -35,7 +42,7 @@ export function buildSearchGroups(
       items: data.teachers.map((teacher) => ({
         label: teacher.name,
         description: `${teacher.specialty}, ${teacher.region}`,
-        href: "#pengajar",
+        href: teacherHref(teacher.slug),
       })),
     },
     {
@@ -44,7 +51,7 @@ export function buildSearchGroups(
       items: data.works.map((work) => ({
         label: work.title,
         description: `${work.maker}, ${work.region}`,
-        href: "#karya",
+        href: workHref(work.slug),
       })),
     },
     {
@@ -53,13 +60,16 @@ export function buildSearchGroups(
       items: data.catalog.fields.map((field) => ({
         label: field.name,
         description: `${field.region}, ${field.status.toLowerCase()}`,
-        href: "#indeks",
+        href: PUBLIC_ROUTES.paths,
       })),
     },
     {
       heading: data.search.groups.pages,
       icon: "page",
-      items: data.search.pages,
+      items: data.search.pages.map((page) => ({
+        ...page,
+        href: publicHref(page.href),
+      })),
     },
   ]
 }

@@ -36,6 +36,13 @@ export async function getPublicWork(
   return await fetchQuery(api.commerce.getPublicWork, { slug }, options)
 }
 
+export async function getPublicWorks(
+  limit = 60,
+): Promise<PublicWorkView[]> {
+  if (!options) return []
+  return await fetchQuery(api.commerce.listPublicWorks, { limit }, options)
+}
+
 export async function getOrderStatus(
   token: string,
 ): Promise<GuestOrderView | null> {

@@ -91,6 +91,63 @@ export type Faq = {
   answer: string
 }
 
+export type PublicLessonSummary = {
+  title: string
+  kind: "text" | "video" | "audio" | "file" | "practice"
+  estimatedMinutes: number
+  accessLevel: "public" | "enrolled" | "certified"
+}
+
+export type PublicModuleSummary = {
+  title: string
+  summary: string
+  estimatedMinutes: number
+  lessons: PublicLessonSummary[]
+}
+
+export type PublicCohortSummary = {
+  code: string
+  title: string
+  startDate: number
+  endDate: number
+  capacity: number
+  timezone: string
+  status: "draft" | "enrolling" | "active" | "completed" | "cancelled"
+}
+
+/** A path detail read directly from Convex, including its curriculum. */
+export type PublicPathDetail = LearningPath & {
+  lessons: number
+  curriculum: PublicModuleSummary[]
+  cohorts: PublicCohortSummary[]
+}
+
+export type PublicTeacherPath = {
+  slug: string
+  code: string
+  title: string
+  level: string
+  region: string
+  price: number | null
+  priceLabel?: string
+  comingSoon?: boolean
+}
+
+export type PublicTeacherWork = {
+  slug: string
+  title: string
+  kind: "product" | "service"
+  price: number
+  priceLabel?: string
+  image: string
+}
+
+/** A teacher detail read directly from Convex plus their paths and works. */
+export type PublicTeacherDetail = Teacher & {
+  paths: PublicTeacherPath[]
+  works: PublicTeacherWork[]
+}
+
 export type Testimonial = {
   quote: string
   name: string

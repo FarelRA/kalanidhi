@@ -3,7 +3,14 @@ import { cacheLife } from "next/cache"
 
 import { api } from "@/convex/_generated/api"
 import type { LeadArgs } from "@/lib/convex/types"
-import type { SiteData } from "@/lib/content/types"
+import type {
+  Faq,
+  LearningPath,
+  PublicPathDetail,
+  PublicTeacherDetail,
+  SiteData,
+  Teacher,
+} from "@/lib/content/types"
 
 const convexUrl =
   process.env.CONVEX_URL ?? process.env.NEXT_PUBLIC_CONVEX_URL
@@ -35,6 +42,62 @@ export async function getSiteData(): Promise<SiteData> {
     )
   }
   return data
+}
+
+export async function getPublicPaths(): Promise<LearningPath[]> {
+  "use cache"
+  cacheLife("minutes")
+
+  return await fetchQuery(api.content.listPublicPaths, {}, {
+    url: requireConvexUrl(),
+    skipConvexDeploymentUrlCheck: true,
+  })
+}
+
+export async function getPublicPath(
+  slug: string,
+): Promise<PublicPathDetail | null> {
+  "use cache"
+  cacheLife("minutes")
+
+  return await fetchQuery(
+    api.content.getPublicPath,
+    { slug },
+    { url: requireConvexUrl(), skipConvexDeploymentUrlCheck: true },
+  )
+}
+
+export async function getPublicTeachers(): Promise<Teacher[]> {
+  "use cache"
+  cacheLife("minutes")
+
+  return await fetchQuery(api.content.listPublicTeachers, {}, {
+    url: requireConvexUrl(),
+    skipConvexDeploymentUrlCheck: true,
+  })
+}
+
+export async function getPublicTeacher(
+  slug: string,
+): Promise<PublicTeacherDetail | null> {
+  "use cache"
+  cacheLife("minutes")
+
+  return await fetchQuery(
+    api.content.getPublicTeacher,
+    { slug },
+    { url: requireConvexUrl(), skipConvexDeploymentUrlCheck: true },
+  )
+}
+
+export async function getPublicFaqs(): Promise<Faq[]> {
+  "use cache"
+  cacheLife("minutes")
+
+  return await fetchQuery(api.content.listPublicFaqs, {}, {
+    url: requireConvexUrl(),
+    skipConvexDeploymentUrlCheck: true,
+  })
 }
 
 export async function persistLead(args: LeadArgs): Promise<boolean> {

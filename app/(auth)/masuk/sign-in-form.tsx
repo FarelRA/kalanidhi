@@ -30,9 +30,11 @@ type CompleteProfile = (args: {
 export function SignInForm({
   nextPath,
   configured,
+  initialMode = "signin",
 }: {
   nextPath: string
   configured: boolean
+  initialMode?: Mode
 }) {
   if (!configured) {
     return (
@@ -40,19 +42,29 @@ export function SignInForm({
         nextPath={nextPath}
         configured={false}
         completeProfile={null}
+        initialMode={initialMode}
       />
     )
   }
-  return <ConfiguredSignInForm nextPath={nextPath} />
+  return (
+    <ConfiguredSignInForm nextPath={nextPath} initialMode={initialMode} />
+  )
 }
 
-function ConfiguredSignInForm({ nextPath }: { nextPath: string }) {
+function ConfiguredSignInForm({
+  nextPath,
+  initialMode,
+}: {
+  nextPath: string
+  initialMode: Mode
+}) {
   const completeProfile = useMutation(api.users.completeProfile)
   return (
     <SignInFormView
       nextPath={nextPath}
       configured
       completeProfile={completeProfile}
+      initialMode={initialMode}
     />
   )
 }
@@ -61,13 +73,15 @@ function SignInFormView({
   nextPath,
   configured,
   completeProfile,
+  initialMode,
 }: {
   nextPath: string
   configured: boolean
   completeProfile: CompleteProfile | null
+  initialMode: Mode
 }) {
   const router = useRouter()
-  const [mode, setMode] = React.useState<Mode>("signin")
+  const [mode, setMode] = React.useState<Mode>(initialMode)
   const [name, setName] = React.useState("")
   const [phone, setPhone] = React.useState("")
   const [province, setProvince] = React.useState("")
@@ -392,8 +406,21 @@ function SignInFormView({
           </div>
 
           <p className="mt-5 text-[10px] leading-relaxed text-ink-muted">
-            Dengan masuk, kamu menyetujui kebijakan privasi dan ketentuan
-            platform. Data pribadi tidak dijual.
+            Dengan masuk, kamu menyetujui{" "}
+            <Link
+              href="/privasi"
+              className="underline decoration-ink/30 underline-offset-2 hover:text-ink"
+            >
+              kebijakan privasi
+            </Link>{" "}
+            dan{" "}
+            <Link
+              href="/ketentuan"
+              className="underline decoration-ink/30 underline-offset-2 hover:text-ink"
+            >
+              ketentuan platform
+            </Link>
+            . Data pribadi tidak dijual.
           </p>
           <Link
             href="/"
