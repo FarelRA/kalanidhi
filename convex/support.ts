@@ -413,8 +413,6 @@ export const createFromConversation = mutation({
       priority: "normal",
       status: "open",
       channel: "chat",
-      linkedType: "conversation",
-      linkedId: args.conversationId,
       linkedRecords: [
         {
           type: "conversation",
@@ -646,8 +644,6 @@ export const link = mutation({
     const next = [...existing, args.link]
     await ctx.db.patch(ticket._id, {
       linkedRecords: next,
-      linkedType: ticket.linkedType ?? args.link.type,
-      linkedId: ticket.linkedId ?? args.link.id,
       updatedAt: Date.now(),
     })
     await appendAudit(ctx, {

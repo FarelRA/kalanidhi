@@ -68,6 +68,7 @@ export type PrivacyRequestView = {
   resolution: string | null
   dataScope: string | null
   evidence: string | null
+  correction: { name?: string; email?: string; region?: string } | null
   retentionHoldUntil: number | null
   deletionAppliedAt: number | null
   handledBy: string | null

@@ -86,8 +86,6 @@ export const operationsTables = {
       v.literal("email"),
       v.literal("whatsapp"),
     ),
-    linkedType: v.optional(v.string()),
-    linkedId: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
     resolvedAt: v.optional(v.number()),

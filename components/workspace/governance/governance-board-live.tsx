@@ -807,6 +807,26 @@ export function GovernanceBoardLive() {
                 value={privacyDetail.evidence ?? "Belum diisi"}
               />
               <DetailRow
+                label="Nilai koreksi"
+                value={
+                  privacyDetail.correction
+                    ? [
+                        privacyDetail.correction.name
+                          ? `Nama: ${privacyDetail.correction.name}`
+                          : null,
+                        privacyDetail.correction.email
+                          ? `Email: ${privacyDetail.correction.email}`
+                          : null,
+                        privacyDetail.correction.region
+                          ? `Wilayah: ${privacyDetail.correction.region}`
+                          : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ") || "Belum diisi"
+                    : "Belum diisi"
+                }
+              />
+              <DetailRow
                 label="Keputusan"
                 value={privacyDetail.resolution ?? "Belum diisi"}
               />

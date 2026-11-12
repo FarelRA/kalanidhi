@@ -789,6 +789,7 @@ function privacyView(
     resolution: request.resolution ?? null,
     dataScope: request.dataScope ?? null,
     evidence: request.evidence ?? null,
+    correction: request.correction ?? null,
     retentionHoldUntil: request.retentionHoldUntil ?? null,
     deletionAppliedAt: request.deletionAppliedAt ?? null,
     handledBy: request.handledBy ?? null,
