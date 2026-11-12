@@ -1,5 +1,3 @@
-import { v } from "convex/values"
-
 import type { Doc, Id } from "./_generated/dataModel"
 import { internalMutation, type MutationCtx } from "./_generated/server"
 
@@ -283,18 +281,6 @@ const SEED_TEACHERS = [
     published: false,
   },
 ]
-
-const PATH_TEACHER: Record<string, string> = {
-  "batik-tulis-soga": "bambang",
-  "pranatacara-jawa": "widagdo",
-  "kriya-ukir-jepara": "joko",
-}
-
-const PATH_STATUS: Record<string, "open" | "mapping" | "planned"> = {
-  "batik-tulis-soga": "open",
-  "pranatacara-jawa": "open",
-  "kriya-ukir-jepara": "planned",
-}
 
 type SeedModule = {
   title: string
@@ -1194,17 +1180,6 @@ async function pathBySlug(
   return path
 }
 
-async function teacherBySlug(
-  ctx: MutationCtx,
-  slug: string,
-): Promise<Doc<"teachers">> {
-  const teacher = await ctx.db
-    .query("teachers")
-    .withIndex("by_slug", (q) => q.eq("slug", slug))
-    .unique()
-  if (!teacher) throw new Error(`Seed teacher missing: ${slug}`)
-  return teacher
-}
 
 async function workBySlug(
   ctx: MutationCtx,
@@ -1218,36 +1193,7 @@ async function workBySlug(
   return work
 }
 
-async function cohortByCode(
-  ctx: MutationCtx,
-  code: string,
-): Promise<Doc<"cohorts">> {
-  const cohort = await ctx.db
-    .query("cohorts")
-    .withIndex("by_status", (q) => q.eq("status", "active"))
-    .collect()
-  const found = cohort.find((item) => item.code === code)
-  if (found) return found
-  const all = await ctx.db.query("cohorts").collect()
-  const any = all.find((item) => item.code === code)
-  if (!any) throw new Error(`Seed cohort missing: ${code}`)
-  return any
-}
 
-async function enrollmentFor(
-  ctx: MutationCtx,
-  studentId: Id<"users">,
-  cohortId: Id<"cohorts">,
-): Promise<Doc<"enrollments">> {
-  const rows = await ctx.db
-    .query("enrollments")
-    .withIndex("by_student_cohort", (q) =>
-      q.eq("studentId", studentId).eq("cohortId", cohortId),
-    )
-    .collect()
-  if (!rows[0]) throw new Error("Seed enrollment missing")
-  return rows[0]
-}
 
 async function evidenceStorageId(
   ctx: MutationCtx,
@@ -1291,6 +1237,68 @@ export const seedPeople = internalMutation({
 
     const byKey = new Map<string, Doc<"users">>()
     byKey.set("admin", admin)
+
+    // The admin account is preserved across reseeds, but its projections are
+    // rebuilt so the workspace never shows an empty role/consent/session panel.
+    await ctx.db.insert("roleAssignments", {
+      userId: admin._id,
+      role: "admin",
+      action: "grant",
+      actorId: "system",
+      reason: "Admin bootstrap preserved across seed",
+      createdAt: ago(180),
+    })
+    await ctx.db.insert("consents", {
+      userId: admin._id,
+      kind: "privacy",
+      granted: true,
+      version: "2026-11",
+      source: "bootstrap",
+      grantedAt: ago(180),
+      createdAt: ago(180),
+    })
+    await ctx.db.insert("consents", {
+      userId: admin._id,
+      kind: "recording",
+      granted: true,
+      version: "2026-11",
+      source: "bootstrap",
+      grantedAt: ago(180),
+      createdAt: ago(180),
+    })
+    await ctx.db.insert("whatsappVerifications", {
+      userId: admin._id,
+      phone: admin.phone,
+      tokenHash: await sha256("seed-verification-admin"),
+      status: "verified",
+      expiresAt: ago(170),
+      createdAt: ago(180),
+      verifiedAt: ago(179),
+      messageId: "seed-wa-admin",
+    })
+    await ctx.db.insert("authLogs", {
+      userId: admin._id,
+      authUserId: admin.authUserId,
+      kind: "sign_in",
+      ipHash: "seed-ip-admin",
+      userAgent: "KalaNidhiSeed",
+      createdAt: ago(1),
+    })
+    const adminSessions = await ctx.db
+      .query("sessions")
+      .withIndex("by_userId", (q) => q.eq("userId", admin._id))
+      .collect()
+    if (adminSessions.length === 0) {
+      await ctx.db.insert("sessions", {
+        userId: admin._id,
+        authSessionId: "seed-session-admin",
+        deviceName: "Peramban",
+        userAgent: "KalaNidhiSeed",
+        createdAt: ago(1),
+        lastSeenAt: ago(0),
+        expiresAt: ahead(30),
+      })
+    }
 
     for (const [index, seed] of SEED_USERS.entries()) {
       const userId = await ctx.db.insert("users", {
@@ -2084,7 +2092,7 @@ export const seedCommerce = internalMutation({
     const paymentIds = new Map<string, Id<"payments">>()
     const payoutIds = new Map<string, Id<"payouts">>()
 
-    for (const [index, seed] of orders.entries()) {
+    for (const seed of orders) {
       const buyer = await userByEmail(
         ctx,
         `${seed.buyerKey}@kalanidhi.site`,

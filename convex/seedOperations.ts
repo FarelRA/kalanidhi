@@ -685,7 +685,6 @@ export const seedOps = internalMutation({
     const rani = await userByEmail(ctx, "rani@kalanidhi.site")
     const purnomo = await userByEmail(ctx, "purnomo@kalanidhi.site")
     const order1 = await orderByCode(ctx, "KN-2026-000101")
-    const order4 = await orderByCode(ctx, "KN-2026-000104")
     const submission = await submissionByCode(ctx, "TUG-DWI-BTS-2")
     const certificate = await certificateByCode(ctx, "KN-ANISA-2026")
     const work = await workBySlug(ctx, "batik-soga-lereng")

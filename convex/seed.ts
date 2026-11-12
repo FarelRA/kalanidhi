@@ -108,8 +108,10 @@ async function clearTable(ctx: MutationCtx, table: string) {
   // The table list is a closed union of every domain table. Convex's typed
   // query builder cannot infer a single table from a runtime string, so the
   // seed uses the documented escape hatch here only.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const documents = await ctx.db.query(table as any).collect()
   for (const document of documents) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await ctx.db.delete(table as any, document._id)
   }
 }
