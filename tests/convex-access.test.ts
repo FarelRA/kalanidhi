@@ -7,7 +7,7 @@ import {
   assertScope,
   requireCapability,
 } from "../convex/access"
-import { api } from "../convex/_generated/api"
+import { api, internal } from "../convex/_generated/api"
 import type { Id } from "../convex/_generated/dataModel"
 
 const NOW = 1_760_000_000_000
@@ -433,7 +433,7 @@ describe("capability and scope guards", () => {
 describe("users mutations", () => {
   it("bootstraps the first admin once and records the grant", async () => {
     const t = testDb()
-    const userId = await t.mutation(api.users.bootstrapAdmin, {
+    const userId = await t.mutation(internal.users.bootstrapAdmin, {
       authUserId: "auth-first-admin",
       email: "admin@example.test",
       name: "Nadia Kusuma",
@@ -453,7 +453,7 @@ describe("users mutations", () => {
     expect(assignments[0]?.action).toBe("grant")
 
     await expect(
-      t.mutation(api.users.bootstrapAdmin, {
+      t.mutation(internal.users.bootstrapAdmin, {
         authUserId: "auth-second-admin",
         email: "second@example.test",
         name: "Second",

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { api } from "../../convex/_generated/api"
+import { api, internal } from "../../convex/_generated/api"
 import { createTestDb } from "../helpers/convex"
 import {
   contentFixture,
@@ -235,12 +235,12 @@ describe("content CMS / draft and publish", () => {
       if (revision) await ctx.db.patch(revision._id, { scheduledFor: Date.now() - 1 })
     })
 
-    const result = await t.mutation(api.content.runScheduledPublish, {})
+    const result = await t.mutation(internal.content.runScheduledPublish, {})
     expect(result.published).toEqual([saved.version])
     expect((await t.query(api.content.getSite, {}))?.hero.description).toBe(
       "Terbit terjadwal.",
     )
-    const again = await t.mutation(api.content.runScheduledPublish, {})
+    const again = await t.mutation(internal.content.runScheduledPublish, {})
     expect(again.published).toEqual([])
   })
 })
@@ -375,7 +375,7 @@ describe("content CMS / entities and validation", () => {
       })
     })
 
-    const result = await t.mutation(api.content.runScheduledPublish, {})
+    const result = await t.mutation(internal.content.runScheduledPublish, {})
     expect(result.failed).toEqual([51])
 
     const revision = await t.run(async (ctx) => {

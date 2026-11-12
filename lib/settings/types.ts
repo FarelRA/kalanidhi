@@ -1,3 +1,5 @@
+import type { FlowKey } from "../flows/definitions"
+
 /** Serialisable settings and integration view types. */
 
 export type ProfilePreferences = {
@@ -140,7 +142,7 @@ export type AdminSettingsState = {
   invites: PendingInviteView[]
   slas: {
     key: string
-    flowKey: string
+    flowKey: FlowKey
     name: string
     targetMinutes: number
     escalationMinutes: number | null

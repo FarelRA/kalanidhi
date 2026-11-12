@@ -398,7 +398,7 @@ function MediaPanel() {
                 ? "video"
                 : "document"
           : "image",
-        storageId,
+        storageId: storageId as Id<"_storage"> | undefined,
         externalUrl: storageId ? undefined : externalUrl.trim(),
         filename: file?.name ?? externalUrl.split("/").at(-1) ?? "asset.png",
         mimeType: file?.type ?? "image/png",

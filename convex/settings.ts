@@ -1,5 +1,7 @@
 import { ConvexError, v } from "convex/values"
 
+import type { FlowKey } from "../lib/flows/definitions"
+
 import type {
   AdminSettingsState,
   ApiKeyMetadataView,
@@ -514,7 +516,7 @@ export const adminState = query({
         .sort((a, b) => a.flowKey.localeCompare(b.flowKey))
         .map((row) => ({
           key: row.key,
-          flowKey: row.flowKey,
+          flowKey: row.flowKey as FlowKey,
           name: row.name,
           targetMinutes: row.targetMinutes,
           escalationMinutes: row.escalationMinutes ?? null,

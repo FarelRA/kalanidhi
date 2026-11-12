@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { api } from "../../convex/_generated/api"
+import { api, internal } from "../../convex/_generated/api"
 import type { Id } from "../../convex/_generated/dataModel"
 import {
   as,
@@ -118,7 +118,7 @@ describe("voice notes and uploads", () => {
       },
     )
     const systemId = await t.mutation(
-      api.messaging.ensureSystemConversation,
+      internal.messaging.ensureSystemConversation,
       {
         userId: world.studentId,
         title: "Pengingat",

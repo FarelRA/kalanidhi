@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 
-import { api } from "../../convex/_generated/api"
+import { api, internal } from "../../convex/_generated/api"
 import {
   as,
   auditActions,
@@ -198,7 +198,7 @@ describe("chat membership", () => {
     const world = await seedWorld(t)
 
     const conversationId = await t.mutation(
-      api.messaging.ensureSystemConversation,
+      internal.messaging.ensureSystemConversation,
       {
         userId: world.studentId,
         title: "Pengingat kohort",

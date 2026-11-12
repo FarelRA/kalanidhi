@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { api } from "../../convex/_generated/api"
+import type { Id } from "../../convex/_generated/dataModel"
 import { DAY, NOW, createPhase2Db, seedPhase2, submitAndGrade } from "./fixtures"
 
 describe("assessments / submissions", () => {
@@ -54,7 +55,7 @@ describe("assessments / submissions", () => {
       api.assessments.addAsset,
       {
         submissionId: draft.submissionId,
-        storageId: "00000000000000000000000000000000_storage",
+        storageId: "00000000000000000000000000000000_storage" as Id<"_storage">,
         kind: "image",
         filename: "proses.jpg",
         mimeType: "image/jpeg",
@@ -65,7 +66,7 @@ describe("assessments / submissions", () => {
       api.assessments.addAsset,
       {
         submissionId: draft.submissionId,
-        storageId: "00000000000000000000000000000001_storage",
+        storageId: "00000000000000000000000000000001_storage" as Id<"_storage">,
         kind: "audio",
         filename: "catatan.webm",
         mimeType: "audio/webm",
@@ -78,7 +79,7 @@ describe("assessments / submissions", () => {
         api.assessments.addAsset,
         {
           submissionId: draft.submissionId,
-          storageId: "00000000000000000000000000000002_storage",
+          storageId: "00000000000000000000000000000002_storage" as Id<"_storage">,
           kind: "image",
           filename: "ketiga.jpg",
           mimeType: "image/jpeg",
@@ -92,7 +93,7 @@ describe("assessments / submissions", () => {
         api.assessments.addAsset,
         {
           submissionId: draft.submissionId,
-          storageId: "00000000000000000000000000000003_storage",
+          storageId: "00000000000000000000000000000003_storage" as Id<"_storage">,
           kind: "file",
           filename: "skrip.exe",
           mimeType: "application/x-msdownload",
@@ -106,7 +107,7 @@ describe("assessments / submissions", () => {
         api.assessments.addAsset,
         {
           submissionId: draft.submissionId,
-          storageId: "00000000000000000000000000000004_storage",
+          storageId: "00000000000000000000000000000004_storage" as Id<"_storage">,
           kind: "video",
           filename: "besar.mp4",
           mimeType: "video/mp4",

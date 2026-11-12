@@ -389,6 +389,8 @@ export const getSubmission = query({
       })),
       disputes: disputes.map((dispute) => ({
         id: dispute._id,
+        subjectType: dispute.subjectType,
+        subjectId: dispute.subjectId,
         status: dispute.status,
         reason: dispute.reason,
         resolution: dispute.resolution ?? null,

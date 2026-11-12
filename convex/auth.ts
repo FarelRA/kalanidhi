@@ -9,9 +9,12 @@ import type { DataModel } from "./_generated/dataModel"
 import authConfig from "./auth.config"
 import { initialsFor } from "../lib/access/viewer"
 
-const authFunctions = (internal as unknown as { auth: AuthFunctions }).auth
+const authFunctions: AuthFunctions = (
+  internal as unknown as { auth: AuthFunctions }
+).auth
 
-export const authComponent = createClient<DataModel>(components.betterAuth, {
+export const authComponent: ReturnType<typeof createClient<DataModel>> =
+  createClient<DataModel>(components.betterAuth, {
   authFunctions,
   triggers: {
     user: {
