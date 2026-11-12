@@ -78,6 +78,35 @@ function PaymentBlock({
   token: string
 }) {
   const [copied, setCopied] = React.useState(false)
+  const [qrImage, setQrImage] = React.useState<{
+    payload: string
+    url: string
+  } | null>(null)
+  const qrPayload = payment?.qrString ?? null
+  const localQrImage =
+    qrImage && qrImage.payload === qrPayload ? qrImage.url : null
+
+  React.useEffect(() => {
+    if (!qrPayload || payment?.qrImageUrl) return
+    let cancelled = false
+    void import("qrcode")
+      .then((mod) =>
+        mod.toDataURL(qrPayload, {
+          margin: 1,
+          width: 320,
+          errorCorrectionLevel: "M",
+        }),
+      )
+      .then((url) => {
+        if (!cancelled) setQrImage({ payload: qrPayload, url })
+      })
+      .catch(() => {
+        // Keep the payload fallback; no local image.
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [qrPayload, payment?.qrImageUrl])
 
   if (!payment) {
     return (
@@ -95,7 +124,6 @@ function PaymentBlock({
 
   const manual = payment.provider === "manual_transfer"
   const settled = payment.status === "paid"
-  const qrPayload = payment.qrString
 
   async function copyPayload() {
     if (!qrPayload) return
@@ -150,13 +178,21 @@ function PaymentBlock({
                 alt={`Kode QRIS untuk pesanan ${payment.orderCode}`}
                 className="h-auto w-full"
               />
+            ) : localQrImage ? (
+              // Rendered locally from the QRIS payload; never sent to a third party.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={localQrImage}
+                alt={`Kode QRIS untuk pesanan ${payment.orderCode}`}
+                className="h-auto w-full"
+              />
             ) : payment.qrString ? (
               <div className="flex min-h-36 items-center justify-center border border-dashed border-ink/25 p-3 text-center">
                 <div>
                   <QrCode className="mx-auto size-6 text-ink-muted" aria-hidden="true" />
                   <p className="mt-2 text-[9.5px] leading-relaxed text-ink-muted">
-                    Kode QRIS tersedia sebagai muatan teks. Tampilkan atau salin
-                    untuk aplikasi pembayaran yang mendukung QRIS teks.
+                    Menyiapkan kode QRIS. Bila tidak muncul, salin muatan teks di
+                    samping.
                   </p>
                 </div>
               </div>
