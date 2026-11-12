@@ -143,7 +143,7 @@ convex/
   seed.ts                  Seed konten + orkestrasi domain
   seedWorkspace.ts         Seed pengguna, kurikulum, kohort, sertifikat, commerce
   seedOperations.ts        Seed pesan, panggilan, operasi, setelan, tata kelola, metrik
-  seedData.ts              Sumber data awal untuk seed dan fallback
+  seedData.ts              Sumber data awal untuk seed konten dan entitas
 components/
   landing/                 Section landing: bangku, lingkaran, rak bahan, jalur, pengajar,
                            karya, etika, musim, institusi, catatan peserta, FAQ, penutup
@@ -156,7 +156,6 @@ components/
   brand/                   Logo bench ring dan wordmark
 lib/
   content/types.ts         Tipe konten yang dipakai app dan Convex
-  content/fallback.ts      Data fallback saat Convex belum dikonfigurasi
   convex/server.ts         getSiteData, persistLead, dan deteksi konfigurasi Convex
   forms/lead.ts            Tipe dan state awal form lead
   preferences.ts           Store preferensi hemat kuota
@@ -165,15 +164,16 @@ lib/
 hooks/
   use-active-section.ts    Navigasi aktif via IntersectionObserver
   use-data-saver.ts        Preferensi hemat kuota
-public/images/             Aset visual landing page, dirujuk sebagai path string
+seed/images/               Sumber unggah gambar; runtime memakai URL Convex storage
 reference/                 Dokumen konteks proposal (bukan bagian runtime)
 ```
 
 ## Konten dari Convex
 
-Semua teks utama, nama, harga, jadwal, atribusi, navigasi, dialog, metadata, dan copy
-section disimpan di Convex. Tabel `siteContent` menyimpan satu dokumen `site` berisi
-konten tunggal; tabel lain menyimpan entitas yang bisa berubah sendiri-sendiri:
+Semua teks utama, navigasi, dialog, metadata, dan copy section disimpan di Convex.
+Tabel `siteContent` hanya menyimpan copy editorial dan pilihan `featured` (node mana
+yang tampil di landing). Data entitas tidak disalin ke dokumen itu; landing membacanya
+langsung dari tabel masing-masing:
 
 - `catalogFields`: bidang budaya dan status kesiapannya
 - `paths`: jalur belajar
@@ -183,22 +183,30 @@ konten tunggal; tabel lain menyimpan entitas yang bisa berubah sendiri-sendiri:
 - `faqs`: pertanyaan umum
 - `leads`: pendaftaran, konsultasi, institusi, dan langganan kabar
 
-`convex/content.ts` merakit semuanya menjadi satu objek `SiteData` yang dipakai
-`app/layout.tsx` dan `app/page.tsx`. Server Component mengambil data lewat
+`convex/content.ts` merakit copy dan entitas terpilih menjadi satu objek `SiteData`
+yang dipakai `app/layout.tsx` dan `app/page.tsx`. Server Component mengambil data lewat
 `getSiteData()` di `lib/convex/server.ts`, lalu meneruskannya sebagai props ke section.
-Dengan begitu tidak ada copy landing yang diimpor langsung dari file statis.
+Gambar selalu berupa URL Convex storage; tidak ada copy landing atau gambar statis yang
+diimpor langsung dari file publik.
+
+Halaman admin Konten hanya untuk copywriting. Pemilihan jalur, pengajar, karya,
+testimoni, bidang katalog, FAQ, dan karya untuk Kartu Karya hero dilakukan di halaman
+`/ruang/konten/unggulan`. Data entitas tidak pernah diketik di editor konten.
 
 ### Mengubah konten
 
-1. Setelah `npx convex dev` berjalan, buka dashboard Convex untuk mengedit dokumen.
-2. Atau ubah data awal di `convex/seedData.ts`, lalu jalankan
-   `npm run convex:seed`. Seed mengosongkan tabel konten dan mengisinya ulang; tabel
-   `leads` tidak dihapus.
+1. Copy landing diedit di Konten; simpan draf lalu terbitkan. Riwayat revisi tetap
+   tersedia untuk pembalikan.
+2. Pilihan node landing disimpan lewat halaman `/ruang/konten/unggulan`.
 3. Untuk menambah jalur, pengajar, karya, atau bidang, tambahkan entri di
-   `convex/seedData.ts` atau dashboard. Urutan tampil memakai field `order`.
+   `convex/seedData.ts` atau dashboard domain terkait. Urutan tampil memakai field
+   `order`.
+4. Jalankan `npm run convex:seed` hanya bila ingin mengisi ulang seluruh data domain;
+   tabel `leads` tidak dihapus.
 
-Gambar berada di `public/images/` dan disimpan sebagai path string di konten. Ganti
-path, nama, harga, dan atribusi di Convex; komponen akan mengikuti.
+Gambar sumber berada di `seed/images/`. Jalankan `npm run images:upload` untuk
+mengunggahnya ke Convex storage dan mendaftarkannya di `mediaAssets`; seed akan gagal
+jika ada `imageFile` yang belum terdaftar.
 
 ## Keputusan implementasi
 
@@ -206,8 +214,8 @@ path, nama, harga, dan atribusi di Convex; komponen akan mengikuti.
   untuk dialog, pencarian, preferensi, dan form.
 - **Convex sebagai sumber data**: konten diambil di server dengan `fetchQuery`, bukan
   diimpor dari file. Form memakai `fetchMutation` dan menyimpan lead ke tabel `leads`.
-- **Fallback aman**: tanpa URL Convex, app memakai seed yang sama agar build, preview,
-  dan pengembangan UI tetap berjalan.
+- **Tanpa fallback entitas**: tanpa data Convex, build gagal dengan pesan yang jelas.
+  Admin tidak mengetik data entitas; landing membacanya langsung dari tabel domain.
 - **Satu momen gerak**: hanya foto hero dan tag Kartu Karya yang masuk dengan
   animasi. Tidak ada fade-up per section. Reduced motion dan mode hemat kuota
   dihormati.

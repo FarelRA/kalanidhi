@@ -1,5 +1,5 @@
 import type { Id } from "../../convex/_generated/dataModel"
-import type { SiteData } from "../../lib/content/types"
+import type { ContentDocument } from "../../lib/content/types"
 import {
   catalogFieldsSeed,
   faqsSeed,
@@ -15,7 +15,7 @@ export const NOW = 1_760_000_000_000
 export const FIXTURE_IMAGE = "https://storage.example.test/seed.jpg"
 
 /** Deterministic, schema-valid content document built from the shipped copy. */
-export function contentFixture(): SiteData {
+export function contentFixture(): ContentDocument {
   return {
     ...structuredClone(siteSeed),
     hero: {
@@ -32,38 +32,37 @@ export function contentFixture(): SiteData {
         url: FIXTURE_IMAGE,
       },
     },
-    catalog: {
-      ...structuredClone(siteSeed.catalog),
-      fields: catalogFieldsSeed.map((field, index) => ({
-        ...structuredClone(field),
-        order: index,
-      })),
+    featured: {
+      pathSlugs: pathsSeed.map((path) => path.slug),
+      teacherSlugs: teachersSeed.map((teacher) => teacher.slug),
+      workSlugs: worksSeed.map((work) => work.slug),
+      testimonialIds: [],
+      catalogFieldKeys: catalogFieldsSeed.map((field) => field.name),
+      faqKeys: [],
+      heroWorkSlug: worksSeed.length > 0 ? worksSeed[0].slug : null,
     },
-    paths: pathsSeed.map(({ imageFile, ...path }, index) => {
-      void imageFile
-      return { ...structuredClone(path), image: FIXTURE_IMAGE, order: index }
-    }),
-    teachers: teachersSeed.map(({ imageFile, ...teacher }, index) => {
-      void imageFile
-      return { ...structuredClone(teacher), image: FIXTURE_IMAGE, order: index }
-    }),
-    works: worksSeed.map(({ imageFile, ...work }, index) => {
-      void imageFile
-      return { ...structuredClone(work), image: FIXTURE_IMAGE, order: index }
-    }),
-    testimonials: testimonialsSeed.map((testimonial, index) => ({
-      ...structuredClone(testimonial),
-      order: index,
-    })),
-    faqs: faqsSeed.map((faq, index) => ({
-      ...structuredClone(faq),
-      order: index,
-    })),
-  } as SiteData
+  }
+}
+
+function teacherIndexFor(name: string): number {
+  const index = teachersSeed.findIndex((teacher) => teacher.name === name)
+  return index >= 0 ? index : 0
 }
 
 export async function seedContent(t: TestDb): Promise<void> {
   const data = contentFixture()
+
+  const teacherUsers: Id<"users">[] = []
+  for (const teacher of teachersSeed) {
+    teacherUsers.push(
+      await seedStudent(t, `auth-teacher-${teacher.slug}`, teacher.name),
+    )
+  }
+  const makerUsers: Id<"users">[] = []
+  for (const work of worksSeed) {
+    makerUsers.push(await seedStudent(t, `auth-maker-${work.slug}`, work.maker))
+  }
+
   await t.run(async (ctx) => {
     const imageAssetId = await ctx.db.insert("mediaAssets", {
       kind: "image",
@@ -77,71 +76,53 @@ export async function seedContent(t: TestDb): Promise<void> {
       createdAt: NOW,
     })
 
-    const {
-      hero,
-      metadata,
-      catalog,
-      paths,
-      teachers,
-      works,
-      testimonials,
-      faqs,
-      ...copy
-    } = data
-
-    await ctx.db.insert("siteContent", {
-      key: "site",
-      value: {
-        ...copy,
-        hero: {
-          ...hero,
-          plate: {
-            alt: hero.plate.alt,
-            caption: hero.plate.caption,
-            note: hero.plate.note,
-            imageAssetId,
-          },
-        },
-        metadata: {
-          ...metadata,
-          image: {
-            width: metadata.image.width,
-            height: metadata.image.height,
-            alt: metadata.image.alt,
-            imageAssetId,
-          },
-        },
-        catalog: {
-          label: catalog.label,
-          title: catalog.title,
-          description: catalog.description,
-          cta: catalog.cta,
-          groups: catalog.groups,
-        },
-      },
-      updatedAt: NOW,
-    })
-
-    for (const [index, field] of catalog.fields.entries()) {
+    for (const [index, field] of catalogFieldsSeed.entries()) {
       await ctx.db.insert("catalogFields", { order: index, ...field })
     }
-    for (const [index, path] of paths.entries()) {
-      const { image, ...rest } = path
-      void image
+
+    for (const [index, path] of pathsSeed.entries()) {
+      const { imageFile, ...rest } = path
+      void imageFile
+      const teacher = teacherUsers[teacherIndexFor(rest.teacher)]
       await ctx.db.insert("paths", {
         ...rest,
         order: index,
-        status: "open",
+        status: rest.comingSoon ? "planned" : "open",
+        teacherId: teacher,
         createdAt: NOW,
         imageAssetId,
       })
+      const moduleId = await ctx.db.insert("pathModules", {
+        order: 1,
+        pathId: path.slug,
+        title: `Modul ${path.title}`,
+        summary: "Modul uji",
+        estimatedMinutes: 60,
+        status: "published",
+        createdAt: NOW,
+      })
+      await ctx.db.insert("lessons", {
+        order: 1,
+        moduleId,
+        pathId: path.slug,
+        title: `Pelajaran ${path.title}`,
+        kind: "text",
+        body: "Materi uji",
+        mediaAssetIds: [imageAssetId],
+        estimatedMinutes: 30,
+        accessLevel: "public",
+        status: "published",
+        createdAt: NOW,
+      })
     }
-    for (const [index, teacher] of teachers.entries()) {
-      const { image, ...rest } = teacher
-      void image
+
+    for (const [index, teacher] of teachersSeed.entries()) {
+      const { imageFile, ...rest } = teacher
+      void imageFile
       await ctx.db.insert("teachers", {
         ...rest,
         order: index,
+        userId: teacherUsers[index],
         status: "active",
         published: true,
         verificationStatus: "verified",
@@ -149,23 +130,166 @@ export async function seedContent(t: TestDb): Promise<void> {
         imageAssetId,
       })
     }
-    for (const [index, work] of works.entries()) {
-      const { image, ...rest } = work
-      void image
-      await ctx.db.insert("works", {
+
+    const cohortByPath = new Map<string, Id<"cohorts">>()
+    for (const path of pathsSeed) {
+      const cohortId = await ctx.db.insert("cohorts", {
+        code: `COH-${path.slug}`,
+        pathId: path.slug,
+        teacherId: teacherUsers[teacherIndexFor(path.teacher)],
+        title: `Angkatan ${path.title}`,
+        startDate: NOW,
+        endDate: NOW + 30 * 86_400_000,
+        capacity: 12,
+        timezone: "Asia/Jakarta",
+        status: "active",
+        createdAt: NOW,
+        updatedAt: NOW,
+      })
+      cohortByPath.set(path.slug, cohortId)
+    }
+
+    const workIds: Id<"works">[] = []
+    for (const [index, work] of worksSeed.entries()) {
+      const { imageFile, ...rest } = work
+      void imageFile
+      const workId = await ctx.db.insert("works", {
         ...rest,
         order: index,
         status: "published",
-        createdAt: NOW,
+        makerId: makerUsers[index],
+        pathId: pathsSeed[index % pathsSeed.length].slug,
         imageAssetId,
+        createdAt: NOW,
+      })
+      workIds.push(workId)
+    }
+
+    const testimonialIds: string[] = []
+    for (const [index, testimonial] of testimonialsSeed.entries()) {
+      const id = await ctx.db.insert("testimonials", {
+        order: index,
+        ...testimonial,
+      })
+      testimonialIds.push(id)
+    }
+
+    const faqIds: string[] = []
+    for (const [index, faq] of faqsSeed.entries()) {
+      const id = await ctx.db.insert("faqs", { order: index, ...faq })
+      faqIds.push(id)
+    }
+
+    const certificateIds: Id<"certificates">[] = []
+    for (const [index, work] of worksSeed.entries()) {
+      const path = pathsSeed[index % pathsSeed.length]
+      const teacher = teacherUsers[teacherIndexFor(path.teacher)]
+      const maker = makerUsers[index]
+      const cohortId = cohortByPath.get(path.slug)
+      if (!cohortId) continue
+
+      const enrollmentId = await ctx.db.insert("enrollments", {
+        studentId: maker,
+        pathId: path.slug,
+        cohortId,
+        status: "completed",
+        enrolledAt: NOW,
+        completedAt: NOW,
+        createdAt: NOW,
+        updatedAt: NOW,
+      })
+      const submissionId = await ctx.db.insert("submissions", {
+        code: `TUG-UJI-${index + 1}`,
+        studentId: maker,
+        enrollmentId,
+        cohortId,
+        pathId: path.slug,
+        taskTitle: "Tugas uji",
+        status: "approved",
+        dueAt: NOW,
+        assetIds: [],
+        revisionCount: 0,
+        createdAt: NOW,
+        updatedAt: NOW,
+      })
+      const assessmentId = await ctx.db.insert("assessments", {
+        submissionId,
+        assessorId: teacher,
+        status: "completed",
+        rubric: [],
+        score: 90,
+        createdAt: NOW,
+        updatedAt: NOW,
+      })
+      const certificateId = await ctx.db.insert("certificates", {
+        serial: `KN-UJI-${index + 1}`,
+        publicCode: `PUB-UJI-${index + 1}`,
+        studentId: maker,
+        pathId: path.slug,
+        teacherId: teacher,
+        assessmentId,
+        status: "issued",
+        issuedAt: NOW,
+        snapshot: {
+          studentName: work.maker,
+          pathTitle: path.title,
+          teacherName: path.teacher,
+          assessmentScore: 90,
+          issuedAt: NOW,
+        },
+        createdAt: NOW,
+        updatedAt: NOW,
+      })
+      certificateIds.push(certificateId)
+      await ctx.db.patch(workIds[index], { certificateId })
+      await ctx.db.insert("workCards", {
+        workId: workIds[index],
+        certificateId,
+        makerId: maker,
+        serial: work.workCard,
+        title: work.title,
+        technique: work.technique,
+        materials: "Bahan uji",
+        provenance: work.region,
+        permission: "Izin uji",
+        accessLevel: "public",
+        status: "published",
+        createdAt: NOW,
+        updatedAt: NOW,
       })
     }
-    for (const [index, testimonial] of testimonials.entries()) {
-      await ctx.db.insert("testimonials", { order: index, ...testimonial })
+
+    const featured = {
+      ...data.featured,
+      testimonialIds,
+      faqKeys: faqIds,
     }
-    for (const [index, faq] of faqs.entries()) {
-      await ctx.db.insert("faqs", { order: index, ...faq })
-    }
+    await ctx.db.insert("siteContent", {
+      key: "site",
+      value: {
+        ...data,
+        hero: {
+          ...data.hero,
+          plate: {
+            alt: data.hero.plate.alt,
+            caption: data.hero.plate.caption,
+            note: data.hero.plate.note,
+            imageAssetId,
+          },
+        },
+        metadata: {
+          ...data.metadata,
+          image: {
+            width: data.metadata.image.width,
+            height: data.metadata.image.height,
+            alt: data.metadata.image.alt,
+            imageAssetId,
+          },
+        },
+        featured,
+      },
+      updatedAt: NOW,
+    })
   })
 }
 

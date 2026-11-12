@@ -17,6 +17,9 @@ type Selection = {
   teacherSlugs: string[]
   workSlugs: string[]
   testimonialIds: string[]
+  catalogFieldKeys: string[]
+  faqKeys: string[]
+  heroWorkSlug: string | null
 }
 
 function toggle(list: string[], value: string): string[] {
@@ -42,6 +45,9 @@ export function FeaturedPanel() {
         teacherSlugs: data.teachers.map((item) => item.slug),
         workSlugs: data.works.map((item) => item.slug),
         testimonialIds: data.testimonials.map((item) => item.id),
+        catalogFieldKeys: data.catalogFields.map((item) => item.key),
+        faqKeys: data.faqs.map((item) => item.key),
+        heroWorkSlug: data.works[0]?.slug ?? null,
       },
     )
   }, [data])
@@ -76,7 +82,7 @@ export function FeaturedPanel() {
       <PageHeader
         eyebrow="Landing"
         title="Pilih yang tampil, bukan mengetik ulang."
-        description="Katalog, pengajar, karya, dan testimoni diambil langsung dari data Convex. Pilihan di sini hanya menentukan mana yang tampil dan urutannya."
+        description="Jalur, pengajar, karya, testimoni, bidang katalog, dan FAQ diambil langsung dari tabel Convex. Pilihan di sini hanya menentukan mana yang tampil, urutannya, dan karya untuk Kartu Karya hero. Tidak ada data entitas yang diketik di sini."
         actions={
           <Button onClick={() => void submit()} disabled={pending}>
             <Save aria-hidden="true" />
@@ -200,6 +206,110 @@ export function FeaturedPanel() {
               </li>
             ))}
           </ul>
+        </Panel>
+
+        <Panel eyebrow="Bidang" title="Bidang katalog">
+          <ul className="space-y-2">
+            {data.catalogFields.map((item) => (
+              <li key={item.key}>
+                <label className="flex items-center gap-2 text-[11.5px] text-ink">
+                  <input
+                    type="checkbox"
+                    checked={selection.catalogFieldKeys.includes(item.key)}
+                    onChange={() =>
+                      setSelection((current) =>
+                        current
+                          ? {
+                              ...current,
+                              catalogFieldKeys: toggle(
+                                current.catalogFieldKeys,
+                                item.key,
+                              ),
+                            }
+                          : current,
+                      )
+                    }
+                  />
+                  <span>
+                    <span className="block">{item.name}</span>
+                    <span className="mt-0.5 block text-[10px] text-ink-muted">
+                      {item.region} · {item.status}
+                    </span>
+                  </span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+
+        <Panel eyebrow="FAQ" title="Pertanyaan yang tampil">
+          <ul className="space-y-2">
+            {data.faqs.map((item) => (
+              <li key={item.key}>
+                <label className="flex items-start gap-2 text-[11.5px] text-ink">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={selection.faqKeys.includes(item.key)}
+                    onChange={() =>
+                      setSelection((current) =>
+                        current
+                          ? {
+                              ...current,
+                              faqKeys: toggle(current.faqKeys, item.key),
+                            }
+                          : current,
+                      )
+                    }
+                  />
+                  {item.question}
+                </label>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+
+        <Panel eyebrow="Hero" title="Kartu Karya hero" className="lg:col-span-2">
+          <fieldset>
+            <legend className="sr-only">Pilih karya untuk Kartu Karya hero</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {data.works.map((item) => (
+                <label
+                  key={item.slug}
+                  className="flex items-center gap-2 border border-ink/15 bg-paper-2 px-3 py-2 text-[11.5px] text-ink"
+                >
+                  <input
+                    type="radio"
+                    name="hero-work"
+                    checked={selection.heroWorkSlug === item.slug}
+                    onChange={() =>
+                      setSelection((current) =>
+                        current
+                          ? { ...current, heroWorkSlug: item.slug }
+                          : current,
+                      )
+                    }
+                  />
+                  {item.title}
+                </label>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                setSelection((current) =>
+                  current ? { ...current, heroWorkSlug: null } : current,
+                )
+              }
+              className="mt-3 inline-flex min-h-9 items-center border border-ink/20 px-3 text-[10px] font-bold uppercase tracking-[0.06em] text-ink-muted hover:text-ink"
+            >
+              Kosongkan Kartu Karya hero
+            </button>
+            <p className="mt-2 text-[10px] leading-relaxed text-ink-muted">
+              Serial, judul karya, pembuat, dan pengajar diambil dari karya,
+              Kartu Karya, dan akun yang tertaut.
+            </p>
+          </fieldset>
         </Panel>
       </div>
 

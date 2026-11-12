@@ -83,7 +83,7 @@ export function ContentCms() {
       <PageHeader
         eyebrow="Konten"
         title="Halaman depan, dari bangku ini."
-        description="Setiap teks dan entitas di landing dapat diedit, dipratinjau, lalu diterbitkan. Perubahan disimpan sebagai revisi dan bisa dibalik."
+        description="Halaman ini hanya untuk copywriting. Data pengajar, jalur, karya, dan bidang dibaca langsung dari tabel Convex; pilih yang tampil di halaman pilihan landing. Perubahan copy disimpan sebagai revisi dan bisa dibalik."
         meta={
           <div className="flex flex-wrap items-center gap-2">
             <StatusStamp

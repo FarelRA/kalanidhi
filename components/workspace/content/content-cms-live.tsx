@@ -12,7 +12,6 @@ import {
   Save,
   Send,
   Trash2,
-  Upload,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -25,10 +24,8 @@ import { PageHeader } from "@/components/workspace/data/page-header"
 import { Panel } from "@/components/workspace/data/panel"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { api } from "@/convex/_generated/api"
-import type { Id } from "@/convex/_generated/dataModel"
-import type { MediaAssetView } from "@/lib/admin/types"
-import type { SiteData } from "@/lib/content/types"
-import { validateSiteData } from "@/lib/validation/content"
+import type { ContentDocument } from "@/lib/content/types"
+import { validateContentDocument } from "@/lib/validation/content"
 import { useMutation, useQuery } from "convex/react"
 import { cn } from "cn"
 
@@ -49,15 +46,6 @@ const GROUPS: { id: string; label: string; path: string[] }[] = [
   { id: "mobileCta", label: "CTA ponsel", path: ["mobileCta"] },
   { id: "leadDialogs", label: "Dialog lead", path: ["leadDialogs"] },
   { id: "metadata", label: "Metadata dan SEO", path: ["metadata"] },
-]
-
-const ENTITY_GROUPS: { id: string; label: string; path: string[] }[] = [
-  { id: "fields", label: "Bidang katalog", path: ["catalog", "fields"] },
-  { id: "paths", label: "Jalur belajar", path: ["paths"] },
-  { id: "teachers", label: "Pengajar publik", path: ["teachers"] },
-  { id: "works", label: "Karya dan jasa", path: ["works"] },
-  { id: "testimonials", label: "Catatan peserta", path: ["testimonials"] },
-  { id: "faqs", label: "Pertanyaan umum", path: ["faqs"] },
 ]
 
 function getValue(root: unknown, path: string[]): unknown {
@@ -93,69 +81,6 @@ function setValue(root: unknown, path: string[], value: unknown): unknown {
 function templateFor(path: string[]): unknown {
   const key = path.join(".")
   const templates: Record<string, unknown> = {
-    "catalog.fields": {
-      name: "Bidang baru",
-      region: "Yogyakarta",
-      status: "Direncanakan",
-      note: "",
-    },
-    paths: {
-      slug: "jalur-baru",
-      code: "Jalur baru",
-      title: "Jalur baru",
-      subtitle: "",
-      teacher: "",
-      teacherRole: "Pengajar",
-      region: "Yogyakarta",
-      level: "Pemula",
-      modules: 1,
-      weeks: 1,
-      tasks: 1,
-      price: null,
-      image: "",
-      tags: [],
-      outcome: "",
-      includes: [],
-    },
-    teachers: {
-      slug: "pengajar-baru",
-      name: "Pengajar baru",
-      initials: "PB",
-      specialty: "",
-      region: "Yogyakarta",
-      experience: "",
-      quote: "",
-      focus: "",
-      path: "",
-      community: "",
-      image: "",
-      verified: false,
-    },
-    works: {
-      slug: "karya-baru",
-      title: "Karya baru",
-      category: "batik",
-      kind: "product",
-      maker: "",
-      makerRole: "Peserta",
-      teacher: "",
-      region: "Yogyakarta",
-      price: 0,
-      unit: "buah",
-      technique: "",
-      techniqueNote: "",
-      workCard: "",
-      description: "",
-      image: "",
-    },
-    testimonials: {
-      quote: "",
-      name: "",
-      role: "Peserta",
-      city: "Yogyakarta",
-      initials: "PN",
-    },
-    faqs: { question: "", answer: "" },
     "traction.figures": { value: "", label: "" },
     "loop.stages": { code: "06", title: "", description: "" },
     "ethics.principles": { title: "", description: "" },
@@ -354,158 +279,6 @@ function FieldNode({
   return null
 }
 
-function MediaPanel() {
-  const assets = useQuery(api.media.listAssets)
-  const generateUploadUrl = useMutation(api.media.generateUploadUrl)
-  const saveAsset = useMutation(api.media.saveAsset)
-  const [file, setFile] = React.useState<File | null>(null)
-  const [alt, setAlt] = React.useState("")
-  const [credit, setCredit] = React.useState("")
-  const [permission, setPermission] = React.useState("")
-  const [externalUrl, setExternalUrl] = React.useState("")
-  const [busy, setBusy] = React.useState(false)
-
-  async function upload() {
-    if (!file && !externalUrl.trim()) {
-      toast("Pilih berkas atau isi URL")
-      return
-    }
-    if (!alt.trim()) {
-      toast("Teks alternatif wajib")
-      return
-    }
-    setBusy(true)
-    try {
-      let storageId: string | undefined
-      if (file) {
-        const url = await generateUploadUrl()
-        const response = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": file.type },
-          body: file,
-        })
-        const payload = (await response.json()) as { storageId?: string }
-        storageId = payload.storageId
-        if (!storageId) throw new Error("Upload tidak mengembalikan storageId.")
-      }
-      await saveAsset({
-        kind: file
-          ? file.type.startsWith("image/")
-            ? "image"
-            : file.type.startsWith("audio/")
-              ? "audio"
-              : file.type.startsWith("video/")
-                ? "video"
-                : "document"
-          : "image",
-        storageId: storageId as Id<"_storage"> | undefined,
-        externalUrl: storageId ? undefined : externalUrl.trim(),
-        filename: file?.name ?? externalUrl.split("/").at(-1) ?? "asset.png",
-        mimeType: file?.type ?? "image/png",
-        size: file?.size ?? 1_024,
-        alt,
-        credit: credit || undefined,
-        permission: permission || undefined,
-      })
-      toast("Aset disimpan")
-      setFile(null)
-      setAlt("")
-      setCredit("")
-      setPermission("")
-      setExternalUrl("")
-    } catch (error) {
-      toast("Aset gagal disimpan", {
-        description: error instanceof Error ? error.message : "Coba lagi.",
-      })
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  return (
-    <div className="space-y-3">
-      <div className="grid gap-2">
-        <div>
-          <Label htmlFor="media-file">Berkas</Label>
-          <Input
-            id="media-file"
-            type="file"
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-            className="mt-1 text-[11px]"
-          />
-        </div>
-        <div>
-          <Label htmlFor="media-url">Atau URL eksternal</Label>
-          <Input
-            id="media-url"
-            value={externalUrl}
-            onChange={(event) => setExternalUrl(event.target.value)}
-            placeholder="https://..."
-            className="mt-1 text-[12px]"
-          />
-        </div>
-        <div>
-          <Label htmlFor="media-alt">Teks alternatif</Label>
-          <Input
-            id="media-alt"
-            value={alt}
-            onChange={(event) => setAlt(event.target.value)}
-            className="mt-1 text-[12px]"
-          />
-        </div>
-        <div className="grid gap-2 sm:grid-cols-2">
-          <Input
-            value={credit}
-            onChange={(event) => setCredit(event.target.value)}
-            placeholder="Kredit"
-            className="text-[12px]"
-          />
-          <Input
-            value={permission}
-            onChange={(event) => setPermission(event.target.value)}
-            placeholder="Izin"
-            className="text-[12px]"
-          />
-        </div>
-        <Button size="sm" onClick={() => void upload()} disabled={busy}>
-          <Upload aria-hidden="true" />
-          {busy ? "Mengunggah" : "Simpan aset"}
-        </Button>
-      </div>
-      <ul className="divide-y divide-ink/10">
-        {(assets ?? []).slice(0, 8).map((asset: MediaAssetView) => (
-          <MediaRow key={asset.id} asset={asset} />
-        ))}
-      </ul>
-    </div>
-  )
-}
-
-function MediaRow({ asset }: { asset: MediaAssetView }) {
-  const usage = useQuery(api.media.getUsage, {
-    id: asset.id as Id<"mediaAssets">,
-  })
-  return (
-    <li className="py-2.5 first:pt-0 last:pb-0">
-      <p className="truncate text-[11px] font-semibold text-ink">
-        {asset.filename}
-      </p>
-      <p className="mt-0.5 text-[9.5px] text-ink-muted">
-        {asset.mimeType} · {Math.round(asset.size / 1024)} KB ·{" "}
-        {asset.credit ?? "tanpa kredit"}
-      </p>
-      <p className="mt-0.5 line-clamp-2 text-[9.5px] text-ink-soft">
-        alt: {asset.alt}
-      </p>
-      <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.05em] text-ink-muted">
-        {usage?.inUse
-          ? `Dipakai di ${usage.references.map((item) => item.label).join(", ")}`
-          : "Belum dipakai"}
-      </p>
-    </li>
-  )
-}
-
 export function ContentCmsLive() {
   const state = useQuery(api.content.getAdminState)
   const saveDraft = useMutation(api.content.saveDraft)
@@ -513,7 +286,7 @@ export function ContentCmsLive() {
   const rollback = useMutation(api.content.rollback)
   const acquireLock = useMutation(api.content.acquireLock)
   const releaseLock = useMutation(api.content.releaseLock)
-  const [draft, setDraft] = React.useState<SiteData | null>(null)
+  const [draft, setDraft] = React.useState<ContentDocument | null>(null)
   const [activeGroup, setActiveGroup] = React.useState("hero")
   const [note, setNote] = React.useState("")
   const [scheduledFor, setScheduledFor] = React.useState("")
@@ -539,18 +312,18 @@ export function ContentCmsLive() {
 
   const activeDraft = draft ?? state?.draftValue ?? null
 
-  const group = [...GROUPS, ...ENTITY_GROUPS].find((item) => item.id === activeGroup) ?? GROUPS[0]
+  const group = GROUPS.find((item) => item.id === activeGroup) ?? GROUPS[0]
   const groupValue = activeDraft ? getValue(activeDraft, group.path) : undefined
   const readOnly = Boolean(state?.lock && !state.lock.mine)
   const validation = React.useMemo(
-    () => (activeDraft ? validateSiteData(activeDraft) : null),
+    () => (activeDraft ? validateContentDocument(activeDraft) : null),
     [activeDraft],
   )
 
   function update(path: string[], value: unknown) {
     setDraft((current) => {
       const base = current ?? state?.draftValue ?? null
-      return base ? (setValue(base, path, value) as SiteData) : base
+      return base ? (setValue(base, path, value) as ContentDocument) : base
     })
   }
 
@@ -626,7 +399,7 @@ export function ContentCmsLive() {
       <PageHeader
         eyebrow="Konten"
         title="Halaman depan, dari bangku ini."
-        description="Setiap medan di landing dapat diedit, divalidasi, disimpan sebagai revisi, lalu diterbitkan atau dibalik. Tidak ada konten tanpa validasi yang bisa terbit."
+        description="Halaman ini hanya untuk copywriting. Data pengajar, jalur, karya, testimoni, bidang, dan FAQ dibaca langsung dari tabel Convex; pilih yang tampil di halaman pilihan landing. Setiap perubahan copy disimpan sebagai revisi lalu diterbitkan atau dibalik."
         meta={
           <div className="flex flex-wrap items-center gap-2">
             <StatusStamp
@@ -677,7 +450,7 @@ export function ContentCmsLive() {
         <Panel eyebrow="Bagian" title="Editor" bodyClassName="p-0">
           <nav aria-label="Bagian konten" className="max-h-[72vh] overflow-y-auto">
             <ul className="divide-y divide-ink/10">
-              {[...GROUPS, ...ENTITY_GROUPS].map((item) => (
+              {GROUPS.map((item) => (
                 <li key={item.id}>
                   <button
                     type="button"
@@ -747,7 +520,7 @@ export function ContentCmsLive() {
             {validation?.ok ? (
               <p className="flex items-center gap-1.5 text-[11px] font-semibold text-moss">
                 <Check className="size-3.5" aria-hidden="true" />
-                Semua medan wajib, URL, alt, dan entitas valid.
+                Semua medan copy wajib, URL, dan alt valid.
               </p>
             ) : (
               <ul className="space-y-2">
@@ -760,8 +533,6 @@ export function ContentCmsLive() {
               </ul>
             )}
           </Panel>
-
-          <MediaPanel />
 
           <Panel
             eyebrow="Revisi"
@@ -871,7 +642,7 @@ export function ContentCmsLive() {
         onOpenChange={setPublishOpen}
         eyebrow="Terbit"
         title={state.draft ? `Terbitkan v${state.draft.version}` : "Belum ada draf"}
-        description="Penerbitan menulis konten dan entitas ke tabel publik. Riwayat tidak dihapus."
+        description="Penerbitan menulis copy dan pilihan landing ke dokumen publik. Tabel entitas tidak disentuh. Riwayat tidak dihapus."
         footer={
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => setPublishOpen(false)}>
@@ -982,12 +753,26 @@ export function ContentCmsLive() {
                 {activeDraft.catalog.description}
               </p>
               <div className="mt-3 grid gap-1.5 sm:grid-cols-2">
-                {activeDraft.paths.slice(0, 4).map((path) => (
-                  <div key={path.slug} className="border border-ink/15 bg-paper-2 px-2 py-1.5 text-[10px]">
-                    <span className="font-semibold text-ink">{path.title}</span>
-                    <span className="ml-2 text-ink-muted">{path.teacher}</span>
-                  </div>
-                ))}
+                <div className="border border-ink/15 bg-paper-2 px-2 py-1.5 text-[10px]">
+                  <span className="font-semibold text-ink">
+                    {activeDraft.featured.pathSlugs.length} jalur dipilih
+                  </span>
+                </div>
+                <div className="border border-ink/15 bg-paper-2 px-2 py-1.5 text-[10px]">
+                  <span className="font-semibold text-ink">
+                    {activeDraft.featured.workSlugs.length} karya dipilih
+                  </span>
+                </div>
+                <div className="border border-ink/15 bg-paper-2 px-2 py-1.5 text-[10px]">
+                  <span className="font-semibold text-ink">
+                    {activeDraft.featured.teacherSlugs.length} pengajar dipilih
+                  </span>
+                </div>
+                <div className="border border-ink/15 bg-paper-2 px-2 py-1.5 text-[10px]">
+                  <span className="font-semibold text-ink">
+                    {activeDraft.featured.heroWorkSlug ?? "Hero belum dipilih"}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -1004,7 +789,7 @@ function RevisionDrawer({
 }: {
   version: number | null
   onOpenChange: (open: boolean) => void
-  onLoad: (value: SiteData) => void
+  onLoad: (value: ContentDocument) => void
 }) {
   const revision = useQuery(
     api.content.getRevision,
@@ -1077,20 +862,20 @@ function RevisionDrawer({
                 <dd className="text-right text-ink">{revision.value.hero.title.join(" ")}</dd>
               </div>
               <div className="flex justify-between gap-3">
-                <dt className="text-ink-muted">Jalur</dt>
-                <dd className="text-ink">{revision.value.paths.length}</dd>
+                <dt className="text-ink-muted">Jalur dipilih</dt>
+                <dd className="text-ink">{revision.value.featured.pathSlugs.length}</dd>
               </div>
               <div className="flex justify-between gap-3">
-                <dt className="text-ink-muted">Pengajar</dt>
-                <dd className="text-ink">{revision.value.teachers.length}</dd>
+                <dt className="text-ink-muted">Pengajar dipilih</dt>
+                <dd className="text-ink">{revision.value.featured.teacherSlugs.length}</dd>
               </div>
               <div className="flex justify-between gap-3">
-                <dt className="text-ink-muted">Karya</dt>
-                <dd className="text-ink">{revision.value.works.length}</dd>
+                <dt className="text-ink-muted">Karya dipilih</dt>
+                <dd className="text-ink">{revision.value.featured.workSlugs.length}</dd>
               </div>
               <div className="flex justify-between gap-3">
-                <dt className="text-ink-muted">FAQ</dt>
-                <dd className="text-ink">{revision.value.faqs.length}</dd>
+                <dt className="text-ink-muted">FAQ dipilih</dt>
+                <dd className="text-ink">{revision.value.featured.faqKeys.length}</dd>
               </div>
             </dl>
           </div>

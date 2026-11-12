@@ -5,7 +5,7 @@
  * raw database documents, no auth identifiers, and no provider secrets.
  */
 
-import type { SiteData } from "../content/types"
+import type { ContentDocument } from "../content/types"
 
 export type ContentRevisionStatus =
   | "draft"
@@ -39,7 +39,7 @@ export type ContentAdminState = {
   publishedAt: number | null
   publishedVersion: number | null
   draft: ContentRevisionSummary | null
-  draftValue: SiteData | null
+  draftValue: ContentDocument | null
   revisions: ContentRevisionSummary[]
   lock: ContentLockView | null
 }
@@ -47,7 +47,7 @@ export type ContentAdminState = {
 export type ContentPreviewPayload = {
   key: string
   version: number
-  value: SiteData
+  value: ContentDocument
   expiresAt: number
 }
 

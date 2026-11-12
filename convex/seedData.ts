@@ -9,8 +9,9 @@ import type {
 } from "../lib/content/types"
 
 /**
- * Seed data never stores `/images/...` paths. Each image carries a bare
- * filename that the seed mutation resolves against the `mediaAssets` registry.
+ * Seed data never stores static image paths. Each image carries a bare
+ * filename that the seed mutation resolves against the `mediaAssets` registry
+ * (files live in `seed/images` only as the upload source for Convex storage).
  */
 type WithImageFile<T> = Omit<T, "image"> & { imageFile: string }
 
@@ -94,10 +95,6 @@ export const siteSeed: SeedSiteCopy = {
     },
     workCard: {
       title: "Kartu Karya",
-      serial: "KN-8821",
-      work: "Kain Batik Soga Anyaman",
-      maker: "Anisa Rahmawati",
-      teacher: "Bambang Hardjono",
     },
   },
   traction: {

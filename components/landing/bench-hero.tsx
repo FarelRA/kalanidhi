@@ -1,9 +1,15 @@
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
-import type { HeroContent } from "@/lib/content/types"
+import type { HeroContent, HeroWorkCard } from "@/lib/content/types"
 
-export function BenchHero({ hero }: { hero: HeroContent }) {
+export function BenchHero({
+  hero,
+  workCard,
+}: {
+  hero: HeroContent
+  workCard: HeroWorkCard | null
+}) {
   return (
     <section
       aria-labelledby="hero-title"
@@ -74,22 +80,31 @@ export function BenchHero({ hero }: { hero: HeroContent }) {
                   {hero.workCard.title}
                 </span>
                 <span className="text-[10px] font-bold tracking-[0.08em] text-ink/70">
-                  {hero.workCard.serial}
+                  {workCard ? workCard.serial : "Belum dipilih"}
                 </span>
               </div>
-              <p className="mt-3 pl-6 font-heading text-[1.15rem] leading-tight">
-                {hero.workCard.work}
-              </p>
-              <dl className="mt-3 grid gap-1.5 pl-6 text-[10.5px] leading-snug">
-                <div className="flex justify-between gap-3">
-                  <dt className="text-ink-muted">Pembuat</dt>
-                  <dd className="font-semibold">{hero.workCard.maker}</dd>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <dt className="text-ink-muted">Pengajar</dt>
-                  <dd className="font-semibold">{hero.workCard.teacher}</dd>
-                </div>
-              </dl>
+              {workCard ? (
+                <>
+                  <p className="mt-3 pl-6 font-heading text-[1.15rem] leading-tight">
+                    {workCard.work}
+                  </p>
+                  <dl className="mt-3 grid gap-1.5 pl-6 text-[10.5px] leading-snug">
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-ink-muted">Pembuat</dt>
+                      <dd className="font-semibold">{workCard.maker}</dd>
+                    </div>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-ink-muted">Pengajar</dt>
+                      <dd className="font-semibold">{workCard.teacher}</dd>
+                    </div>
+                  </dl>
+                </>
+              ) : (
+                <p className="mt-3 pl-6 text-[10.5px] leading-snug text-ink-muted">
+                  Kartu Karya hero belum dipilih. Pilih karya dari halaman
+                  pilihan landing.
+                </p>
+              )}
             </div>
           </figure>
 

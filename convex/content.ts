@@ -8,17 +8,19 @@ import type {
   ContentRevisionSummary,
 } from "../lib/admin/types"
 import type {
-  CatalogField,
-  Faq,
+  ContentDocument,
+  FeaturedSelection,
+  HeroWorkCard,
   LearningPath,
   SeoOverride,
-  SiteCopy,
   SiteData,
   Teacher,
-  Testimonial,
   Work,
 } from "../lib/content/types"
-import { siteDataSchema, validateSiteData } from "../lib/validation/content"
+import {
+  contentDocumentSchema,
+  validateContentDocument,
+} from "../lib/validation/content"
 import { now, requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
 import type { Doc, Id } from "./_generated/dataModel"
@@ -34,71 +36,16 @@ const CONTENT_KEY = "site"
 const LOCK_TTL_MS = 15 * 60 * 1_000
 const PREVIEW_TTL_MS = 60 * 60 * 1_000
 
-function withoutSystemFields<T extends { _id: unknown; _creationTime: number }>(
-  document: T,
-) {
-  const { _id, _creationTime, ...rest } = document
-  void _id
-  void _creationTime
-  return rest
-}
-
-type StoredLearningPath = Omit<LearningPath, "image"> & {
-  imageAssetId: Id<"mediaAssets">
-}
-type StoredTeacher = Omit<Teacher, "image"> & {
-  imageAssetId: Id<"mediaAssets">
-}
-type StoredWork = Omit<Work, "image"> & {
-  imageAssetId: Id<"mediaAssets">
-}
-
-type StoredSiteCopy = Omit<SiteCopy, "hero" | "metadata"> & {
-  hero: Omit<SiteCopy["hero"], "plate"> & {
-    plate: Omit<SiteCopy["hero"]["plate"], "image"> & {
+export type StoredContentValue = Omit<ContentDocument, "hero" | "metadata"> & {
+  hero: Omit<ContentDocument["hero"], "plate"> & {
+    plate: Omit<ContentDocument["hero"]["plate"], "image"> & {
       imageAssetId: Id<"mediaAssets">
     }
   }
-  metadata: Omit<SiteCopy["metadata"], "image"> & {
-    image: Omit<SiteCopy["metadata"]["image"], "url"> & {
+  metadata: Omit<ContentDocument["metadata"], "image"> & {
+    image: Omit<ContentDocument["metadata"]["image"], "url"> & {
       imageAssetId: Id<"mediaAssets">
     }
-  }
-}
-
-export type StoredSiteData = StoredSiteCopy & {
-  catalog: SiteCopy["catalog"] & { fields: CatalogField[] }
-  paths: StoredLearningPath[]
-  teachers: StoredTeacher[]
-  works: StoredWork[]
-  testimonials: Testimonial[]
-  faqs: Faq[]
-}
-
-export function toStoredCopy(data: StoredSiteData): StoredSiteCopy {
-  return {
-    hero: data.hero,
-    traction: data.traction,
-    loop: data.loop,
-    catalog: {
-      label: data.catalog.label,
-      title: data.catalog.title,
-      description: data.catalog.description,
-      cta: data.catalog.cta,
-      groups: data.catalog.groups,
-    },
-    mangsa: data.mangsa,
-    ethics: data.ethics,
-    institution: data.institution,
-    sections: data.sections,
-    footer: data.footer,
-    navigation: data.navigation,
-    overlays: data.overlays,
-    header: data.header,
-    search: data.search,
-    mobileCta: data.mobileCta,
-    leadDialogs: data.leadDialogs,
-    metadata: data.metadata,
   }
 }
 
@@ -138,21 +85,48 @@ async function assetUrl(
   return url
 }
 
+/** Entity cards omit themselves instead of rendering a broken image. */
+async function optionalAssetUrl(
+  ctx: AnyCtx,
+  id: Id<"mediaAssets"> | undefined,
+  cache: AssetUrlCache,
+): Promise<string | null> {
+  if (!id) return null
+  try {
+    return await assetUrl(ctx, id, cache)
+  } catch {
+    return null
+  }
+}
+
+function emptyFeatured(): FeaturedSelection {
+  return {
+    pathSlugs: [],
+    teacherSlugs: [],
+    workSlugs: [],
+    testimonialIds: [],
+    catalogFieldKeys: [],
+    faqKeys: [],
+    heroWorkSlug: null,
+  }
+}
+
 async function resolveStoredCopy(
   ctx: AnyCtx,
-  stored: StoredSiteCopy,
+  stored: StoredContentValue,
   cache: AssetUrlCache,
-): Promise<SiteCopy> {
+): Promise<ContentDocument> {
+  const base = normalizeContentDocument(stored)
   const { imageAssetId: heroImageId, ...plate } = stored.hero.plate
   const { imageAssetId: metadataImageId, ...metadataImage } = stored.metadata.image
   return {
-    ...stored,
+    ...base,
     hero: {
-      ...stored.hero,
+      ...base.hero,
       plate: { ...plate, image: await assetUrl(ctx, heroImageId, cache) },
     },
     metadata: {
-      ...stored.metadata,
+      ...base.metadata,
       image: {
         ...metadataImage,
         url: await assetUrl(ctx, metadataImageId, cache),
@@ -192,10 +166,10 @@ async function assetIdForUrl(
   })
 }
 
-async function toStoredSiteData(
+async function toStoredContent(
   ctx: AnyCtx,
-  data: SiteData,
-): Promise<StoredSiteData> {
+  data: ContentDocument,
+): Promise<StoredContentValue> {
   const cache = new Map<string, Id<"mediaAssets">>()
   return {
     ...data,
@@ -217,35 +191,26 @@ async function toStoredSiteData(
         imageAssetId: await assetIdForUrl(ctx, data.metadata.image.url, cache),
       },
     },
-    paths: await Promise.all(
-      data.paths.map(async ({ image, ...rest }) => ({
-        ...rest,
-        imageAssetId: await assetIdForUrl(ctx, image, cache),
-      })),
-    ),
-    teachers: await Promise.all(
-      data.teachers.map(async ({ image, ...rest }) => ({
-        ...rest,
-        imageAssetId: await assetIdForUrl(ctx, image, cache),
-      })),
-    ),
-    works: await Promise.all(
-      data.works.map(async ({ image, ...rest }) => ({
-        ...rest,
-        imageAssetId: await assetIdForUrl(ctx, image, cache),
-      })),
-    ),
   }
 }
 
-/** Reads the currently published content from the public tables. */
-type FeaturedSelection = {
-  pathSlugs: string[]
-  teacherSlugs: string[]
-  workSlugs: string[]
-  testimonialIds: string[]
+/** Reads the published copy and selection. Entity tables are not copied. */
+export async function assemblePublishedContent(
+  ctx: AnyCtx,
+): Promise<ContentDocument | null> {
+  const site = await ctx.db
+    .query("siteContent")
+    .withIndex("by_key", (q) => q.eq("key", CONTENT_KEY))
+    .unique()
+  if (!site) return null
+  return await resolveStoredCopy(
+    ctx,
+    site.value as StoredContentValue,
+    new Map(),
+  )
 }
 
+/** Reads the landing selection from `siteContent.value`. */
 function featuredSelection(value: unknown): FeaturedSelection | null {
   if (!value || typeof value !== "object") return null
   const raw = (value as { featured?: unknown }).featured
@@ -257,11 +222,49 @@ function featuredSelection(value: unknown): FeaturedSelection | null {
           (item): item is string => typeof item === "string",
         )
       : []
+  const heroWorkSlug =
+    typeof record.heroWorkSlug === "string" ? record.heroWorkSlug : null
   return {
     pathSlugs: list("pathSlugs"),
     teacherSlugs: list("teacherSlugs"),
     workSlugs: list("workSlugs"),
     testimonialIds: list("testimonialIds"),
+    catalogFieldKeys: list("catalogFieldKeys"),
+    faqKeys: list("faqKeys"),
+    heroWorkSlug,
+  }
+}
+
+function normalizeContentDocument(value: unknown): ContentDocument {
+  const raw = (
+    value && typeof value === "object" ? value : {}
+  ) as ContentDocument
+  return {
+    hero: raw.hero,
+    traction: raw.traction,
+    loop: raw.loop,
+    catalog: raw.catalog
+      ? {
+          label: raw.catalog.label,
+          title: raw.catalog.title,
+          description: raw.catalog.description,
+          cta: raw.catalog.cta,
+          groups: raw.catalog.groups,
+        }
+      : raw.catalog,
+    mangsa: raw.mangsa,
+    ethics: raw.ethics,
+    institution: raw.institution,
+    sections: raw.sections,
+    footer: raw.footer,
+    navigation: raw.navigation,
+    overlays: raw.overlays,
+    header: raw.header,
+    search: raw.search,
+    mobileCta: raw.mobileCta,
+    leadDialogs: raw.leadDialogs,
+    metadata: raw.metadata,
+    featured: featuredSelection(value) ?? emptyFeatured(),
   }
 }
 
@@ -300,96 +303,256 @@ export async function assemblePublishedSite(
   const cache: AssetUrlCache = new Map()
   const copy = await resolveStoredCopy(
     ctx,
-    site.value as StoredSiteCopy,
+    site.value as StoredContentValue,
     cache,
   )
-
-  const resolveEntity = async <
-    T extends {
-      _id: unknown
-      _creationTime: number
-      imageAssetId?: Id<"mediaAssets">
-    },
-  >(
-    document: T,
-  ) => {
-    const { imageAssetId, ...rest } = withoutSystemFields(document)
-    return {
-      ...rest,
-      image: imageAssetId ? await assetUrl(ctx, imageAssetId, cache) : "",
-    }
-  }
 
   const teacherByUserId = new Map(
     teachers
       .filter((teacher) => teacher.userId)
       .map((teacher) => [teacher.userId as string, teacher] as const),
   )
+  const pathBySlug = new Map(paths.map((path) => [path.slug, path] as const))
 
-  const resolvePath = async (path: Doc<"paths">) => {
-    const resolved = await resolveEntity(path)
-    if (!path.teacherId) return resolved
-    const profile = teacherByUserId.get(path.teacherId)
-    let teacherName = profile?.name
-    if (!teacherName) {
-      try {
-        const user = await ctx.db.get(path.teacherId as Id<"users">)
-        teacherName = user?.name
-      } catch {
-        teacherName = undefined
-      }
+  const resolvePath = async (
+    path: Doc<"paths">,
+  ): Promise<LearningPath | null> => {
+    const image = await optionalAssetUrl(ctx, path.imageAssetId, cache)
+    if (!image) return null
+
+    const [modules, lessons, cohorts] = await Promise.all([
+      ctx.db
+        .query("pathModules")
+        .withIndex("by_path_order", (q) => q.eq("pathId", path.slug))
+        .collect(),
+      ctx.db
+        .query("lessons")
+        .withIndex("by_path", (q) => q.eq("pathId", path.slug))
+        .collect(),
+      ctx.db
+        .query("cohorts")
+        .withIndex("by_pathId", (q) => q.eq("pathId", path.slug))
+        .collect(),
+    ])
+    const publishedModules = modules.filter(
+      (module) => module.status === "published",
+    )
+    const publishedLessons = lessons.filter(
+      (lesson) => lesson.status === "published",
+    )
+    if (
+      !path.comingSoon &&
+      (publishedModules.length === 0 ||
+        publishedLessons.length === 0 ||
+        cohorts.length === 0)
+    ) {
+      return null
     }
-    if (!teacherName) return resolved
+
+    const profile = path.teacherId
+      ? teacherByUserId.get(path.teacherId)
+      : undefined
     return {
-      ...resolved,
-      teacher: teacherName,
-      teacherRole:
-        path.teacherRole || profile?.specialty || resolved.teacherRole,
+      slug: path.slug,
+      code: path.code,
+      title: path.title,
+      subtitle: path.subtitle,
+      teacher: profile?.name ?? path.teacher,
+      teacherRole: path.teacherRole || profile?.specialty || "Pengajar",
+      teacherId: path.teacherId,
+      region: path.region,
+      level: path.level,
+      modules: publishedModules.length,
+      weeks: path.weeks,
+      tasks: path.tasks,
+      price: path.price,
+      priceLabel: path.priceLabel,
+      image,
+      tags: path.tags,
+      outcome: path.outcome,
+      includes: path.includes,
+      comingSoon: path.comingSoon,
     }
   }
+
+  const resolveTeacher = async (
+    teacher: Doc<"teachers">,
+  ): Promise<Teacher | null> => {
+    if (!teacher.userId) return null
+    const user = await ctx.db.get(teacher.userId)
+    if (!user) return null
+    const image = await optionalAssetUrl(ctx, teacher.imageAssetId, cache)
+    return {
+      slug: teacher.slug,
+      name: teacher.name,
+      initials: teacher.initials,
+      specialty: teacher.specialty,
+      region: teacher.region,
+      experience: teacher.experience,
+      quote: teacher.quote,
+      focus: teacher.focus,
+      path: teacher.path,
+      community: teacher.community,
+      image: image ?? "",
+      verified: teacher.verified,
+    }
+  }
+
+  const resolveWork = async (work: Doc<"works">): Promise<Work | null> => {
+    if (work.status !== "published") return null
+    if (!work.makerId || !work.pathId || !work.certificateId) return null
+
+    const [card, maker, certificate] = await Promise.all([
+      ctx.db
+        .query("workCards")
+        .withIndex("by_workId", (q) => q.eq("workId", work._id))
+        .unique(),
+      ctx.db.get(work.makerId),
+      ctx.db.get(work.certificateId),
+    ])
+    const path = work.pathId ? pathBySlug.get(work.pathId) : undefined
+    if (!card || !maker || !path || !certificate) return null
+    if (card.status !== "published" || certificate.status !== "issued") {
+      return null
+    }
+    const image = await optionalAssetUrl(ctx, work.imageAssetId, cache)
+    if (!image) return null
+
+    const profile = path.teacherId
+      ? teacherByUserId.get(path.teacherId)
+      : undefined
+    return {
+      slug: work.slug,
+      title: work.title,
+      category: work.category,
+      kind: work.kind,
+      maker: maker.name,
+      makerRole: work.makerRole,
+      teacher: profile?.name ?? path.teacher,
+      region: work.region,
+      price: work.price,
+      priceLabel: work.priceLabel,
+      unit: work.unit,
+      technique: work.technique,
+      techniqueNote: work.techniqueNote,
+      workCard: card.serial,
+      permission: card.permission,
+      provenance: card.provenance,
+      materials: card.materials,
+      certificateSerial: certificate.serial,
+      pathSlug: path.slug,
+      description: work.description,
+      image,
+    }
+  }
+
+  const publishedPaths = paths.filter((path) => path.status !== "archived")
+  const publishedTeachers = teachers.filter(
+    (teacher) =>
+      teacher.published === true &&
+      teacher.status !== "review" &&
+      teacher.status !== "suspended",
+  )
+  const publishedWorks = works.filter((work) => work.status === "published")
+
+  const selectedPaths = featured
+    ? orderByKeys(publishedPaths, featured.pathSlugs, (path) => path.slug)
+    : publishedPaths
+  const selectedTeachers = featured
+    ? orderByKeys(
+        publishedTeachers,
+        featured.teacherSlugs,
+        (teacher) => teacher.slug,
+      )
+    : publishedTeachers
+  const workKeys = featured
+    ? Array.from(
+        new Set([
+          ...featured.workSlugs,
+          ...(featured.heroWorkSlug ? [featured.heroWorkSlug] : []),
+        ]),
+      )
+    : undefined
+  const selectedWorks = orderByKeys(
+    publishedWorks,
+    workKeys,
+    (work) => work.slug,
+  )
+  const selectedTestimonials = featured
+    ? orderByKeys(
+        testimonials,
+        featured.testimonialIds,
+        (testimonial) => testimonial._id,
+      )
+    : testimonials
+  const selectedFields = featured
+    ? orderByKeys(
+        catalogFields,
+        featured.catalogFieldKeys,
+        (field) => field.name,
+      )
+    : catalogFields
+  const selectedFaqs = featured
+    ? orderByKeys(faqs, featured.faqKeys, (faq) => faq._id)
+    : faqs
+
+  const resolvedPaths = (
+    await Promise.all(selectedPaths.map((path) => resolvePath(path)))
+  ).filter((path): path is LearningPath => path !== null)
+  const resolvedTeachers = (
+    await Promise.all(selectedTeachers.map((teacher) => resolveTeacher(teacher)))
+  ).filter((teacher): teacher is Teacher => teacher !== null)
+  const resolvedWorks = (
+    await Promise.all(selectedWorks.map((work) => resolveWork(work)))
+  ).filter((work): work is Work => work !== null)
+
+  const displayWorks = featured
+    ? orderByKeys(
+        resolvedWorks,
+        featured.workSlugs,
+        (work) => work.slug,
+      )
+    : resolvedWorks
+  const heroWork = featured?.heroWorkSlug
+    ? resolvedWorks.find((work) => work.slug === featured.heroWorkSlug)
+    : undefined
+  const heroWorkCard: HeroWorkCard | null = heroWork
+    ? {
+        slug: heroWork.slug,
+        serial: heroWork.workCard,
+        work: heroWork.title,
+        maker: heroWork.maker,
+        teacher: heroWork.teacher,
+      }
+    : null
 
   return {
     ...copy,
     catalog: {
       ...copy.catalog,
-      fields: catalogFields.map(withoutSystemFields),
+      fields: selectedFields.map((field) => ({
+        name: field.name,
+        region: field.region,
+        status: field.status,
+        note: field.note,
+      })),
     },
-    paths: await Promise.all(
-      orderByKeys(
-        paths.filter((path) => path.status !== "archived"),
-        featured?.pathSlugs,
-        (path) => path.slug,
-      ).map((path) => resolvePath(path)),
-    ),
-    teachers: await Promise.all(
-      orderByKeys(
-        teachers.filter(
-          (teacher) =>
-            teacher.published === true &&
-            teacher.status !== "review" &&
-            teacher.status !== "suspended",
-        ),
-        featured?.teacherSlugs,
-        (teacher) => teacher.slug,
-      ).map((teacher) => resolveEntity(teacher)),
-    ),
-    works: await Promise.all(
-      orderByKeys(
-        works.filter(
-          (work) =>
-            work.status === "published",
-        ),
-        featured?.workSlugs,
-        (work) => work.slug,
-      ).map((work) => resolveEntity(work)),
-    ),
-    testimonials: orderByKeys(
-      testimonials,
-      featured?.testimonialIds,
-      (testimonial) => testimonial._id,
-    ).map(withoutSystemFields),
-    faqs: faqs.map(withoutSystemFields),
-  } as SiteData
+    heroWorkCard,
+    paths: resolvedPaths,
+    teachers: resolvedTeachers,
+    works: displayWorks,
+    testimonials: selectedTestimonials.map((testimonial) => ({
+      quote: testimonial.quote,
+      name: testimonial.name,
+      role: testimonial.role,
+      city: testimonial.city,
+      initials: testimonial.initials,
+    })),
+    faqs: selectedFaqs.map((faq) => ({
+      question: faq.question,
+      answer: faq.answer,
+    })),
+  }
 }
 
 export const getSite = query({
@@ -505,7 +668,7 @@ export const getAdminState = query({
 
     const draft = revisions.find((item) => item.status === "draft") ?? null
     const published = revisions.find((item) => item.status === "published") ?? null
-    let draftValue: SiteData | null = null
+    let draftValue: ContentDocument | null = null
 
     if (draft) {
       const document = await ctx.db
@@ -514,9 +677,9 @@ export const getAdminState = query({
           q.eq("key", CONTENT_KEY).eq("version", draft.version),
         )
         .unique()
-      draftValue = (document?.value as SiteData | undefined) ?? null
+      draftValue = document?.value ? normalizeContentDocument(document.value) : null
     } else {
-      draftValue = await assemblePublishedSite(ctx)
+      draftValue = await assemblePublishedContent(ctx)
     }
 
     const lock = await currentLock(ctx)
@@ -550,7 +713,7 @@ export const getRevision = query({
       authorId: document.authorId,
       createdAt: document.createdAt,
       publishedAt: document.publishedAt ?? null,
-      value: document.value as SiteData,
+      value: normalizeContentDocument(document.value),
     }
   },
 })
@@ -564,7 +727,7 @@ export const saveDraft = mutation({
   handler: async (ctx, args) => {
     const { viewer } = await requireAdmin(ctx, "content.publish")
     const note = requireReason(args.note, 3)
-    const validation = validateSiteData(args.value)
+    const validation = validateContentDocument(normalizeContentDocument(args.value))
     if (!validation.ok || !validation.data) {
       throw new ConvexError({
         code: "CONTENT_INVALID",
@@ -691,9 +854,6 @@ const SENSITIVE_PREFIXES = [
   "ethics.share",
   "footer.certificateNote",
   "metadata.",
-  "hero.workCard",
-  "paths",
-  "works",
 ]
 
 function sensitivePaths(diff: DiffEntry[]): string[] {
@@ -706,181 +866,34 @@ function sensitivePaths(diff: DiffEntry[]): string[] {
     )
 }
 
-async function applySiteData(
+/**
+ * Writes editorial copy and the landing selection. Entity tables are owned by
+ * their own domains and are never rewritten from a content revision.
+ */
+async function applyContentDocument(
   ctx: MutationCtx,
-  data: SiteData,
+  data: ContentDocument,
 ): Promise<void> {
-  const stored = await toStoredSiteData(ctx, data)
-  const timestamp = now()
   const site = await ctx.db
     .query("siteContent")
     .withIndex("by_key", (q) => q.eq("key", CONTENT_KEY))
     .unique()
+  // Selection is managed by `setFeatured`; publishing copy must not revert it.
+  const liveFeatured = site ? featuredSelection(site.value) : null
+  const stored = await toStoredContent(ctx, {
+    ...data,
+    featured: liveFeatured ?? data.featured,
+  })
+  const timestamp = now()
 
   if (site) {
-    await ctx.db.patch(site._id, {
-      value: toStoredCopy(stored),
-      updatedAt: timestamp,
-    })
+    await ctx.db.patch(site._id, { value: stored, updatedAt: timestamp })
   } else {
     await ctx.db.insert("siteContent", {
       key: CONTENT_KEY,
-      value: toStoredCopy(stored),
+      value: stored,
       updatedAt: timestamp,
     })
-  }
-
-  const existingFields = await ctx.db.query("catalogFields").collect()
-  for (const field of existingFields) {
-    await ctx.db.delete(field._id)
-  }
-  for (const [index, field] of data.catalog.fields.entries()) {
-    await ctx.db.insert("catalogFields", {
-      order: index,
-      name: field.name,
-      region: field.region,
-      status: field.status,
-      note: field.note,
-    })
-  }
-
-  const existingPaths = await ctx.db.query("paths").collect()
-  const pathsBySlug = new Map(existingPaths.map((item) => [item.slug, item]))
-  const pathSlugs = new Set(data.paths.map((item) => item.slug))
-  for (const [index, path] of data.paths.entries()) {
-    const existing = pathsBySlug.get(path.slug)
-    const record = {
-      order: index,
-      slug: path.slug,
-      code: path.code,
-      title: path.title,
-      subtitle: path.subtitle,
-      teacher: path.teacher,
-      teacherRole: path.teacherRole,
-      region: path.region,
-      level: path.level,
-      modules: path.modules,
-      weeks: path.weeks,
-      tasks: path.tasks,
-      price: path.price,
-      priceLabel: path.priceLabel,
-      imageAssetId: stored.paths[index].imageAssetId,
-      tags: path.tags,
-      outcome: path.outcome,
-      includes: path.includes,
-      comingSoon: path.comingSoon,
-    }
-    if (existing) {
-      await ctx.db.patch(existing._id, record)
-    } else {
-      await ctx.db.insert("paths", {
-        ...record,
-        status: path.comingSoon ? "mapping" : "open",
-        createdAt: timestamp,
-      })
-    }
-  }
-  for (const existing of existingPaths) {
-    if (!pathSlugs.has(existing.slug) && existing.status !== "archived") {
-      await ctx.db.patch(existing._id, { status: "archived" })
-    }
-  }
-
-  const existingTeachers = await ctx.db.query("teachers").collect()
-  const teachersBySlug = new Map(
-    existingTeachers.map((item) => [item.slug, item]),
-  )
-  const teacherSlugs = new Set(data.teachers.map((item) => item.slug))
-  for (const [index, teacher] of data.teachers.entries()) {
-    const existing = teachersBySlug.get(teacher.slug)
-    const record = {
-      order: index,
-      slug: teacher.slug,
-      name: teacher.name,
-      initials: teacher.initials,
-      specialty: teacher.specialty,
-      region: teacher.region,
-      experience: teacher.experience,
-      quote: teacher.quote,
-      focus: teacher.focus,
-      path: teacher.path,
-      community: teacher.community,
-      imageAssetId: stored.teachers[index].imageAssetId,
-    }
-    if (existing) {
-      await ctx.db.patch(existing._id, {
-        ...record,
-        verified: existing.verified || teacher.verified,
-        published: existing.published ?? teacher.verified,
-      })
-    } else {
-      await ctx.db.insert("teachers", {
-        ...record,
-        verified: teacher.verified,
-        status: teacher.verified ? "active" : "review",
-        published: teacher.verified,
-      })
-    }
-  }
-  for (const existing of existingTeachers) {
-    if (teacherSlugs.has(existing.slug)) continue
-    if (existing.userId) {
-      await ctx.db.patch(existing._id, { published: false })
-    } else {
-      await ctx.db.delete(existing._id)
-    }
-  }
-
-  const existingWorks = await ctx.db.query("works").collect()
-  const worksBySlug = new Map(existingWorks.map((item) => [item.slug, item]))
-  const workSlugs = new Set(data.works.map((item) => item.slug))
-  for (const [index, work] of data.works.entries()) {
-    const existing = worksBySlug.get(work.slug)
-    const record = {
-      order: index,
-      slug: work.slug,
-      title: work.title,
-      category: work.category,
-      kind: work.kind,
-      maker: work.maker,
-      makerRole: work.makerRole,
-      teacher: work.teacher,
-      region: work.region,
-      price: work.price,
-      priceLabel: work.priceLabel,
-      unit: work.unit,
-      technique: work.technique,
-      techniqueNote: work.techniqueNote,
-      workCard: work.workCard,
-      description: work.description,
-      imageAssetId: stored.works[index].imageAssetId,
-    }
-    if (existing) {
-      await ctx.db.patch(existing._id, record)
-    } else {
-      await ctx.db.insert("works", {
-        ...record,
-        status: "published",
-        createdAt: timestamp,
-      })
-    }
-  }
-  for (const existing of existingWorks) {
-    if (!workSlugs.has(existing.slug) && existing.status !== "paused") {
-      await ctx.db.patch(existing._id, { status: "paused" })
-    }
-  }
-
-  const existingTestimonials = await ctx.db.query("testimonials").collect()
-  for (const item of existingTestimonials) await ctx.db.delete(item._id)
-  for (const [index, item] of data.testimonials.entries()) {
-    await ctx.db.insert("testimonials", { order: index, ...item })
-  }
-
-  const existingFaqs = await ctx.db.query("faqs").collect()
-  for (const item of existingFaqs) await ctx.db.delete(item._id)
-  for (const [index, item] of data.faqs.entries()) {
-    await ctx.db.insert("faqs", { order: index, ...item })
   }
 }
 
@@ -918,7 +931,7 @@ export const publish = mutation({
       })
     }
 
-    const validation = validateSiteData(revision.value)
+    const validation = validateContentDocument(normalizeContentDocument(revision.value))
     if (!validation.ok || !validation.data) {
       throw new ConvexError({
         code: "CONTENT_INVALID",
@@ -927,9 +940,9 @@ export const publish = mutation({
       })
     }
 
-    const published = await assemblePublishedSite(ctx)
+    const published = await assemblePublishedContent(ctx)
     if (published) {
-      const normalisedPublished = validateSiteData(published)
+      const normalisedPublished = validateContentDocument(normalizeContentDocument(published))
       const diff =
         normalisedPublished.ok && normalisedPublished.data
           ? diffValues(normalisedPublished.data, validation.data)
@@ -963,7 +976,7 @@ export const publish = mutation({
       return { status: "scheduled" as const, version: revision.version }
     }
 
-    await applySiteData(ctx, validation.data)
+    await applyContentDocument(ctx, validation.data)
     await ctx.db.patch(revision._id, {
       status: "published",
       publishedAt: timestamp,
@@ -1010,7 +1023,7 @@ export const rollback = mutation({
       throw new ConvexError({ code: "NOT_FOUND", message: "Revisi tidak ada." })
     }
 
-    const validation = validateSiteData(source.value)
+    const validation = validateContentDocument(normalizeContentDocument(source.value))
     if (!validation.ok || !validation.data) {
       throw new ConvexError({
         code: "CONTENT_INVALID",
@@ -1021,7 +1034,7 @@ export const rollback = mutation({
 
     const version = (await latestVersion(ctx)) + 1
     const timestamp = now()
-    await applySiteData(ctx, validation.data)
+    await applyContentDocument(ctx, validation.data)
     const revisionId = await ctx.db.insert("contentRevisions", {
       key: CONTENT_KEY,
       version,
@@ -1075,7 +1088,7 @@ export const runScheduledPublish = internalMutation({
     const failed: number[] = []
 
     for (const revision of due) {
-      const validation = validateSiteData(revision.value)
+      const validation = validateContentDocument(normalizeContentDocument(revision.value))
       if (!validation.ok || !validation.data) {
         failed.push(revision.version)
         await ctx.db.patch(revision._id, {
@@ -1095,7 +1108,7 @@ export const runScheduledPublish = internalMutation({
         continue
       }
 
-      await applySiteData(ctx, validation.data)
+      await applyContentDocument(ctx, validation.data)
       await ctx.db.patch(revision._id, {
         status: "published",
         publishedAt: timestamp,
@@ -1145,7 +1158,7 @@ export const createPreview = mutation({
     if (!revision) {
       throw new ConvexError({ code: "NOT_FOUND", message: "Revisi tidak ada." })
     }
-    const validation = validateSiteData(revision.value)
+    const validation = validateContentDocument(normalizeContentDocument(revision.value))
     if (!validation.ok) {
       throw new ConvexError({
         code: "CONTENT_INVALID",
@@ -1205,7 +1218,7 @@ export const getPreview = query({
     return {
       key: preview.contentKey,
       version: preview.version,
-      value: revision.value as SiteData,
+      value: normalizeContentDocument(revision.value),
       expiresAt: preview.expiresAt,
     }
   },
@@ -1309,11 +1322,11 @@ export const validateDraft = query({
     if (!revision) {
       throw new ConvexError({ code: "NOT_FOUND", message: "Revisi tidak ada." })
     }
-    const result = validateSiteData(revision.value)
+    const result = validateContentDocument(normalizeContentDocument(revision.value))
     return {
       ok: result.ok,
       issues: result.issues,
-      parsed: result.data ? siteDataSchema.safeParse(result.data).success : false,
+      parsed: result.data ? contentDocumentSchema.safeParse(result.data).success : false,
     }
   },
 })
@@ -1323,16 +1336,19 @@ export const getFeaturedOptions = query({
   args: {},
   handler: async (ctx) => {
     await requireAdmin(ctx, "content.publish")
-    const [site, paths, teachers, works, testimonials] = await Promise.all([
-      ctx.db
-        .query("siteContent")
-        .withIndex("by_key", (q) => q.eq("key", CONTENT_KEY))
-        .unique(),
-      ctx.db.query("paths").withIndex("by_order").collect(),
-      ctx.db.query("teachers").withIndex("by_order").collect(),
-      ctx.db.query("works").withIndex("by_order").collect(),
-      ctx.db.query("testimonials").withIndex("by_order").collect(),
-    ])
+    const [site, paths, teachers, works, testimonials, catalogFields, faqs] =
+      await Promise.all([
+        ctx.db
+          .query("siteContent")
+          .withIndex("by_key", (q) => q.eq("key", CONTENT_KEY))
+          .unique(),
+        ctx.db.query("paths").withIndex("by_order").collect(),
+        ctx.db.query("teachers").withIndex("by_order").collect(),
+        ctx.db.query("works").withIndex("by_order").collect(),
+        ctx.db.query("testimonials").withIndex("by_order").collect(),
+        ctx.db.query("catalogFields").withIndex("by_order").collect(),
+        ctx.db.query("faqs").withIndex("by_order").collect(),
+      ])
 
     return {
       paths: paths
@@ -1347,15 +1363,22 @@ export const getFeaturedOptions = query({
         )
         .map((teacher) => ({ slug: teacher.slug, name: teacher.name })),
       works: works
-        .filter(
-          (work) =>
-            work.status === "published",
-        )
+        .filter((work) => work.status === "published")
         .map((work) => ({ slug: work.slug, title: work.title })),
       testimonials: testimonials.map((testimonial) => ({
         id: testimonial._id,
         quote: testimonial.quote,
         name: testimonial.name,
+      })),
+      catalogFields: catalogFields.map((field) => ({
+        key: field.name,
+        name: field.name,
+        region: field.region,
+        status: field.status,
+      })),
+      faqs: faqs.map((faq) => ({
+        key: faq._id as string,
+        question: faq.question,
       })),
       featured: featuredSelection(site?.value),
     }
@@ -1364,7 +1387,7 @@ export const getFeaturedOptions = query({
 
 /**
  * Stores the landing selection. The admin chooses existing published records;
- * no catalog, teacher, work, or testimonial copy is typed here.
+ * no catalog, teacher, work, testimonial, field, or FAQ copy is typed here.
  */
 export const setFeatured = mutation({
   args: {
@@ -1372,6 +1395,9 @@ export const setFeatured = mutation({
     teacherSlugs: v.array(v.string()),
     workSlugs: v.array(v.string()),
     testimonialIds: v.array(v.string()),
+    catalogFieldKeys: v.array(v.string()),
+    faqKeys: v.array(v.string()),
+    heroWorkSlug: v.union(v.string(), v.null()),
     reason: v.string(),
   },
   handler: async (ctx, args) => {
@@ -1388,18 +1414,24 @@ export const setFeatured = mutation({
       })
     }
 
-    const [paths, teachers, works, testimonials] = await Promise.all([
-      ctx.db.query("paths").withIndex("by_order").collect(),
-      ctx.db.query("teachers").withIndex("by_order").collect(),
-      ctx.db.query("works").withIndex("by_order").collect(),
-      ctx.db.query("testimonials").withIndex("by_order").collect(),
-    ])
+    const [paths, teachers, works, testimonials, catalogFields, faqs] =
+      await Promise.all([
+        ctx.db.query("paths").withIndex("by_order").collect(),
+        ctx.db.query("teachers").withIndex("by_order").collect(),
+        ctx.db.query("works").withIndex("by_order").collect(),
+        ctx.db.query("testimonials").withIndex("by_order").collect(),
+        ctx.db.query("catalogFields").withIndex("by_order").collect(),
+        ctx.db.query("faqs").withIndex("by_order").collect(),
+      ])
 
     const unique = (values: string[]) => Array.from(new Set(values))
     const pathSlugs = unique(args.pathSlugs)
     const teacherSlugs = unique(args.teacherSlugs)
     const workSlugs = unique(args.workSlugs)
     const testimonialIds = unique(args.testimonialIds)
+    const catalogFieldKeys = unique(args.catalogFieldKeys)
+    const faqKeys = unique(args.faqKeys)
+    const heroWorkSlug = args.heroWorkSlug
 
     const validPaths = new Set(
       paths
@@ -1418,15 +1450,16 @@ export const setFeatured = mutation({
     )
     const validWorks = new Set(
       works
-        .filter(
-          (work) =>
-            work.status === "published",
-        )
+        .filter((work) => work.status === "published")
         .map((work) => work.slug),
     )
     const validTestimonials = new Set(
       testimonials.map((testimonial) => testimonial._id as string),
     )
+    const validCatalogFields = new Set(
+      catalogFields.map((field) => field.name),
+    )
+    const validFaqs = new Set(faqs.map((faq) => faq._id as string))
 
     if (pathSlugs.some((slug) => !validPaths.has(slug))) {
       throw new ConvexError({
@@ -1452,10 +1485,37 @@ export const setFeatured = mutation({
         message: "Ada testimoni yang tidak tersedia untuk landing.",
       })
     }
+    if (catalogFieldKeys.some((key) => !validCatalogFields.has(key))) {
+      throw new ConvexError({
+        code: "INVALID_CATALOG_FIELD",
+        message: "Ada bidang katalog yang tidak tersedia untuk landing.",
+      })
+    }
+    if (faqKeys.some((key) => !validFaqs.has(key))) {
+      throw new ConvexError({
+        code: "INVALID_FAQ",
+        message: "Ada pertanyaan umum yang tidak tersedia untuk landing.",
+      })
+    }
+    if (heroWorkSlug !== null && !validWorks.has(heroWorkSlug)) {
+      throw new ConvexError({
+        code: "INVALID_HERO_WORK",
+        message: "Karya untuk Kartu Karya hero tidak tersedia.",
+      })
+    }
 
+    const featured: FeaturedSelection = {
+      pathSlugs,
+      teacherSlugs,
+      workSlugs,
+      testimonialIds,
+      catalogFieldKeys,
+      faqKeys,
+      heroWorkSlug,
+    }
     const value = {
       ...(site.value as Record<string, unknown>),
-      featured: { pathSlugs, teacherSlugs, workSlugs, testimonialIds },
+      featured,
     }
     await ctx.db.patch(site._id, { value, updatedAt: now() })
     await appendAudit(ctx, {
@@ -1465,7 +1525,7 @@ export const setFeatured = mutation({
       entityType: "siteContent",
       entityId: site._id,
       reason,
-      after: { pathSlugs, teacherSlugs, workSlugs, testimonialIds },
+      after: featured,
     })
     return null
   },

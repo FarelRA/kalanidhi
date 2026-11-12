@@ -70,7 +70,18 @@ export type Work = {
   unit: string
   technique: string
   techniqueNote: string
+  /** Serial from the linked `workCards` row. */
   workCard: string
+  /** Permission note from the linked `workCards` row. */
+  permission?: string
+  /** Provenance from the linked `workCards` row. */
+  provenance?: string
+  /** Materials from the linked `workCards` row. */
+  materials?: string
+  /** Serial of the certificate backing the work card. */
+  certificateSerial?: string
+  /** Learning path slug the work belongs to. */
+  pathSlug?: string
   description: string
   image: string
 }
@@ -99,13 +110,19 @@ export type HeroContent = {
     caption: string
     note: string
   }
+  /** Editorial label only. Serial, work, maker, and teacher come from Convex. */
   workCard: {
     title: string
-    serial: string
-    work: string
-    maker: string
-    teacher: string
   }
+}
+
+/** Resolved from the selected work and its linked work card, maker, and teacher. */
+export type HeroWorkCard = {
+  slug: string
+  serial: string
+  work: string
+  maker: string
+  teacher: string
 }
 
 export type TractionContent = {
@@ -445,10 +462,33 @@ export type SiteCopy = {
   metadata: SiteMetadata
 }
 
+/** Every node the admin can choose to show on the landing page. */
+export type FeaturedSelection = {
+  pathSlugs: string[]
+  teacherSlugs: string[]
+  workSlugs: string[]
+  testimonialIds: string[]
+  /** Catalog fields are keyed by their stable name. */
+  catalogFieldKeys: string[]
+  /** FAQ rows are keyed by their database id. */
+  faqKeys: string[]
+  heroWorkSlug: string | null
+}
+
+/**
+ * The document the Content editor writes and a revision stores. It contains
+ * editorial copy plus the landing selection only; entity data never lives here.
+ */
+export type ContentDocument = SiteCopy & {
+  featured: FeaturedSelection
+}
+
+/** The resolved public landing payload. Entities are read from their tables. */
 export type SiteData = SiteCopy & {
   catalog: CatalogContent & {
     fields: CatalogField[]
   }
+  heroWorkCard: HeroWorkCard | null
   paths: LearningPath[]
   teachers: Teacher[]
   works: Work[]

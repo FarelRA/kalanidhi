@@ -1,6 +1,10 @@
 import { ConvexError } from "convex/values"
 
-import { toStoredCopy, type StoredSiteData } from "./content"
+import type {
+  ContentDocument,
+  FeaturedSelection,
+} from "../lib/content/types"
+import type { StoredContentValue } from "./content"
 import {
   catalogFieldsSeed,
   faqsSeed,
@@ -149,8 +153,8 @@ export const clearAll = internalMutation({
 })
 
 /**
- * The seed never falls back to `public/images`. Every `imageFile` must already
- * exist as an active image in `mediaAssets` (uploaded by
+ * The seed never falls back to static files. Every `imageFile` must already
+ * exist as an active image in `mediaAssets` (uploaded from `seed/images` by
  * `scripts/upload-images.mjs`), otherwise the whole seed fails loudly.
  */
 async function imageAssetsByFilename(
@@ -182,6 +186,25 @@ function requireImage(
   return id
 }
 
+async function storageUrl(
+  ctx: MutationCtx,
+  id: Id<"mediaAssets">,
+): Promise<string> {
+  const asset = await ctx.db.get(id)
+  const url = asset
+    ? asset.storageId
+      ? await ctx.storage.getUrl(asset.storageId)
+      : asset.externalUrl
+    : null
+  if (!url) {
+    throw new ConvexError({
+      code: "SEED_IMAGE_MISSING",
+      message: `Aset gambar ${id} tidak punya URL penyimpanan. Unggah ulang gambar seed.`,
+    })
+  }
+  return url
+}
+
 async function userByEmail(ctx: MutationCtx, email: string) {
   const user = await ctx.db
     .query("users")
@@ -207,7 +230,7 @@ export const seedContent = internalMutation({
   args: {},
   handler: async (ctx) => {
     const assets = await imageAssetsByFilename(ctx)
-    const storedSite: StoredSiteData = {
+    const baseCopy: Omit<StoredContentValue, "featured"> = {
       ...siteSeed,
       hero: {
         ...siteSeed.hero,
@@ -235,38 +258,26 @@ export const seedContent = internalMutation({
           ),
         },
       },
-      catalog: {
-        ...siteSeed.catalog,
-        fields: catalogFieldsSeed,
-      },
-      paths: pathsSeed.map(({ imageFile, ...rest }) => ({
-        ...rest,
-        imageAssetId: requireImage(assets, imageFile, `jalur ${rest.slug}`),
-      })),
-      teachers: teachersSeed.map(({ imageFile, ...rest }) => ({
-        ...rest,
-        imageAssetId: requireImage(assets, imageFile, `pengajar ${rest.slug}`),
-      })),
-      works: worksSeed.map(({ imageFile, ...rest }) => ({
-        ...rest,
-        imageAssetId: requireImage(assets, imageFile, `karya ${rest.slug}`),
-      })),
-      testimonials: testimonialsSeed,
-      faqs: faqsSeed,
     }
 
-    const baseCopy = toStoredCopy(storedSite)
-    const siteId = await ctx.db.insert("siteContent", {
-      key: "site",
-      value: baseCopy,
-      updatedAt: NOW,
-    })
+    const seededPaths = pathsSeed.map(({ imageFile, ...rest }) => ({
+      ...rest,
+      imageAssetId: requireImage(assets, imageFile, `jalur ${rest.slug}`),
+    }))
+    const seededTeachers = teachersSeed.map(({ imageFile, ...rest }) => ({
+      ...rest,
+      imageAssetId: requireImage(assets, imageFile, `pengajar ${rest.slug}`),
+    }))
+    const seededWorks = worksSeed.map(({ imageFile, ...rest }) => ({
+      ...rest,
+      imageAssetId: requireImage(assets, imageFile, `karya ${rest.slug}`),
+    }))
 
     for (const [order, field] of catalogFieldsSeed.entries()) {
       await ctx.db.insert("catalogFields", { order, ...field })
     }
 
-    for (const [order, path] of storedSite.paths.entries()) {
+    for (const [order, path] of seededPaths.entries()) {
       const teacher = await userByEmail(
         ctx,
         PATH_TEACHER_EMAIL[path.slug] ?? "bambang@kalanidhi.site",
@@ -280,7 +291,7 @@ export const seedContent = internalMutation({
       })
     }
 
-    for (const [order, teacher] of storedSite.teachers.entries()) {
+    for (const [order, teacher] of seededTeachers.entries()) {
       const user = await userByEmail(
         ctx,
         `${teacher.slug.split("-")[0]}@kalanidhi.site`,
@@ -300,7 +311,7 @@ export const seedContent = internalMutation({
       })
     }
 
-    for (const [order, work] of storedSite.works.entries()) {
+    for (const [order, work] of seededWorks.entries()) {
       await ctx.db.insert("works", {
         order,
         ...work,
@@ -318,22 +329,54 @@ export const seedContent = internalMutation({
       testimonialIds.push(id)
     }
 
+    const faqIds: string[] = []
     for (const [order, faq] of faqsSeed.entries()) {
-      await ctx.db.insert("faqs", { order, ...faq })
+      const id = await ctx.db.insert("faqs", { order, ...faq })
+      faqIds.push(id)
     }
 
-    const featured = {
-      pathSlugs: storedSite.paths.map((path) => path.slug),
-      teacherSlugs: storedSite.teachers.map((teacher) => teacher.slug),
-      workSlugs: storedSite.works.map((work) => work.slug),
+    const featured: FeaturedSelection = {
+      pathSlugs: seededPaths.map((path) => path.slug),
+      teacherSlugs: seededTeachers
+        .filter((teacher) => teacher.slug !== "joko-santoso")
+        .map((teacher) => teacher.slug),
+      workSlugs: seededWorks.map((work) => work.slug),
       testimonialIds,
+      catalogFieldKeys: catalogFieldsSeed.map((field) => field.name),
+      faqKeys: faqIds,
+      heroWorkSlug: seededWorks.length > 0 ? seededWorks[0].slug : null,
     }
-    await ctx.db.patch(siteId, {
-      value: { ...baseCopy, featured },
+
+    await ctx.db.insert("siteContent", {
+      key: "site",
+      value: { ...baseCopy, featured } satisfies StoredContentValue,
       updatedAt: NOW,
     })
 
-    const draftCopy = JSON.parse(JSON.stringify(baseCopy)) as Record<
+    const revisionCopy: ContentDocument = {
+      ...baseCopy,
+      featured,
+      hero: {
+        ...baseCopy.hero,
+        plate: {
+          alt: baseCopy.hero.plate.alt,
+          caption: baseCopy.hero.plate.caption,
+          note: baseCopy.hero.plate.note,
+          image: await storageUrl(ctx, baseCopy.hero.plate.imageAssetId),
+        },
+      },
+      metadata: {
+        ...baseCopy.metadata,
+        image: {
+          width: baseCopy.metadata.image.width,
+          height: baseCopy.metadata.image.height,
+          alt: baseCopy.metadata.image.alt,
+          url: await storageUrl(ctx, baseCopy.metadata.image.imageAssetId),
+        },
+      },
+    }
+
+    const draftCopy = JSON.parse(JSON.stringify(revisionCopy)) as Record<
       string,
       unknown
     >
@@ -342,7 +385,7 @@ export const seedContent = internalMutation({
       "Duduk di bangku ini.",
       "Nanti kamu yang mengajari.",
     ]
-    const scheduledCopy = JSON.parse(JSON.stringify(baseCopy)) as Record<
+    const scheduledCopy = JSON.parse(JSON.stringify(revisionCopy)) as Record<
       string,
       unknown
     >
@@ -355,7 +398,7 @@ export const seedContent = internalMutation({
     await ctx.db.insert("contentRevisions", {
       key: "site",
       version: 1,
-      value: { ...baseCopy, featured },
+      value: revisionCopy,
       status: "published",
       authorId: (await userByEmail(ctx, "farel@farel.is-a.dev"))._id,
       note: "Terbitan awal edisi 2026.",
@@ -365,7 +408,7 @@ export const seedContent = internalMutation({
     await ctx.db.insert("contentRevisions", {
       key: "site",
       version: 2,
-      value: { ...draftCopy, featured },
+      value: draftCopy,
       status: "draft",
       authorId: (await userByEmail(ctx, "farel@farel.is-a.dev"))._id,
       note: "Draf penyempurnaan judul hero.",
@@ -375,7 +418,7 @@ export const seedContent = internalMutation({
     await ctx.db.insert("contentRevisions", {
       key: "site",
       version: 3,
-      value: { ...scheduledCopy, featured },
+      value: scheduledCopy,
       status: "scheduled",
       authorId: (await userByEmail(ctx, "farel@farel.is-a.dev"))._id,
       note: "Jadwal pembaruan kabar edisi Desember.",

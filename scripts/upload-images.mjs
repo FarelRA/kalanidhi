@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Upload every image in `public/images` to Convex file storage and register it
- * in the `mediaAssets` table. The app never serves `public/images` at runtime;
- * this directory is only the upload source.
+ * Upload every image in `seed/images` to Convex file storage and register it
+ * in the `mediaAssets` table. The app never serves these files at runtime;
+ * this directory is only the upload source for Convex storage.
  *
  * Usage (self-hosted Convex):
  *
@@ -11,7 +11,7 @@
  *   node scripts/upload-images.mjs
  *
  * Optional:
- *   IMAGE_DIR=public/images   directory to read (default: public/images)
+ *   IMAGE_DIR=seed/images     directory to read (default: seed/images)
  *   SEED_UPLOAD_SECRET        must match the Convex env var of the same name
  *                             when that variable is set on the deployment
  *
@@ -47,7 +47,7 @@ if (!url || !adminKey) {
 }
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
-const imageDir = path.resolve(root, process.env.IMAGE_DIR ?? "public/images")
+const imageDir = path.resolve(root, process.env.IMAGE_DIR ?? "seed/images")
 
 const client = new ConvexHttpClient(url)
 client.setAdminAuth(adminKey)

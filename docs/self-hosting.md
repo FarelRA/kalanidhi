@@ -240,7 +240,9 @@ Rules:
 5. Start Convex and dashboard.
 6. Run `deploy/setup-convex.sh --post` to capture the admin key.
 7. Deploy Convex functions and set function env.
-8. Run the seed.
+8. Upload the source images from `seed/images` to Convex storage with
+   `npm run images:upload` (idempotent), then run the seed. The seed fails loudly if
+   any `imageFile` is missing from `mediaAssets`.
 9. Start LiveKit and Redis.
 10. Set app env and deploy the app.
 11. Verify `/`, `/ruang`, `/masuk`, `/verifikasi`, and a test call.

@@ -249,26 +249,42 @@ describe("content CMS / draft and publish", () => {
   })
 })
 
-describe("content CMS / entities and validation", () => {
-  it("[P1-CMS-15] the draft schema rejects a broken entity and accepts the shipped copy", async () => {
+describe("content CMS / copy document and validation", () => {
+  it("[P1-CMS-15] the draft schema accepts copy and selection and drops entity snapshots", async () => {
     const t = await adminDb()
     const value = contentFixture()
-    const broken = structuredClone(value)
-    broken.paths[0].price = 12.5
-
-    const error = await t
-      .withIdentity({ subject: "auth-admin" })
-      .mutation(api.content.saveDraft, {
-        value: broken,
-        note: "Harga pecahan",
-      })
-      .catch((caught: unknown) => caught)
-    expect(errorCode(error)).toBe("CONTENT_INVALID")
+    const withSnapshots = {
+      ...value,
+      paths: [{ slug: "bukan-entitas" }],
+      teachers: [{ slug: "bukan-entitas" }],
+      works: [{ slug: "bukan-entitas" }],
+      testimonials: [{ quote: "x" }],
+      faqs: [{ question: "x" }],
+    }
 
     const saved = await t
       .withIdentity({ subject: "auth-admin" })
-      .mutation(api.content.saveDraft, { value, note: "Konten lengkap" })
+      .mutation(api.content.saveDraft, {
+        value: withSnapshots,
+        note: "Konten lengkap",
+      })
     expect(saved.version).toBe(1)
+
+    const revision = await t.run(async (ctx) =>
+      ctx.db
+        .query("contentRevisions")
+        .withIndex("by_key_version", (q) =>
+          q.eq("key", "site").eq("version", saved.version),
+        )
+        .unique(),
+    )
+    const stored = revision?.value as Record<string, unknown>
+    expect(stored.paths).toBeUndefined()
+    expect(stored.teachers).toBeUndefined()
+    expect(stored.works).toBeUndefined()
+    expect(stored.testimonials).toBeUndefined()
+    expect(stored.faqs).toBeUndefined()
+    expect(stored.featured).toBeTruthy()
   })
 
   it("[P1-CMS-05] image alt text and safe URLs are enforced", async () => {
@@ -403,46 +419,60 @@ describe("content CMS / entities and validation", () => {
     expect(audit[0]?.severity).toBe("error")
   })
 
-  it("[P1-CMS-33] publishing an entity updates the public tables and hides unpublished teachers", async () => {
+  it("[P1-CMS-33] publishing copy leaves entity tables untouched", async () => {
     const t = await adminDb()
     await seedContent(t)
+    const before = await t.run(async (ctx) => {
+      const [teachers, works, paths] = await Promise.all([
+        ctx.db.query("teachers").collect(),
+        ctx.db.query("works").collect(),
+        ctx.db.query("paths").collect(),
+      ])
+      return { teachers, works, paths }
+    })
+
     const value = contentFixture()
-    value.teachers[0].quote = "Kutipan pengajar baru."
-    value.works = value.works.filter((work) => work.slug !== "batik-soga-anyaman")
+    value.hero.description = "Deskripsi baru dari editor copy."
     const saved = await t
       .withIdentity({ subject: "auth-admin" })
-      .mutation(api.content.saveDraft, { value, note: "Ubah entitas" })
-
+      .mutation(api.content.saveDraft, { value, note: "Ubah copy" })
     await t.withIdentity({ subject: "auth-admin" }).mutation(api.content.publish, {
       version: saved.version,
-      note: "Terbitkan entitas",
-      confirmSensitive: true,
+      note: "Terbitkan copy",
     })
+
+    const after = await t.run(async (ctx) => {
+      const [teachers, works, paths, site] = await Promise.all([
+        ctx.db.query("teachers").collect(),
+        ctx.db.query("works").collect(),
+        ctx.db.query("paths").collect(),
+        ctx.db
+          .query("siteContent")
+          .withIndex("by_key", (q) => q.eq("key", "site"))
+          .unique(),
+      ])
+      return { teachers, works, paths, site }
+    })
+    expect(after.teachers.map((teacher) => teacher.quote)).toEqual(
+      before.teachers.map((teacher) => teacher.quote),
+    )
+    expect(after.works.map((work) => work.slug)).toEqual(
+      before.works.map((work) => work.slug),
+    )
+    expect(after.paths.map((path) => path.slug)).toEqual(
+      before.paths.map((path) => path.slug),
+    )
+
+    const stored = after.site?.value as Record<string, unknown>
+    expect(stored.paths).toBeUndefined()
+    expect(stored.teachers).toBeUndefined()
+    expect(stored.works).toBeUndefined()
+    expect(stored.testimonials).toBeUndefined()
+    expect(stored.faqs).toBeUndefined()
 
     const site = await t.query(api.content.getSite, {})
-    expect(site?.teachers[0]?.quote).toBe("Kutipan pengajar baru.")
-    expect(site?.works.some((work) => work.slug === "batik-soga-anyaman")).toBe(false)
-
-    await t.run(async (ctx) => {
-      await ctx.db.insert("teachers", {
-        order: 99,
-        slug: "pengajar-draf",
-        name: "Pengajar Draf",
-        initials: "PD",
-        specialty: "Tenun",
-        region: "Jepara",
-        experience: "5 tahun",
-        quote: "Belum tampil.",
-        focus: "Tenun",
-        path: "Tenun",
-        community: "Sanggar",
-        verified: false,
-        status: "review",
-        published: false,
-      })
-    })
-    const after = await t.query(api.content.getSite, {})
-    expect(after?.teachers.some((teacher) => teacher.slug === "pengajar-draf")).toBe(false)
+    expect(site?.hero.description).toBe("Deskripsi baru dari editor copy.")
+    expect(site?.teachers[0]?.quote).toBe(before.teachers[0]?.quote)
   })
 })
 
@@ -482,9 +512,19 @@ describe("content CMS / linked path teacher", () => {
     const t = await adminDb()
     await seedContent(t)
 
+    await t.run(async (ctx) => {
+      const path = await ctx.db.query("paths").withIndex("by_order").first()
+      if (path) {
+        await ctx.db.patch(path._id, {
+          teacherId: undefined,
+          teacher: "Nama Simpanan",
+        })
+      }
+    })
+
     const site = await t.query(api.content.getSite, {})
     const path = site?.paths[0]
     expect(path?.teacherId).toBeUndefined()
-    expect(path?.teacher).toBeTruthy()
+    expect(path?.teacher).toBe("Nama Simpanan")
   })
 })

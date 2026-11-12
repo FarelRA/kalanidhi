@@ -5,8 +5,8 @@ import { NextResponse, type NextRequest } from "next/server"
  * current path to build `/masuk?next=...` after a session check.
  */
 export function proxy(request: NextRequest) {
-  // `public/images` is only the upload source for Convex storage. Never serve
-  // it from the app, even if a stale reference slips through.
+  // All media is served from Convex storage URLs. The app has no static
+  // `/images` route; seed/images is only the upload source for Convex.
   if (request.nextUrl.pathname.startsWith("/images/")) {
     return new NextResponse(null, { status: 404 })
   }

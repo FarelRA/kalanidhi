@@ -41,7 +41,7 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <BenchHero hero={data.hero} />
+      <BenchHero hero={data.hero} workCard={data.heroWorkCard} />
       <BenchLoop loop={data.loop} />
       <MaterialShelf catalog={data.catalog} />
       <OpenPaths paths={data.paths} copy={data.sections.paths} />
