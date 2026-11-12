@@ -1659,7 +1659,7 @@ export const seedGovernance = internalMutation({
         accessLevel: "public" as const,
         attribution:
           "Sanggar Wicara Surakarta. Rundown disusun ulang untuk konteks kelas.",
-        notes: "Contoh rundown tidak memuat data keluarga nyata.",
+        notes: "Rundown tidak memuat data keluarga nyata.",
         withdrawalStatus: "active" as const,
         status: "active" as const,
       },

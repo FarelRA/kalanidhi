@@ -424,7 +424,7 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Membaca hasil warna",
           kind: "practice",
-          body: "Keringkan contoh kain, lalu bandingkan intensitas warna dengan catatan takaran.",
+          body: "Keringkan potongan kain, lalu bandingkan intensitas warna dengan catatan takaran.",
           estimatedMinutes: 30,
           accessLevel: "enrolled",
         },
@@ -594,7 +594,7 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Umpan balik pengajar",
           kind: "video",
-          body: "Tonton contoh koreksi dan catat tiga perbaikan untuk latihan berikutnya.",
+          body: "Tonton rekaman koreksi dan catat tiga perbaikan untuk latihan berikutnya.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
         },
@@ -850,7 +850,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     submittedDaysAgo: 8,
     assessedDaysAgo: 6,
     revisionCount: 1,
-    evidenceText: "Dua contoh kain dengan takaran soga berbeda.",
+    evidenceText: "Dua potong kain dengan takaran soga berbeda.",
   },
   {
     key: "bayu-bts-1",
