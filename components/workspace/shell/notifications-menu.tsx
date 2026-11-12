@@ -5,10 +5,25 @@ import Link from "next/link"
 import { Bell, CheckCheck } from "lucide-react"
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui"
 import { toast } from "sonner"
-
+import { useMutation, useQuery } from "convex/react"
 import { cn } from "cn"
 
-const notifications = [
+import { api } from "@/convex/_generated/api"
+import type { Id } from "@/convex/_generated/dataModel"
+import { useViewer } from "@/components/workspace/shell/viewer-provider"
+import type { NotificationView } from "@/lib/messaging/types"
+import { formatWorkspaceDateTime } from "@/lib/workspace/format"
+
+type NotificationItem = {
+  id: string
+  title: string
+  body: string
+  time: string
+  href: string
+  unread: boolean
+}
+
+const previewNotifications: NotificationItem[] = [
   {
     id: "n-1",
     title: "Panggilan umpan balik 16.00",
@@ -43,11 +58,93 @@ const notifications = [
   },
 ]
 
+function hrefFor(notification: NotificationView): string {
+  if (notification.conversationId) return "/ruang/pesan"
+  switch (notification.entityType) {
+    case "order":
+      return "/ruang/pesanan"
+    case "payment":
+      return "/ruang/pesanan/pembayaran"
+    case "payout":
+    case "refund":
+      return "/ruang/pesanan/payout"
+    case "certificate":
+      return "/ruang/kredensial"
+    case "work":
+      return "/ruang/karya"
+    case "submission":
+    case "assessment":
+      return "/ruang/tugas"
+    case "support":
+      return "/ruang/dukungan"
+    default:
+      return "/ruang"
+  }
+}
+
+function itemFromLive(notification: NotificationView): NotificationItem {
+  return {
+    id: notification.id,
+    title: notification.title,
+    body: notification.body,
+    time: formatWorkspaceDateTime(
+      new Date(notification.createdAt).toISOString(),
+    ),
+    href: hrefFor(notification),
+    unread: notification.readAt === null,
+  }
+}
+
 export function NotificationsMenu() {
-  const [readIds, setReadIds] = React.useState<string[]>([])
-  const unreadCount = notifications.filter(
-    (item) => item.unread && !readIds.includes(item.id),
-  ).length
+  const { isPreview } = useViewer()
+  const liveNotifications = useQuery(
+    api.notifications.list,
+    isPreview ? "skip" : { limit: 8 },
+  )
+  const liveUnread = useQuery(
+    api.notifications.unreadCount,
+    isPreview ? "skip" : {},
+  )
+  const markRead = useMutation(api.notifications.markRead)
+  const markAllRead = useMutation(api.notifications.markAllRead)
+  const [previewReadIds, setPreviewReadIds] = React.useState<string[]>([])
+
+  const items = React.useMemo<NotificationItem[]>(() => {
+    if (isPreview) return previewNotifications
+    return (liveNotifications ?? []).map(itemFromLive)
+  }, [isPreview, liveNotifications])
+
+  const unreadCount = isPreview
+    ? items.filter(
+        (item) => item.unread && !previewReadIds.includes(item.id),
+      ).length
+    : (liveUnread ?? 0)
+
+  function openItem(item: NotificationItem) {
+    if (isPreview) {
+      setPreviewReadIds((current) =>
+        current.includes(item.id) ? current : [...current, item.id],
+      )
+      return
+    }
+    if (!item.unread) return
+    void markRead({
+      notificationId: item.id as Id<"notificationOutbox">,
+    }).catch(() => {
+      toast.error("Pemberitahuan belum bisa ditandai dibaca.")
+    })
+  }
+
+  function markAll() {
+    if (isPreview) {
+      setPreviewReadIds(previewNotifications.map((item) => item.id))
+      toast("Semua pemberitahuan ditandai dibaca")
+      return
+    }
+    void markAllRead({})
+      .then(() => toast("Semua pemberitahuan ditandai dibaca"))
+      .catch(() => toast.error("Pemberitahuan belum bisa ditandai dibaca."))
+  }
 
   return (
     <DropdownMenuPrimitive.Root>
@@ -75,57 +172,58 @@ export function NotificationsMenu() {
             </p>
             <button
               type="button"
-              onClick={() => {
-                setReadIds(notifications.map((item) => item.id))
-                toast("Semua pemberitahuan ditandai dibaca")
-              }}
-              className="inline-flex min-h-11 items-center gap-1 text-[9.5px] sm:min-h-8 font-bold uppercase tracking-[0.05em] text-copper-dark hover:text-ink"
+              onClick={markAll}
+              disabled={unreadCount === 0}
+              className="inline-flex min-h-11 items-center gap-1 text-[9.5px] font-bold uppercase tracking-[0.05em] text-copper-dark hover:text-ink disabled:opacity-40 sm:min-h-8"
             >
               <CheckCheck className="size-3" aria-hidden="true" />
               Tandai dibaca
             </button>
           </div>
-          <ul className="max-h-[60vh] divide-y divide-ink/10 overflow-y-auto">
-            {notifications.map((item) => {
-              const unread = item.unread && !readIds.includes(item.id)
-              return (
-                <li key={item.id}>
-                  <DropdownMenuPrimitive.Item asChild>
-                    <Link
-                      href={item.href}
-                      onClick={() =>
-                        setReadIds((current) =>
-                          current.includes(item.id)
-                            ? current
-                            : [...current, item.id],
-                        )
-                      }
-                      className="flex min-h-14 items-start gap-2.5 px-3 py-3 outline-none data-highlighted:bg-panel/60"
-                    >
-                      <span
-                        aria-hidden="true"
-                        className={cn(
-                          "mt-1.5 size-1.5 shrink-0 border border-ink/30",
-                          unread ? "bg-copper-dark" : "bg-transparent",
-                        )}
-                      />
-                      <span className="min-w-0">
-                        <span className="block text-[11.5px] font-semibold leading-snug">
-                          {item.title}
+          {items.length === 0 ? (
+            <p className="px-3 py-8 text-center text-[11px] leading-relaxed text-ink-muted">
+              Belum ada pemberitahuan. Kabar tugas, pesanan, dan panggilan akan
+              muncul di sini.
+            </p>
+          ) : (
+            <ul className="max-h-[60vh] divide-y divide-ink/10 overflow-y-auto">
+              {items.map((item) => {
+                const unread = isPreview
+                  ? item.unread && !previewReadIds.includes(item.id)
+                  : item.unread
+                return (
+                  <li key={item.id}>
+                    <DropdownMenuPrimitive.Item asChild>
+                      <Link
+                        href={item.href}
+                        onClick={() => openItem(item)}
+                        className="flex min-h-14 items-start gap-2.5 px-3 py-3 outline-none data-highlighted:bg-panel/60"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            "mt-1.5 size-1.5 shrink-0 border border-ink/30",
+                            unread ? "bg-copper-dark" : "bg-transparent",
+                          )}
+                        />
+                        <span className="min-w-0">
+                          <span className="block text-[11.5px] font-semibold leading-snug">
+                            {item.title}
+                          </span>
+                          <span className="mt-0.5 block text-[10.5px] leading-snug text-ink-muted">
+                            {item.body}
+                          </span>
+                          <span className="mt-1 block text-[8.5px] font-bold uppercase tracking-[0.08em] text-ink-muted">
+                            {item.time}
+                          </span>
                         </span>
-                        <span className="mt-0.5 block text-[10.5px] leading-snug text-ink-muted">
-                          {item.body}
-                        </span>
-                        <span className="mt-1 block text-[8.5px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                          {item.time}
-                        </span>
-                      </span>
-                    </Link>
-                  </DropdownMenuPrimitive.Item>
-                </li>
-              )
-            })}
-          </ul>
+                      </Link>
+                    </DropdownMenuPrimitive.Item>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
           <div className="border-t border-ink/15 px-3 py-2">
             <p className="text-[9px] leading-relaxed text-ink-muted">
               Pengingat panggilan dikirim 10 menit sebelum waktu mulai.
