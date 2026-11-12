@@ -63,11 +63,15 @@ export function PaymentConsoleLive() {
   const events = useQuery(api.payments.listPaymentEvents, {})
   const health = useQuery(api.payments.getGatewayHealth, {})
   const manualMatch = useMutation(api.payments.manualMatch)
+  const recordFee = useMutation(api.payments.recordGatewayFee)
   const expireIntents = useMutation(api.payments.expireIntents)
 
   const [tab, setTab] = React.useState("intents")
   const [selected, setSelected] = React.useState<PaymentIntentView | null>(null)
   const [match, setMatch] = React.useState<PaymentIntentView | null>(null)
+  const [feeTarget, setFeeTarget] = React.useState<PaymentIntentView | null>(null)
+  const [feeAmount, setFeeAmount] = React.useState("")
+  const [feeReason, setFeeReason] = React.useState("")
   const [transactionId, setTransactionId] = React.useState("")
   const [reason, setReason] = React.useState("")
   const [pending, setPending] = React.useState(false)
@@ -396,6 +400,19 @@ export function PaymentConsoleLive() {
                   Cocokkan manual
                 </Button>
               ) : null}
+              {selected.status === "paid" && selected.gatewayFee === null ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setFeeTarget(selected)
+                    setFeeAmount("")
+                    setFeeReason("")
+                  }}
+                >
+                  Catat biaya gerbang
+                </Button>
+              ) : null}
               <Button asChild size="sm" variant="outline">
                 <Link href="/ruang/pesanan">Buka pesanan</Link>
               </Button>
@@ -525,6 +542,79 @@ export function PaymentConsoleLive() {
               }
             >
               Simpan pencocokan
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={Boolean(feeTarget)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setFeeTarget(null)
+            setFeeAmount("")
+            setFeeReason("")
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Catat biaya gerbang</DialogTitle>
+            <DialogDescription>
+              Isi biaya MDR sebenarnya dari laporan settlement. Biaya diserap
+              bagian platform; porsi guru dan komunitas tidak berubah.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="fee-amount">Biaya (rupiah)</Label>
+              <Input
+                id="fee-amount"
+                inputMode="numeric"
+                value={feeAmount}
+                onChange={(event) =>
+                  setFeeAmount(event.target.value.replace(/[^0-9]/g, ""))
+                }
+                className="mt-1.5"
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <Label htmlFor="fee-reason">Sumber dan alasan</Label>
+              <Textarea
+                id="fee-reason"
+                value={feeReason}
+                onChange={(event) => setFeeReason(event.target.value)}
+                className="mt-1.5 min-h-20"
+                placeholder="Misalnya: laporan settlement GoBiz 12 Nov, MDR QRIS 0,7%."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFeeTarget(null)}>
+              Batal
+            </Button>
+            <Button
+              disabled={
+                pending ||
+                !feeTarget ||
+                feeAmount.trim() === "" ||
+                feeReason.trim().length < 8
+              }
+              onClick={() =>
+                feeTarget
+                  ? run(
+                      () =>
+                        recordFee({
+                          paymentId: feeTarget.id as never,
+                          gatewayFee: Number(feeAmount),
+                          reason: feeReason,
+                        }),
+                      "Biaya gerbang dicatat",
+                    )
+                  : undefined
+              }
+            >
+              Simpan biaya
             </Button>
           </DialogFooter>
         </DialogContent>
