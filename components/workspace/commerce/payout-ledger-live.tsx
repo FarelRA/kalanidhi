@@ -587,7 +587,7 @@ const ledgerColumns: Column<LedgerEntryView>[] = [
     header: "Pembalik dari",
     cell: (row) => (
       <span className="text-[10px] text-ink-muted">
-        {row.reversalOf ?? "—"}
+        {row.reversalOf ?? "Belum diisi"}
       </span>
     ),
     className: "hidden lg:table-cell",

@@ -463,7 +463,7 @@ export function OrdersLive() {
                 },
                 {
                   label: "Alasan batal",
-                  value: selected.cancelReason ?? "—",
+                  value: selected.cancelReason ?? "Belum diisi",
                 },
                 {
                   label: "Versi persetujuan",
