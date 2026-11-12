@@ -326,7 +326,9 @@ function SubmissionDrawer({
     submissionId ? { submissionId: submissionId as never } : "skip",
   )
 
-  if (!detail) {
+  if (submissionId === null) return null
+
+  if (detail === undefined) {
     return (
       <DetailDrawer
         open
@@ -337,6 +339,23 @@ function SubmissionDrawer({
         title="Memuat tugas"
       >
         {null}
+      </DetailDrawer>
+    )
+  }
+
+  if (detail === null) {
+    return (
+      <DetailDrawer
+        open
+        onOpenChange={(open) => {
+          if (!open) onClose()
+        }}
+        eyebrow="Tugas"
+        title="Tugas tidak ditemukan"
+      >
+        <p className="text-[12px] leading-relaxed text-ink-muted">
+          Tugas ini tidak tersedia untuk akun ini, atau sudah dipindahkan.
+        </p>
       </DetailDrawer>
     )
   }

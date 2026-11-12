@@ -18,6 +18,16 @@ type AuthUserExtras = {
   whatsappVerified?: boolean
 }
 
+function deviceNameFromUserAgent(userAgent: string | null | undefined): string {
+  if (!userAgent) return "Perangkat"
+  if (/android/i.test(userAgent)) return "Android"
+  if (/iphone|ipad|ipod/i.test(userAgent)) return "iPhone/iPad"
+  if (/windows/i.test(userAgent)) return "Windows"
+  if (/macintosh|mac os/i.test(userAgent)) return "Mac"
+  if (/linux/i.test(userAgent)) return "Linux"
+  return "Peramban"
+}
+
 function phoneFromAuthDoc(doc: AuthUserExtras): string {
   const raw = doc.phone ?? doc.phoneNumber
   if (!raw) return ""
@@ -159,6 +169,53 @@ export const authComponent: ReturnType<typeof createClient<DataModel>> =
           before: { roles: user.roles },
           severity: "warning",
           createdAt: timestamp,
+        })
+      },
+    },
+    session: {
+      onCreate: async (ctx, doc) => {
+        const user = await ctx.db
+          .query("users")
+          .withIndex("by_authUserId", (q) => q.eq("authUserId", doc.userId))
+          .unique()
+        if (!user) return
+        const existing = await ctx.db
+          .query("sessions")
+          .withIndex("by_authSessionId", (q) => q.eq("authSessionId", doc._id))
+          .unique()
+        if (existing) return
+        await ctx.db.insert("sessions", {
+          userId: user._id,
+          authSessionId: doc._id,
+          deviceName: deviceNameFromUserAgent(doc.userAgent),
+          userAgent: doc.userAgent ?? "",
+          createdAt: doc.createdAt,
+          lastSeenAt: doc.updatedAt,
+          expiresAt: doc.expiresAt,
+        })
+      },
+      onUpdate: async (ctx, newDoc) => {
+        const row = await ctx.db
+          .query("sessions")
+          .withIndex("by_authSessionId", (q) =>
+            q.eq("authSessionId", newDoc._id),
+          )
+          .unique()
+        if (!row) return
+        await ctx.db.patch(row._id, {
+          lastSeenAt: newDoc.updatedAt,
+          expiresAt: newDoc.expiresAt,
+        })
+      },
+      onDelete: async (ctx, doc) => {
+        const row = await ctx.db
+          .query("sessions")
+          .withIndex("by_authSessionId", (q) => q.eq("authSessionId", doc._id))
+          .unique()
+        if (!row) return
+        await ctx.db.patch(row._id, {
+          revokedAt: Date.now(),
+          revokedReason: "Sesi berakhir",
         })
       },
     },
