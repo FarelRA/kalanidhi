@@ -46,6 +46,7 @@ export function SiteHeader({
   const pathname = usePathname()
   const [searchOpen, setSearchOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [hash, setHash] = useState("")
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const searchTriggerRef = useRef<HTMLElement | null>(null)
   const nextQuery =
@@ -57,10 +58,27 @@ export function SiteHeader({
       : ""
 
   function isActive(href: string) {
-    const base = href.split("#")[0] || "/"
-    if (base === "/") return pathname === "/"
-    return pathname === base || pathname.startsWith(`${base}/`)
+    const [path, anchor] = href.split("#")
+    const base = path || "/"
+    const pathMatches =
+      base === "/"
+        ? pathname === "/"
+        : pathname === base || pathname.startsWith(`${base}/`)
+    if (!pathMatches) return false
+    // A section link such as "/#indeks" is only active when the browser is
+    // actually at that anchor; otherwise the landing page would highlight it.
+    if (anchor) return hash === `#${anchor}`
+    return true
   }
+
+  useEffect(() => {
+    function syncHash() {
+      setHash(window.location.hash)
+    }
+    syncHash()
+    window.addEventListener("hashchange", syncHash)
+    return () => window.removeEventListener("hashchange", syncHash)
+  }, [])
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
