@@ -1,6 +1,6 @@
 export type LeadArgs = {
   intent: "student" | "institution" | "consultation" | "notify"
-  name?: string
+  name: string
   email?: string
   whatsapp?: string
   institution?: string

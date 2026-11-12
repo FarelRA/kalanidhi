@@ -41,7 +41,7 @@ const ALLOWED_TRANSITIONS: Record<LeadStatus, LeadStatus[]> = LEAD_TRANSITIONS a
 export const create = mutation({
   args: {
     intent: leadIntent,
-    name: v.optional(v.string()),
+    name: v.string(),
     email: v.optional(v.string()),
     whatsapp: v.optional(v.string()),
     institution: v.optional(v.string()),

@@ -17,6 +17,12 @@ export default function Page() {
         >
           Pilih unggulan landing
         </Link>
+        <Link
+          href="/ruang/konten/faq"
+          className="inline-flex min-h-9 items-center border border-ink/25 bg-paper-2 px-3 text-[10px] font-bold uppercase tracking-[0.08em] text-ink transition-colors hover:border-ink/50"
+        >
+          Kelola FAQ
+        </Link>
       </div>
       <ContentCmsGate />
     </div>

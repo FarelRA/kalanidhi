@@ -1890,8 +1890,163 @@ export const getFeaturedOptions = query({
         key: faq._id as string,
         question: faq.question,
       })),
-      featured: featuredSelection(site?.value),
+      featured: sanitizeFeaturedFaqs(featuredSelection(site?.value), faqs),
     }
+  },
+})
+
+/** Drops FAQ keys that no longer exist so the selection editor stays valid. */
+function sanitizeFeaturedFaqs(
+  featured: FeaturedSelection | null,
+  faqs: Doc<"faqs">[],
+): FeaturedSelection | null {
+  if (!featured) return null
+  const valid = new Set(faqs.map((faq) => faq._id as string))
+  return {
+    ...featured,
+    faqKeys: featured.faqKeys.filter((key) => valid.has(key)),
+  }
+}
+
+/** Admin FAQ manager: every row, including the answer and order. */
+export const listFaqs = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx, "content.publish")
+    const faqs = await ctx.db.query("faqs").withIndex("by_order").collect()
+    return faqs.map((faq) => ({
+      id: faq._id as string,
+      order: faq.order,
+      question: faq.question,
+      answer: faq.answer,
+    }))
+  },
+})
+
+function requireFaqText(value: string, field: string): string {
+  const text = value.trim()
+  if (text.length < 3) {
+    throw new ConvexError({
+      code: "FAQ_INVALID",
+      message: `${field} minimal 3 karakter.`,
+    })
+  }
+  return text
+}
+
+export const createFaq = mutation({
+  args: {
+    question: v.string(),
+    answer: v.string(),
+    reason: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { viewer } = await requireAdmin(ctx, "content.publish")
+    const reason = requireReason(args.reason)
+    const question = requireFaqText(args.question, "Pertanyaan")
+    const answer = requireFaqText(args.answer, "Jawaban")
+    const last = await ctx.db
+      .query("faqs")
+      .withIndex("by_order")
+      .order("desc")
+      .first()
+    const order = (last?.order ?? -1) + 1
+    const id = await ctx.db.insert("faqs", { order, question, answer })
+    await appendAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "content.faq.create",
+      entityType: "faqs",
+      entityId: id,
+      reason,
+      after: { question, order },
+    })
+    return { id: id as string, order }
+  },
+})
+
+export const updateFaq = mutation({
+  args: {
+    id: v.id("faqs"),
+    question: v.string(),
+    answer: v.string(),
+    reason: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { viewer } = await requireAdmin(ctx, "content.publish")
+    const reason = requireReason(args.reason)
+    const faq = await ctx.db.get(args.id)
+    if (!faq) {
+      throw new ConvexError({ code: "NOT_FOUND", message: "FAQ tidak ada." })
+    }
+    const question = requireFaqText(args.question, "Pertanyaan")
+    const answer = requireFaqText(args.answer, "Jawaban")
+    await ctx.db.patch(args.id, { question, answer })
+    await appendAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "content.faq.update",
+      entityType: "faqs",
+      entityId: args.id,
+      reason,
+      before: { question: faq.question, answer: faq.answer },
+      after: { question, answer },
+    })
+    return null
+  },
+})
+
+export const deleteFaq = mutation({
+  args: { id: v.id("faqs"), reason: v.string() },
+  handler: async (ctx, args) => {
+    const { viewer } = await requireAdmin(ctx, "content.publish")
+    const reason = requireReason(args.reason)
+    const faq = await ctx.db.get(args.id)
+    if (!faq) {
+      throw new ConvexError({ code: "NOT_FOUND", message: "FAQ tidak ada." })
+    }
+    await ctx.db.delete(args.id)
+    await appendAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "content.faq.delete",
+      entityType: "faqs",
+      entityId: args.id,
+      reason,
+      before: { question: faq.question, answer: faq.answer },
+    })
+    return null
+  },
+})
+
+export const reorderFaqs = mutation({
+  args: { ids: v.array(v.id("faqs")), reason: v.string() },
+  handler: async (ctx, args) => {
+    const { viewer } = await requireAdmin(ctx, "content.publish")
+    const reason = requireReason(args.reason)
+    const faqs = await ctx.db.query("faqs").collect()
+    const known = new Set(faqs.map((faq) => faq._id as string))
+    if (
+      args.ids.length !== faqs.length ||
+      args.ids.some((id) => !known.has(id as string))
+    ) {
+      throw new ConvexError({
+        code: "FAQ_REORDER_INVALID",
+        message: "Daftar FAQ tidak lengkap. Muat ulang lalu coba lagi.",
+      })
+    }
+    for (const [order, id] of args.ids.entries()) {
+      await ctx.db.patch(id, { order })
+    }
+    await appendAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "content.faq.reorder",
+      entityType: "faqs",
+      reason,
+      after: { ids: args.ids },
+    })
+    return null
   },
 })
 

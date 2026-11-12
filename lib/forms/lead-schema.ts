@@ -9,7 +9,11 @@ import { LEAD_INTENTS } from "../leads/options"
 export const leadSchema = z
   .object({
     intent: z.enum(LEAD_INTENTS),
-    name: z.string().trim().max(120).optional(),
+    name: z
+      .string({ error: "Nama diperlukan agar kami bisa menyapa kamu." })
+      .trim()
+      .min(1, "Nama diperlukan agar kami bisa menyapa kamu.")
+      .max(120),
     email: z.preprocess(
       (value) =>
         typeof value === "string" && value.trim() === "" ? undefined : value,
@@ -40,14 +44,6 @@ export const leadSchema = z
     company_website: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    if (data.intent !== "notify" && !data.name) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["name"],
-        message: "Nama diperlukan agar kami bisa menyapa kamu.",
-      })
-    }
-
     if (data.intent === "institution" && !data.institution) {
       ctx.addIssue({
         code: "custom",

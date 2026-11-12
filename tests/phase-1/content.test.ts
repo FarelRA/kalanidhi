@@ -580,3 +580,79 @@ describe("content CMS / computed public data", () => {
     expect(site?.culturalSources[0]?.community).toBe("Sanggar Uji")
   })
 })
+
+describe("content CMS / FAQ manager", () => {
+  it("[P1-CMS-38] admin can create, update, reorder, and delete FAQ rows", async () => {
+    const t = await adminDb()
+    await seedContent(t)
+    const identity = t.withIdentity({ subject: "auth-admin" })
+
+    const before = await identity.query(api.content.listFaqs, {})
+    expect(before.length).toBeGreaterThan(0)
+
+    const created = await identity.mutation(api.content.createFaq, {
+      question: "Apakah ada kelas daring?",
+      answer: "Ada, sesi daring dijadwalkan per angkatan.",
+      reason: "Tambah FAQ kelas daring",
+    })
+    expect(created.order).toBe(before.length)
+
+    const afterCreate = await identity.query(api.content.listFaqs, {})
+    expect(afterCreate).toHaveLength(before.length + 1)
+    expect(afterCreate.at(-1)?.question).toBe("Apakah ada kelas daring?")
+
+    await identity.mutation(api.content.updateFaq, {
+      id: created.id as never,
+      question: "Apakah tersedia kelas daring?",
+      answer: "Tersedia, jadwal mengikuti angkatan.",
+      reason: "Perjelas pertanyaan",
+    })
+    const afterUpdate = await identity.query(api.content.listFaqs, {})
+    expect(afterUpdate.at(-1)?.question).toBe("Apakah tersedia kelas daring?")
+
+    const reversed = [...afterUpdate].reverse()
+    await identity.mutation(api.content.reorderFaqs, {
+      ids: reversed.map((faq) => faq.id as never),
+      reason: "Urutkan ulang FAQ",
+    })
+    const afterReorder = await identity.query(api.content.listFaqs, {})
+    expect(afterReorder[0]?.id).toBe(created.id)
+
+    await identity.mutation(api.content.deleteFaq, {
+      id: created.id as never,
+      reason: "Hapus FAQ uji",
+    })
+    const afterDelete = await identity.query(api.content.listFaqs, {})
+    expect(afterDelete).toHaveLength(before.length)
+
+    const audit = await t.run(async (ctx) =>
+      ctx.db
+        .query("auditLogs")
+        .withIndex("by_entity", (q) => q.eq("entityType", "faqs"))
+        .collect(),
+    )
+    expect(audit.map((row) => row.action).sort()).toEqual([
+      "content.faq.create",
+      "content.faq.delete",
+      "content.faq.reorder",
+      "content.faq.update",
+    ])
+  })
+
+  it("[P1-CMS-39] FAQ writes require content.publish", async () => {
+    const t = await adminDb()
+    await seedContent(t)
+    await seedStudent(t, "auth-student", "Siswa")
+
+    await expect(
+      t.withIdentity({ subject: "auth-student" }).mutation(
+        api.content.createFaq,
+        {
+          question: "Boleh?",
+          answer: "Tidak boleh.",
+          reason: "Coba akses",
+        },
+      ),
+    ).rejects.toThrow()
+  })
+})

@@ -42,7 +42,29 @@ describe("lead form validation", () => {
     }
   })
 
-  it("keeps institution and notify rules", () => {
+  it("requires a name for every intent, including notify", () => {
+    const parsed = leadSchema.safeParse({
+      intent: "notify",
+      whatsapp: "0812",
+      consent: "on",
+    })
+    expect(parsed.success).toBe(false)
+    if (!parsed.success) {
+      expect(parsed.error.issues[0]?.message).toBe(
+        "Nama diperlukan agar kami bisa menyapa kamu.",
+      )
+    }
+    expect(
+      leadSchema.safeParse({
+        intent: "notify",
+        name: "Nanda",
+        whatsapp: "0812",
+        consent: "on",
+      }).success,
+    ).toBe(true)
+  })
+
+  it("keeps institution rules", () => {
     expect(
       leadSchema.safeParse({
         ...base,
@@ -50,12 +72,5 @@ describe("lead form validation", () => {
         institution: "",
       }).success,
     ).toBe(false)
-    expect(
-      leadSchema.safeParse({
-        intent: "notify",
-        whatsapp: "0812",
-        consent: "on",
-      }).success,
-    ).toBe(true)
   })
 })

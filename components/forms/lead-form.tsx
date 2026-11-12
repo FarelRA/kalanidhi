@@ -90,7 +90,6 @@ export function LeadForm({
 
   const errors = state.fieldErrors ?? {}
   const isInstitution = variant === "institution"
-  const needsName = variant !== "notify"
   const selectableInterests =
     interest && !interestOptions.includes(interest)
       ? [interest, ...interestOptions]
@@ -146,15 +145,13 @@ export function LeadForm({
         ) : null}
 
         <div className={cn("space-y-2", isInstitution && "sm:col-span-1")}>
-          <Label htmlFor="lead-name">
-            Nama{needsName ? "" : " (opsional)"}
-          </Label>
+          <Label htmlFor="lead-name">Nama</Label>
           <Input
             id="lead-name"
             name="name"
             placeholder="Nama kamu"
             autoComplete="name"
-            required={needsName}
+            required
             aria-invalid={Boolean(errors.name)}
             aria-describedby={errors.name ? "lead-name-error" : undefined}
           />

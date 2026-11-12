@@ -44,6 +44,21 @@ export function NewsletterForm({ copy }: { copy: FooterContent["newsletter"] }) 
         />
       </div>
 
+      <label htmlFor="newsletter-name" className="sr-only">
+        Nama kamu
+      </label>
+      <div className="flex items-end gap-3 border-b border-paper/30 pb-1 focus-within:border-thread-light">
+        <Input
+          id="newsletter-name"
+          name="name"
+          autoComplete="name"
+          placeholder="Nama kamu"
+          required
+          aria-invalid={state.status === "error"}
+          className="h-9 rounded-none border-0 bg-transparent px-0 text-[14px] text-paper placeholder:text-paper/60 focus-visible:ring-0"
+        />
+      </div>
+
       <label htmlFor="newsletter-email" className="sr-only">
         Alamat email untuk kabar jalur baru
       </label>

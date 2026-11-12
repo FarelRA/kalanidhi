@@ -741,6 +741,7 @@ describe("operations schema", () => {
     await t.run(async (ctx) => {
       const leadId = await ctx.db.insert("leads", {
         intent: "student",
+        name: "Lead Uji",
         email: "lead@example.test",
         consent: true,
         status: "new",
