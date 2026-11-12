@@ -243,17 +243,20 @@ async function publicWork(
   work: Doc<"works">,
 ): Promise<PublicWorkView | null> {
   if (workStatusOf(work) !== "published") return null
-  if (!work.pathId || !work.makerId) return null
-  try {
-    await assertSellerScope(ctx, work.makerId, work.pathId)
-  } catch {
-    return null
-  }
   let split
   try {
     split = splitAmount(work.price)
   } catch {
     return null
+  }
+  let purchasable = false
+  if (work.pathId && work.makerId) {
+    try {
+      await assertSellerScope(ctx, work.makerId, work.pathId)
+      purchasable = true
+    } catch {
+      purchasable = false
+    }
   }
   return {
     id: work._id,
@@ -275,6 +278,7 @@ async function publicWork(
     image: await workImageUrl(ctx, work),
     permission: work.permission ?? "",
     split,
+    purchasable,
   }
 }
 

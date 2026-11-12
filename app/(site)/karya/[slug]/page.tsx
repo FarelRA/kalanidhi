@@ -124,13 +124,19 @@ export default async function WorkDetailPage({
                   {formatIDR(work.price)}
                 </p>
               </div>
-              <Link
-                href={`/pesan/${work.slug}`}
-                className="inline-flex min-h-12 items-center gap-2 border border-ink bg-ink px-5 text-[11px] font-bold uppercase tracking-[0.08em] text-paper transition-colors hover:bg-ink-2"
-              >
-                Pesan tanpa akun
-                <ArrowRight aria-hidden="true" className="size-4" />
-              </Link>
+              {work.purchasable ? (
+                <Link
+                  href={`/pesan/${work.slug}`}
+                  className="inline-flex min-h-12 items-center gap-2 border border-ink bg-ink px-5 text-[11px] font-bold uppercase tracking-[0.08em] text-paper transition-colors hover:bg-ink-2"
+                >
+                  Pesan tanpa akun
+                  <ArrowRight aria-hidden="true" className="size-4" />
+                </Link>
+              ) : (
+                <p className="max-w-56 border border-ink/20 bg-panel/40 px-3 py-2 text-[10px] leading-relaxed text-ink-muted">
+                  Karya kurasi platform. Hubungi pengelola untuk pembelian.
+                </p>
+              )}
             </div>
           </div>
         </div>

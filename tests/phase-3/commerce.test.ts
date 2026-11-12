@@ -289,9 +289,10 @@ describe("works / scope and moderation", () => {
     })
 
     await expect(createGuestCheckout(t, { workId })).rejects.toThrow()
-    expect(
-      await t.query(api.commerce.getPublicWork, { slug: await workSlug(t, workId) }),
-    ).toBeNull()
+    const view = await t.query(api.commerce.getPublicWork, {
+      slug: await workSlug(t, workId),
+    })
+    expect(view?.purchasable).toBe(false)
   })
 
   it("[P3-WRK-12] admin bulk pause pauses every published work on a path", async () => {

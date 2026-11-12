@@ -216,7 +216,9 @@ function StudentPaths({
                   Progres {enrollment?.progress ?? 0}%
                 </span>
                 <span className="text-ink-muted">
-                  {path.lessons} pelajaran · {path.modules} modul
+                  {path.lessons > 0
+                    ? `${path.lessons} pelajaran · ${path.modules} modul`
+                    : "Kurikulum menyusul"}
                 </span>
               </div>
               <div className="mt-2 flex gap-1" aria-hidden="true">
@@ -510,7 +512,9 @@ function PathCatalog({ paths }: { paths: PathOverview[] }) {
       header: "Modul",
       cell: (row) => (
         <span className="text-[11px] text-ink-soft">
-          {row.modules} modul · {row.lessons} pelajaran
+          {row.lessons > 0
+            ? `${row.modules} modul · ${row.lessons} pelajaran`
+            : "Kurikulum menyusul"}
         </span>
       ),
       className: "hidden md:table-cell",

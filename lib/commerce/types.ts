@@ -80,6 +80,8 @@ export type PublicWorkView = {
   image: string
   permission: string
   split: MoneySplit
+  /** False for curated seed works without a linked seller account. */
+  purchasable: boolean
 }
 
 export type OrderStatus =
