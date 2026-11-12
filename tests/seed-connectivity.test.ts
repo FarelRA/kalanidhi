@@ -217,6 +217,8 @@ describe("comprehensive seed connectivity", () => {
       const metricKeys = new Set(
         metricDefinitions.map((definition) => definition.key),
       )
+      const auditLogs = await ctx.db.query("auditLogs").collect()
+      const breakGlass = await ctx.db.query("breakGlassGrants").collect()
 
       for (const path of paths) {
         expect(path.teacherId, `path ${path.slug} teacherId`).toBeTruthy()
@@ -340,6 +342,18 @@ describe("comprehensive seed connectivity", () => {
       }
       for (const metric of metrics) {
         expect(metricKeys.has(metric.metricKey)).toBe(true)
+      }
+      for (const log of auditLogs) {
+        expect(
+          log.entityId?.startsWith("seed-") ?? false,
+          `audit log ${log.action} entityId should be a real record`,
+        ).toBe(false)
+      }
+      for (const grant of breakGlass) {
+        expect(
+          grant.entityId.startsWith("seed-"),
+          `break-glass ${grant.entityType} entityId should be a real record`,
+        ).toBe(false)
       }
 
       return result

@@ -720,6 +720,12 @@ export const seedOps = internalMutation({
     const rani = await userByEmail(ctx, "rani@kalanidhi.site")
     const purnomo = await userByEmail(ctx, "purnomo@kalanidhi.site")
     const order1 = await orderByCode(ctx, "KN-2026-000101")
+    const payoutForOrder1 = (
+      await ctx.db
+        .query("payouts")
+        .withIndex("by_orderId", (q) => q.eq("orderId", order1._id))
+        .collect()
+    )[0]
     const submission = await submissionByCode(ctx, "TUG-DWI-BTS-2")
     const certificate = await certificateByCode(ctx, "KN-ANISA-2026")
     const work = await workBySlug(ctx, "batik-soga-lereng")
@@ -1084,7 +1090,7 @@ export const seedOps = internalMutation({
         title: "Payout disetujui",
         body: "Payout untuk pesanan KN-2026-000101 sudah disetujui.",
         entityType: "payouts",
-        entityId: "seed-payout-order-1",
+        entityId: payoutForOrder1?._id,
         readAt: ago(5),
         daysAgo: 10,
       },
@@ -1820,16 +1826,19 @@ export const seedGovernance = internalMutation({
       expiresAt: ahead(2),
       createdAt: ago(1),
     })
-    await ctx.db.insert("breakGlassGrants", {
-      actorId: admin._id,
-      entityType: "message_asset",
-      entityId: "seed-message-asset",
-      reason: "Tinjauan laporan pesan.",
-      expiresAt: ago(1),
-      revokedAt: ago(1),
-      revokedBy: admin._id,
-      createdAt: ago(2),
-    })
+    const messageAsset = (await ctx.db.query("messageAssets").collect())[0]
+    if (messageAsset) {
+      await ctx.db.insert("breakGlassGrants", {
+        actorId: admin._id,
+        entityType: "message_asset",
+        entityId: messageAsset._id,
+        reason: "Tinjauan laporan pesan.",
+        expiresAt: ago(1),
+        revokedAt: ago(1),
+        revokedBy: admin._id,
+        createdAt: ago(2),
+      })
+    }
 
     await ctx.db.insert("contentLocks", {
       contentKey: "site",
@@ -2034,6 +2043,27 @@ export const seedAudit = internalMutation({
     const work = await workBySlug(ctx, "batik-soga-anyaman")
     const certificate = await certificateByCode(ctx, "KN-ANISA-2026")
     const submission = await submissionByCode(ctx, "TUG-SARI-BTS-1")
+    const payoutForOrder1 = (
+      await ctx.db
+        .query("payouts")
+        .withIndex("by_orderId", (q) => q.eq("orderId", order1._id))
+        .collect()
+    )[0]
+    const impersonation = (
+      await ctx.db.query("impersonationSessions").collect()
+    )[0]
+    const ticket = (
+      await ctx.db
+        .query("supportTickets")
+        .withIndex("by_code", (q) => q.eq("code", "SUP-2026-0003"))
+        .unique()
+    )
+    const takedown = (
+      await ctx.db
+        .query("takedownRequests")
+        .withIndex("by_code", (q) => q.eq("code", "TD-2026-0002"))
+        .unique()
+    )
 
     const events = [
       {
@@ -2117,7 +2147,7 @@ export const seedAudit = internalMutation({
         actorRole: "Pengelola",
         action: "payouts.approve",
         entityType: "payouts",
-        entityId: "seed-payout-order-1",
+        entityId: payoutForOrder1?._id,
         reason: "Payout disetujui setelah pesanan selesai.",
         severity: "info" as const,
         daysAgo: 10,
@@ -2127,7 +2157,7 @@ export const seedAudit = internalMutation({
         actorRole: "Pengelola",
         action: "support.resolve",
         entityType: "supportTickets",
-        entityId: "SUP-2026-0003",
+        entityId: ticket?._id,
         reason: "Sertifikat disinkronkan dan dikonfirmasi pemohon.",
         severity: "info" as const,
         daysAgo: 5,
@@ -2137,7 +2167,7 @@ export const seedAudit = internalMutation({
         actorRole: "Pengelola",
         action: "governance.takedown",
         entityType: "takedownRequests",
-        entityId: "TD-2026-0002",
+        entityId: takedown?._id,
         reason: "Aset lama diarsipkan setelah penggantian foto berizin.",
         severity: "warning" as const,
         daysAgo: 15,
@@ -2147,7 +2177,7 @@ export const seedAudit = internalMutation({
         actorRole: "Pengelola",
         action: "governance.impersonation",
         entityType: "impersonationSessions",
-        entityId: "seed-impersonation-1",
+        entityId: impersonation?._id,
         reason: "Menelusuri kendala unggah tugas.",
         severity: "warning" as const,
         daysAgo: 3,
