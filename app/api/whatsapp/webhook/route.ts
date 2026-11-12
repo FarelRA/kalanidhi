@@ -53,7 +53,18 @@ export async function POST(request: Request) {
 
   const envelope = payload as {
     event?: unknown
-    payload?: { from?: unknown; body?: unknown; id?: unknown }
+    payload?: {
+      from?: unknown
+      body?: unknown
+      id?: unknown
+      _data?: {
+        key?: {
+          remoteJidAlt?: unknown
+          participantAlt?: unknown
+          addressingMode?: unknown
+        }
+      }
+    }
   }
 
   if (envelope.event !== "message") {
@@ -65,7 +76,15 @@ export async function POST(request: Request) {
     return failure(400, "Payload pesan tidak sah.")
   }
 
-  const from = typeof message.from === "string" ? message.from : ""
+  const key = message._data?.key
+  const alt =
+    typeof key?.remoteJidAlt === "string"
+      ? key.remoteJidAlt
+      : typeof key?.participantAlt === "string"
+        ? key.participantAlt
+        : ""
+  const from =
+    alt || (typeof message.from === "string" ? message.from : "")
   const text = typeof message.body === "string" ? message.body : ""
   if (!from || !text) {
     return failure(400, "Payload pesan tidak lengkap.")

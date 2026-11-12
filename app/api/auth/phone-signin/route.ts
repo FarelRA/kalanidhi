@@ -115,6 +115,10 @@ export async function POST(request: Request) {
 
   const headers = new Headers(request.headers)
   headers.set("content-type", "application/json")
+  headers.set(
+    "origin",
+    process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin,
+  )
   headers.delete("content-length")
   headers.delete("host")
 
