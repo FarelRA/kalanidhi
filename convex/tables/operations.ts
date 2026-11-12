@@ -91,12 +91,50 @@ export const operationsTables = {
     createdAt: v.number(),
     updatedAt: v.number(),
     resolvedAt: v.optional(v.number()),
+    // Phase 6 additive fields: SLA, assignment, escalation, and audited links.
+    requesterName: v.optional(v.string()),
+    firstResponseAt: v.optional(v.number()),
+    lastResponseAt: v.optional(v.number()),
+    assignedAt: v.optional(v.number()),
+    assignedBy: v.optional(v.string()),
+    escalatedTo: v.optional(
+      v.union(
+        v.literal("payment"),
+        v.literal("content"),
+        v.literal("trust_safety"),
+        v.literal("technical"),
+      ),
+    ),
+    escalationReason: v.optional(v.string()),
+    linkedRecords: v.optional(
+      v.array(
+        v.object({
+          type: v.union(
+            v.literal("account"),
+            v.literal("order"),
+            v.literal("payment"),
+            v.literal("enrollment"),
+            v.literal("certificate"),
+            v.literal("work"),
+            v.literal("conversation"),
+          ),
+          id: v.string(),
+          label: v.optional(v.string()),
+        }),
+      ),
+    ),
+    resolvedBy: v.optional(v.string()),
+    resolutionNote: v.optional(v.string()),
+    closedAt: v.optional(v.number()),
+    reopenedAt: v.optional(v.number()),
+    sourceConversationId: v.optional(v.id("conversations")),
   })
     .index("by_code", ["code"])
     .index("by_status", ["status"])
     .index("by_assigneeId", ["assigneeId"])
     .index("by_requesterId", ["requesterId"])
-    .index("by_createdAt", ["createdAt"]),
+    .index("by_createdAt", ["createdAt"])
+    .index("by_priority", ["priority"]),
 
   supportMessages: defineTable({
     ticketId: v.id("supportTickets"),
@@ -109,6 +147,25 @@ export const operationsTables = {
     body: v.string(),
     createdAt: v.number(),
   }).index("by_ticketId", ["ticketId"]),
+
+  supportCannedReplies: defineTable({
+    key: v.string(),
+    title: v.string(),
+    body: v.string(),
+    category: v.union(
+      v.literal("payment"),
+      v.literal("content"),
+      v.literal("trust_safety"),
+      v.literal("technical"),
+      v.literal("general"),
+    ),
+    active: v.boolean(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_key", ["key"])
+    .index("by_active", ["active"]),
 
   /** Append-only. No admin can delete an audit event. */
   auditLogs: defineTable({
@@ -348,6 +405,10 @@ export const operationsTables = {
     lastUsedAt: v.optional(v.number()),
     expiresAt: v.optional(v.number()),
     revokedAt: v.optional(v.number()),
+    // Phase 6 additive metadata: display prefix only, never the secret.
+    keyPrefix: v.optional(v.string()),
+    rotatedFrom: v.optional(v.id("apiKeys")),
+    rotatedTo: v.optional(v.id("apiKeys")),
   })
     .index("by_keyHash", ["keyHash"])
     .index("by_status", ["status"]),
@@ -387,10 +448,27 @@ export const operationsTables = {
     createdAt: v.number(),
     updatedAt: v.number(),
     completedAt: v.optional(v.number()),
+    // Phase 6 additive lifecycle fields.
+    subjectUserId: v.optional(v.id("users")),
+    resolution: v.optional(v.string()),
+    retentionHoldUntil: v.optional(v.number()),
+    deletionAppliedAt: v.optional(v.number()),
+    dataScope: v.optional(v.string()),
+    evidence: v.optional(v.string()),
+    reviewedAt: v.optional(v.number()),
+    completedBy: v.optional(v.string()),
+    correction: v.optional(
+      v.object({
+        name: v.optional(v.string()),
+        email: v.optional(v.string()),
+        region: v.optional(v.string()),
+      }),
+    ),
   })
     .index("by_status", ["status"])
     .index("by_requesterId", ["requesterId"])
-    .index("by_createdAt", ["createdAt"]),
+    .index("by_createdAt", ["createdAt"])
+    .index("by_subjectUserId", ["subjectUserId"]),
 
   impersonationSessions: defineTable({
     actorId: v.id("users"),
@@ -403,6 +481,111 @@ export const operationsTables = {
   })
     .index("by_actorId", ["actorId"])
     .index("by_targetId", ["targetId"]),
+
+  /**
+   * Phase 6 governance: cultural permission records tied to a community,
+   * a permission document, an access level, and a withdrawal state.
+   */
+  culturalSources: defineTable({
+    community: v.string(),
+    sourceName: v.string(),
+    pathId: v.optional(v.string()),
+    workId: v.optional(v.id("works")),
+    permissionDocumentRef: v.string(),
+    permissionDocumentUrl: v.optional(v.string()),
+    permissionDate: v.number(),
+    permissionStatus: v.union(
+      v.literal("pending"),
+      v.literal("granted"),
+      v.literal("withdrawn"),
+    ),
+    accessLevel: v.union(
+      v.literal("public"),
+      v.literal("community"),
+      v.literal("restricted"),
+    ),
+    attribution: v.string(),
+    notes: v.optional(v.string()),
+    withdrawalStatus: v.union(
+      v.literal("active"),
+      v.literal("withdrawal_requested"),
+      v.literal("withdrawn"),
+    ),
+    withdrawalRequestedAt: v.optional(v.number()),
+    withdrawnAt: v.optional(v.number()),
+    withdrawalReason: v.optional(v.string()),
+    status: v.union(
+      v.literal("active"),
+      v.literal("suspended"),
+      v.literal("archived"),
+    ),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_community", ["community"])
+    .index("by_pathId", ["pathId"])
+    .index("by_workId", ["workId"])
+    .index("by_withdrawalStatus", ["withdrawalStatus"]),
+
+  takedownRequests: defineTable({
+    code: v.string(),
+    targetType: v.union(
+      v.literal("work"),
+      v.literal("content"),
+      v.literal("media"),
+      v.literal("conversation"),
+      v.literal("certificate"),
+    ),
+    targetId: v.string(),
+    targetLabel: v.string(),
+    culturalSourceId: v.optional(v.id("culturalSources")),
+    requesterName: v.string(),
+    requesterContact: v.string(),
+    reason: v.string(),
+    evidence: v.optional(v.string()),
+    status: v.union(
+      v.literal("requested"),
+      v.literal("reviewing"),
+      v.literal("approved"),
+      v.literal("rejected"),
+      v.literal("completed"),
+      v.literal("reversed"),
+    ),
+    decisionReason: v.optional(v.string()),
+    decidedBy: v.optional(v.string()),
+    decidedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+    reversedAt: v.optional(v.number()),
+    effects: v.optional(jsonBagValidator),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_code", ["code"])
+    .index("by_status", ["status"])
+    .index("by_target", ["targetType", "targetId"])
+    .index("by_createdAt", ["createdAt"]),
+
+  /** Phase 6 break-glass registry for recordings, identity documents, and assets. */
+  breakGlassGrants: defineTable({
+    actorId: v.id("users"),
+    entityType: v.union(
+      v.literal("call_recording"),
+      v.literal("identity_document"),
+      v.literal("submission_asset"),
+      v.literal("message_asset"),
+    ),
+    entityId: v.string(),
+    reason: v.string(),
+    expiresAt: v.number(),
+    revokedAt: v.optional(v.number()),
+    revokedBy: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_actorId", ["actorId"])
+    .index("by_entity", ["entityType", "entityId"])
+    .index("by_expiresAt", ["expiresAt"]),
 
   contentLocks: defineTable({
     contentKey: v.string(),

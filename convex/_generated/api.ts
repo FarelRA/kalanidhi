@@ -76,6 +76,32 @@ import type {
   SettlementResult,
   WorkListingView,
 } from "../../lib/commerce/types"
+import type {
+  FlowAutomationView,
+  FlowDefinitionView,
+  FlowOverview,
+  FlowSlaView,
+  StuckRecordView,
+} from "../../lib/flows/types"
+import type {
+  BreakGlassView,
+  CulturalSourceView,
+  GovernanceSummary,
+  ImpersonationView,
+  PrivacyRequestView,
+  TakedownView,
+} from "../../lib/governance/types"
+import type {
+  AdminSettingsState,
+  ProfileSettingsView,
+} from "../../lib/settings/types"
+import type {
+  SupportCannedReplyView,
+  SupportLink,
+  SupportQueueSummary,
+  SupportTicketDetail,
+  SupportTicketSummary,
+} from "../../lib/support/types"
 import type { Id } from "./dataModel"
 
 
@@ -1221,6 +1247,617 @@ export type PublicApiType = {
       "public",
       Record<string, never>,
       PayoutView[]
+    >
+  }
+  flows: {
+    listDefinitions: FunctionReference<
+      "query",
+      "public",
+      Record<string, never>,
+      FlowDefinitionView[]
+    >
+    getDefinition: FunctionReference<
+      "query",
+      "public",
+      { flowKey: string },
+      FlowDefinitionView
+    >
+    slas: FunctionReference<
+      "query",
+      "public",
+      { flowKey?: string },
+      FlowSlaView[]
+    >
+    automationRules: FunctionReference<
+      "query",
+      "public",
+      { flowKey?: string },
+      FlowAutomationView[]
+    >
+    overview: FunctionReference<
+      "query",
+      "public",
+      { flowKey: string },
+      FlowOverview
+    >
+    stuckRecords: FunctionReference<
+      "query",
+      "public",
+      { flowKey?: string },
+      StuckRecordView[]
+    >
+    saveDefinition: FunctionReference<
+      "mutation",
+      "public",
+      {
+        flowKey: string
+        description?: string
+        active?: boolean
+        transitions: {
+          from: string
+          to: string
+          guard: string
+          requiresRole?: "admin" | "teacher" | "student" | "system"
+          slaHours?: number
+        }[]
+      },
+      { flowKey: string; version: number }
+    >
+    saveSlaPolicy: FunctionReference<
+      "mutation",
+      "public",
+      {
+        flowKey: string
+        key?: string
+        name: string
+        targetMinutes: number
+        escalationMinutes?: number
+        owner?: string
+        active?: boolean
+      },
+      { key: string; flowKey: string }
+    >
+    saveAutomationRule: FunctionReference<
+      "mutation",
+      "public",
+      {
+        flowKey: string
+        key: string
+        kind: "assignment" | "reminder" | "escalation" | "notification"
+        trigger:
+          | "on_create"
+          | "on_transition"
+          | "sla_warning"
+          | "sla_breach"
+          | "no_activity"
+        action:
+          | "assign_owner"
+          | "remind_owner"
+          | "notify_owner"
+          | "notify_admin"
+          | "escalate_admin"
+          | "create_support_ticket"
+          | "pause_work"
+        enabled: boolean
+      },
+      { key: string; flowKey: string }
+    >
+    manualOverride: FunctionReference<
+      "mutation",
+      "public",
+      {
+        flowKey: string
+        recordId: string
+        toState: string
+        reason: string
+        requestId?: string
+      },
+      {
+        flowKey: string
+        from: string
+        to: string
+        label: string
+      }
+    >
+  }
+  support: {
+    list: FunctionReference<
+      "query",
+      "public",
+      {
+        view?: "inbox" | "mine" | "all"
+        status?: "open" | "pending" | "resolved" | "closed"
+        priority?: "low" | "normal" | "high" | "urgent"
+        q?: string
+      },
+      SupportTicketSummary[]
+    >
+    get: FunctionReference<
+      "query",
+      "public",
+      { ticketId: Id<"supportTickets"> },
+      SupportTicketDetail | null
+    >
+    queueSummary: FunctionReference<
+      "query",
+      "public",
+      Record<string, never>,
+      SupportQueueSummary
+    >
+    create: FunctionReference<
+      "mutation",
+      "public",
+      {
+        subject: string
+        body?: string
+        priority?: "low" | "normal" | "high" | "urgent"
+        channel?: "chat" | "email" | "whatsapp"
+        links?: SupportLink[]
+        sourceConversationId?: Id<"conversations">
+      },
+      { ticketId: Id<"supportTickets">; code: string }
+    >
+    createFromConversation: FunctionReference<
+      "mutation",
+      "public",
+      {
+        conversationId: Id<"conversations">
+        subject?: string
+      },
+      { ticketId: Id<"supportTickets">; code: string }
+    >
+    reply: FunctionReference<
+      "mutation",
+      "public",
+      {
+        ticketId: Id<"supportTickets">
+        body: string
+        internal?: boolean
+      },
+      {
+        internal: boolean
+        status: "open" | "pending" | "resolved" | "closed"
+      }
+    >
+    assign: FunctionReference<
+      "mutation",
+      "public",
+      {
+        ticketId: Id<"supportTickets">
+        assigneeId: Id<"users">
+        reason: string
+      },
+      null
+    >
+    setPriority: FunctionReference<
+      "mutation",
+      "public",
+      {
+        ticketId: Id<"supportTickets">
+        priority: "low" | "normal" | "high" | "urgent"
+        reason: string
+      },
+      null
+    >
+    escalate: FunctionReference<
+      "mutation",
+      "public",
+      {
+        ticketId: Id<"supportTickets">
+        to: "payment" | "content" | "trust_safety" | "technical"
+        reason: string
+      },
+      null
+    >
+    link: FunctionReference<
+      "mutation",
+      "public",
+      {
+        ticketId: Id<"supportTickets">
+        link: SupportLink
+      },
+      null
+    >
+    resolve: FunctionReference<
+      "mutation",
+      "public",
+      {
+        ticketId: Id<"supportTickets">
+        resolution: string
+        reason?: string
+      },
+      null
+    >
+    close: FunctionReference<
+      "mutation",
+      "public",
+      { ticketId: Id<"supportTickets">; reason: string },
+      null
+    >
+    reopen: FunctionReference<
+      "mutation",
+      "public",
+      { ticketId: Id<"supportTickets">; reason: string },
+      null
+    >
+    listCannedReplies: FunctionReference<
+      "query",
+      "public",
+      Record<string, never>,
+      SupportCannedReplyView[]
+    >
+    saveCannedReply: FunctionReference<
+      "mutation",
+      "public",
+      {
+        key: string
+        title: string
+        body: string
+        category:
+          | "payment"
+          | "content"
+          | "trust_safety"
+          | "technical"
+          | "general"
+        active?: boolean
+      },
+      { key: string }
+    >
+  }
+  governance: {
+    listCulturalSources: FunctionReference<
+      "query",
+      "public",
+      {
+        status?: "active" | "suspended" | "archived"
+        withdrawal?: "active" | "withdrawal_requested" | "withdrawn"
+        q?: string
+      },
+      CulturalSourceView[]
+    >
+    getCulturalSource: FunctionReference<
+      "query",
+      "public",
+      { sourceId: Id<"culturalSources"> },
+      CulturalSourceView | null
+    >
+    createCulturalSource: FunctionReference<
+      "mutation",
+      "public",
+      {
+        community: string
+        sourceName: string
+        pathId?: string
+        workId?: Id<"works">
+        permissionDocumentRef: string
+        permissionDocumentUrl?: string
+        permissionDate: number
+        accessLevel: "public" | "community" | "restricted"
+        attribution: string
+        notes?: string
+      },
+      { sourceId: Id<"culturalSources"> }
+    >
+    updateCulturalSource: FunctionReference<
+      "mutation",
+      "public",
+      {
+        sourceId: Id<"culturalSources">
+        community?: string
+        sourceName?: string
+        pathId?: string
+        permissionDocumentRef?: string
+        permissionDocumentUrl?: string
+        permissionDate?: number
+        accessLevel?: "public" | "community" | "restricted"
+        attribution?: string
+        notes?: string
+        status?: "active" | "suspended" | "archived"
+        reason: string
+      },
+      null
+    >
+    requestWithdrawal: FunctionReference<
+      "mutation",
+      "public",
+      { sourceId: Id<"culturalSources">; reason: string },
+      { withdrawalStatus: "withdrawal_requested" | "withdrawn" }
+    >
+    withdrawCulturalSource: FunctionReference<
+      "mutation",
+      "public",
+      { sourceId: Id<"culturalSources">; reason: string },
+      { effects: string[] }
+    >
+    restoreCulturalSource: FunctionReference<
+      "mutation",
+      "public",
+      { sourceId: Id<"culturalSources">; reason: string },
+      null
+    >
+    listTakedowns: FunctionReference<
+      "query",
+      "public",
+      {
+        status?:
+          | "requested"
+          | "reviewing"
+          | "approved"
+          | "rejected"
+          | "completed"
+          | "reversed"
+        q?: string
+      },
+      TakedownView[]
+    >
+    createTakedown: FunctionReference<
+      "mutation",
+      "public",
+      {
+        targetType: "work" | "content" | "media" | "conversation" | "certificate"
+        targetId: string
+        targetLabel: string
+        culturalSourceId?: Id<"culturalSources">
+        requesterName: string
+        requesterContact: string
+        reason: string
+        evidence?: string
+      },
+      { takedownId: Id<"takedownRequests"> }
+    >
+    reviewTakedown: FunctionReference<
+      "mutation",
+      "public",
+      {
+        takedownId: Id<"takedownRequests">
+        decision: "reviewing" | "approved" | "rejected"
+        reason: string
+      },
+      null
+    >
+    executeTakedown: FunctionReference<
+      "mutation",
+      "public",
+      { takedownId: Id<"takedownRequests">; reason: string },
+      { effects: string[] }
+    >
+    reverseTakedown: FunctionReference<
+      "mutation",
+      "public",
+      { takedownId: Id<"takedownRequests">; reason: string },
+      null
+    >
+    listPrivacyRequests: FunctionReference<
+      "query",
+      "public",
+      {
+        status?: "open" | "reviewing" | "completed" | "rejected"
+        kind?: "access" | "correction" | "deletion" | "hold"
+      },
+      PrivacyRequestView[]
+    >
+    createPrivacyRequest: FunctionReference<
+      "mutation",
+      "public",
+      {
+        kind: "access" | "correction" | "deletion" | "hold"
+        reason: string
+        subjectUserId?: Id<"users">
+        dataScope?: string
+        correction?: {
+          name?: string
+          email?: string
+          region?: string
+        }
+      },
+      { requestId: Id<"privacyRequests"> }
+    >
+    reviewPrivacyRequest: FunctionReference<
+      "mutation",
+      "public",
+      {
+        requestId: Id<"privacyRequests">
+        decision: "reviewing" | "completed" | "rejected"
+        resolution: string
+        retentionHoldUntil?: number
+      },
+      null
+    >
+    listImpersonations: FunctionReference<
+      "query",
+      "public",
+      Record<string, never>,
+      ImpersonationView[]
+    >
+    getImpersonation: FunctionReference<
+      "query",
+      "public",
+      { sessionId: Id<"impersonationSessions"> },
+      ImpersonationView | null
+    >
+    startImpersonation: FunctionReference<
+      "mutation",
+      "public",
+      { targetId: Id<"users">; reason: string; minutes?: number },
+      { sessionId: Id<"impersonationSessions">; expiresAt: number; readOnly: true }
+    >
+    endImpersonation: FunctionReference<
+      "mutation",
+      "public",
+      { sessionId: Id<"impersonationSessions">; reason?: string },
+      null
+    >
+    grantBreakGlass: FunctionReference<
+      "mutation",
+      "public",
+      {
+        entityType:
+          | "call_recording"
+          | "identity_document"
+          | "submission_asset"
+          | "message_asset"
+        entityId: string
+        reason: string
+        minutes?: number
+      },
+      { grantId: Id<"breakGlassGrants">; expiresAt: number }
+    >
+    revokeBreakGlass: FunctionReference<
+      "mutation",
+      "public",
+      { grantId: Id<"breakGlassGrants">; reason: string },
+      null
+    >
+    listBreakGlass: FunctionReference<
+      "query",
+      "public",
+      { activeOnly?: boolean },
+      BreakGlassView[]
+    >
+    logBreakGlassAccess: FunctionReference<
+      "mutation",
+      "public",
+      {
+        entityType:
+          | "call_recording"
+          | "identity_document"
+          | "submission_asset"
+          | "message_asset"
+        entityId: string
+      },
+      | { allowed: true; grantId: Id<"breakGlassGrants">; expiresAt: number }
+      | { allowed: false; grantId: null; expiresAt: null }
+    >
+    summary: FunctionReference<
+      "query",
+      "public",
+      Record<string, never>,
+      GovernanceSummary
+    >
+  }
+  settings: {
+    profile: FunctionReference<
+      "query",
+      "public",
+      Record<string, never>,
+      ProfileSettingsView
+    >
+    updateProfile: FunctionReference<
+      "mutation",
+      "public",
+      { name?: string; region?: string },
+      null
+    >
+    updatePreferences: FunctionReference<
+      "mutation",
+      "public",
+      {
+        whatsapp?: string
+        bio?: string
+        locale?: string
+        timezone?: string
+        dataSaver?: boolean
+        notifications?: {
+          tasks: boolean
+          messages: boolean
+          sessionReminders: boolean
+          weeklyDigest: boolean
+          promotions: boolean
+        }
+      },
+      null
+    >
+    setConsent: FunctionReference<
+      "mutation",
+      "public",
+      {
+        kind: "privacy" | "recording" | "marketing" | "guardian"
+        granted: boolean
+        version?: string
+        source?: string
+      },
+      { consentId: Id<"consents"> }
+    >
+    revokeSession: FunctionReference<
+      "mutation",
+      "public",
+      { sessionId: Id<"sessions">; reason?: string },
+      null
+    >
+    adminState: FunctionReference<
+      "query",
+      "public",
+      Record<string, never>,
+      AdminSettingsState
+    >
+    updateSetting: FunctionReference<
+      "mutation",
+      "public",
+      { key: string; value: unknown; reason: string },
+      null
+    >
+    setFeatureFlag: FunctionReference<
+      "mutation",
+      "public",
+      {
+        key: string
+        description?: string
+        enabled: boolean
+        rolloutPercent?: number
+        reason: string
+      },
+      null
+    >
+    createApiKey: FunctionReference<
+      "mutation",
+      "public",
+      {
+        name: string
+        scopes: string[]
+        expiresAt?: number
+        reason?: string
+      },
+      { keyId: Id<"apiKeys">; token: string; keyPrefix: string }
+    >
+    rotateApiKey: FunctionReference<
+      "mutation",
+      "public",
+      { keyId: Id<"apiKeys">; reason: string },
+      { keyId: Id<"apiKeys">; token: string; keyPrefix: string }
+    >
+    revokeApiKey: FunctionReference<
+      "mutation",
+      "public",
+      { keyId: Id<"apiKeys">; reason: string },
+      null
+    >
+    createWebhookEndpoint: FunctionReference<
+      "mutation",
+      "public",
+      { name: string; url: string; events: string[] },
+      { endpointId: Id<"webhookEndpoints">; secret: string }
+    >
+    setWebhookStatus: FunctionReference<
+      "mutation",
+      "public",
+      {
+        endpointId: Id<"webhookEndpoints">
+        status: "active" | "paused" | "revoked"
+        reason: string
+      },
+      null
+    >
+    saveNotificationTemplate: FunctionReference<
+      "mutation",
+      "public",
+      {
+        key: string
+        channel: "email" | "whatsapp" | "push" | "in_app"
+        subject?: string
+        body: string
+        locale?: string
+      },
+      { key: string }
     >
   }
   notifications: {
