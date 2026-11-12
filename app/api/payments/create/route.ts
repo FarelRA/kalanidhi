@@ -14,22 +14,23 @@ import {
 } from "@/lib/commerce/rate-limit"
 import {
   attachGatewayCharge,
-  createGuestOrder,
+  createOrder,
   createPaymentIntent,
   isCommerceConfigured,
   markManualFallback,
   recordGatewayHealth,
 } from "@/lib/commerce/server"
+import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
 
-const bodySchema = z.object({
-  workSlug: z.string().min(1).max(120),
-  buyerName: z.string().trim().min(2).max(120),
-  buyerEmail: z.email().max(200),
-  buyerWhatsapp: z.string().trim().max(40).optional(),
-  note: z.string().trim().max(600).optional(),
-  idempotencyKey: z.string().trim().min(8).max(120),
-  consentTransactional: z.literal(true),
-})
+const bodySchema = z
+  .object({
+    kind: z.enum(["work", "path"]),
+    slug: z.string().min(1).max(120),
+    note: z.string().trim().max(600).optional(),
+    idempotencyKey: z.string().trim().min(8).max(120),
+    consentTransactional: z.literal(true),
+  })
+  .strict()
 
 function intentPayload(payment: PaymentIntentView) {
   return {
@@ -54,6 +55,29 @@ export async function POST(request: Request) {
         message: "Checkout belum tersambung ke sistem pesanan.",
       },
       { status: 503 },
+    )
+  }
+
+  if (!isAuthConfigured()) {
+    return NextResponse.json(
+      {
+        ok: false,
+        code: "AUTH_UNAVAILABLE",
+        message: "Masuk belum tersambung pada lingkungan ini.",
+      },
+      { status: 503 },
+    )
+  }
+
+  const auth = getAuthServer()
+  if (!(await auth.isAuthenticated())) {
+    return NextResponse.json(
+      {
+        ok: false,
+        code: "UNAUTHENTICATED",
+        message: "Masuk ke akunmu sebelum membuat pesanan.",
+      },
+      { status: 401 },
     )
   }
 
@@ -86,7 +110,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const order = await createGuestOrder(parsed.data)
+    const order = await createOrder(parsed.data)
     let payment = await createPaymentIntent({
       orderId: order.orderId as never,
       token: order.token,
@@ -167,21 +191,35 @@ export async function POST(request: Request) {
         ? ((error as { data?: { code?: string } }).data?.code ?? "CREATE_FAILED")
         : "CREATE_FAILED"
     const status =
-      code === "SELF_DEALING" || code === "WORK_UNAVAILABLE"
-        ? 409
-        : code === "INVALID_AMOUNT" || code === "RATE_LIMITED"
-          ? 400
-          : 500
+      code === "UNAUTHENTICATED"
+        ? 401
+        : code === "SELF_DEALING" ||
+            code === "WORK_UNAVAILABLE" ||
+            code === "PATH_UNAVAILABLE"
+          ? 409
+          : code === "INVALID_AMOUNT" ||
+              code === "RATE_LIMITED" ||
+              code === "CONSENT_REQUIRED" ||
+              code === "INVALID_BUYER" ||
+              code === "INVALID_IDEMPOTENCY"
+            ? 400
+            : 500
     return NextResponse.json(
       {
         ok: false,
         code,
         message:
-          code === "SELF_DEALING"
-            ? "Karya ini milik akun yang sama."
-            : code === "WORK_UNAVAILABLE"
-              ? "Karya ini tidak sedang dijual."
-              : "Checkout belum dapat diproses. Coba lagi.",
+          code === "UNAUTHENTICATED"
+            ? "Masuk ke akunmu sebelum membuat pesanan."
+            : code === "SELF_DEALING"
+              ? "Karya atau jalur ini milik akun yang sama."
+              : code === "WORK_UNAVAILABLE"
+                ? "Karya ini tidak sedang dijual."
+                : code === "PATH_UNAVAILABLE"
+                  ? "Jalur ini belum dapat dibeli."
+                  : code === "CONSENT_REQUIRED"
+                    ? "Persetujuan kontak transaksional diperlukan."
+                    : "Checkout belum dapat diproses. Coba lagi.",
       },
       { status },
     )

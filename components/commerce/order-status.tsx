@@ -2,8 +2,8 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useMutation, useQuery } from "convex/react"
-import { Check, Copy, Loader2, QrCode, ShieldCheck } from "lucide-react"
+import { useQuery } from "convex/react"
+import { Check, Copy, QrCode, ShieldCheck } from "lucide-react"
 import { toast } from "sonner"
 
 import { api } from "@/convex/_generated/api"
@@ -14,7 +14,7 @@ import {
   ORDER_STATUS_LABELS,
   PAYMENT_STATUS_LABELS,
 } from "@/lib/commerce/format"
-import type { GuestOrderView, PaymentIntentView } from "@/lib/commerce/types"
+import type { OrderStatusView, PaymentIntentView } from "@/lib/commerce/types"
 import type { StatusTone } from "@/lib/workspace/types"
 import { formatIDR } from "@/lib/format"
 
@@ -24,50 +24,6 @@ function orderTone(status: string): StatusTone {
   if (status === "cancelled" || status === "refunded") return "muted"
   if (status === "in_progress" || status === "delivered") return "progress"
   return "wait"
-}
-
-function ClaimButton({ token }: { token: string }) {
-  const viewer = useQuery(api.users.current, {})
-  const claim = useMutation(api.commerce.claimOrder)
-  const [pending, setPending] = React.useState(false)
-
-  async function onClaim() {
-    setPending(true)
-    try {
-      await claim({ token })
-      toast("Pesanan diklaim", {
-        description: "Pesanan sekarang muncul di Pembelian pada ruang kerja.",
-      })
-    } catch {
-      toast("Belum dapat diklaim", {
-        description:
-          "Masuk dengan akun beremail sama dan terverifikasi untuk mengklaim.",
-      })
-    } finally {
-      setPending(false)
-    }
-  }
-
-  if (viewer === undefined) {
-    return <span className="text-[10px] text-ink-muted">Memeriksa sesi…</span>
-  }
-
-  if (!viewer) {
-    return (
-      <Button asChild variant="outline" size="sm">
-        <Link href={`/masuk?next=${encodeURIComponent(`/pesanan/${token}`)}`}>
-          Masuk untuk klaim
-        </Link>
-      </Button>
-    )
-  }
-
-  return (
-    <Button size="sm" onClick={onClaim} disabled={pending}>
-      {pending ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
-      Klaim pesanan ini
-    </Button>
-  )
 }
 
 function PaymentBlock({
@@ -249,7 +205,7 @@ function PaymentBlock({
   )
 }
 
-function Timeline({ order }: { order: GuestOrderView }) {
+function Timeline({ order }: { order: OrderStatusView }) {
   return (
     <ol className="space-y-2.5">
       {order.timeline.map((entry) => (
@@ -278,10 +234,12 @@ function Summary({
   order,
   token,
   payment,
+  signedIn,
 }: {
-  order: GuestOrderView
+  order: OrderStatusView
   token: string
   payment: PaymentIntentView | null
+  signedIn: boolean
 }) {
   return (
     <div className="grid gap-6 lg:grid-cols-12">
@@ -357,18 +315,32 @@ function Summary({
           <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-copper-dark">
             Akun
           </p>
-          {order.claimed ? (
-            <p className="mt-2 text-[11px] leading-relaxed text-ink-soft">
-              Pesanan ini sudah diklaim dan muncul di Pembelian pada ruang kerja.
-            </p>
+          {signedIn ? (
+            <>
+              <p className="mt-2 text-[11px] leading-relaxed text-ink-soft">
+                Pesanan ini tersimpan pada akunmu dan muncul di daftar pesanan
+                ruang kerja.
+              </p>
+              <div className="mt-3">
+                <Button asChild size="sm">
+                  <Link href="/ruang/pesanan">Buka pesanan saya</Link>
+                </Button>
+              </div>
+            </>
           ) : (
             <>
               <p className="mt-2 text-[11px] leading-relaxed text-ink-soft">
-                Punya akun dengan email yang sama? Klaim pesanan agar riwayatnya
-                tersimpan di ruang kerja.
+                Masuk dengan akun pembeli untuk melihat seluruh pesananmu di
+                ruang kerja.
               </p>
               <div className="mt-3">
-                <ClaimButton token={token} />
+                <Button asChild variant="outline" size="sm">
+                  <Link
+                    href={`/masuk?next=${encodeURIComponent(`/pesanan/${token}`)}`}
+                  >
+                    Masuk ke akun
+                  </Link>
+                </Button>
               </div>
             </>
           )}
@@ -378,31 +350,49 @@ function Summary({
   )
 }
 
-export function GuestOrderLive({
+export function OrderStatusLive({
   token,
   initialOrder,
   initialPayment,
+  signedIn,
 }: {
   token: string
-  initialOrder: GuestOrderView
+  initialOrder: OrderStatusView
   initialPayment: PaymentIntentView | null
+  signedIn: boolean
 }) {
   const liveOrder = useQuery(api.commerce.getOrderByToken, { token })
   const livePayment = useQuery(api.payments.getIntentByToken, { token })
   const order = liveOrder ?? initialOrder
   const payment = livePayment ?? initialPayment
 
-  return <Summary order={order} token={token} payment={payment} />
+  return (
+    <Summary
+      order={order}
+      token={token}
+      payment={payment}
+      signedIn={signedIn}
+    />
+  )
 }
 
-export function GuestOrderStatic({
+export function OrderStatusStatic({
   token,
   order,
   payment,
+  signedIn,
 }: {
   token: string
-  order: GuestOrderView
+  order: OrderStatusView
   payment: PaymentIntentView | null
+  signedIn: boolean
 }) {
-  return <Summary order={order} token={token} payment={payment} />
+  return (
+    <Summary
+      order={order}
+      token={token}
+      payment={payment}
+      signedIn={signedIn}
+    />
+  )
 }

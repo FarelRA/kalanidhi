@@ -1,10 +1,10 @@
-import { v } from "convex/values"
+import { ConvexError, v } from "convex/values"
 
 import { assertRupiah, MoneyError, splitAmount } from "../lib/commerce/money"
 import type {
   DisputeView,
-  GuestOrderView,
   OrderStatus,
+  OrderStatusView,
   OrderTimelineEntry,
   OrderView,
   PublicWorkView,
@@ -25,7 +25,6 @@ import {
   maskEmail,
   notFound,
   now,
-  optionalViewer,
   ORDER_TOKEN_BYTES,
   orderCode,
   randomToken,
@@ -129,21 +128,105 @@ async function assetIdForImageUrl(
   )
 }
 
-function workComplete(work: Doc<"works">, card: Doc<"workCards"> | null): boolean {
+const WORK_READINESS_LABELS = {
+  image: "Foto karya",
+  title: "Judul",
+  price: "Harga lebih dari 0",
+  unit: "Satuan",
+  technique: "Teknik",
+  maker: "Pembuat",
+  teacher: "Pengajar",
+  path: "Jalur",
+  permission: "Izin sumber",
+  provenance: "Provenans",
+  materials: "Bahan",
+} as const
+
+function workReadiness(
+  work: Doc<"works">,
+  card: Doc<"workCards"> | null,
+  imageReady = Boolean(work.imageAssetId),
+): { ready: boolean; missing: string[] } {
+  const missing: string[] = []
+  if (!imageReady) missing.push(WORK_READINESS_LABELS.image)
+  if (!work.title.trim()) missing.push(WORK_READINESS_LABELS.title)
+  if (!(work.price > 0)) missing.push(WORK_READINESS_LABELS.price)
+  if (!work.unit.trim()) missing.push(WORK_READINESS_LABELS.unit)
+  if (!work.technique.trim()) missing.push(WORK_READINESS_LABELS.technique)
+  if (!work.maker.trim()) missing.push(WORK_READINESS_LABELS.maker)
+  if (!work.teacher.trim() || work.teacher === "Belum diisi") {
+    missing.push(WORK_READINESS_LABELS.teacher)
+  }
+  if (!work.pathId) missing.push(WORK_READINESS_LABELS.path)
+  if (!card?.permission?.trim()) missing.push(WORK_READINESS_LABELS.permission)
+  if (!card?.provenance?.trim()) missing.push(WORK_READINESS_LABELS.provenance)
+  if (!card?.materials?.trim()) missing.push(WORK_READINESS_LABELS.materials)
+  return { ready: missing.length === 0, missing }
+}
+
+function incompleteWorkError(missing: string[]): never {
+  throw new ConvexError({
+    code: "INCOMPLETE_WORK",
+    message: `Karya belum lengkap: ${missing.join(", ")}.`,
+    missing,
+  })
+}
+
+async function assertWorkImageAsset(
+  ctx: ReadCtx,
+  assetId: Id<"mediaAssets">,
+  userId: Id<"users">,
+): Promise<void> {
+  const asset = await ctx.db.get(assetId)
+  if (
+    !asset ||
+    asset.kind !== "image" ||
+    asset.status !== "active" ||
+    !asset.storageId
+  ) {
+    commerceError(
+      "MEDIA_NOT_FOUND",
+      "Foto karya harus berupa gambar aktif di Convex storage.",
+    )
+  }
+  if (asset.uploadedBy !== userId && asset.uploadedBy !== "system") {
+    commerceError("MEDIA_NOT_FOUND", "Foto karya harus diunggah oleh penjual.")
+  }
+}
+
+async function workImageReady(
+  ctx: ReadCtx,
+  work: Doc<"works">,
+): Promise<boolean> {
+  if (!work.imageAssetId) return false
+  const asset = await ctx.db.get(work.imageAssetId)
   return Boolean(
-    work.imageAssetId &&
-      work.title &&
-      work.price > 0 &&
-      work.unit &&
-      work.technique &&
-      work.maker &&
-      work.teacher &&
-      work.pathId &&
-      card &&
-      card.permission &&
-      card.provenance &&
-      card.materials,
+    asset &&
+      asset.kind === "image" &&
+      asset.status === "active" &&
+      asset.storageId,
   )
+}
+
+async function assertCertificateForPath(
+  ctx: ReadCtx,
+  certificateId: Id<"certificates">,
+  userId: Id<"users">,
+  pathId: string,
+): Promise<Doc<"certificates">> {
+  const certificate = await ctx.db.get(certificateId)
+  if (
+    !certificate ||
+    certificate.studentId !== userId ||
+    certificate.status !== "issued" ||
+    certificate.pathId !== pathId
+  ) {
+    commerceError(
+      "CERTIFICATE_REQUIRED",
+      "Sertifikat tidak sah atau berada di jalur lain.",
+    )
+  }
+  return certificate
 }
 
 function assertWorkInput(input: {
@@ -171,7 +254,11 @@ async function cardForView(
   work: Doc<"works">,
   viewer: Viewer,
 ): Promise<WorkListingView> {
-  const card = await workCardFor(ctx, work._id)
+  const [card, certificate, image] = await Promise.all([
+    workCardFor(ctx, work._id),
+    work.certificateId ? ctx.db.get(work.certificateId) : Promise.resolve(null),
+    workImageUrl(ctx, work),
+  ])
   return {
     id: work._id,
     slug: work.slug,
@@ -190,16 +277,20 @@ async function cardForView(
     techniqueNote: work.techniqueNote,
     workCard: work.workCard,
     description: work.description,
-    image: await workImageUrl(ctx, work),
+    image,
+    imageAssetId: work.imageAssetId ?? null,
     pathId: work.pathId ?? null,
     certificateId: work.certificateId ?? null,
+    certificateCode: certificate?.publicCode ?? null,
     permission: card?.permission ?? work.permission ?? null,
     provenance: card?.provenance ?? null,
     materials: card?.materials ?? null,
+    accessLevel: card?.accessLevel ?? null,
     status: work.status ?? null,
     cardStatus: card?.status ?? null,
     createdAt: work.createdAt ?? work._creationTime,
     split: safeSplit(work.price),
+    readiness: workReadiness(work, card, Boolean(image)),
     canReview: Boolean(
       work.pathId &&
         viewer.capabilities.includes("works.review") &&
@@ -209,6 +300,7 @@ async function cardForView(
     canEdit:
       work.makerId === viewer.userId &&
       (work.status === "draft" || work.status === "review"),
+    isOwner: work.makerId === viewer.userId,
   }
 }
 
@@ -281,9 +373,15 @@ async function toOrderView(
   ctx: ReadCtx,
   order: Doc<"orders">,
 ): Promise<OrderView> {
-  const [work, seller, payments, payouts, refunds, disputes, orderItems] =
+  const [work, path, seller, payments, payouts, refunds, disputes, orderItems] =
     await Promise.all([
       order.workId ? ctx.db.get(order.workId) : null,
+      order.pathId && !order.workId
+        ? ctx.db
+            .query("paths")
+            .withIndex("by_slug", (q) => q.eq("slug", order.pathId as string))
+            .unique()
+        : null,
       findUser(ctx, order.sellerId),
       ctx.db
         .query("payments")
@@ -328,8 +426,8 @@ async function toOrderView(
     sellerId: order.sellerId,
     sellerName: seller?.name ?? "Tidak ditemukan",
     workId: order.workId ?? null,
-    workTitle: work?.title ?? "Tidak ditemukan",
-    workSlug: work?.slug ?? null,
+    workTitle: work?.title ?? path?.title ?? "Tidak ditemukan",
+    workSlug: work?.slug ?? path?.slug ?? null,
     pathId: order.pathId ?? null,
     baseAmount: order.baseAmount,
     uniqueAmount: order.uniqueAmount ?? null,
@@ -480,6 +578,7 @@ export const createWork = mutation({
     pathId: v.string(),
     certificateId: v.optional(v.id("certificates")),
     price: v.number(),
+    priceLabel: v.optional(v.string()),
     unit: v.string(),
     technique: v.string(),
     techniqueNote: v.optional(v.string()),
@@ -491,31 +590,26 @@ export const createWork = mutation({
     permission: v.optional(v.string()),
     provenance: v.optional(v.string()),
     materials: v.optional(v.string()),
+    region: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { user, viewer } = await requireViewer(ctx, "sell")
     assertScope(viewer, "sell", args.pathId)
     assertWorkInput(args)
 
-    if (!viewer.entitlements.teach) {
-      if (!args.certificateId) {
-        commerceError(
-          "CERTIFICATE_REQUIRED",
-          "Penjual peserta wajib menyertakan sertifikat jalur.",
-        )
-      }
-      const certificate = await ctx.db.get(args.certificateId)
-      if (
-        !certificate ||
-        certificate.studentId !== user._id ||
-        certificate.status !== "issued" ||
-        certificate.pathId !== args.pathId
-      ) {
-        commerceError(
-          "CERTIFICATE_REQUIRED",
-          "Sertifikat tidak sah atau berada di jalur lain.",
-        )
-      }
+    let certificate: Doc<"certificates"> | null = null
+    if (args.certificateId) {
+      certificate = await assertCertificateForPath(
+        ctx,
+        args.certificateId,
+        user._id,
+        args.pathId,
+      )
+    } else if (!viewer.entitlements.teach) {
+      commerceError(
+        "CERTIFICATE_REQUIRED",
+        "Penjual peserta wajib menyertakan sertifikat jalur.",
+      )
     }
 
     const teacherDoc = user.roles.includes("teacher")
@@ -526,12 +620,15 @@ export const createWork = mutation({
       : null
 
     let teacherName = teacherDoc?.name ?? "Belum diisi"
-    if (args.certificateId) {
-      const certificate = await ctx.db.get(args.certificateId)
-      if (certificate) {
-        const certTeacher = await ctx.db.get(certificate.teacherId)
-        if (certTeacher) teacherName = certTeacher.name
-      }
+    if (certificate) {
+      const certTeacher = await ctx.db.get(certificate.teacherId)
+      if (certTeacher) teacherName = certTeacher.name
+    }
+
+    const imageAssetId =
+      args.imageAssetId ?? (await assetIdForImageUrl(ctx, args.image))
+    if (imageAssetId) {
+      await assertWorkImageAsset(ctx, imageAssetId, user._id)
     }
 
     const timestamp = now()
@@ -549,15 +646,15 @@ export const createWork = mutation({
       maker: viewer.name,
       makerRole: viewer.entitlements.teach ? "Pengajar" : "Peserta bersertifikat",
       teacher: teacherName,
-      region: viewer.region,
+      region: args.region?.trim() || viewer.region,
       price: args.price,
+      priceLabel: args.priceLabel?.trim() || undefined,
       unit: args.unit.trim(),
       technique: args.technique.trim(),
       techniqueNote: args.techniqueNote?.trim() ?? "",
       workCard: serial,
       description: args.description.trim(),
-      imageAssetId:
-        args.imageAssetId ?? (await assetIdForImageUrl(ctx, args.image)),
+      imageAssetId,
       makerId: user._id,
       pathId: args.pathId,
       certificateId: args.certificateId,
@@ -600,7 +697,12 @@ export const updateWork = mutation({
   args: {
     workId: v.id("works"),
     title: v.optional(v.string()),
+    pathId: v.optional(v.string()),
+    certificateId: v.optional(v.id("certificates")),
+    kind: v.optional(v.union(v.literal("product"), v.literal("service"))),
+    category: v.optional(v.union(v.literal("batik"), v.literal("layanan"))),
     price: v.optional(v.number()),
+    priceLabel: v.optional(v.string()),
     unit: v.optional(v.string()),
     technique: v.optional(v.string()),
     techniqueNote: v.optional(v.string()),
@@ -610,9 +712,10 @@ export const updateWork = mutation({
     permission: v.optional(v.string()),
     provenance: v.optional(v.string()),
     materials: v.optional(v.string()),
+    region: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { viewer } = await requireViewer(ctx, "sell")
+    const { user, viewer } = await requireViewer(ctx, "sell")
     const work = await ctx.db.get(args.workId)
     if (!work || work.makerId !== viewer.userId) notFound("Karya tidak ditemukan.")
     if (work.status !== "draft" && work.status !== "review") {
@@ -621,19 +724,55 @@ export const updateWork = mutation({
         "Karya yang sudah tayang tidak dapat diedit langsung.",
       )
     }
-    if (work.pathId) assertScope(viewer, "sell", work.pathId)
-    if (args.price !== undefined) {
-      try {
-        assertRupiah(args.price, "Harga")
-      } catch (error) {
-        if (error instanceof MoneyError) commerceError(error.code, error.message)
-        throw error
-      }
+
+    const nextPathId = args.pathId ?? work.pathId
+    if (!nextPathId) commerceError("INVALID_WORK", "Jalur karya wajib diisi.")
+    assertScope(viewer, "sell", nextPathId)
+
+    const pathChanged = args.pathId !== undefined && args.pathId !== work.pathId
+    if (args.certificateId) {
+      await assertCertificateForPath(
+        ctx,
+        args.certificateId,
+        user._id,
+        nextPathId,
+      )
+    } else if (pathChanged && !viewer.entitlements.teach) {
+      commerceError(
+        "CERTIFICATE_REQUIRED",
+        "Perubahan jalur memerlukan sertifikat terbit pada jalur baru.",
+      )
+    }
+
+    if (
+      args.title !== undefined ||
+      args.price !== undefined ||
+      args.unit !== undefined ||
+      args.technique !== undefined
+    ) {
+      assertWorkInput({
+        title: args.title ?? work.title,
+        price: args.price ?? work.price,
+        unit: args.unit ?? work.unit,
+        technique: args.technique ?? work.technique,
+      })
+    }
+
+    if (args.imageAssetId !== undefined) {
+      await assertWorkImageAsset(ctx, args.imageAssetId, user._id)
     }
 
     const patch: Partial<Doc<"works">> = {}
     if (args.title !== undefined) patch.title = args.title.trim()
+    if (args.pathId !== undefined) patch.pathId = args.pathId
+    if (args.certificateId !== undefined) patch.certificateId = args.certificateId
+    if (pathChanged) patch.certificateId = args.certificateId
+    if (args.kind !== undefined) patch.kind = args.kind
+    if (args.category !== undefined) patch.category = args.category
     if (args.price !== undefined) patch.price = args.price
+    if (args.priceLabel !== undefined) {
+      patch.priceLabel = args.priceLabel.trim() || undefined
+    }
     if (args.unit !== undefined) patch.unit = args.unit.trim()
     if (args.technique !== undefined) patch.technique = args.technique.trim()
     if (args.techniqueNote !== undefined) patch.techniqueNote = args.techniqueNote.trim()
@@ -644,6 +783,7 @@ export const updateWork = mutation({
       patch.imageAssetId = await assetIdForImageUrl(ctx, args.image)
     }
     if (args.permission !== undefined) patch.permission = args.permission.trim()
+    if (args.region !== undefined) patch.region = args.region.trim() || work.region
     await ctx.db.patch(work._id, patch)
 
     const card = await workCardFor(ctx, work._id)
@@ -654,6 +794,8 @@ export const updateWork = mutation({
       if (args.materials !== undefined) cardPatch.materials = args.materials.trim()
       if (args.provenance !== undefined) cardPatch.provenance = args.provenance.trim()
       if (args.permission !== undefined) cardPatch.permission = args.permission.trim()
+      if (args.certificateId !== undefined) cardPatch.certificateId = args.certificateId
+      if (pathChanged) cardPatch.certificateId = args.certificateId
       await ctx.db.patch(card._id, cardPatch)
     }
 
@@ -685,12 +827,12 @@ export const submitWork = mutation({
     }
     if (!work.pathId) commerceError("INVALID_WORK", "Jalur karya wajib diisi.")
     assertScope(viewer, "sell", work.pathId)
-    if (!workComplete(work, card)) {
-      commerceError(
-        "INCOMPLETE_WORK",
-        "Foto, izin sumber, provenans, dan atribusi wajib lengkap sebelum pengajuan.",
-      )
-    }
+    const readiness = workReadiness(
+      work,
+      card,
+      await workImageReady(ctx, work),
+    )
+    if (!readiness.ready) incompleteWorkError(readiness.missing)
 
     const timestamp = now()
     await ctx.db.patch(work._id, { status: "review" })
@@ -772,12 +914,12 @@ export const publishWork = mutation({
         "Karya harus melewati konfirmasi pengajar dan moderasi.",
       )
     }
-    if (!workComplete(work, card)) {
-      commerceError(
-        "INCOMPLETE_WORK",
-        "Karya belum lengkap: foto, izin, provenans, dan atribusi wajib terisi.",
-      )
-    }
+    const readiness = workReadiness(
+      work,
+      card,
+      await workImageReady(ctx, work),
+    )
+    if (!readiness.ready) incompleteWorkError(readiness.missing)
     if (!work.pathId) commerceError("INVALID_WORK", "Jalur karya wajib diisi.")
     if (!work.makerId) commerceError("INVALID_WORK", "Pembuat karya tidak tercatat.")
     await assertSellerScope(ctx, work.makerId, work.pathId)
@@ -848,9 +990,12 @@ export const resumeWork = mutation({
       commerceError("INVALID_STATE", "Hanya karya yang dijeda dapat diterbitkan ulang.")
     }
     const card = await workCardFor(ctx, work._id)
-    if (!workComplete(work, card)) {
-      commerceError("INCOMPLETE_WORK", "Karya belum lengkap untuk tayang kembali.")
-    }
+    const readiness = workReadiness(
+      work,
+      card,
+      await workImageReady(ctx, work),
+    )
+    if (!readiness.ready) incompleteWorkError(readiness.missing)
     if (!work.pathId) commerceError("INVALID_WORK", "Jalur karya wajib diisi.")
     if (!work.makerId) commerceError("INVALID_WORK", "Pembuat karya tidak tercatat.")
     await assertSellerScope(ctx, work.makerId, work.pathId)
@@ -942,12 +1087,10 @@ export const bulkPauseWorks = mutation({
 
 /* ----------------------------------------------------------------- orders */
 
-export const createGuestOrder = mutation({
+export const createOrder = mutation({
   args: {
-    workSlug: v.string(),
-    buyerName: v.string(),
-    buyerEmail: v.string(),
-    buyerWhatsapp: v.optional(v.string()),
+    kind: v.union(v.literal("work"), v.literal("path")),
+    slug: v.string(),
     note: v.optional(v.string()),
     idempotencyKey: v.optional(v.string()),
     consentTransactional: v.boolean(),
@@ -960,40 +1103,77 @@ export const createGuestOrder = mutation({
         "Persetujuan kontak transaksional diperlukan.",
       )
     }
-    const buyerEmail = assertEmail(args.buyerEmail)
-    const buyerName = args.buyerName.trim()
+
+    const { user, viewer } = await requireViewer(ctx, "orders.buy")
+    const buyerEmail = assertEmail(user.email)
+    const buyerName = user.name.trim()
     if (buyerName.length < 2) {
       commerceError("INVALID_BUYER", "Nama pembeli wajib diisi.")
     }
 
-    const work = await ctx.db
-      .query("works")
-      .withIndex("by_slug", (q) => q.eq("slug", args.workSlug))
-      .unique()
-    if (!work) notFound("Karya tidak ditemukan.")
-    if (work.status !== "published" || !work.pathId) {
-      commerceError("WORK_UNAVAILABLE", "Karya ini tidak sedang dijual.")
-    }
-    if (!work.makerId) {
-      commerceError("WORK_UNAVAILABLE", "Penjual karya belum terhubung ke akun.")
-    }
+    let sellerId: Id<"users">
+    let workId: Id<"works"> | undefined
+    let pathId: string
+    let title: string
+    let amount: number
+    let itemKind: "work" | "service" | "path"
 
-    const seller = await findUser(ctx, work.makerId)
-    if (!seller) notFound("Penjual tidak ditemukan.")
-    // A revoked certificate or suspended seller profile removes the path scope.
-    // The listing is hidden from public reads and cannot be ordered; Phase 2
-    // revocation should also run the bulk pause for an immediate takedown.
-    await assertSellerScope(ctx, work.makerId, work.pathId)
+    if (args.kind === "work") {
+      const work = await ctx.db
+        .query("works")
+        .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+        .unique()
+      if (!work) notFound("Karya tidak ditemukan.")
+      if (work.status !== "published" || !work.pathId || work.price <= 0) {
+        commerceError("WORK_UNAVAILABLE", "Karya ini tidak sedang dijual.")
+      }
+      if (!work.makerId) {
+        commerceError("WORK_UNAVAILABLE", "Penjual karya belum terhubung ke akun.")
+      }
 
-    const current = await optionalViewer(ctx)
-    if (current && current.viewer.userId === seller._id) {
-      commerceError("SELF_DEALING", "Tidak dapat membeli karya sendiri.")
-    }
-    if (current && current.viewer.email.toLowerCase() === seller.email.toLowerCase()) {
-      commerceError("SELF_DEALING", "Tidak dapat membeli karya sendiri.")
-    }
-    if (buyerEmail === seller.email.toLowerCase()) {
-      commerceError("SELF_DEALING", "Tidak dapat membeli karya sendiri.")
+      const seller = await findUser(ctx, work.makerId)
+      if (!seller) notFound("Penjual tidak ditemukan.")
+      // A revoked certificate or suspended seller profile removes the path scope.
+      // The listing is hidden from public reads and cannot be ordered; Phase 2
+      // revocation should also run the bulk pause for an immediate takedown.
+      await assertSellerScope(ctx, work.makerId, work.pathId)
+
+      if (seller._id === user._id || seller.email.toLowerCase() === buyerEmail) {
+        commerceError("SELF_DEALING", "Tidak dapat membeli karya sendiri.")
+      }
+
+      sellerId = seller._id
+      workId = work._id
+      pathId = work.pathId
+      title = work.title
+      amount = work.price
+      itemKind = work.kind === "service" ? "service" : "work"
+    } else {
+      const path = await ctx.db
+        .query("paths")
+        .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+        .unique()
+      if (!path || path.status === "archived") notFound("Jalur tidak ditemukan.")
+      if (path.comingSoon || path.price === null || path.price <= 0) {
+        commerceError("PATH_UNAVAILABLE", "Jalur ini belum dapat dibeli.")
+      }
+      if (!path.teacherId) {
+        commerceError("PATH_UNAVAILABLE", "Jalur belum memiliki pengajar.")
+      }
+
+      const seller = await ctx.db.get(path.teacherId as Id<"users">)
+      if (!seller || seller.status !== "active") {
+        commerceError("PATH_UNAVAILABLE", "Pengajar jalur tidak tersedia.")
+      }
+      if (seller._id === user._id || seller.email.toLowerCase() === buyerEmail) {
+        commerceError("SELF_DEALING", "Tidak dapat membeli jalur sendiri.")
+      }
+
+      sellerId = seller._id
+      pathId = path.slug
+      title = path.title
+      amount = path.price
+      itemKind = "path"
     }
 
     if (args.idempotencyKey) {
@@ -1004,7 +1184,11 @@ export const createGuestOrder = mutation({
         )
         .unique()
       if (existing) {
-        if (existing.buyerEmail.toLowerCase() !== buyerEmail) {
+        if (
+          existing.buyerUserId !== user._id ||
+          existing.pathId !== pathId ||
+          (existing.workId ?? null) !== (workId ?? null)
+        ) {
           commerceError("INVALID_IDEMPOTENCY", "Kunci idempotensi tidak cocok.")
         }
         const token = randomToken()
@@ -1036,14 +1220,14 @@ export const createGuestOrder = mutation({
     const tokenHash = await hashToken(token)
     const orderId = await ctx.db.insert("orders", {
       code,
-      buyerUserId: current?.user._id,
+      buyerUserId: user._id,
       buyerName,
       buyerEmail,
-      buyerWhatsapp: args.buyerWhatsapp?.trim() || undefined,
-      sellerId: seller._id,
-      workId: work._id,
-      pathId: work.pathId,
-      baseAmount: work.price,
+      buyerWhatsapp: user.phone.trim() || undefined,
+      sellerId,
+      workId,
+      pathId,
+      baseAmount: amount,
       status: "draft",
       channel: "web",
       note: args.note?.trim() || undefined,
@@ -1051,46 +1235,58 @@ export const createGuestOrder = mutation({
       updatedAt: timestamp,
       tokenHash,
       idempotencyKey: args.idempotencyKey,
-      consentVersion: CONSENT_VERSION,
+      consentVersion: args.consentVersion ?? CONSENT_VERSION,
       consentAt: timestamp,
     })
 
     await ctx.db.insert("orderItems", {
       orderId,
-      kind: work.kind === "service" ? "service" : "work",
-      refId: work._id,
-      pathId: work.pathId,
-      title: work.title,
+      kind: itemKind,
+      refId: workId ?? pathId,
+      pathId,
+      title,
       quantity: 1,
-      unitAmount: work.price,
-      totalAmount: work.price,
+      unitAmount: amount,
+      totalAmount: amount,
     })
 
     await writeAudit(ctx, {
-      actorId: current?.viewer.userId ?? "guest",
-      actorRole: current?.viewer.roleLabel ?? "Tamu",
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
       action: "commerce.order.create",
       entityType: "orders",
       entityId: orderId,
-      reason: "Pesanan tamu dibuat melalui checkout publik.",
-      after: { code, workId: work._id, baseAmount: work.price },
+      reason: "Pesanan dibuat oleh pembeli yang masuk.",
+      after: {
+        code,
+        kind: args.kind,
+        workId,
+        pathId,
+        baseAmount: amount,
+      },
     })
 
-    return { orderId, code, token, baseAmount: work.price }
+    return { orderId, code, token, baseAmount: amount }
   },
 })
 
 export const getOrderByToken = query({
   args: { token: v.string() },
-  handler: async (ctx, args): Promise<GuestOrderView | null> => {
+  handler: async (ctx, args): Promise<OrderStatusView | null> => {
     const order = await findByToken(ctx, args.token)
     if (!order) return null
 
-    const [work, seller] = await Promise.all([
+    const [work, path, seller] = await Promise.all([
       order.workId ? ctx.db.get(order.workId) : null,
+      order.pathId && !order.workId
+        ? ctx.db
+            .query("paths")
+            .withIndex("by_slug", (q) => q.eq("slug", order.pathId as string))
+            .unique()
+        : null,
       findUser(ctx, order.sellerId),
     ])
-    if (!work) return null
+    if (!work && !path) return null
 
     const timeline: OrderTimelineEntry[] = [
       { status: "draft", label: ORDER_STATUS_LABELS.draft, at: order.createdAt },
@@ -1122,56 +1318,14 @@ export const getOrderByToken = query({
       status: order.status,
       buyerName: order.buyerName,
       buyerEmailMasked: maskEmail(order.buyerEmail),
-      workTitle: work.title,
+      workTitle: work?.title ?? path?.title ?? "Tidak ditemukan",
       sellerName: seller?.name ?? "Tidak ditemukan",
       baseAmount: order.baseAmount,
       uniqueAmount: order.uniqueAmount ?? null,
       createdAt: order.createdAt,
       paidAt: order.paidAt ?? null,
-      claimed: Boolean(order.buyerUserId),
       timeline,
     }
-  },
-})
-
-export const claimOrder = mutation({
-  args: { token: v.string() },
-  handler: async (ctx, args) => {
-    const { user, viewer } = await requireViewer(ctx, "orders.read.own")
-    if (!user.emailVerified) {
-      commerceError("EMAIL_UNVERIFIED", "Verifikasi email sebelum mengklaim pesanan.")
-    }
-    const order = await findByToken(ctx, args.token)
-    if (!order) notFound("Pesanan tidak ditemukan.")
-
-    if (order.buyerUserId) {
-      if (order.buyerUserId === user._id) {
-        return { claimed: true, orderId: order._id }
-      }
-      notFound("Pesanan tidak ditemukan.")
-    }
-    if (order.sellerId === user._id) {
-      commerceError("SELF_DEALING", "Penjual tidak dapat mengklaim pesanannya sendiri.")
-    }
-    if (order.buyerEmail.toLowerCase() !== user.email.toLowerCase()) {
-      notFound("Pesanan tidak ditemukan.")
-    }
-
-    const timestamp = now()
-    await ctx.db.patch(order._id, {
-      buyerUserId: user._id,
-      claimedAt: timestamp,
-      updatedAt: timestamp,
-    })
-    await writeAudit(ctx, {
-      actorId: viewer.userId,
-      actorRole: viewer.roleLabel,
-      action: "commerce.order.claim",
-      entityType: "orders",
-      entityId: order._id,
-      reason: "Pesanan tamu diklaim oleh akun dengan email terverifikasi.",
-    })
-    return { claimed: true, orderId: order._id }
   },
 })
 

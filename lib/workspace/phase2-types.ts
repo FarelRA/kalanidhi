@@ -88,17 +88,88 @@ export type EnrollmentOverview = {
 export type LessonProgressState = "not_started" | "in_progress" | "completed"
 export type AttendanceState = "present" | "absent" | "excused"
 
+export type LessonKind = "text" | "video" | "audio" | "file" | "practice"
+export type LessonAccessLevel = "public" | "enrolled" | "certified"
+export type CurriculumStatus = "draft" | "published"
+
+export type CurriculumMedia = {
+  id: Id<"mediaAssets">
+  kind: "image" | "audio" | "video" | "document"
+  filename: string
+  mimeType: string
+  alt: string
+  caption: string | null
+  url: string | null
+}
+
+export type CurriculumLesson = {
+  id: Id<"lessons">
+  title: string
+  kind: LessonKind
+  body: string
+  estimatedMinutes: number
+  accessLevel: LessonAccessLevel
+  order: number
+  status: CurriculumStatus
+  mediaAssetIds: Id<"mediaAssets">[]
+  media: CurriculumMedia[]
+}
+
+export type CurriculumModule = {
+  id: Id<"pathModules">
+  title: string
+  summary: string
+  estimatedMinutes: number
+  order: number
+  status: CurriculumStatus
+  lessonCount: number
+  publishedLessonCount: number
+  totalMinutes: number
+  lessons: CurriculumLesson[]
+}
+
+export type CurriculumCounts = {
+  modules: number
+  publishedModules: number
+  lessons: number
+  publishedLessons: number
+  estimatedMinutes: number
+}
+
+export type CurriculumView = {
+  path: {
+    id: string
+    slug: string
+    title: string
+    status: LearningPathStatus
+    modules: number
+    lessons: number
+    tasks: number
+    weeks: number
+  }
+  modules: CurriculumModule[]
+  counts: CurriculumCounts
+}
+
 export type EnrollmentDetail = {
   enrollment: EnrollmentOverview
   modules: {
     id: Id<"pathModules">
     title: string
     summary: string
+    order: number
+    status: CurriculumStatus
+    estimatedMinutes: number
     lessons: {
       id: Id<"lessons">
       title: string
-      kind: "text" | "video" | "audio" | "file" | "practice"
+      kind: LessonKind
+      body: string
+      order: number
+      status: CurriculumStatus
+      accessLevel: LessonAccessLevel
       estimatedMinutes: number
+      media: CurriculumMedia[]
       state: LessonProgressState
       attendance: AttendanceState | null
       completedAt: number | null

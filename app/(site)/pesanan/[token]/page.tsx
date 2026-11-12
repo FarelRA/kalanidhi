@@ -4,9 +4,10 @@ import { headers } from "next/headers"
 import { notFound } from "next/navigation"
 
 import {
-  GuestOrderLive,
-  GuestOrderStatic,
+  OrderStatusLive,
+  OrderStatusStatic,
 } from "@/components/commerce/order-status"
+import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
 import {
   clientKeyFromHeaders,
   statusRateLimiter,
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false, nocache: true },
 }
 
-export default async function GuestOrderPage({
+export default async function OrderStatusPage({
   params,
 }: {
   params: Promise<Params>
@@ -83,6 +84,15 @@ export default async function GuestOrderPage({
     )
   }
 
+  let signedIn = false
+  if (isAuthConfigured()) {
+    try {
+      signedIn = await getAuthServer().isAuthenticated()
+    } catch (error) {
+      console.error("[pesanan] Could not resolve auth session.", error)
+    }
+  }
+
   const [order, payment] = await Promise.all([
     getOrderStatus(token),
     getPaymentStatus(token),
@@ -109,13 +119,19 @@ export default async function GuestOrderPage({
 
         <div className="mt-8">
           {isCommerceConfigured() ? (
-            <GuestOrderLive
+            <OrderStatusLive
               token={token}
               initialOrder={order}
               initialPayment={payment}
+              signedIn={signedIn}
             />
           ) : (
-            <GuestOrderStatic token={token} order={order} payment={payment} />
+            <OrderStatusStatic
+              token={token}
+              order={order}
+              payment={payment}
+              signedIn={signedIn}
+            />
           )}
         </div>
 
@@ -127,10 +143,10 @@ export default async function GuestOrderPage({
             Kembali ke beranda
           </Link>
           <Link
-            href="/masuk"
+            href={signedIn ? "/ruang/pesanan" : "/masuk"}
             className="inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[10.5px] font-bold uppercase tracking-[0.08em] text-paper"
           >
-            Masuk ke ruang kerja
+            {signedIn ? "Buka pesanan saya" : "Masuk ke ruang kerja"}
           </Link>
         </div>
       </section>

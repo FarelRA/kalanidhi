@@ -56,9 +56,15 @@ async function toIntentView(
 ): Promise<PaymentIntentView> {
   const order = await ctx.db.get(payment.orderId)
   if (!order) notFound("Pesanan tidak ditemukan.")
-  const [seller, work] = await Promise.all([
+  const [seller, work, path] = await Promise.all([
     ctx.db.get(order.sellerId),
     order.workId ? ctx.db.get(order.workId) : null,
+    order.pathId && !order.workId
+      ? ctx.db
+          .query("paths")
+          .withIndex("by_slug", (q) => q.eq("slug", order.pathId as string))
+          .unique()
+      : null,
   ])
 
   return {
@@ -67,7 +73,7 @@ async function toIntentView(
     orderCode: order.code,
     buyerName: order.buyerName,
     sellerName: seller?.name ?? "Tidak ditemukan",
-    workTitle: work?.title ?? "Tidak ditemukan",
+    workTitle: work?.title ?? path?.title ?? "Tidak ditemukan",
     provider: payment.provider,
     providerChargeId: payment.providerChargeId,
     providerReference: payment.providerReference ?? null,
@@ -467,6 +473,49 @@ type SettlementInput = {
 }
 
 /**
+ * A paid path order grants the buyer an active enrollment. Work orders carry a
+ * pathId for attribution but never create an enrollment. Existing active or
+ * completed enrollments are reused so a repeat purchase cannot duplicate one.
+ */
+async function ensurePathEnrollment(
+  ctx: MutationCtx,
+  order: Doc<"orders">,
+  timestamp: number,
+): Promise<Id<"enrollments"> | null> {
+  if (!order.pathId || order.workId || !order.buyerUserId) return null
+  const studentId = order.buyerUserId
+
+  const rows = await ctx.db
+    .query("enrollments")
+    .withIndex("by_studentId", (q) => q.eq("studentId", studentId))
+    .collect()
+  const forPath = rows.filter((row) => row.pathId === order.pathId)
+  const existing = forPath.find(
+    (row) => row.status === "active" || row.status === "completed",
+  )
+  if (existing) return existing._id
+
+  const pending = forPath.find((row) => row.status === "pending_payment")
+  if (pending) {
+    await ctx.db.patch(pending._id, {
+      status: "active",
+      enrolledAt: timestamp,
+      updatedAt: timestamp,
+    })
+    return pending._id
+  }
+
+  return await ctx.db.insert("enrollments", {
+    studentId,
+    pathId: order.pathId,
+    status: "active",
+    enrolledAt: timestamp,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  })
+}
+
+/**
  * Atomic settlement: payment, order, event, payout allocation, and ledger
  * entries commit together. The split uses the order `baseAmount`; the unique
  * offset is never revenue.
@@ -559,6 +608,8 @@ async function settle(
     updatedAt: timestamp,
   })
 
+  const enrollmentId = await ensurePathEnrollment(ctx, order, timestamp)
+
   await ctx.db.insert("paymentEvents", {
     eventId: input.eventId,
     paymentId: payment._id,
@@ -627,6 +678,7 @@ async function settle(
     after: {
       paymentId: payment._id,
       payoutId,
+      enrollmentId,
       baseAmount: order.baseAmount,
       uniqueAmount: payment.uniqueAmount,
       shares: split,

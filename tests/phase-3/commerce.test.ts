@@ -4,9 +4,10 @@ import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
 import {
   createChargeForCheckout,
-  createGuestCheckout,
+  createCheckout,
   createTestDb,
   seedAccount,
+  seedPath,
   seedPublishedWork,
   seedSeller,
   settleViaWebhook,
@@ -289,7 +290,7 @@ describe("works / scope and moderation", () => {
       })
     })
 
-    await expect(createGuestCheckout(t, { workId })).rejects.toThrow()
+    await expect(createCheckout(t, { workId })).rejects.toThrow()
     const view = await t.query(api.commerce.getPublicWork, {
       slug: await workSlug(t, workId),
     })
@@ -323,6 +324,321 @@ describe("works / scope and moderation", () => {
     }
   })
 
+  it("[P3-WRK-13] a seller uploads a work image and creates a draft with the asset", async () => {
+    const t = createTestDb()
+    const seller = await seedSeller(t, { authUserId: "auth-upload-seller" })
+    const storageId = await t.run(async (ctx) =>
+      ctx.storage.store(new Blob(["work-photo"], { type: "image/jpeg" })),
+    )
+
+    const saved = await t
+      .withIdentity({ subject: "auth-upload-seller" })
+      .mutation(api.media.saveWorkImage, {
+        storageId,
+        filename: "kain.jpg",
+        mimeType: "image/jpeg",
+        size: 10,
+        alt: "Kain soga",
+      })
+    expect(saved.url).toBeTruthy()
+
+    const asset = await t.run(async (ctx) => ctx.db.get(saved.assetId))
+    expect(asset?.kind).toBe("image")
+    expect(asset?.uploadedBy).toBe(seller.userId)
+
+    const created = await t
+      .withIdentity({ subject: "auth-upload-seller" })
+      .mutation(
+        api.commerce.createWork,
+        workInput(PATH, seller.certificateId ?? undefined, saved.assetId),
+      )
+    const detail = await t
+      .withIdentity({ subject: "auth-upload-seller" })
+      .query(api.commerce.getWorkDetail, { workId: created.workId })
+    expect(detail.imageAssetId).toBe(saved.assetId)
+    expect(detail.image).toBe(saved.url)
+    expect(detail.readiness.ready).toBe(true)
+  })
+
+  it("[P3-WRK-17] a seller edits a draft with a new image asset and card fields", async () => {
+    const t = createTestDb()
+    const seller = await seedSeller(t, { authUserId: "auth-edit-seller" })
+    const created = await t
+      .withIdentity({ subject: "auth-edit-seller" })
+      .mutation(
+        api.commerce.createWork,
+        workInput(PATH, seller.certificateId ?? undefined, seller.imageAssetId),
+      )
+
+    const storageId = await t.run(async (ctx) =>
+      ctx.storage.store(new Blob(["new-photo"], { type: "image/png" })),
+    )
+    const saved = await t
+      .withIdentity({ subject: "auth-edit-seller" })
+      .mutation(api.media.saveWorkImage, {
+        storageId,
+        filename: "new.png",
+        mimeType: "image/png",
+        size: 9,
+        alt: "Foto baru",
+      })
+
+    await t.withIdentity({ subject: "auth-edit-seller" }).mutation(
+      api.commerce.updateWork,
+      {
+        workId: created.workId,
+        title: "Kain Soga Baru",
+        price: 1_500_000,
+        priceLabel: "Mulai dari",
+        unit: "per lembar",
+        technique: "Batik cap",
+        techniqueNote: "Cap tembaga",
+        description: "Deskripsi baru.",
+        imageAssetId: saved.assetId,
+        permission: "Izin baru",
+        provenance: "Provenans baru",
+        materials: "Bahan baru",
+        region: "Sleman",
+        kind: "service",
+        category: "layanan",
+      },
+    )
+
+    const detail = await t
+      .withIdentity({ subject: "auth-edit-seller" })
+      .query(api.commerce.getWorkDetail, { workId: created.workId })
+    expect(detail.title).toBe("Kain Soga Baru")
+    expect(detail.price).toBe(1_500_000)
+    expect(detail.priceLabel).toBe("Mulai dari")
+    expect(detail.imageAssetId).toBe(saved.assetId)
+    expect(detail.image).toBe(saved.url)
+    expect(detail.kind).toBe("service")
+    expect(detail.category).toBe("layanan")
+    expect(detail.region).toBe("Sleman")
+    expect(detail.permission).toBe("Izin baru")
+    expect(detail.provenance).toBe("Provenans baru")
+    expect(detail.materials).toBe("Bahan baru")
+    expect(detail.readiness.ready).toBe(true)
+  })
+
+  it("[P3-WRK-14] an inactive seller profile or missing certificate blocks work creation", async () => {
+    const t = createTestDb()
+    const pending = await seedSeller(t, {
+      authUserId: "auth-pending-seller",
+      sellerStatus: "pending",
+    })
+    await expect(
+      t
+        .withIdentity({ subject: "auth-pending-seller" })
+        .mutation(
+          api.commerce.createWork,
+          workInput(
+            PATH,
+            pending.certificateId ?? undefined,
+            pending.imageAssetId,
+          ),
+        ),
+    ).rejects.toThrow()
+
+    const noCertificate = await seedSeller(t, {
+      authUserId: "auth-no-cert-seller",
+      certificate: false,
+    })
+    await expect(
+      t
+        .withIdentity({ subject: "auth-no-cert-seller" })
+        .mutation(
+          api.commerce.createWork,
+          workInput(PATH, undefined, noCertificate.imageAssetId),
+        ),
+    ).rejects.toThrow()
+
+    const storageId = await t.run(async (ctx) =>
+      ctx.storage.store(new Blob(["x"], { type: "image/jpeg" })),
+    )
+    await expect(
+      t
+        .withIdentity({ subject: "auth-pending-seller" })
+        .mutation(api.media.saveWorkImage, {
+          storageId,
+          filename: "x.jpg",
+          mimeType: "image/jpeg",
+          size: 1,
+          alt: "x",
+        }),
+    ).rejects.toThrow()
+  })
+
+  it("[P3-WRK-15] work status actions are restricted to the right role", async () => {
+    const t = createTestDb()
+    const seller = await seedSeller(t, { authUserId: "auth-role-seller" })
+    await seedSeller(t, {
+      authUserId: "auth-role-teacher",
+      teacherProfile: true,
+    })
+    await admin(t)
+
+    const created = await t
+      .withIdentity({ subject: "auth-role-seller" })
+      .mutation(
+        api.commerce.createWork,
+        workInput(PATH, seller.certificateId ?? undefined, seller.imageAssetId),
+      )
+    await t
+      .withIdentity({ subject: "auth-role-seller" })
+      .mutation(api.commerce.submitWork, { workId: created.workId })
+
+    await expect(
+      t
+        .withIdentity({ subject: "auth-role-seller" })
+        .mutation(api.commerce.confirmWork, { workId: created.workId }),
+    ).rejects.toThrow()
+    await expect(
+      t
+        .withIdentity({ subject: "auth-role-teacher" })
+        .mutation(api.commerce.beginWorkReview, { workId: created.workId }),
+    ).rejects.toThrow()
+    await expect(
+      t
+        .withIdentity({ subject: "auth-role-teacher" })
+        .mutation(api.commerce.publishWork, {
+          workId: created.workId,
+          reason: "Coba terbitkan dari akun pengajar.",
+        }),
+    ).rejects.toThrow()
+    await expect(
+      t
+        .withIdentity({ subject: "auth-admin" })
+        .mutation(api.commerce.submitWork, { workId: created.workId }),
+    ).rejects.toThrow()
+
+    await t
+      .withIdentity({ subject: "auth-role-teacher" })
+      .mutation(api.commerce.confirmWork, { workId: created.workId })
+    await t
+      .withIdentity({ subject: "auth-admin" })
+      .mutation(api.commerce.beginWorkReview, { workId: created.workId })
+    await t.withIdentity({ subject: "auth-admin" }).mutation(api.commerce.publishWork, {
+      workId: created.workId,
+      reason: "Izin dan provenans sudah diverifikasi.",
+    })
+
+    await t
+      .withIdentity({ subject: "auth-role-seller" })
+      .mutation(api.commerce.pauseWork, { workId: created.workId })
+    const paused = await t.run(async (ctx) => ctx.db.get(created.workId))
+    expect(paused?.status).toBe("paused")
+
+    await expect(
+      t
+        .withIdentity({ subject: "auth-role-seller" })
+        .mutation(api.commerce.resumeWork, {
+          workId: created.workId,
+          reason: "Coba terbitkan ulang dari akun penjual.",
+        }),
+    ).rejects.toThrow()
+    await t.withIdentity({ subject: "auth-admin" }).mutation(api.commerce.resumeWork, {
+      workId: created.workId,
+      reason: "Perbaikan selesai dan siap tayang kembali.",
+    })
+    const resumed = await t.run(async (ctx) => ctx.db.get(created.workId))
+    expect(resumed?.status).toBe("published")
+  })
+
+  it("[P3-WRK-16] publish readiness blocks incomplete works and reports missing fields", async () => {
+    const t = createTestDb()
+    const seller = await seedSeller(t, { authUserId: "auth-ready-seller" })
+    await seedSeller(t, {
+      authUserId: "auth-ready-teacher",
+      teacherProfile: true,
+    })
+    await admin(t)
+
+    const created = await t
+      .withIdentity({ subject: "auth-ready-seller" })
+      .mutation(api.commerce.createWork, {
+        ...workInput(
+          PATH,
+          seller.certificateId ?? undefined,
+          seller.imageAssetId,
+        ),
+        materials: "",
+      })
+
+    const detail = await t
+      .withIdentity({ subject: "auth-ready-seller" })
+      .query(api.commerce.getWorkDetail, { workId: created.workId })
+    expect(detail.readiness.ready).toBe(false)
+    expect(detail.readiness.missing).toContain("Bahan")
+
+    await expect(
+      t
+        .withIdentity({ subject: "auth-ready-seller" })
+        .mutation(api.commerce.submitWork, { workId: created.workId }),
+    ).rejects.toMatchObject({
+      data: {
+        code: "INCOMPLETE_WORK",
+        missing: expect.arrayContaining(["Bahan"]),
+      },
+    })
+
+    await t.run(async (ctx) => {
+      const card = await ctx.db
+        .query("workCards")
+        .withIndex("by_workId", (q) => q.eq("workId", created.workId))
+        .unique()
+      if (card) {
+        await ctx.db.patch(card._id, {
+          materials: "Katun primisima, soga alam",
+        })
+      }
+    })
+    await t
+      .withIdentity({ subject: "auth-ready-seller" })
+      .mutation(api.commerce.submitWork, { workId: created.workId })
+    await t
+      .withIdentity({ subject: "auth-ready-teacher" })
+      .mutation(api.commerce.confirmWork, { workId: created.workId })
+    await t
+      .withIdentity({ subject: "auth-admin" })
+      .mutation(api.commerce.beginWorkReview, { workId: created.workId })
+
+    await t.run(async (ctx) => {
+      const card = await ctx.db
+        .query("workCards")
+        .withIndex("by_workId", (q) => q.eq("workId", created.workId))
+        .unique()
+      if (card) await ctx.db.patch(card._id, { provenance: "" })
+    })
+    await expect(
+      t.withIdentity({ subject: "auth-admin" }).mutation(api.commerce.publishWork, {
+        workId: created.workId,
+        reason: "Coba terbitkan tanpa provenans.",
+      }),
+    ).rejects.toMatchObject({
+      data: {
+        code: "INCOMPLETE_WORK",
+        missing: expect.arrayContaining(["Provenans"]),
+      },
+    })
+
+    await t.run(async (ctx) => {
+      const card = await ctx.db
+        .query("workCards")
+        .withIndex("by_workId", (q) => q.eq("workId", created.workId))
+        .unique()
+      if (card) {
+        await ctx.db.patch(card._id, { provenance: "Giriloyo, Yogyakarta" })
+      }
+    })
+    await t.withIdentity({ subject: "auth-admin" }).mutation(api.commerce.publishWork, {
+      workId: created.workId,
+      reason: "Izin dan provenans sudah diverifikasi.",
+    })
+    const work = await t.run(async (ctx) => ctx.db.get(created.workId))
+    expect(work?.status).toBe("published")
+  })
+
   it("[P3-WRK-10] a paused or sold-out work cannot be ordered", async () => {
     const t = createTestDb()
     const seller = await seedSeller(t, { authUserId: "auth-paused-seller" })
@@ -332,24 +648,37 @@ describe("works / scope and moderation", () => {
     })
 
     await expect(
-      createGuestCheckout(t, { workId: paused }),
+      createCheckout(t, { workId: paused }),
     ).rejects.toThrow()
   })
 })
 
-describe("guest checkout and claim", () => {
-  it("[P3-ORD-01] a guest can create an order and pay without an account", async () => {
+describe("authenticated checkout", () => {
+  it("[P3-ORD-01] an authenticated buyer creates an order owned by the buyer", async () => {
     const t = createTestDb()
-    const seller = await seedSeller(t, { authUserId: "auth-guest-seller" })
+    const seller = await seedSeller(t, { authUserId: "auth-buyer-seller" })
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
+    const buyerId = await seedAccount(t, {
+      authUserId: "auth-buyer",
+      email: "buyer@example.test",
+      name: "Bayu Pratama",
+      phone: "6281111111111",
+    })
 
-    const checkout = await createGuestCheckout(t, { workId })
+    const checkout = await createCheckout(t, {
+      workId,
+      buyerAuth: "auth-buyer",
+      buyerEmail: "buyer@example.test",
+    })
     expect(checkout.code).toMatch(/^KN-\d{4}-\d{6}$/)
     expect(checkout.token).toHaveLength(64)
     expect(checkout.baseAmount).toBe(1_450_000)
 
     const order = await t.run(async (ctx) => ctx.db.get(checkout.orderId))
-    expect(order?.buyerUserId).toBeUndefined()
+    expect(order?.buyerUserId).toBe(buyerId)
+    expect(order?.buyerName).toBe("Bayu Pratama")
+    expect(order?.buyerEmail).toBe("buyer@example.test")
+    expect(order?.buyerWhatsapp).toBe("6281111111111")
     expect(order?.status).toBe("draft")
     expect(order?.consentVersion).toBeTruthy()
   })
@@ -359,11 +688,11 @@ describe("guest checkout and claim", () => {
     const seller = await seedSeller(t, { authUserId: "auth-token-seller" })
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
 
-    const first = await createGuestCheckout(t, {
+    const first = await createCheckout(t, {
       workId,
       buyerEmail: "one@example.test",
     })
-    const second = await createGuestCheckout(t, {
+    const second = await createCheckout(t, {
       workId,
       buyerEmail: "two@example.test",
     })
@@ -375,17 +704,37 @@ describe("guest checkout and claim", () => {
     expect(status?.buyerEmailMasked).toContain("*")
   })
 
-  it("[P3-ORD-04] guest checkout requires transactional consent", async () => {
+  it("[P3-ORD-04] checkout requires transactional consent", async () => {
     const t = createTestDb()
     const seller = await seedSeller(t, { authUserId: "auth-consent-seller" })
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
+    await seedAccount(t, {
+      authUserId: "auth-consent-buyer",
+      email: "consent@example.test",
+    })
 
     await expect(
-      t.mutation(api.commerce.createGuestOrder, {
-        workSlug: await workSlug(t, workId),
-        buyerName: "Bayu",
-        buyerEmail: "consent@example.test",
-        consentTransactional: false,
+      t.withIdentity({ subject: "auth-consent-buyer" }).mutation(
+        api.commerce.createOrder,
+        {
+          kind: "work",
+          slug: await workSlug(t, workId),
+          consentTransactional: false,
+        },
+      ),
+    ).rejects.toThrow()
+  })
+
+  it("[P3-ORD-05] unauthenticated checkout is rejected", async () => {
+    const t = createTestDb()
+    const seller = await seedSeller(t, { authUserId: "auth-anon-seller" })
+    const workId = await seedPublishedWork(t, { makerId: seller.userId })
+
+    await expect(
+      t.mutation(api.commerce.createOrder, {
+        kind: "work",
+        slug: await workSlug(t, workId),
+        consentTransactional: true,
       }),
     ).rejects.toThrow()
   })
@@ -397,7 +746,7 @@ describe("guest checkout and claim", () => {
       makerId: seller.userId,
       status: "draft",
     })
-    await expect(createGuestCheckout(t, { workId })).rejects.toThrow()
+    await expect(createCheckout(t, { workId })).rejects.toThrow()
   })
 
   it("[P3-ORD-09] a double submit returns the same order, not a duplicate", async () => {
@@ -405,12 +754,14 @@ describe("guest checkout and claim", () => {
     const seller = await seedSeller(t, { authUserId: "auth-idem-seller" })
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
 
-    const first = await createGuestCheckout(t, {
+    const first = await createCheckout(t, {
       workId,
+      buyerAuth: "auth-idem-buyer",
       idempotencyKey: "idem-key-1",
     })
-    const second = await createGuestCheckout(t, {
+    const second = await createCheckout(t, {
       workId,
+      buyerAuth: "auth-idem-buyer",
       idempotencyKey: "idem-key-1",
     })
     expect(second.orderId).toBe(first.orderId)
@@ -434,115 +785,22 @@ describe("guest checkout and claim", () => {
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
 
     await expect(
-      t.withIdentity({ subject: "auth-self-seller" }).mutation(api.commerce.createGuestOrder, {
-        workSlug: await workSlug(t, workId),
-        buyerName: "Penjual",
-        buyerEmail: "self@example.test",
-        consentTransactional: true,
-      }),
+      t.withIdentity({ subject: "auth-self-seller" }).mutation(
+        api.commerce.createOrder,
+        {
+          kind: "work",
+          slug: await workSlug(t, workId),
+          consentTransactional: true,
+        },
+      ),
     ).rejects.toThrow()
   })
 
-  it("[P3-ORD-05] claim requires a signed-in account with the matching verified email", async () => {
-    const t = createTestDb()
-    const seller = await seedSeller(t, { authUserId: "auth-claim-seller" })
-    const workId = await seedPublishedWork(t, { makerId: seller.userId })
-    const checkout = await createGuestCheckout(t, {
-      workId,
-      buyerEmail: "claim@example.test",
-    })
-    await seedAccount(t, {
-      authUserId: "auth-buyer-claim",
-      email: "claim@example.test",
-      emailVerified: true,
-      phone: "6280000000000",
-      province: "DI Yogyakarta",
-      whatsappVerified: true,
-    })
-
-    const result = await t
-      .withIdentity({ subject: "auth-buyer-claim" })
-      .mutation(api.commerce.claimOrder, { token: checkout.token })
-    expect(result.claimed).toBe(true)
-
-    const order = await t.run(async (ctx) => ctx.db.get(checkout.orderId))
-    expect(order?.buyerUserId).toBeTruthy()
-    expect(order?.claimedAt).toBeTruthy()
-
-    const purchases = await t
-      .withIdentity({ subject: "auth-buyer-claim" })
-      .query(api.commerce.listOrders, {})
-    expect(purchases.map((row) => row.code)).toContain(checkout.code)
-  })
-
-  it("[P3-ORD-06] a wrong email, another account, or an already claimed order cannot claim", async () => {
-    const t = createTestDb()
-    const seller = await seedSeller(t, { authUserId: "auth-claim2-seller" })
-    const workId = await seedPublishedWork(t, { makerId: seller.userId })
-    const checkout = await createGuestCheckout(t, {
-      workId,
-      buyerEmail: "right@example.test",
-    })
-    await seedAccount(t, {
-      authUserId: "auth-wrong-email",
-      email: "wrong@example.test",
-    })
-    await seedAccount(t, { authUserId: "auth-right-email", email: "right@example.test" })
-    await seedAccount(t, { authUserId: "auth-other-email", email: "other@example.test" })
-
-    await expect(
-      t
-        .withIdentity({ subject: "auth-wrong-email" })
-        .mutation(api.commerce.claimOrder, { token: checkout.token }),
-    ).rejects.toThrow()
-
-    await t
-      .withIdentity({ subject: "auth-right-email" })
-      .mutation(api.commerce.claimOrder, { token: checkout.token })
-
-    await expect(
-      t
-        .withIdentity({ subject: "auth-other-email" })
-        .mutation(api.commerce.claimOrder, { token: checkout.token }),
-    ).rejects.toThrow()
-  })
-
-  it("[P3-ORD-08] claim is idempotent and audited", async () => {
-    const t = createTestDb()
-    const seller = await seedSeller(t, { authUserId: "auth-claim3-seller" })
-    const workId = await seedPublishedWork(t, { makerId: seller.userId })
-    const checkout = await createGuestCheckout(t, {
-      workId,
-      buyerEmail: "idem-claim@example.test",
-    })
-    await seedAccount(t, {
-      authUserId: "auth-idem-claim",
-      email: "idem-claim@example.test",
-    })
-    const identity = t.withIdentity({ subject: "auth-idem-claim" })
-
-    await identity.mutation(api.commerce.claimOrder, { token: checkout.token })
-    const second = await identity.mutation(api.commerce.claimOrder, {
-      token: checkout.token,
-    })
-    expect(second.claimed).toBe(true)
-
-    const audit = await t.run(async (ctx) =>
-      ctx.db
-        .query("auditLogs")
-        .withIndex("by_entity", (q) =>
-          q.eq("entityType", "orders").eq("entityId", checkout.orderId),
-        )
-        .collect(),
-    )
-    expect(audit.filter((entry) => entry.action === "commerce.order.claim")).toHaveLength(1)
-  })
-
-  it("[P3-ORD-03] the guest status view exposes limited contact only", async () => {
+  it("[P3-ORD-03] the status view exposes limited contact only", async () => {
     const t = createTestDb()
     const seller = await seedSeller(t, { authUserId: "auth-status-seller" })
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
-    const checkout = await createGuestCheckout(t, { workId })
+    const checkout = await createCheckout(t, { workId })
 
     const status = await t.query(api.commerce.getOrderByToken, { token: checkout.token })
     expect(status?.buyerEmailMasked).not.toBe("bayu@example.test")
@@ -550,6 +808,143 @@ describe("guest checkout and claim", () => {
     expect(
       await t.query(api.commerce.getOrderByToken, { token: "deadbeef".repeat(8) }),
     ).toBeNull()
+  })
+})
+
+describe("path purchase", () => {
+  async function pathSetup(t: ReturnType<typeof createTestDb>) {
+    const teacher = await seedSeller(t, {
+      authUserId: "auth-path-teacher",
+      teacherProfile: true,
+    })
+    const pathSlug = await seedPath(t, {
+      teacherId: teacher.userId,
+      slug: "batik-tulis-soga",
+      price: 1_450_000,
+    })
+    const buyerId = await seedAccount(t, {
+      authUserId: "auth-path-buyer",
+      email: "path-buyer@example.test",
+      name: "Pembeli Jalur",
+    })
+    return { teacher, pathSlug, buyerId }
+  }
+
+  it("[P3-ORD-40] an authenticated path purchase creates a path order", async () => {
+    const t = createTestDb()
+    const { pathSlug, buyerId } = await pathSetup(t)
+
+    const checkout = await createCheckout(t, {
+      pathSlug,
+      buyerAuth: "auth-path-buyer",
+      buyerEmail: "path-buyer@example.test",
+    })
+    expect(checkout.baseAmount).toBe(1_450_000)
+
+    const order = await t.run(async (ctx) => ctx.db.get(checkout.orderId))
+    expect(order?.buyerUserId).toBe(buyerId)
+    expect(order?.workId).toBeUndefined()
+    expect(order?.pathId).toBe(pathSlug)
+    expect(order?.baseAmount).toBe(1_450_000)
+
+    const items = await t.run(async (ctx) =>
+      ctx.db
+        .query("orderItems")
+        .withIndex("by_orderId", (q) => q.eq("orderId", checkout.orderId))
+        .collect(),
+    )
+    expect(items).toHaveLength(1)
+    expect(items[0]).toMatchObject({
+      kind: "path",
+      pathId: pathSlug,
+      title: "Batik Tulis Soga",
+      unitAmount: 1_450_000,
+      totalAmount: 1_450_000,
+    })
+  })
+
+  it("[P3-ORD-41] settlement creates an active enrollment for the buyer", async () => {
+    const t = createTestDb()
+    const { pathSlug, buyerId } = await pathSetup(t)
+    const checkout = await createCheckout(t, {
+      pathSlug,
+      buyerAuth: "auth-path-buyer",
+      buyerEmail: "path-buyer@example.test",
+    })
+    const charge = await createChargeForCheckout(t, checkout)
+    await settleViaWebhook(t, {
+      chargeId: charge.chargeId,
+      orderCode: charge.code,
+      amount: charge.uniqueAmount,
+      paidAt: charge.paymentCreatedAt + 1_000,
+    })
+
+    const enrollments = await t.run(async (ctx) =>
+      ctx.db
+        .query("enrollments")
+        .withIndex("by_studentId", (q) => q.eq("studentId", buyerId))
+        .collect(),
+    )
+    const enrollment = enrollments.find((row) => row.pathId === pathSlug)
+    expect(enrollment?.status).toBe("active")
+    expect(enrollment?.enrolledAt).toBeTruthy()
+    expect(enrollment?.createdAt).toBeTruthy()
+    expect(enrollment?.updatedAt).toBeTruthy()
+  })
+
+  it("[P3-ORD-42] a duplicate path purchase does not duplicate the enrollment", async () => {
+    const t = createTestDb()
+    const { pathSlug, buyerId } = await pathSetup(t)
+
+    for (const key of ["path-order-1", "path-order-2"]) {
+      const checkout = await createCheckout(t, {
+        pathSlug,
+        buyerAuth: "auth-path-buyer",
+        buyerEmail: "path-buyer@example.test",
+        idempotencyKey: key,
+      })
+      const charge = await createChargeForCheckout(t, checkout)
+      await settleViaWebhook(t, {
+        chargeId: charge.chargeId,
+        orderCode: charge.code,
+        amount: charge.uniqueAmount,
+        paidAt: charge.paymentCreatedAt + 1_000,
+      })
+    }
+
+    const enrollments = await t.run(async (ctx) =>
+      ctx.db
+        .query("enrollments")
+        .withIndex("by_studentId", (q) => q.eq("studentId", buyerId))
+        .collect(),
+    )
+    expect(enrollments.filter((row) => row.pathId === pathSlug)).toHaveLength(1)
+  })
+
+  it("[P3-ORD-43] an unavailable path cannot be ordered", async () => {
+    const t = createTestDb()
+    const teacher = await seedSeller(t, {
+      authUserId: "auth-path-unavailable-teacher",
+      teacherProfile: true,
+    })
+    const pathSlug = await seedPath(t, {
+      teacherId: teacher.userId,
+      slug: "jalur-segera",
+      price: null,
+      comingSoon: true,
+    })
+    await seedAccount(t, {
+      authUserId: "auth-path-unavailable-buyer",
+      email: "path-unavailable@example.test",
+    })
+
+    await expect(
+      createCheckout(t, {
+        pathSlug,
+        buyerAuth: "auth-path-unavailable-buyer",
+        buyerEmail: "path-unavailable@example.test",
+      }),
+    ).rejects.toThrow()
   })
 })
 
@@ -566,13 +961,11 @@ describe("order lifecycle and access scope", () => {
     })
     await seedAccount(t, { authUserId: "auth-life-admin", roles: ["admin"] })
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
-    const checkout = await createGuestCheckout(t, {
+    const checkout = await createCheckout(t, {
       workId,
+      buyerAuth: "auth-life-buyer",
       buyerEmail: "buyer@example.test",
     })
-    await t
-      .withIdentity({ subject: "auth-life-buyer" })
-      .mutation(api.commerce.claimOrder, { token: checkout.token })
     const charge = await createChargeForCheckout(t, checkout)
     await settleViaWebhook(t, {
       chargeId: charge.chargeId,
@@ -622,7 +1015,7 @@ describe("order lifecycle and access scope", () => {
     const t2 = createTestDb()
     const seller = await seedSeller(t2, { authUserId: "auth-direct-seller" })
     const workId = await seedPublishedWork(t2, { makerId: seller.userId })
-    const checkout2 = await createGuestCheckout(t2, {
+    const checkout2 = await createCheckout(t2, {
       workId,
       buyerEmail: "other-buyer@example.test",
     })
@@ -708,13 +1101,11 @@ describe("order lifecycle and access scope", () => {
     const seller = await seedSeller(t, { authUserId: "auth-cancel-seller" })
     await seedAccount(t, { authUserId: "auth-cancel-buyer", email: "cancel@example.test" })
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
-    const checkout = await createGuestCheckout(t, {
+    const checkout = await createCheckout(t, {
       workId,
+      buyerAuth: "auth-cancel-buyer",
       buyerEmail: "cancel@example.test",
     })
-    await t
-      .withIdentity({ subject: "auth-cancel-buyer" })
-      .mutation(api.commerce.claimOrder, { token: checkout.token })
 
     await t
       .withIdentity({ subject: "auth-cancel-buyer" })
@@ -733,7 +1124,7 @@ describe("order line items", () => {
     const seller = await seedSeller(t, { authUserId: "auth-items-seller" })
     await admin(t)
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
-    const checkout = await createGuestCheckout(t, { workId })
+    const checkout = await createCheckout(t, { workId })
 
     const view = await t
       .withIdentity({ subject: "auth-admin" })
@@ -754,7 +1145,7 @@ describe("order line items", () => {
     const seller = await seedSeller(t, { authUserId: "auth-no-items-seller" })
     await admin(t)
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
-    const checkout = await createGuestCheckout(t, { workId })
+    const checkout = await createCheckout(t, { workId })
 
     await t.run(async (ctx) => {
       const items = await ctx.db
@@ -778,13 +1169,11 @@ describe("order disputes", () => {
     await seedAccount(t, { authUserId: "auth-dispute-buyer", email: "dispute@example.test" })
     await seedAccount(t, { authUserId: "auth-dispute-admin", roles: ["admin"] })
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
-    const checkout = await createGuestCheckout(t, {
+    const checkout = await createCheckout(t, {
       workId,
+      buyerAuth: "auth-dispute-buyer",
       buyerEmail: "dispute@example.test",
     })
-    await t
-      .withIdentity({ subject: "auth-dispute-buyer" })
-      .mutation(api.commerce.claimOrder, { token: checkout.token })
     const charge = await createChargeForCheckout(t, checkout)
     await settleViaWebhook(t, {
       chargeId: charge.chargeId,
@@ -827,7 +1216,7 @@ describe("order and dispute read models", () => {
     const seller = await seedSeller(t, { authUserId: "auth-consent-view-seller" })
     await admin(t)
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
-    const checkout = await createGuestCheckout(t, { workId })
+    const checkout = await createCheckout(t, { workId })
 
     await t.withIdentity({ subject: "auth-admin" }).mutation(api.commerce.cancelOrder, {
       orderId: checkout.orderId,
@@ -852,13 +1241,11 @@ describe("order and dispute read models", () => {
       email: "dispute-view@example.test",
     })
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
-    const checkout = await createGuestCheckout(t, {
+    const checkout = await createCheckout(t, {
       workId,
+      buyerAuth: "auth-dispute-view-buyer",
       buyerEmail: "dispute-view@example.test",
     })
-    await t
-      .withIdentity({ subject: "auth-dispute-view-buyer" })
-      .mutation(api.commerce.claimOrder, { token: checkout.token })
     const charge = await createChargeForCheckout(t, checkout)
     await settleViaWebhook(t, {
       chargeId: charge.chargeId,

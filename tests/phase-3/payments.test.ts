@@ -4,7 +4,7 @@ import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
 import {
   createChargeForCheckout,
-  createGuestCheckout,
+  createCheckout,
   createTestDb,
   INTERNAL_KEY,
   PAYMENT_SKEW_MS,
@@ -18,7 +18,7 @@ import {
 async function setupCheckout(t: TestDb) {
   const seller = await seedSeller(t, { authUserId: "auth-pay-seller" })
   const workId = await seedPublishedWork(t, { makerId: seller.userId, price: 1_450_000 })
-  const checkout = await createGuestCheckout(t, { workId })
+  const checkout = await createCheckout(t, { workId })
   const charge = await createChargeForCheckout(t, checkout, 37)
   return { seller, checkout, charge }
 }
@@ -73,7 +73,7 @@ describe("payment settlement", () => {
       makerId: seller.userId,
       title: "Kain Kedua",
     })
-    const secondCheckout = await createGuestCheckout(t, {
+    const secondCheckout = await createCheckout(t, {
       workId,
       buyerEmail: "second@example.test",
     })
@@ -134,7 +134,7 @@ describe("payment settlement", () => {
       makerId: seller.userId,
       title: "Kain Skew",
     })
-    const rejectedCheckout = await createGuestCheckout(t, {
+    const rejectedCheckout = await createCheckout(t, {
       workId,
       buyerEmail: "skew@example.test",
     })
@@ -164,7 +164,7 @@ describe("payment settlement", () => {
       makerId: seller.userId,
       title: "Kain Telat",
     })
-    const lateCheckout = await createGuestCheckout(t, {
+    const lateCheckout = await createCheckout(t, {
       workId,
       buyerEmail: "late@example.test",
     })
@@ -363,7 +363,7 @@ describe("payment intents and reconciliation", () => {
     const t = createTestDb()
     const seller = await seedSeller(t, { authUserId: "auth-intent-seller" })
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
-    const checkout = await createGuestCheckout(t, { workId })
+    const checkout = await createCheckout(t, { workId })
 
     const first = await t.mutation(api.payments.createIntent, {
       orderId: checkout.orderId,
@@ -383,7 +383,7 @@ describe("payment intents and reconciliation", () => {
     const t = createTestDb()
     const seller = await seedSeller(t, { authUserId: "auth-charge-seller" })
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
-    const checkout = await createGuestCheckout(t, { workId })
+    const checkout = await createCheckout(t, { workId })
     const charge = await createChargeForCheckout(t, checkout)
 
     await expect(
@@ -486,7 +486,7 @@ describe("payment intents and reconciliation", () => {
     const t = createTestDb()
     const seller = await seedSeller(t, { authUserId: "auth-poll-seller" })
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
-    const checkout = await createGuestCheckout(t, { workId })
+    const checkout = await createCheckout(t, { workId })
     await createChargeForCheckout(t, checkout)
 
     const view = await t.query(api.payments.getIntentByToken, {

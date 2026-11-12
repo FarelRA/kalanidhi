@@ -27,6 +27,11 @@ export type WorkCardStatus =
   | "paused"
   | "sold_out"
 
+export type WorkReadiness = {
+  ready: boolean
+  missing: string[]
+}
+
 export type WorkListingView = {
   id: string
   slug: string
@@ -46,18 +51,23 @@ export type WorkListingView = {
   workCard: string
   description: string
   image: string
+  imageAssetId: string | null
   pathId: string | null
   certificateId: string | null
+  certificateCode: string | null
   permission: string | null
   provenance: string | null
   materials: string | null
+  accessLevel: "public" | "community" | "restricted" | null
   status: WorkStatus | null
   cardStatus: WorkCardStatus | null
   createdAt: number
   split: MoneySplit | null
+  readiness: WorkReadiness
   canReview: boolean
   canModerate: boolean
   canEdit: boolean
+  isOwner: boolean
 }
 
 export type PublicWorkView = {
@@ -149,7 +159,7 @@ export type OrderView = {
   items: OrderItemView[]
 }
 
-export type GuestOrderView = {
+export type OrderStatusView = {
   code: string
   status: OrderStatus
   buyerName: string
@@ -160,26 +170,10 @@ export type GuestOrderView = {
   uniqueAmount: number | null
   createdAt: number
   paidAt: number | null
-  claimed: boolean
   timeline: OrderTimelineEntry[]
 }
 
-export type GuestPaymentView = {
-  orderCode: string
-  orderStatus: OrderStatus
-  paymentStatus: string
-  provider: "gopay_qris" | "manual_transfer" | "other"
-  baseAmount: number
-  uniqueAmount: number
-  qrString: string | null
-  qrImageUrl: string | null
-  expiresAt: number
-  paidAt: number | null
-  remainingMs: number
-  reconciliationState: string
-}
-
-export type CreateGuestOrderResult = {
+export type CreateOrderResult = {
   orderId: string
   code: string
   token: string

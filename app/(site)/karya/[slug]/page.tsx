@@ -5,6 +5,7 @@ import { notFound } from "next/navigation"
 import { ArrowRight, ShieldCheck } from "lucide-react"
 
 import { formatIDR } from "@/lib/format"
+import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
 import { getPublicWork } from "@/lib/commerce/server"
 import { buildPageMetadata, workRoute } from "@/lib/content/metadata"
 import { interestHref } from "@/lib/content/routes"
@@ -12,6 +13,16 @@ import { interestHref } from "@/lib/content/routes"
 export const instant = false
 
 type Params = { slug: string }
+
+async function isSignedIn(): Promise<boolean> {
+  if (!isAuthConfigured()) return false
+  try {
+    return await getAuthServer().isAuthenticated()
+  } catch (error) {
+    console.error("[karya] Could not resolve auth session.", error)
+    return false
+  }
+}
 
 export async function generateMetadata({
   params,
@@ -41,8 +52,12 @@ export default async function WorkDetailPage({
   params: Promise<Params>
 }) {
   const { slug } = await params
-  const work = await getPublicWork(slug)
+  const [work, signedIn] = await Promise.all([getPublicWork(slug), isSignedIn()])
   if (!work) notFound()
+
+  const checkoutHref = signedIn
+    ? `/pesan/${work.slug}`
+    : `/masuk?next=${encodeURIComponent(`/pesan/${work.slug}`)}`
 
   return (
     <div className="bg-cream">
@@ -140,10 +155,10 @@ export default async function WorkDetailPage({
                 </Link>
                 {work.purchasable ? (
                   <Link
-                    href={`/pesan/${work.slug}`}
+                    href={checkoutHref}
                     className="inline-flex min-h-12 items-center gap-2 border border-ink bg-ink px-5 text-[11px] font-bold uppercase tracking-[0.08em] text-paper transition-colors hover:bg-ink-2"
                   >
-                    Pesan tanpa akun
+                    {signedIn ? "Beli karya ini" : "Masuk untuk membeli"}
                     <ArrowRight aria-hidden="true" className="size-4" />
                   </Link>
                 ) : (

@@ -3,9 +3,10 @@ import { fetchMutation, fetchQuery } from "convex/nextjs"
 
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import { getAuthServer } from "@/lib/auth-server"
 import type {
-  CreateGuestOrderResult,
-  GuestOrderView,
+  CreateOrderResult,
+  OrderStatusView,
   PaymentIntentView,
   PublicWorkView,
   SettlementResult,
@@ -52,7 +53,7 @@ export async function getPublicWorks(
 
 export async function getOrderStatus(
   token: string,
-): Promise<GuestOrderView | null> {
+): Promise<OrderStatusView | null> {
   if (!options) return null
   return await fetchQuery(api.commerce.getOrderByToken, { token }, options)
 }
@@ -64,16 +65,15 @@ export async function getPaymentStatus(
   return await fetchQuery(api.payments.getIntentByToken, { token }, options)
 }
 
-export async function createGuestOrder(input: {
-  workSlug: string
-  buyerName: string
-  buyerEmail: string
-  buyerWhatsapp?: string
+export async function createOrder(input: {
+  kind: "work" | "path"
+  slug: string
   note?: string
   idempotencyKey: string
   consentTransactional: boolean
-}): Promise<CreateGuestOrderResult> {
-  return await fetchMutation(api.commerce.createGuestOrder, input, requireConfigured())
+}): Promise<CreateOrderResult> {
+  requireConfigured()
+  return await getAuthServer().fetchAuthMutation(api.commerce.createOrder, input)
 }
 
 export async function createPaymentIntent(input: {

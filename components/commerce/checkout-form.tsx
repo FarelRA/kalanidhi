@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation"
 import { ArrowRight, Loader2, ShieldCheck } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { splitAmount } from "@/lib/commerce/money"
 import { formatIDR } from "@/lib/format"
 
 type CheckoutResponse = {
@@ -19,15 +19,25 @@ type CheckoutResponse = {
   order?: { code: string; token: string }
 }
 
+export type CheckoutIdentity = {
+  name: string
+  email: string
+  whatsapp?: string
+}
+
 export function CheckoutForm({
+  kind,
   slug,
   title,
   price,
+  identity,
   disabled = false,
 }: {
+  kind: "work" | "path"
   slug: string
   title: string
   price: number
+  identity: CheckoutIdentity
   disabled?: boolean
 }) {
   const router = useRouter()
@@ -35,6 +45,7 @@ export function CheckoutForm({
   const [error, setError] = React.useState<string | null>(null)
   const [consent, setConsent] = React.useState(false)
   const idempotencyKey = React.useRef<string>(crypto.randomUUID())
+  const split = splitAmount(price)
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -44,10 +55,8 @@ export function CheckoutForm({
 
     const form = new FormData(event.currentTarget)
     const payload = {
-      workSlug: slug,
-      buyerName: String(form.get("buyerName") ?? "").trim(),
-      buyerEmail: String(form.get("buyerEmail") ?? "").trim(),
-      buyerWhatsapp: String(form.get("buyerWhatsapp") ?? "").trim() || undefined,
+      kind,
+      slug,
       note: String(form.get("note") ?? "").trim() || undefined,
       idempotencyKey: idempotencyKey.current,
       consentTransactional: true,
@@ -75,62 +84,44 @@ export function CheckoutForm({
   return (
     <form onSubmit={onSubmit} className="border border-ink/20 bg-paper-2 p-5 sm:p-7">
       <h2 className="font-heading text-[1.4rem] leading-tight text-ink">
-        Data pembeli
+        Identitas pembeli
       </h2>
       <p className="mt-1 text-[11px] leading-relaxed text-ink-muted">
-        Checkout tanpa akun. Simpan tautan status pesanan setelah pembayaran
-        dibuat; tautan itu adalah kunci pesanan ini.
+        Pesanan tercatat pada akun yang sedang masuk. Identitas di bawah tidak
+        dapat diubah dari halaman ini.
       </p>
 
-      <div className="mt-5 grid gap-4">
-        <div>
-          <Label htmlFor="buyer-name">Nama penerima</Label>
-          <Input
-            id="buyer-name"
-            name="buyerName"
-            required
-            minLength={2}
-            autoComplete="name"
-            className="mt-1.5"
-            placeholder="Nama lengkap"
-          />
+      <dl className="mt-5 grid gap-3 border border-ink/15 bg-cream/60 p-4 text-[11.5px]">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
+            Nama
+          </dt>
+          <dd className="font-semibold text-ink">{identity.name}</dd>
         </div>
-        <div>
-          <Label htmlFor="buyer-email">Email</Label>
-          <Input
-            id="buyer-email"
-            name="buyerEmail"
-            type="email"
-            required
-            autoComplete="email"
-            className="mt-1.5"
-            placeholder="nama@email.com"
-            aria-describedby="buyer-email-note"
-          />
-          <p id="buyer-email-note" className="mt-1 text-[10px] text-ink-muted">
-            Email terverifikasi yang sama dipakai untuk mengklaim pesanan ini.
-          </p>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
+            Email
+          </dt>
+          <dd className="font-semibold text-ink">{identity.email}</dd>
         </div>
-        <div>
-          <Label htmlFor="buyer-whatsapp">WhatsApp (opsional)</Label>
-          <Input
-            id="buyer-whatsapp"
-            name="buyerWhatsapp"
-            inputMode="tel"
-            autoComplete="tel"
-            className="mt-1.5"
-            placeholder="+62 800 0000 0000"
-          />
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
+            WhatsApp
+          </dt>
+          <dd className="font-semibold text-ink">
+            {identity.whatsapp?.trim() || "Belum diisi"}
+          </dd>
         </div>
-        <div>
-          <Label htmlFor="buyer-note">Catatan untuk pengrajin (opsional)</Label>
-          <Textarea
-            id="buyer-note"
-            name="note"
-            className="mt-1.5 min-h-20"
-            placeholder="Ukuran, warna, atau waktu pengiriman."
-          />
-        </div>
+      </dl>
+
+      <div className="mt-5">
+        <Label htmlFor="buyer-note">Catatan untuk pengrajin (opsional)</Label>
+        <Textarea
+          id="buyer-note"
+          name="note"
+          className="mt-1.5 min-h-20"
+          placeholder="Ukuran, warna, atau waktu pengiriman."
+        />
       </div>
 
       <div className="mt-5 border-t border-ink/15 pt-4">
@@ -147,6 +138,40 @@ export function CheckoutForm({
             keperluan pesanan ini: pembayaran, pengiriman, dan penyelesaian.
           </span>
         </label>
+      </div>
+
+      <div className="mt-5 border border-ink/15 bg-panel/30 p-3">
+        <div className="flex h-4 border border-ink/25" aria-hidden="true">
+          <span className="h-full bg-copper-dark" style={{ width: "70%" }} />
+          <span className="h-full bg-ink" style={{ width: "15%" }} />
+          <span className="h-full bg-moss" style={{ width: "15%" }} />
+        </div>
+        <dl className="mt-2 grid grid-cols-3 gap-2 text-[9.5px]">
+          <div>
+            <dt className="font-bold uppercase tracking-[0.06em] text-ink-muted">
+              Pengrajin 70%
+            </dt>
+            <dd className="mt-0.5 font-semibold tabular-nums">
+              {formatIDR(split.teacherShare)}
+            </dd>
+          </div>
+          <div>
+            <dt className="font-bold uppercase tracking-[0.06em] text-ink-muted">
+              Platform 15%
+            </dt>
+            <dd className="mt-0.5 font-semibold tabular-nums">
+              {formatIDR(split.platformShare)}
+            </dd>
+          </div>
+          <div>
+            <dt className="font-bold uppercase tracking-[0.06em] text-ink-muted">
+              Komunitas 15%
+            </dt>
+            <dd className="mt-0.5 font-semibold tabular-nums">
+              {formatIDR(split.communityShare)}
+            </dd>
+          </div>
+        </dl>
       </div>
 
       {error ? (

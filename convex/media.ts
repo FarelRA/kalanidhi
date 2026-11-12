@@ -3,6 +3,7 @@ import { ConvexError, v } from "convex/values"
 import type { MediaAssetView, MediaUsage } from "../lib/admin/types"
 import { now, requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
+import { requireViewer } from "./commerce_shared"
 import { assemblePublishedSite } from "./content"
 import type { Doc, Id } from "./_generated/dataModel"
 import {
@@ -254,6 +255,81 @@ export const generateUploadUrl = mutation({
   handler: async (ctx) => {
     await requireAdmin(ctx, "content.publish")
     return await ctx.storage.generateUploadUrl()
+  },
+})
+
+/**
+ * Sellers upload work photos without the admin content capability. The
+ * resulting asset is owned by the seller and can only be attached to their
+ * own work cards.
+ */
+export const generateWorkImageUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireViewer(ctx, "sell")
+    return await ctx.storage.generateUploadUrl()
+  },
+})
+
+export const saveWorkImage = mutation({
+  args: {
+    storageId: v.id("_storage"),
+    filename: v.string(),
+    mimeType: v.string(),
+    size: v.number(),
+    alt: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const { viewer } = await requireViewer(ctx, "sell")
+    if (!allowedMime("image", args.mimeType)) {
+      throw new ConvexError({
+        code: "MEDIA_TYPE_REJECTED",
+        message: `Tipe ${args.mimeType} tidak diizinkan untuk foto karya.`,
+      })
+    }
+    if (!mimeMatchesExtension(args.mimeType, args.filename)) {
+      throw new ConvexError({
+        code: "MEDIA_EXTENSION_MISMATCH",
+        message: "Ekstensi berkas tidak cocok dengan tipe MIME.",
+      })
+    }
+    if (args.size <= 0 || args.size > MAX_IMAGE_BYTES) {
+      throw new ConvexError({
+        code: "MEDIA_SIZE_REJECTED",
+        message: `Ukuran foto harus antara 1 dan ${MAX_IMAGE_BYTES} byte.`,
+      })
+    }
+    const url = await ctx.storage.getUrl(args.storageId)
+    if (!url) {
+      throw new ConvexError({
+        code: "MEDIA_NOT_FOUND",
+        message: "Berkas unggahan tidak ditemukan di Convex storage.",
+      })
+    }
+
+    const assetId = await ctx.db.insert("mediaAssets", {
+      kind: "image",
+      storageId: args.storageId,
+      filename: args.filename,
+      mimeType: args.mimeType,
+      size: args.size,
+      alt: args.alt?.trim() || args.filename,
+      status: "active",
+      uploadedBy: viewer.userId,
+      createdAt: now(),
+    })
+
+    await appendAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "media.workImage.save",
+      entityType: "mediaAssets",
+      entityId: assetId,
+      reason: "Penjual mengunggah foto karya.",
+      after: { filename: args.filename, size: args.size },
+    })
+
+    return { assetId, url }
   },
 })
 

@@ -4,7 +4,7 @@ import type { Viewer } from "../lib/access/viewer"
 import { assertScope } from "./access"
 import { certificateOverview } from "./certificates"
 import type { Doc, Id } from "./_generated/dataModel"
-import { mutation, query } from "./_generated/server"
+import { mutation, query, type MutationCtx } from "./_generated/server"
 import {
   nowMs,
   randomCode,
@@ -329,6 +329,179 @@ async function teacherCohortIds(
   return new Set(cohorts.map((cohort) => cohort._id))
 }
 
+type CurriculumEditor = {
+  viewer: Viewer
+  path: PathDoc
+}
+
+/**
+ * Curriculum authoring is limited to the teacher who owns the path or an
+ * operator holding `content.publish`/`operate`. The path scope is always
+ * derived on the server from the viewer contract.
+ */
+async function requireCurriculumEditor(
+  ctx: ResolverCtx,
+  pathId: string,
+): Promise<CurriculumEditor> {
+  const viewer = requireActiveViewer(await resolveViewer(ctx))
+  const path = await pathBySlug(ctx, pathId)
+  if (!path) {
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: "Jalur tidak ditemukan.",
+    })
+  }
+  if (
+    viewer.entitlements.operate ||
+    viewer.capabilities.includes("content.publish")
+  ) {
+    requireAnyCapability(viewer, ["operate", "content.publish"])
+    return { viewer, path }
+  }
+  if (viewer.entitlements.teach) {
+    assertScope(viewer, "teach", path.slug)
+    return { viewer, path }
+  }
+  throw new ConvexError({
+    code: "FORBIDDEN",
+    message: "Kurikulum hanya dapat diubah pengajar jalur atau pengelola.",
+  })
+}
+
+async function moduleForEditor(
+  ctx: ResolverCtx,
+  moduleId: Id<"pathModules">,
+): Promise<{ module: Doc<"pathModules"> } & CurriculumEditor> {
+  const pathModule = await ctx.db.get(moduleId)
+  if (!pathModule) {
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: "Modul tidak ditemukan.",
+    })
+  }
+  const editor = await requireCurriculumEditor(ctx, pathModule.pathId)
+  return { module: pathModule, ...editor }
+}
+
+async function lessonForEditor(
+  ctx: ResolverCtx,
+  lessonId: Id<"lessons">,
+): Promise<{
+  lesson: Doc<"lessons">
+  module: Doc<"pathModules">
+} & CurriculumEditor> {
+  const lesson = await ctx.db.get(lessonId)
+  if (!lesson) {
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: "Pelajaran tidak ditemukan.",
+    })
+  }
+  const pathModule = await ctx.db.get(lesson.moduleId)
+  if (!pathModule) {
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: "Modul pelajaran tidak ditemukan.",
+    })
+  }
+  const editor = await requireCurriculumEditor(ctx, pathModule.pathId)
+  return { lesson, module: pathModule, ...editor }
+}
+
+function requireCurriculumTitle(value: string, label: string): string {
+  const trimmed = value.trim()
+  if (trimmed.length < 2) {
+    throw new ConvexError({
+      code: "INVALID_TITLE",
+      message: `${label} wajib diisi minimal 2 karakter.`,
+    })
+  }
+  return trimmed
+}
+
+function requireEstimatedMinutes(value: number): number {
+  if (!Number.isInteger(value) || value < 0 || value > 100_000) {
+    throw new ConvexError({
+      code: "INVALID_DURATION",
+      message: "Estimasi menit harus bilangan bulat antara 0 dan 100.000.",
+    })
+  }
+  return value
+}
+
+function requireOrder(value: number): number {
+  if (!Number.isInteger(value) || value < 1) {
+    throw new ConvexError({
+      code: "INVALID_ORDER",
+      message: "Urutan harus bilangan bulat positif.",
+    })
+  }
+  return value
+}
+
+async function validateMediaAssets(
+  ctx: ResolverCtx,
+  ids: Id<"mediaAssets">[] | undefined,
+): Promise<Id<"mediaAssets">[]> {
+  if (!ids || ids.length === 0) return []
+  const unique = Array.from(new Set(ids))
+  for (const id of unique) {
+    const asset = await ctx.db.get(id)
+    if (!asset || asset.status !== "active") {
+      throw new ConvexError({
+        code: "INVALID_MEDIA",
+        message: "Aset media tidak ditemukan atau sudah diarsipkan.",
+      })
+    }
+  }
+  return unique
+}
+
+async function mediaView(
+  ctx: ResolverCtx,
+  asset: Doc<"mediaAssets">,
+): Promise<{
+  id: Id<"mediaAssets">
+  kind: Doc<"mediaAssets">["kind"]
+  filename: string
+  mimeType: string
+  alt: string
+  caption: string | null
+  url: string | null
+}> {
+  const url = asset.storageId
+    ? await ctx.storage.getUrl(asset.storageId)
+    : (asset.externalUrl ?? null)
+  return {
+    id: asset._id,
+    kind: asset.kind,
+    filename: asset.filename,
+    mimeType: asset.mimeType,
+    alt: asset.alt,
+    caption: asset.caption ?? null,
+    url,
+  }
+}
+
+/** Keeps the stored `paths.modules` count aligned with published modules. */
+async function syncPathModuleCount(
+  ctx: MutationCtx,
+  pathId: string,
+): Promise<number> {
+  const modules = await ctx.db
+    .query("pathModules")
+    .withIndex("by_path_order", (q) => q.eq("pathId", pathId))
+    .collect()
+  const published = modules.filter(
+    (pathModule) => pathModule.status === "published",
+  ).length
+  const path = await pathBySlug(ctx, pathId)
+  if (path && path.modules !== published) {
+    await ctx.db.patch(path._id, { modules: published })
+  }
+  return published
+}
+
 export const listPaths = query({
   args: {},
   handler: async (ctx) => {
@@ -554,6 +727,17 @@ export const enrollmentDetail = query({
       )
     ).flat()
 
+    const mediaIds = Array.from(
+      new Set(lessons.flatMap((lesson) => lesson.mediaAssetIds)),
+    )
+    const mediaDocs = await Promise.all(
+      mediaIds.map((id) => ctx.db.get(id)),
+    )
+    const mediaById = new Map<string, Awaited<ReturnType<typeof mediaView>>>()
+    for (const asset of mediaDocs) {
+      if (asset) mediaById.set(asset._id, await mediaView(ctx, asset))
+    }
+
     const submissions = await ctx.db
       .query("submissions")
       .withIndex("by_student_status", (q) =>
@@ -573,6 +757,9 @@ export const enrollmentDetail = query({
           id: pathModule._id,
           title: pathModule.title,
           summary: pathModule.summary,
+          order: pathModule.order,
+          status: pathModule.status,
+          estimatedMinutes: pathModule.estimatedMinutes,
           lessons: lessons
             .filter(
               (lesson) =>
@@ -583,7 +770,19 @@ export const enrollmentDetail = query({
               id: lesson._id,
               title: lesson.title,
               kind: lesson.kind,
+              body: lesson.body,
+              order: lesson.order,
+              status: lesson.status,
+              accessLevel: lesson.accessLevel,
               estimatedMinutes: lesson.estimatedMinutes,
+              media: lesson.mediaAssetIds
+                .map((id) => mediaById.get(id))
+                .filter(
+                  (
+                    asset,
+                  ): asset is Awaited<ReturnType<typeof mediaView>> =>
+                    asset !== undefined,
+                ),
               state: progressByLesson.get(lesson._id)?.state ?? "not_started",
               attendance: progressByLesson.get(lesson._id)?.attendance ?? null,
               completedAt: progressByLesson.get(lesson._id)?.completedAt ?? null,
@@ -1524,6 +1723,584 @@ export const updateSessionStatus = mutation({
       reason: args.reason ?? "Status sesi diperbarui",
       before: { status: session.status },
       after: { status: args.status },
+    })
+    return null
+  },
+})
+
+/**
+ * Curriculum authoring read model. Only the path's teacher or an operator can
+ * read it; students keep using `enrollmentDetail`.
+ */
+export const getCurriculum = query({
+  args: { pathId: v.string() },
+  handler: async (ctx, args) => {
+    const viewer = requireActiveViewer(await resolveViewer(ctx))
+    const path = await pathBySlug(ctx, args.pathId)
+    if (!path) return null
+    const allowed =
+      viewer.entitlements.operate ||
+      viewer.capabilities.includes("content.publish") ||
+      (viewer.entitlements.teach && viewer.teachScopes.includes(path.slug))
+    if (!allowed) return null
+
+    const modules = await ctx.db
+      .query("pathModules")
+      .withIndex("by_path_order", (q) => q.eq("pathId", path.slug))
+      .collect()
+    const lessons = (
+      await Promise.all(
+        modules.map((pathModule) =>
+          ctx.db
+            .query("lessons")
+            .withIndex("by_module_order", (q) =>
+              q.eq("moduleId", pathModule._id),
+            )
+            .collect(),
+        ),
+      )
+    ).flat()
+
+    const mediaIds = Array.from(
+      new Set(lessons.flatMap((lesson) => lesson.mediaAssetIds)),
+    )
+    const mediaDocs = await Promise.all(
+      mediaIds.map((id) => ctx.db.get(id)),
+    )
+    const mediaById = new Map<string, Awaited<ReturnType<typeof mediaView>>>()
+    for (const asset of mediaDocs) {
+      if (asset) mediaById.set(asset._id, await mediaView(ctx, asset))
+    }
+
+    const orderedModules = modules
+      .sort((a, b) => a.order - b.order)
+      .map((pathModule) => {
+        const moduleLessons = lessons
+          .filter((lesson) => lesson.moduleId === pathModule._id)
+          .sort((a, b) => a.order - b.order)
+        return {
+          id: pathModule._id,
+          title: pathModule.title,
+          summary: pathModule.summary,
+          estimatedMinutes: pathModule.estimatedMinutes,
+          order: pathModule.order,
+          status: pathModule.status,
+          lessonCount: moduleLessons.length,
+          publishedLessonCount: moduleLessons.filter(
+            (lesson) => lesson.status === "published",
+          ).length,
+          totalMinutes: moduleLessons.reduce(
+            (total, lesson) => total + lesson.estimatedMinutes,
+            0,
+          ),
+          lessons: moduleLessons.map((lesson) => ({
+            id: lesson._id,
+            title: lesson.title,
+            kind: lesson.kind,
+            body: lesson.body,
+            estimatedMinutes: lesson.estimatedMinutes,
+            accessLevel: lesson.accessLevel,
+            order: lesson.order,
+            status: lesson.status,
+            mediaAssetIds: lesson.mediaAssetIds,
+            media: lesson.mediaAssetIds
+              .map((id) => mediaById.get(id))
+              .filter(
+                (
+                  asset,
+                ): asset is Awaited<ReturnType<typeof mediaView>> =>
+                  asset !== undefined,
+              ),
+          })),
+        }
+      })
+
+    const publishedModules = orderedModules.filter(
+      (pathModule) => pathModule.status === "published",
+    )
+    const publishedLessons = orderedModules
+      .filter((pathModule) => pathModule.status === "published")
+      .flatMap((pathModule) =>
+        pathModule.lessons.filter((lesson) => lesson.status === "published"),
+      )
+
+    return {
+      path: {
+        id: path.slug,
+        slug: path.slug,
+        title: path.title,
+        status: path.status ?? "planned",
+        modules: path.modules,
+        lessons: publishedLessons.length,
+        tasks: path.tasks,
+        weeks: path.weeks,
+      },
+      modules: orderedModules,
+      counts: {
+        modules: orderedModules.length,
+        publishedModules: publishedModules.length,
+        lessons: orderedModules.reduce(
+          (total, pathModule) => total + pathModule.lessons.length,
+          0,
+        ),
+        publishedLessons: publishedLessons.length,
+        estimatedMinutes: orderedModules.reduce(
+          (total, pathModule) => total + pathModule.estimatedMinutes,
+          0,
+        ),
+      },
+    }
+  },
+})
+
+/** Active media assets a teacher can attach to a lesson. */
+export const listCurriculumMedia = query({
+  args: {},
+  handler: async (ctx) => {
+    const viewer = requireActiveViewer(await resolveViewer(ctx))
+    requireAnyCapability(viewer, ["teach", "operate", "content.publish"])
+    const assets = await ctx.db
+      .query("mediaAssets")
+      .withIndex("by_createdAt")
+      .order("desc")
+      .take(200)
+    return await Promise.all(
+      assets
+        .filter((asset) => asset.status === "active")
+        .map((asset) => mediaView(ctx, asset)),
+    )
+  },
+})
+
+export const createModule = mutation({
+  args: {
+    pathId: v.string(),
+    title: v.string(),
+    summary: v.string(),
+    estimatedMinutes: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const { viewer, path } = await requireCurriculumEditor(ctx, args.pathId)
+    const title = requireCurriculumTitle(args.title, "Judul modul")
+    const estimatedMinutes = requireEstimatedMinutes(args.estimatedMinutes)
+    const existing = await ctx.db
+      .query("pathModules")
+      .withIndex("by_path_order", (q) => q.eq("pathId", path.slug))
+      .collect()
+    const order =
+      existing.reduce((max, pathModule) => Math.max(max, pathModule.order), 0) +
+      1
+    const timestamp = nowMs()
+    const moduleId = await ctx.db.insert("pathModules", {
+      order,
+      pathId: path.slug,
+      title,
+      summary: args.summary.trim(),
+      estimatedMinutes,
+      status: "draft",
+      createdAt: timestamp,
+    })
+    await writeAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "learning.createModule",
+      entityType: "pathModules",
+      entityId: moduleId,
+      reason: "Modul kurikulum dibuat",
+      after: { pathId: path.slug, title, order, status: "draft" },
+    })
+    return { moduleId }
+  },
+})
+
+export const updateModule = mutation({
+  args: {
+    moduleId: v.id("pathModules"),
+    title: v.optional(v.string()),
+    summary: v.optional(v.string()),
+    estimatedMinutes: v.optional(v.number()),
+    order: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const { viewer, module } = await moduleForEditor(ctx, args.moduleId)
+    const patch: Partial<Doc<"pathModules">> = {}
+    if (args.title !== undefined) {
+      patch.title = requireCurriculumTitle(args.title, "Judul modul")
+    }
+    if (args.summary !== undefined) patch.summary = args.summary.trim()
+    if (args.estimatedMinutes !== undefined) {
+      patch.estimatedMinutes = requireEstimatedMinutes(args.estimatedMinutes)
+    }
+    if (args.order !== undefined) patch.order = requireOrder(args.order)
+    if (Object.keys(patch).length === 0) return null
+
+    await ctx.db.patch(module._id, patch)
+    await writeAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "learning.updateModule",
+      entityType: "pathModules",
+      entityId: module._id,
+      reason: "Modul kurikulum diperbarui",
+      before: {
+        title: module.title,
+        summary: module.summary,
+        estimatedMinutes: module.estimatedMinutes,
+        order: module.order,
+      },
+      after: patch,
+    })
+    return null
+  },
+})
+
+export const publishModule = mutation({
+  args: { moduleId: v.id("pathModules") },
+  handler: async (ctx, args) => {
+    const { viewer, module } = await moduleForEditor(ctx, args.moduleId)
+    if (module.status === "published") return { status: "published" as const }
+    await ctx.db.patch(module._id, { status: "published" })
+    const modules = await syncPathModuleCount(ctx, module.pathId)
+    await writeAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "learning.publishModule",
+      entityType: "pathModules",
+      entityId: module._id,
+      reason: "Modul diterbitkan",
+      before: { status: module.status },
+      after: { status: "published", pathModules: modules },
+    })
+    return { status: "published" as const }
+  },
+})
+
+export const unpublishModule = mutation({
+  args: { moduleId: v.id("pathModules") },
+  handler: async (ctx, args) => {
+    const { viewer, module } = await moduleForEditor(ctx, args.moduleId)
+    if (module.status === "draft") return { status: "draft" as const }
+    await ctx.db.patch(module._id, { status: "draft" })
+    const modules = await syncPathModuleCount(ctx, module.pathId)
+    await writeAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "learning.unpublishModule",
+      entityType: "pathModules",
+      entityId: module._id,
+      reason: "Modul ditarik ke draf",
+      before: { status: module.status },
+      after: { status: "draft", pathModules: modules },
+    })
+    return { status: "draft" as const }
+  },
+})
+
+export const deleteModule = mutation({
+  args: { moduleId: v.id("pathModules") },
+  handler: async (ctx, args) => {
+    const { viewer, module } = await moduleForEditor(ctx, args.moduleId)
+    const lessons = await ctx.db
+      .query("lessons")
+      .withIndex("by_module_order", (q) => q.eq("moduleId", module._id))
+      .collect()
+    if (lessons.length > 0) {
+      throw new ConvexError({
+        code: "MODULE_NOT_EMPTY",
+        message:
+          "Modul masih memiliki pelajaran. Hapus atau pindahkan pelajaran terlebih dahulu.",
+      })
+    }
+    await ctx.db.delete(module._id)
+    const modules = await syncPathModuleCount(ctx, module.pathId)
+    await writeAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "learning.deleteModule",
+      entityType: "pathModules",
+      entityId: module._id,
+      reason: "Modul kurikulum dihapus",
+      before: {
+        pathId: module.pathId,
+        title: module.title,
+        status: module.status,
+      },
+      after: { pathModules: modules },
+    })
+    return null
+  },
+})
+
+export const createLesson = mutation({
+  args: {
+    moduleId: v.id("pathModules"),
+    title: v.string(),
+    kind: v.union(
+      v.literal("text"),
+      v.literal("video"),
+      v.literal("audio"),
+      v.literal("file"),
+      v.literal("practice"),
+    ),
+    body: v.string(),
+    estimatedMinutes: v.number(),
+    accessLevel: v.union(
+      v.literal("public"),
+      v.literal("enrolled"),
+      v.literal("certified"),
+    ),
+    mediaAssetIds: v.optional(v.array(v.id("mediaAssets"))),
+  },
+  handler: async (ctx, args) => {
+    const { viewer, module } = await moduleForEditor(ctx, args.moduleId)
+    const title = requireCurriculumTitle(args.title, "Judul pelajaran")
+    const estimatedMinutes = requireEstimatedMinutes(args.estimatedMinutes)
+    const mediaAssetIds = await validateMediaAssets(ctx, args.mediaAssetIds)
+    const existing = await ctx.db
+      .query("lessons")
+      .withIndex("by_module_order", (q) => q.eq("moduleId", module._id))
+      .collect()
+    const order =
+      existing.reduce((max, lesson) => Math.max(max, lesson.order), 0) + 1
+    const timestamp = nowMs()
+    const lessonId = await ctx.db.insert("lessons", {
+      order,
+      moduleId: module._id,
+      pathId: module.pathId,
+      title,
+      kind: args.kind,
+      body: args.body.trim(),
+      mediaAssetIds,
+      estimatedMinutes,
+      accessLevel: args.accessLevel,
+      status: "draft",
+      createdAt: timestamp,
+    })
+    await writeAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "learning.createLesson",
+      entityType: "lessons",
+      entityId: lessonId,
+      reason: "Pelajaran kurikulum dibuat",
+      after: {
+        moduleId: module._id,
+        pathId: module.pathId,
+        title,
+        kind: args.kind,
+        order,
+        status: "draft",
+      },
+    })
+    return { lessonId }
+  },
+})
+
+export const updateLesson = mutation({
+  args: {
+    lessonId: v.id("lessons"),
+    title: v.optional(v.string()),
+    kind: v.optional(
+      v.union(
+        v.literal("text"),
+        v.literal("video"),
+        v.literal("audio"),
+        v.literal("file"),
+        v.literal("practice"),
+      ),
+    ),
+    body: v.optional(v.string()),
+    estimatedMinutes: v.optional(v.number()),
+    accessLevel: v.optional(
+      v.union(
+        v.literal("public"),
+        v.literal("enrolled"),
+        v.literal("certified"),
+      ),
+    ),
+    mediaAssetIds: v.optional(v.array(v.id("mediaAssets"))),
+    order: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const { viewer, lesson } = await lessonForEditor(ctx, args.lessonId)
+    const patch: Partial<Doc<"lessons">> = {}
+    if (args.title !== undefined) {
+      patch.title = requireCurriculumTitle(args.title, "Judul pelajaran")
+    }
+    if (args.kind !== undefined) patch.kind = args.kind
+    if (args.body !== undefined) patch.body = args.body.trim()
+    if (args.estimatedMinutes !== undefined) {
+      patch.estimatedMinutes = requireEstimatedMinutes(args.estimatedMinutes)
+    }
+    if (args.accessLevel !== undefined) patch.accessLevel = args.accessLevel
+    if (args.mediaAssetIds !== undefined) {
+      patch.mediaAssetIds = await validateMediaAssets(ctx, args.mediaAssetIds)
+    }
+    if (args.order !== undefined) patch.order = requireOrder(args.order)
+    if (Object.keys(patch).length === 0) return null
+
+    await ctx.db.patch(lesson._id, patch)
+    await writeAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "learning.updateLesson",
+      entityType: "lessons",
+      entityId: lesson._id,
+      reason: "Pelajaran kurikulum diperbarui",
+      before: {
+        title: lesson.title,
+        kind: lesson.kind,
+        estimatedMinutes: lesson.estimatedMinutes,
+        accessLevel: lesson.accessLevel,
+        order: lesson.order,
+        mediaAssetIds: lesson.mediaAssetIds,
+      },
+      after: patch,
+    })
+    return null
+  },
+})
+
+export const publishLesson = mutation({
+  args: { lessonId: v.id("lessons") },
+  handler: async (ctx, args) => {
+    const { viewer, lesson } = await lessonForEditor(ctx, args.lessonId)
+    if (lesson.status === "published") return { status: "published" as const }
+    await ctx.db.patch(lesson._id, { status: "published" })
+    await writeAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "learning.publishLesson",
+      entityType: "lessons",
+      entityId: lesson._id,
+      reason: "Pelajaran diterbitkan",
+      before: { status: lesson.status },
+      after: { status: "published" },
+    })
+    return { status: "published" as const }
+  },
+})
+
+export const unpublishLesson = mutation({
+  args: { lessonId: v.id("lessons") },
+  handler: async (ctx, args) => {
+    const { viewer, lesson } = await lessonForEditor(ctx, args.lessonId)
+    if (lesson.status === "draft") return { status: "draft" as const }
+    await ctx.db.patch(lesson._id, { status: "draft" })
+    await writeAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "learning.unpublishLesson",
+      entityType: "lessons",
+      entityId: lesson._id,
+      reason: "Pelajaran ditarik ke draf",
+      before: { status: lesson.status },
+      after: { status: "draft" },
+    })
+    return { status: "draft" as const }
+  },
+})
+
+export const deleteLesson = mutation({
+  args: { lessonId: v.id("lessons") },
+  handler: async (ctx, args) => {
+    const { viewer, lesson } = await lessonForEditor(ctx, args.lessonId)
+    const allProgress = await ctx.db.query("lessonProgress").collect()
+    for (const item of allProgress) {
+      if (item.lessonId === lesson._id) await ctx.db.delete(item._id)
+    }
+    await ctx.db.delete(lesson._id)
+    await writeAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "learning.deleteLesson",
+      entityType: "lessons",
+      entityId: lesson._id,
+      reason: "Pelajaran kurikulum dihapus",
+      before: {
+        moduleId: lesson.moduleId,
+        pathId: lesson.pathId,
+        title: lesson.title,
+        status: lesson.status,
+      },
+    })
+    return null
+  },
+})
+
+export const reorderModules = mutation({
+  args: {
+    pathId: v.string(),
+    moduleIds: v.array(v.id("pathModules")),
+  },
+  handler: async (ctx, args) => {
+    const { viewer, path } = await requireCurriculumEditor(ctx, args.pathId)
+    const modules = await ctx.db
+      .query("pathModules")
+      .withIndex("by_path_order", (q) => q.eq("pathId", path.slug))
+      .collect()
+    const known = new Set(modules.map((pathModule) => pathModule._id))
+    const unique = new Set(args.moduleIds)
+    if (
+      args.moduleIds.length !== modules.length ||
+      unique.size !== args.moduleIds.length ||
+      args.moduleIds.some((id) => !known.has(id))
+    ) {
+      throw new ConvexError({
+        code: "INVALID_ORDER",
+        message: "Daftar urutan modul harus memuat semua modul jalur ini.",
+      })
+    }
+    for (const [index, moduleId] of args.moduleIds.entries()) {
+      await ctx.db.patch(moduleId, { order: index + 1 })
+    }
+    await writeAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "learning.reorderModules",
+      entityType: "paths",
+      entityId: path.slug,
+      reason: "Urutan modul diperbarui",
+      after: { moduleIds: args.moduleIds },
+    })
+    return null
+  },
+})
+
+export const reorderLessons = mutation({
+  args: {
+    moduleId: v.id("pathModules"),
+    lessonIds: v.array(v.id("lessons")),
+  },
+  handler: async (ctx, args) => {
+    const { viewer, module } = await moduleForEditor(ctx, args.moduleId)
+    const lessons = await ctx.db
+      .query("lessons")
+      .withIndex("by_module_order", (q) => q.eq("moduleId", module._id))
+      .collect()
+    const known = new Set(lessons.map((lesson) => lesson._id))
+    const unique = new Set(args.lessonIds)
+    if (
+      args.lessonIds.length !== lessons.length ||
+      unique.size !== args.lessonIds.length ||
+      args.lessonIds.some((id) => !known.has(id))
+    ) {
+      throw new ConvexError({
+        code: "INVALID_ORDER",
+        message: "Daftar urutan pelajaran harus memuat semua pelajaran modul ini.",
+      })
+    }
+    for (const [index, lessonId] of args.lessonIds.entries()) {
+      await ctx.db.patch(lessonId, { order: index + 1 })
+    }
+    await writeAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "learning.reorderLessons",
+      entityType: "pathModules",
+      entityId: module._id,
+      reason: "Urutan pelajaran diperbarui",
+      after: { lessonIds: args.lessonIds },
     })
     return null
   },

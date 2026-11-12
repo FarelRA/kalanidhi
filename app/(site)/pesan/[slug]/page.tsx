@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 
 import { CheckoutForm } from "@/components/commerce/checkout-form"
+import { api } from "@/convex/_generated/api"
+import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
 import { formatIDR } from "@/lib/format"
 import { getPublicWork, isCommerceConfigured } from "@/lib/commerce/server"
 
@@ -51,6 +53,69 @@ export default async function CheckoutPage({
             className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
           >
             Kembali ke beranda
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isAuthConfigured()) {
+    return (
+      <div className="shell py-16">
+        <div className="mx-auto max-w-xl border border-ink/25 bg-paper-2 p-6 sm:p-9">
+          <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-copper-dark">
+            Checkout
+          </p>
+          <h1 className="heading-section mt-2 text-[clamp(1.9rem,4vw,2.8rem)]">
+            Masuk belum tersambung.
+          </h1>
+          <p className="mt-3 text-[13px] leading-relaxed text-ink-soft">
+            Checkout memerlukan akun, tetapi layanan masuk belum dikonfigurasi
+            pada lingkungan ini. Hubungi pengelola untuk menyelesaikan pesanan.
+          </p>
+          <Link
+            href={`/karya/${slug}`}
+            className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
+          >
+            Kembali ke karya
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  const auth = getAuthServer()
+  if (!(await auth.isAuthenticated())) {
+    redirect(`/masuk?next=${encodeURIComponent(`/pesan/${slug}`)}`)
+  }
+
+  let viewer
+  try {
+    viewer = await auth.fetchAuthQuery(api.access.getViewer)
+  } catch (error) {
+    console.error("[pesan] Could not resolve checkout viewer.", error)
+    viewer = null
+  }
+
+  if (!viewer) {
+    return (
+      <div className="shell py-16">
+        <div className="mx-auto max-w-xl border border-ink/25 bg-paper-2 p-6 sm:p-9">
+          <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-copper-dark">
+            Checkout
+          </p>
+          <h1 className="heading-section mt-2 text-[clamp(1.9rem,4vw,2.8rem)]">
+            Profil akun belum siap.
+          </h1>
+          <p className="mt-3 text-[13px] leading-relaxed text-ink-soft">
+            Sesi masuk ada, tetapi profil pembeli belum terbentuk. Hubungi
+            pengelola untuk menyelesaikan profil akun sebelum membeli.
+          </p>
+          <Link
+            href={`/karya/${slug}`}
+            className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
+          >
+            Kembali ke karya
           </Link>
         </div>
       </div>
@@ -155,9 +220,15 @@ export default async function CheckoutPage({
 
           <div className="lg:col-span-7">
             <CheckoutForm
+              kind="work"
               slug={work.slug}
               title={work.title}
               price={work.price}
+              identity={{
+                name: viewer.name,
+                email: viewer.email,
+                whatsapp: viewer.whatsapp ?? viewer.phone,
+              }}
             />
           </div>
         </div>

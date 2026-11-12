@@ -10,7 +10,7 @@ import {
 } from "./helpers"
 import {
   createChargeForCheckout,
-  createGuestCheckout,
+  createCheckout,
   createTestDb,
   seedPublishedWork,
   seedSeller,
@@ -237,7 +237,7 @@ describe("notification dispatcher", () => {
       makerId: seller.userId,
       price: 1_450_000,
     })
-    const checkout = await createGuestCheckout(t, { workId })
+    const checkout = await createCheckout(t, { workId })
     const charge = await createChargeForCheckout(t, checkout, 37)
     await seedEndpoint(t)
 

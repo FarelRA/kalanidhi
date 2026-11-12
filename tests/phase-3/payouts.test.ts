@@ -2,22 +2,27 @@ import { describe, expect, it } from "vitest"
 
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
-import { hashToken } from "@/convex/commerce_shared"
 import {
   createChargeForCheckout,
-  createGuestCheckout,
+  createCheckout,
   createTestDb,
   seedAccount,
   seedPublishedWork,
   seedSeller,
   seedSellerPayoutAccount,
   settleViaWebhook,
+  workSlug,
   type TestDb,
 } from "./helpers"
 
 async function paidOrder(
   t: TestDb,
-  options: { sellerAuth?: string; buyerEmail?: string; price?: number } = {},
+  options: {
+    sellerAuth?: string
+    buyerAuth?: string
+    buyerEmail?: string
+    price?: number
+  } = {},
 ) {
   const seller = await seedSeller(t, {
     authUserId: options.sellerAuth ?? "auth-payout-seller",
@@ -27,8 +32,13 @@ async function paidOrder(
     makerId: seller.userId,
     price: options.price ?? 1_450_000,
   })
-  const buyerEmail = options.buyerEmail ?? "buyer-payout@example.test"
-  const checkout = await createGuestCheckout(t, { workId, buyerEmail })
+  const buyerAuth = options.buyerAuth ?? "auth-payout-buyer"
+  const buyerEmail = options.buyerEmail ?? `${buyerAuth}@example.test`
+  const checkout = await createCheckout(t, {
+    workId,
+    buyerAuth,
+    buyerEmail,
+  })
   const charge = await createChargeForCheckout(t, checkout, 37)
   await settleViaWebhook(t, {
     chargeId: charge.chargeId,
@@ -44,21 +54,6 @@ async function paidOrder(
       .first(),
   )
   return { seller, checkout, charge, payout }
-}
-
-async function claimAsBuyer(t: TestDb, checkout: { token: string }, authUserId: string) {
-  const tokenHash = await hashToken(checkout.token)
-  const email = await t.run(async (ctx) => {
-    const order = await ctx.db
-      .query("orders")
-      .withIndex("by_tokenHash", (q) => q.eq("tokenHash", tokenHash))
-      .unique()
-    return order?.buyerEmail ?? `${authUserId}@example.test`
-  })
-  await seedAccount(t, { authUserId, email })
-  await t.withIdentity({ subject: authUserId }).mutation(api.commerce.claimOrder, {
-    token: checkout.token,
-  })
 }
 
 describe("payout ledger", () => {
@@ -290,8 +285,10 @@ describe("payout ledger", () => {
 describe("refunds", () => {
   it("[P3-RFD-01] a refund request captures reason, evidence, and the order link", async () => {
     const t = createTestDb()
-    const { checkout } = await paidOrder(t, { sellerAuth: "auth-refund-request-seller" })
-    await claimAsBuyer(t, checkout, "auth-refund-request-buyer")
+    const { checkout } = await paidOrder(t, {
+      sellerAuth: "auth-refund-request-seller",
+      buyerAuth: "auth-refund-request-buyer",
+    })
 
     const result = await t
       .withIdentity({ subject: "auth-refund-request-buyer" })
@@ -310,8 +307,10 @@ describe("refunds", () => {
 
   it("[P3-RFD-02] a refund follows requested → reviewing → approved → paid", async () => {
     const t = createTestDb()
-    const { checkout } = await paidOrder(t, { sellerAuth: "auth-refund-flow-seller" })
-    await claimAsBuyer(t, checkout, "auth-refund-flow-buyer")
+    const { checkout } = await paidOrder(t, {
+      sellerAuth: "auth-refund-flow-seller",
+      buyerAuth: "auth-refund-flow-buyer",
+    })
     await seedAccount(t, { authUserId: "auth-refund-flow-admin", roles: ["admin"] })
     const admin = t.withIdentity({ subject: "auth-refund-flow-admin" })
 
@@ -343,8 +342,10 @@ describe("refunds", () => {
 
   it("[P3-RFD-03] approval and rejection require a reason", async () => {
     const t = createTestDb()
-    const { checkout } = await paidOrder(t, { sellerAuth: "auth-refund-reason-seller" })
-    await claimAsBuyer(t, checkout, "auth-refund-reason-buyer")
+    const { checkout } = await paidOrder(t, {
+      sellerAuth: "auth-refund-reason-seller",
+      buyerAuth: "auth-refund-reason-buyer",
+    })
     await seedAccount(t, { authUserId: "auth-refund-reason-admin", roles: ["admin"] })
     const admin = t.withIdentity({ subject: "auth-refund-reason-admin" })
     const { refundId } = await t
@@ -365,8 +366,10 @@ describe("refunds", () => {
 
   it("[P3-RFD-05] a rejected refund cannot be paid", async () => {
     const t = createTestDb()
-    const { checkout } = await paidOrder(t, { sellerAuth: "auth-refund-reject-seller" })
-    await claimAsBuyer(t, checkout, "auth-refund-reject-buyer")
+    const { checkout } = await paidOrder(t, {
+      sellerAuth: "auth-refund-reject-seller",
+      buyerAuth: "auth-refund-reject-buyer",
+    })
     await seedAccount(t, { authUserId: "auth-refund-reject-admin", roles: ["admin"] })
     const admin = t.withIdentity({ subject: "auth-refund-reject-admin" })
     const { refundId } = await t
@@ -393,9 +396,9 @@ describe("refunds", () => {
     const t = createTestDb()
     const { checkout, seller } = await paidOrder(t, {
       sellerAuth: "auth-refund-full-seller",
+      buyerAuth: "auth-refund-full-buyer",
     })
     await seedSellerPayoutAccount(t, seller.userId)
-    await claimAsBuyer(t, checkout, "auth-refund-full-buyer")
     await seedAccount(t, { authUserId: "auth-refund-full-admin", roles: ["admin"] })
     const admin = t.withIdentity({ subject: "auth-refund-full-admin" })
 
@@ -453,8 +456,8 @@ describe("refunds", () => {
     const t = createTestDb()
     const { checkout } = await paidOrder(t, {
       sellerAuth: "auth-refund-partial-seller",
+      buyerAuth: "auth-refund-partial-buyer",
     })
-    await claimAsBuyer(t, checkout, "auth-refund-partial-buyer")
     await seedAccount(t, { authUserId: "auth-refund-partial-admin", roles: ["admin"] })
     const admin = t.withIdentity({ subject: "auth-refund-partial-admin" })
 
@@ -499,9 +502,9 @@ describe("refunds", () => {
     const t = createTestDb()
     const { checkout, seller, payout } = await paidOrder(t, {
       sellerAuth: "auth-refund-after-seller",
+      buyerAuth: "auth-refund-after-buyer",
     })
     await seedSellerPayoutAccount(t, seller.userId)
-    await claimAsBuyer(t, checkout, "auth-refund-after-buyer")
     await seedAccount(t, { authUserId: "auth-refund-after-admin", roles: ["admin"] })
     const admin = t.withIdentity({ subject: "auth-refund-after-admin" })
     const payoutId = payout?._id as Id<"payouts">
@@ -575,7 +578,7 @@ describe("refunds", () => {
       makerId: seller.userId,
       title: "Kain Kedua",
     })
-    const secondCheckout = await createGuestCheckout(t, {
+    const secondCheckout = await createCheckout(t, {
       workId: secondWork,
       buyerEmail: "carry-second@example.test",
     })
@@ -638,10 +641,9 @@ describe("refunds", () => {
     const workId = await seedPublishedWork(t, { makerId: seller.userId })
     const checkout = await t
       .withIdentity({ subject: "auth-own-admin" })
-      .mutation(api.commerce.createGuestOrder, {
-        workSlug: (await t.run(async (ctx) => (await ctx.db.get(workId))?.slug)) as string,
-        buyerName: "Admin",
-        buyerEmail: "own-admin@example.test",
+      .mutation(api.commerce.createOrder, {
+        kind: "work",
+        slug: await workSlug(t, workId),
         consentTransactional: true,
       })
     const charge = await createChargeForCheckout(t, checkout)
@@ -664,8 +666,10 @@ describe("refunds", () => {
 
   it("[P3-RFD-08] refund decisions are audited with actor and reason", async () => {
     const t = createTestDb()
-    const { checkout } = await paidOrder(t, { sellerAuth: "auth-refund-audit-seller" })
-    await claimAsBuyer(t, checkout, "auth-refund-audit-buyer")
+    const { checkout } = await paidOrder(t, {
+      sellerAuth: "auth-refund-audit-seller",
+      buyerAuth: "auth-refund-audit-buyer",
+    })
     await seedAccount(t, { authUserId: "auth-refund-audit-admin", roles: ["admin"] })
     const admin = t.withIdentity({ subject: "auth-refund-audit-admin" })
     const { refundId } = await t

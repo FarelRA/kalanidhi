@@ -343,22 +343,88 @@ export type Checkout = {
   baseAmount: number
 }
 
-export async function createGuestCheckout(
+export async function seedPath(
   t: TestDb,
   input: {
-    workId: Id<"works">
+    teacherId: Id<"users">
+    slug?: string
+    title?: string
+    price?: number | null
+    comingSoon?: boolean
+    status?: "open" | "archived" | "mapping" | "planned"
+  },
+): Promise<string> {
+  const slug = input.slug ?? "batik-tulis-soga"
+  await t.run(async (ctx) => {
+    await ctx.db.insert("paths", {
+      order: 1,
+      slug,
+      code: "Jalur 01",
+      title: input.title ?? "Batik Tulis Soga",
+      subtitle: "Dari canting pertama sampai kain siap karya",
+      teacher: "Pengajar Uji",
+      teacherRole: "Pengajar batik",
+      region: "Giriloyo, Yogyakarta",
+      level: "Pemula",
+      modules: 1,
+      weeks: 1,
+      tasks: 1,
+      price: input.price === undefined ? 1_450_000 : input.price,
+      tags: [],
+      outcome: "Sepotong kain batik tulis.",
+      includes: [],
+      comingSoon: input.comingSoon,
+      teacherId: input.teacherId,
+      status: input.status ?? "open",
+      createdAt: NOW,
+    })
+  })
+  return slug
+}
+
+export async function createCheckout(
+  t: TestDb,
+  input: {
+    workId?: Id<"works">
+    pathSlug?: string
+    buyerAuth?: string
     buyerEmail?: string
-    buyerName?: string
     idempotencyKey?: string
+    note?: string
   },
 ): Promise<Checkout> {
-  const slug = await workSlug(t, input.workId)
-  return await t.mutation(api.commerce.createGuestOrder, {
-    workSlug: slug,
-    buyerName: input.buyerName ?? "Bayu Pratama",
-    buyerEmail: input.buyerEmail ?? "bayu@example.test",
+  const buyerEmail = input.buyerEmail ?? "bayu@example.test"
+  const authUserId =
+    input.buyerAuth ?? `buyer-${buyerEmail.replace(/[^a-z0-9]/gi, "-")}`
+  const existing = await t.run(async (ctx) =>
+    ctx.db
+      .query("users")
+      .withIndex("by_authUserId", (q) => q.eq("authUserId", authUserId))
+      .unique(),
+  )
+  if (!existing) {
+    await seedAccount(t, { authUserId, email: buyerEmail })
+  }
+
+  const identity = t.withIdentity({ subject: authUserId })
+  if (input.workId) {
+    return await identity.mutation(api.commerce.createOrder, {
+      kind: "work",
+      slug: await workSlug(t, input.workId),
+      consentTransactional: true,
+      idempotencyKey: input.idempotencyKey,
+      note: input.note,
+    })
+  }
+  if (!input.pathSlug) {
+    throw new Error("createCheckout requires workId or pathSlug")
+  }
+  return await identity.mutation(api.commerce.createOrder, {
+    kind: "path",
+    slug: input.pathSlug,
     consentTransactional: true,
     idempotencyKey: input.idempotencyKey,
+    note: input.note,
   })
 }
 
