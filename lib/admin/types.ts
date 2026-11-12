@@ -5,7 +5,7 @@
  * raw database documents, no auth identifiers, and no provider secrets.
  */
 
-import type { SiteData } from "@/lib/content/types"
+import type { SiteData } from "../content/types"
 
 export type ContentRevisionStatus =
   | "draft"

@@ -23,7 +23,7 @@ import {
   now,
   requireViewer,
   writeAudit,
-} from "./commerce-shared"
+} from "./commerce_shared"
 
 type ReadCtx = Pick<QueryCtx, "db" | "auth"> | MutationCtx
 

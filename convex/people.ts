@@ -10,7 +10,7 @@ import type {
 } from "../lib/admin/types"
 import type { WorkspaceRole } from "../lib/access/capabilities"
 import { viewerForUser } from "./access"
-import { now, requireAdmin, requireReason } from "./admin-context"
+import { now, requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
 import type { Doc } from "./_generated/dataModel"
 import { mutation, query, type QueryCtx, type MutationCtx } from "./_generated/server"

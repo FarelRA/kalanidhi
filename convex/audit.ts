@@ -6,7 +6,7 @@ import type {
   LogListResult,
   LogRow,
 } from "../lib/admin/types"
-import { requireAdmin } from "./admin-context"
+import { requireAdmin } from "./admin_context"
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"
 import { severityValidator } from "./tables/common"
 

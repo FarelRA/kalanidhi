@@ -1,7 +1,7 @@
 import { ConvexError, v } from "convex/values"
 
 import type { MediaAssetView, MediaUsage } from "../lib/admin/types"
-import { now, requireAdmin, requireReason } from "./admin-context"
+import { now, requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
 import { assemblePublishedSite } from "./content"
 import type { Doc } from "./_generated/dataModel"

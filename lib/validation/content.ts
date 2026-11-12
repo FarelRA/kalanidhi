@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import type { SiteCopy, SiteData } from "@/lib/content/types"
+import type { SiteCopy, SiteData } from "../content/types"
 
 /**
  * One schema validates the editor form, the save mutation, the stored

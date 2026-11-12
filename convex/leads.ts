@@ -9,7 +9,7 @@ import type {
   LeadStatus,
   LeadSummary,
 } from "../lib/admin/types"
-import { now, requireAdmin, requireReason } from "./admin-context"
+import { now, requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
 import type { Doc, Id } from "./_generated/dataModel"
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"

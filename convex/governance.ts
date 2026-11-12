@@ -9,7 +9,7 @@ import type {
   TakedownView,
 } from "../lib/governance/types"
 import { viewerForUser } from "./access"
-import { requireAdmin, requireReason } from "./admin-context"
+import { requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
 import type { Doc, Id } from "./_generated/dataModel"
 import { mutation, query, type QueryCtx, type MutationCtx } from "./_generated/server"

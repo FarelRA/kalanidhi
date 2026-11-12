@@ -9,7 +9,7 @@ import type {
 } from "../lib/admin/types"
 import type { SiteCopy, SiteData } from "../lib/content/types"
 import { siteDataSchema, validateSiteData } from "../lib/validation/content"
-import { now, requireAdmin, requireReason } from "./admin-context"
+import { now, requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
 import type { Doc, Id } from "./_generated/dataModel"
 import {

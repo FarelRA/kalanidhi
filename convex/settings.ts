@@ -16,7 +16,7 @@ import type {
   WebhookEndpointMetadataView,
 } from "../lib/settings/types"
 import { viewerForUser } from "./access"
-import { isHttpUrl, requireAdmin, requireReason } from "./admin-context"
+import { isHttpUrl, requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
 import type { Doc } from "./_generated/dataModel"
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"

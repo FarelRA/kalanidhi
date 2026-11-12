@@ -21,7 +21,7 @@ import type {
 } from "../lib/flows/types"
 import type { Id } from "./_generated/dataModel"
 import { mutation, query, type QueryCtx, type MutationCtx } from "./_generated/server"
-import { requireAdmin, requireReason } from "./admin-context"
+import { requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
 
 const MINUTE_MS = 60_000

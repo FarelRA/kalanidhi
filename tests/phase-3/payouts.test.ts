@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
-import { hashToken } from "@/convex/commerce-shared"
+import { hashToken } from "@/convex/commerce_shared"
 import {
   createChargeForCheckout,
   createGuestCheckout,

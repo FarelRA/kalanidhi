@@ -32,7 +32,7 @@ import {
   randomToken,
   requireViewer,
   writeAudit,
-} from "./commerce-shared"
+} from "./commerce_shared"
 import type { Doc, Id } from "./_generated/dataModel"
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"
 
