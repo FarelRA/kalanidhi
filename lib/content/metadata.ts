@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { cacheLife } from "next/cache"
 import { fetchQuery } from "convex/nextjs"
 
 import { api } from "@/convex/_generated/api"
@@ -11,6 +12,9 @@ const convexUrl =
 export async function getSeoOverride(
   route: string,
 ): Promise<SeoOverride | null> {
+  "use cache"
+  cacheLife("minutes")
+
   if (!convexUrl) return null
 
   try {

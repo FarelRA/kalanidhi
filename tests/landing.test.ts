@@ -1,21 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-import { fallbackSiteData } from "@/lib/content/fallback"
-
-describe("landing without CONVEX_URL", () => {
+describe("landing requires Convex", () => {
   afterEach(() => {
     vi.unstubAllEnvs()
     vi.resetModules()
   })
 
-  it("returns complete seed content from the fallback", () => {
-    expect(fallbackSiteData.metadata.title).toBeTruthy()
-    expect(fallbackSiteData.paths.length).toBeGreaterThan(0)
-    expect(fallbackSiteData.teachers.length).toBeGreaterThan(0)
-    expect(fallbackSiteData.works.length).toBeGreaterThan(0)
-  })
-
-  it("reports Convex as unconfigured and serves the fallback", async () => {
+  it("fails loudly when Convex is not configured", async () => {
     vi.stubEnv("CONVEX_URL", "")
     vi.stubEnv("NEXT_PUBLIC_CONVEX_URL", "")
     vi.doMock("next/cache", () => ({
@@ -24,9 +15,6 @@ describe("landing without CONVEX_URL", () => {
 
     const server = await import("@/lib/convex/server")
     expect(server.isConvexConfigured()).toBe(false)
-
-    const data = await server.getSiteData()
-    expect(data.metadata.title).toBe(fallbackSiteData.metadata.title)
-    expect(data.paths).toHaveLength(fallbackSiteData.paths.length)
+    await expect(server.getSiteData()).rejects.toThrow(/CONVEX_URL/)
   })
 })

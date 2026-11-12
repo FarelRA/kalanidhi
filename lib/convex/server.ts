@@ -3,7 +3,6 @@ import { cacheLife } from "next/cache"
 
 import { api } from "@/convex/_generated/api"
 import type { LeadArgs } from "@/lib/convex/types"
-import { fallbackSiteData } from "@/lib/content/fallback"
 import type { SiteData } from "@/lib/content/types"
 
 const convexUrl =
@@ -13,42 +12,35 @@ export function isConvexConfigured() {
   return Boolean(convexUrl)
 }
 
+function requireConvexUrl(): string {
+  if (!convexUrl) {
+    throw new Error(
+      "CONVEX_URL atau NEXT_PUBLIC_CONVEX_URL wajib diisi. Konten landing hanya berasal dari Convex.",
+    )
+  }
+  return convexUrl
+}
+
 export async function getSiteData(): Promise<SiteData> {
   "use cache"
   cacheLife("minutes")
 
-  if (!convexUrl) return fallbackSiteData
-
-  try {
-    const data = await fetchQuery(api.content.getSite, {}, {
-      url: convexUrl,
-      skipConvexDeploymentUrlCheck: true,
-    })
-    return data ?? fallbackSiteData
-  } catch (error) {
-    console.error("[convex] Could not load site content. Using seed fallback.", error)
-    return fallbackSiteData
+  const data = await fetchQuery(api.content.getSite, {}, {
+    url: requireConvexUrl(),
+    skipConvexDeploymentUrlCheck: true,
+  })
+  if (!data) {
+    throw new Error(
+      "Konten landing belum tersedia di Convex. Jalankan seedRunner:run.",
+    )
   }
+  return data
 }
 
 export async function persistLead(args: LeadArgs): Promise<boolean> {
-  if (!convexUrl) {
-    console.info("[lead] Convex is not configured; submission accepted locally.", {
-      intent: args.intent,
-      hasInstitution: Boolean(args.institution),
-      hasWhatsapp: Boolean(args.whatsapp),
-    })
-    return false
-  }
-
-  try {
-    await fetchMutation(api.leads.create, args, {
-      url: convexUrl,
-      skipConvexDeploymentUrlCheck: true,
-    })
-    return true
-  } catch (error) {
-    console.error("[convex] Could not store lead.", error)
-    return false
-  }
+  await fetchMutation(api.leads.create, args, {
+    url: requireConvexUrl(),
+    skipConvexDeploymentUrlCheck: true,
+  })
+  return true
 }

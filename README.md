@@ -121,9 +121,9 @@ npm run convex:seed:if-empty
 Untuk mengisi deployment produksi, jalankan
 `npx convex run seedRunner:run --prod` setelah `npx convex deploy`.
 
-Tanpa `NEXT_PUBLIC_CONVEX_URL`, aplikasi tetap bisa dibangun dan dijalankan memakai
-fallback dari `lib/content/fallback.ts`. Fallback itu membaca `convex/seedData.ts`,
-sehingga tampilan tidak kosong saat backend belum tersambung.
+`CONVEX_URL` wajib diisi saat build dan runtime. Tidak ada fallback konten statis:
+landing selalu membaca `content.getSite` dari Convex. Jika deployment belum di-seed,
+build gagal dengan pesan yang jelas.
 
 ## Struktur
 
