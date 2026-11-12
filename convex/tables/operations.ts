@@ -193,11 +193,20 @@ export const operationsTables = {
     sentAt: v.optional(v.number()),
     error: v.optional(v.string()),
     idempotencyKey: v.optional(v.string()),
+    /** In-app projection: the recipient account and its read state. */
+    recipientId: v.optional(v.id("users")),
+    readAt: v.optional(v.number()),
+    title: v.optional(v.string()),
+    body: v.optional(v.string()),
+    entityType: v.optional(v.string()),
+    entityId: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_status_scheduledAt", ["status", "scheduledAt"])
-    .index("by_idempotencyKey", ["idempotencyKey"]),
+    .index("by_idempotencyKey", ["idempotencyKey"])
+    .index("by_recipientId", ["recipientId"])
+    .index("by_recipient_status", ["recipientId", "status"]),
 
   featureFlags: defineTable({
     key: v.string(),
