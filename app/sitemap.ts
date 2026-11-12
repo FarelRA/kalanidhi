@@ -16,6 +16,7 @@ import {
 
 const staticRoutes = [
   PUBLIC_ROUTES.home,
+  PUBLIC_ROUTES.fields,
   PUBLIC_ROUTES.paths,
   PUBLIC_ROUTES.teachers,
   PUBLIC_ROUTES.works,
