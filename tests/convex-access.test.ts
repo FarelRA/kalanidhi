@@ -25,6 +25,7 @@ async function seedUser(
     email?: string
     roles?: ("student" | "teacher" | "admin")[]
     status?: "active" | "suspended" | "invited" | "deleted"
+    emailVerified?: boolean
   },
 ): Promise<Id<"users">> {
   return await t.run(async (ctx) => {
@@ -32,7 +33,7 @@ async function seedUser(
       authUserId: input.authUserId,
       name: input.authUserId,
       email: input.email ?? `${input.authUserId}@example.test`,
-      emailVerified: true,
+      emailVerified: input.emailVerified ?? true,
       initials: "TU",
       region: "Yogyakarta",
       roles: input.roles ?? ["student"],
@@ -634,6 +635,38 @@ describe("users mutations", () => {
         .collect(),
     )
     expect(assignments.some((item) => item.role === "teacher")).toBe(true)
+  })
+
+  it("accepts an invite by token before email verification is configured", async () => {
+    const t = testDb()
+    await seedUser(t, {
+      authUserId: "auth-invite-admin-2",
+      roles: ["admin"],
+    })
+    await seedUser(t, {
+      authUserId: "auth-unverified-teacher",
+      email: "unverified@example.test",
+      emailVerified: false,
+    })
+
+    const invitation = await t
+      .withIdentity({ subject: "auth-invite-admin-2" })
+      .mutation(api.users.invite, {
+        email: "unverified@example.test",
+        roles: ["teacher"],
+        reason: "Praktisi terverifikasi",
+      })
+
+    await expect(
+      t
+        .withIdentity({ subject: "auth-unverified-teacher" })
+        .mutation(api.users.acceptInvite, {}),
+    ).rejects.toThrow()
+
+    const viewer = await t
+      .withIdentity({ subject: "auth-unverified-teacher" })
+      .mutation(api.users.acceptInvite, { token: invitation.token })
+    expect(viewer.roles).toContain("teacher")
   })
 
   it("keeps admin accounts out of grading, submission, and selling", async () => {

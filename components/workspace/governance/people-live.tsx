@@ -331,6 +331,11 @@ export function PeopleLive() {
                 <code className="mt-1 block break-all text-[11px] text-ink">
                   {inviteToken}
                 </code>
+                <p className="mt-2 text-[10px] leading-relaxed text-ink-muted">
+                  Penerima masuk dengan email yang diundang, membuka
+                  <strong className="text-ink"> /ruang/undangan</strong>, lalu
+                  menempel token ini. Token ditampilkan sekali.
+                </p>
               </div>
             ) : null}
           </div>

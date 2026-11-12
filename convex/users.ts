@@ -195,10 +195,13 @@ export const acceptInvite = mutation({
       })
     }
     const { user, viewer } = currentAccount
-    if (!user.emailVerified) {
+    // A high-entropy invite token delivered out of band proves control of the
+    // invited mailbox even before email verification is configured. Without a
+    // token, the account must still be verified.
+    if (!user.emailVerified && !args.token) {
       throw new ConvexError({
         code: "EMAIL_UNVERIFIED",
-        message: "Verifikasi email sebelum menerima undangan.",
+        message: "Verifikasi email atau masukkan token undangan.",
       })
     }
 
