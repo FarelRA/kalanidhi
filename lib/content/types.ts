@@ -25,6 +25,8 @@ export type LearningPath = {
   subtitle: string
   teacher: string
   teacherRole: string
+  /** Linked teacher account, when the path is assigned to one. */
+  teacherId?: string
   region: string
   level: string
   modules: number
@@ -391,6 +393,18 @@ export type LeadDialogCopy = Record<
     description: string
   }
 >
+
+export type SeoOverride = {
+  route: string
+  title: string
+  description: string
+  ogTitle: string | null
+  ogDescription: string | null
+  canonical: string | null
+  keywords: string[] | null
+  robots: string | null
+  updatedAt: number
+}
 
 export type SiteMetadata = {
   siteName: string

@@ -583,6 +583,17 @@ const ledgerColumns: Column<LedgerEntryView>[] = [
     align: "right",
   },
   {
+    id: "reversal",
+    header: "Pembalik dari",
+    cell: (row) => (
+      <span className="text-[10px] text-ink-muted">
+        {row.reversalOf ?? "—"}
+      </span>
+    ),
+    className: "hidden lg:table-cell",
+    headClassName: "hidden lg:table-cell",
+  },
+  {
     id: "reason",
     header: "Alasan",
     cell: (row) => (

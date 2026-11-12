@@ -29,12 +29,24 @@ export type MessageAssetView = {
   transcript: string | null
   url: string | null
   waveform: number[]
+  senderId: string | null
+  senderName: string | null
+  createdAt: number
 }
 
 export type MessageReplyView = {
   id: string
   body: string
   senderName: string
+}
+
+export type MessageEditView = {
+  id: string
+  previousBody: string
+  nextBody: string
+  editorId: string
+  editorName: string
+  createdAt: number
 }
 
 export type MessageView = {
@@ -46,6 +58,7 @@ export type MessageView = {
   body: string | null
   containsExternalLink: boolean
   replyTo: MessageReplyView | null
+  edits: MessageEditView[]
   editedAt: number | null
   deletedAt: number | null
   removedBy: string | null
@@ -124,6 +137,10 @@ export type NotificationView = {
   entityType: string | null
   entityId: string | null
   conversationId: string | null
+  attempts: number
+  scheduledAt: number
+  sentAt: number | null
+  error: string | null
   createdAt: number
   readAt: number | null
 }

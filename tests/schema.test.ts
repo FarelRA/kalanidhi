@@ -259,14 +259,6 @@ describe("content schema", () => {
         question: "Apa?",
         answer: "Ini.",
       })
-      await ctx.db.insert("redirects", {
-        fromPath: "/lama",
-        toPath: "/baru",
-        statusCode: 301,
-        hits: 0,
-        createdAt: NOW,
-        updatedAt: NOW,
-      })
       await ctx.db.insert("seoOverrides", {
         route: "/",
         title: "KalaNidhi",
@@ -300,12 +292,6 @@ describe("content schema", () => {
           .withIndex("by_status", (q) => q.eq("status", "published"))
           .collect(),
       ).toHaveLength(1)
-      expect(
-        await ctx.db
-          .query("redirects")
-          .withIndex("by_fromPath", (q) => q.eq("fromPath", "/lama"))
-          .unique(),
-      ).not.toBeNull()
     })
   })
 })

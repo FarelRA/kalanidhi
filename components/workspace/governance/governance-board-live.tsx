@@ -6,6 +6,13 @@ import { toast } from "sonner"
 import { useMutation, useQuery } from "convex/react"
 
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -62,6 +69,11 @@ export function GovernanceBoardLive() {
   const [targetUser, setTargetUser] = React.useState("")
   const [breakEntity, setBreakEntity] = React.useState("call_recording")
   const [breakId, setBreakId] = React.useState("")
+  const [sourceDetail, setSourceDetail] = React.useState<CulturalSourceView | null>(
+    null,
+  )
+  const [privacyDetail, setPrivacyDetail] =
+    React.useState<PrivacyRequestView | null>(null)
 
   const summary = useQuery(api.governance.summary, allowed ? {} : "skip")
   const sources = useQuery(
@@ -156,6 +168,13 @@ export function GovernanceBoardLive() {
       align: "right",
       cell: (row) => (
         <div className="flex justify-end gap-1.5">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setSourceDetail(row)}
+          >
+            Detail
+          </Button>
           {row.withdrawalStatus === "withdrawn" ? (
             <Button
               size="sm"
@@ -256,6 +275,13 @@ export function GovernanceBoardLive() {
       align: "right",
       cell: (row) => (
         <div className="flex justify-end gap-1.5">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setPrivacyDetail(row)}
+          >
+            Detail
+          </Button>
           {row.status === "open" || row.status === "reviewing" ? (
             <>
               <Button size="sm" variant="outline" disabled={reason.trim().length < 4} onClick={() => void run(() => reviewPrivacy({ requestId: row.id as Id<"privacyRequests">, decision: "completed", resolution: reason }), "Permintaan privasi diselesaikan.")}>
@@ -322,6 +348,19 @@ export function GovernanceBoardLive() {
       id: "status",
       header: "Status",
       cell: (row) => <StatusStamp label={row.active ? "Aktif" : "Berakhir"} tone={row.active ? "wait" : "muted"} />,
+    },
+    {
+      id: "revoked",
+      header: "Dicabut oleh",
+      cell: (row) => (
+        <span className="text-[10.5px] text-ink-soft">
+          {row.revokedAt
+            ? (row.revokedByName ?? "Akun tidak ditemukan")
+            : "Belum dicabut"}
+        </span>
+      ),
+      className: "hidden lg:table-cell",
+      headClassName: "hidden lg:table-cell",
     },
   ]
 
@@ -682,6 +721,137 @@ export function GovernanceBoardLive() {
           </Panel>
         </div>
       ) : null}
+
+      <Dialog
+        open={Boolean(sourceDetail)}
+        onOpenChange={(open) => {
+          if (!open) setSourceDetail(null)
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{sourceDetail?.sourceName ?? "Sumber budaya"}</DialogTitle>
+            <DialogDescription>
+              {sourceDetail?.community ?? "Komunitas belum diisi"}
+            </DialogDescription>
+          </DialogHeader>
+          {sourceDetail ? (
+            <dl className="grid gap-2 text-[11px]">
+              <DetailRow label="Dokumen izin" value={sourceDetail.permissionDocumentRef} />
+              <DetailRow
+                label="Tanggal izin"
+                value={formatDate(sourceDetail.permissionDate)}
+              />
+              <DetailRow label="Atribusi" value={sourceDetail.attribution} />
+              <DetailRow label="Akses" value={sourceDetail.accessLevel} />
+              <DetailRow
+                label="Status penarikan"
+                value={sourceDetail.withdrawalStatus}
+              />
+              <DetailRow
+                label="Diminta ditarik"
+                value={
+                  sourceDetail.withdrawalRequestedAt
+                    ? formatDate(sourceDetail.withdrawalRequestedAt)
+                    : "Belum diisi"
+                }
+              />
+              <DetailRow
+                label="Ditarik pada"
+                value={
+                  sourceDetail.withdrawnAt
+                    ? formatDate(sourceDetail.withdrawnAt)
+                    : "Belum diisi"
+                }
+              />
+              <DetailRow
+                label="Alasan penarikan"
+                value={sourceDetail.withdrawalReason ?? "Belum diisi"}
+              />
+              <DetailRow
+                label="Dicatat oleh"
+                value={sourceDetail.createdByName ?? "Belum diisi"}
+              />
+              <DetailRow label="Catatan" value={sourceDetail.notes ?? "Belum diisi"} />
+            </dl>
+          ) : null}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(privacyDetail)}
+        onOpenChange={(open) => {
+          if (!open) setPrivacyDetail(null)
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {privacyDetail?.subjectName ?? "Permintaan privasi"}
+            </DialogTitle>
+            <DialogDescription>
+              {privacyDetail
+                ? `${privacyDetail.kind} · ${privacyDetail.requesterEmail}`
+                : "Permintaan privasi"}
+            </DialogDescription>
+          </DialogHeader>
+          {privacyDetail ? (
+            <dl className="grid gap-2 text-[11px]">
+              <DetailRow label="Alasan" value={privacyDetail.reason ?? "Belum diisi"} />
+              <DetailRow
+                label="Cakupan data"
+                value={privacyDetail.dataScope ?? "Belum diisi"}
+              />
+              <DetailRow
+                label="Bukti"
+                value={privacyDetail.evidence ?? "Belum diisi"}
+              />
+              <DetailRow
+                label="Keputusan"
+                value={privacyDetail.resolution ?? "Belum diisi"}
+              />
+              <DetailRow
+                label="Ditinjau pada"
+                value={
+                  privacyDetail.reviewedAt
+                    ? formatDate(privacyDetail.reviewedAt)
+                    : "Belum diisi"
+                }
+              />
+              <DetailRow
+                label="Diselesaikan oleh"
+                value={privacyDetail.completedByName ?? "Belum diisi"}
+              />
+              <DetailRow
+                label="Retensi sampai"
+                value={
+                  privacyDetail.retentionHoldUntil
+                    ? formatDate(privacyDetail.retentionHoldUntil)
+                    : "Belum diisi"
+                }
+              />
+            </dl>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   )
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-3 border-b border-ink/10 pb-1.5">
+      <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
+        {label}
+      </dt>
+      <dd className="max-w-[60%] text-right text-ink-soft">{value}</dd>
+    </div>
+  )
+}
+
+function formatDate(timestamp: number): string {
+  return new Intl.DateTimeFormat("id-ID", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(timestamp))
 }

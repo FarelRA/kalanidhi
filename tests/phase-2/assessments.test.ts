@@ -611,4 +611,63 @@ describe("assessments / submissions", () => {
     expect(row?.ageHours).toBeGreaterThan(72)
     expect(row?.slaHours).toBe(72)
   })
+
+  it("[P2-ASM-12] escalation exposes who escalated and why", async () => {
+    const t = createPhase2Db()
+    const h = await seedPhase2(t)
+    const { submissionId } = await submitAndGrade(t, h, {
+      studentAuth: "auth-student",
+      studentId: h.studentId,
+      enrollmentId: h.enrollmentId,
+      teacherAuth: "auth-teacher",
+      decision: "revision",
+    })
+
+    await t.withIdentity({ subject: "auth-admin" }).mutation(
+      api.assessments.escalateSubmission,
+      { submissionId, reason: "Melewati SLA penilaian" },
+    )
+
+    const detail = await t
+      .withIdentity({ subject: "auth-admin" })
+      .query(api.assessments.getSubmission, { submissionId })
+    expect(detail?.escalatedBy).toBe(h.adminId)
+    expect(detail?.escalatedByName).toBe("Nadia Kusuma")
+    expect(detail?.escalationReason).toBe("Melewati SLA penilaian")
+  })
+
+  it("[P2-ASM-13] override reason and second reviewer are exposed on the submission detail", async () => {
+    const t = createPhase2Db()
+    const h = await seedPhase2(t)
+    const { submissionId, result } = await submitAndGrade(t, h, {
+      studentAuth: "auth-student",
+      studentId: h.studentId,
+      enrollmentId: h.enrollmentId,
+      teacherAuth: "auth-teacher",
+      decision: "approve",
+      score: 88,
+    })
+
+    await t.withIdentity({ subject: "auth-teacher" }).mutation(
+      api.assessments.override,
+      {
+        assessmentId: result.assessmentId,
+        rubric: [
+          { criterion: "A", weight: 50, score: 20 },
+          { criterion: "B", weight: 50, score: 20 },
+        ],
+        reason: "Koreksi menyeluruh setelah bukti tambahan",
+        secondReviewerId: h.teacherOtherId,
+      },
+    )
+
+    const detail = await t
+      .withIdentity({ subject: "auth-student" })
+      .query(api.assessments.getSubmission, { submissionId })
+    expect(detail?.overrideReason).toBe(
+      "Koreksi menyeluruh setelah bukti tambahan",
+    )
+    expect(detail?.secondReviewerId).toBe(h.teacherOtherId)
+    expect(detail?.secondReviewerName).toBe("Widagdo Saputra")
+  })
 })

@@ -6,6 +6,7 @@ import { ArrowRight, ShieldCheck } from "lucide-react"
 
 import { formatIDR } from "@/lib/format"
 import { getPublicWork } from "@/lib/commerce/server"
+import { buildPageMetadata, workRoute } from "@/lib/content/metadata"
 
 export const instant = false
 
@@ -21,16 +22,16 @@ export async function generateMetadata({
   if (!work) {
     return { title: "Karya tidak ditemukan" }
   }
-  return {
+  return buildPageMetadata(workRoute(work.slug), {
     title: work.title,
     description: work.description.slice(0, 160),
-    alternates: { canonical: `/karya/${work.slug}` },
+    alternates: { canonical: workRoute(work.slug) },
     openGraph: {
       title: work.title,
       description: work.description.slice(0, 160),
       ...(work.image ? { images: [work.image] } : {}),
     },
-  }
+  })
 }
 
 export default async function WorkDetailPage({
@@ -117,9 +118,11 @@ export default async function WorkDetailPage({
 
             <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
               <div>
-                <p className="text-[9.5px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                  {work.priceLabel ?? "Harga"}
-                </p>
+                {work.priceLabel ? (
+                  <p className="text-[9.5px] font-bold uppercase tracking-[0.08em] text-ink-muted">
+                    {work.priceLabel}
+                  </p>
+                ) : null}
                 <p className="mt-1 font-heading text-[1.9rem] leading-none">
                   {formatIDR(work.price)}
                 </p>

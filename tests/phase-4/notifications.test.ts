@@ -48,6 +48,10 @@ describe("in-app notifications", () => {
     expect(list).toHaveLength(1)
     expect(list[0]?.conversationId).toBe(conversationId)
     expect(list[0]?.readAt).toBeNull()
+    expect(list[0]?.attempts).toBe(0)
+    expect(list[0]?.scheduledAt).toBeTypeOf("number")
+    expect(list[0]?.sentAt).toBeTypeOf("number")
+    expect(list[0]?.error).toBeNull()
   })
 
   it("[P4-NOT-02] mark read is scoped to the recipient", async () => {

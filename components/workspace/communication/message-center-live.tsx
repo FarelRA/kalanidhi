@@ -1861,9 +1861,35 @@ function MessageBubble({
           </>
         )}
 
+        {message.edits.length > 0 ? (
+          <details className="mt-1.5 border-t border-ink/10 pt-1.5">
+            <summary className="cursor-pointer text-[8.5px] text-ink-muted">
+              Riwayat suntingan ({message.edits.length})
+            </summary>
+            <ul className="mt-1 space-y-1">
+              {message.edits.map((edit) => (
+                <li
+                  key={edit.id}
+                  className="text-[9px] leading-snug text-ink-soft"
+                >
+                  <span className="font-semibold">{edit.editorName}</span>
+                  <span className="text-ink-muted">
+                    {" "}
+                    · {timeLabel(edit.createdAt)}
+                  </span>
+                  <span className="block text-ink-muted line-through">
+                    {edit.previousBody}
+                  </span>
+                  <span className="block">{edit.nextBody}</span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        ) : null}
+
         <div className="mt-1 flex items-center justify-end gap-2">
-          {message.editedAt ? (
-            <span className="text-[8px] text-ink-muted">disunting</span>
+          {message.edits.length > 0 ? (
+            <span className="text-[8px] text-ink-muted">Diedit</span>
           ) : null}
           <span className="text-[8px] text-ink-muted">
             {timeLabel(message.createdAt)}
@@ -2048,6 +2074,7 @@ function VoiceNote({ message }: { message: MessageView }) {
           <span className="text-[9px] text-ink-muted">Tanpa transkrip</span>
         )}
       </div>
+      <AssetMeta asset={asset} />
     </div>
   )
 }
@@ -2075,6 +2102,7 @@ function ImageAttachment({ asset }: { asset: MessageAssetView }) {
       <span className="block px-2 py-1 text-[9px] text-ink-muted">
         {asset.filename} · {formatBytes(asset.size)}
       </span>
+      <AssetMeta asset={asset} />
     </a>
   )
 }
@@ -2101,8 +2129,18 @@ function FileAttachment({ asset }: { asset: MessageAssetView }) {
           </p>
         )}
         <p className="text-[9px] text-ink-muted">{formatBytes(asset.size)}</p>
+        <AssetMeta asset={asset} />
       </div>
     </div>
+  )
+}
+
+function AssetMeta({ asset }: { asset: MessageAssetView }) {
+  return (
+    <p className="mt-0.5 text-[8.5px] text-ink-muted">
+      Diunggah oleh {asset.senderName ?? "Akun tidak ditemukan"} ·{" "}
+      {timeLabel(asset.createdAt)}
+    </p>
   )
 }
 

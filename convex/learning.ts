@@ -37,11 +37,15 @@ type EnrollmentOverview = {
   nextTask: string
   certificateId: Id<"certificates"> | null
   deadlineAt: number | null
+  withdrawnAt: number | null
+  withdrawReason: string | null
+  completedAt: number | null
 }
 
 type CohortOverview = {
   id: Id<"cohorts">
   code: string
+  title: string
   pathId: string
   pathTitle: string
   teacherId: Id<"users">
@@ -55,17 +59,11 @@ type CohortOverview = {
   nextSessionAt: number | null
   status: Doc<"cohorts">["status"]
   timezone: string
-}
-
-function pathStatus(path: PathDoc): NonNullable<PathDoc["status"]> {
-  if (path.status) return path.status
-  if (path.comingSoon) return "mapping"
-  if (typeof path.price === "number") return "open"
-  return "planned"
+  updatedAt: number
 }
 
 function isOpenPath(path: PathDoc): boolean {
-  return pathStatus(path) === "open"
+  return path.status === "open"
 }
 
 type ResolverCtx = Parameters<typeof resolveViewer>[0]
@@ -92,11 +90,11 @@ async function userName(
   ctx: ResolverCtx,
   userId: Id<"users"> | null | undefined,
 ): Promise<{ name: string; initials: string }> {
-  if (!userId) return { name: "Belum ditetapkan", initials: "—" }
+  if (!userId) return { name: "Belum ditetapkan", initials: "BD" }
   const user = await ctx.db.get(userId)
   return {
     name: user?.name ?? "Akun tidak ditemukan",
-    initials: user?.initials ?? "—",
+    initials: user?.initials ?? "BD",
   }
 }
 
@@ -188,7 +186,7 @@ async function enrollmentOverviews(
       }
       if (enrollment.cohortId && !cohortCodes.has(enrollment.cohortId)) {
         const cohort = await ctx.db.get(enrollment.cohortId)
-        cohortCodes.set(enrollment.cohortId, cohort?.code ?? "—")
+        if (cohort) cohortCodes.set(enrollment.cohortId, cohort.code)
       }
       if (!users.has(enrollment.studentId)) {
         users.set(enrollment.studentId, await userName(ctx, enrollment.studentId))
@@ -203,7 +201,10 @@ async function enrollmentOverviews(
       const certificate = enrollment.certificateId
         ? await ctx.db.get(enrollment.certificateId)
         : null
-      const user = users.get(enrollment.studentId) ?? { name: "—", initials: "—" }
+      const user = users.get(enrollment.studentId) ?? {
+        name: "Belum diisi",
+        initials: "BD",
+      }
 
       return {
         id: enrollment._id,
@@ -212,7 +213,7 @@ async function enrollmentOverviews(
         initials: user.initials,
         cohortId: enrollment.cohortId ?? null,
         cohortCode: enrollment.cohortId
-          ? (cohortCodes.get(enrollment.cohortId) ?? "—")
+          ? (cohortCodes.get(enrollment.cohortId) ?? null)
           : null,
         pathId: enrollment.pathId,
         pathTitle: pathTitles.get(enrollment.pathId) ?? enrollment.pathId,
@@ -229,6 +230,9 @@ async function enrollmentOverviews(
                 : "Mulai modul pertama",
         certificateId: enrollment.certificateId ?? null,
         deadlineAt: enrollment.deadlineAt ?? null,
+        withdrawnAt: enrollment.withdrawnAt ?? null,
+        withdrawReason: enrollment.withdrawReason ?? null,
+        completedAt: enrollment.completedAt ?? null,
       }
     }),
   )
@@ -269,10 +273,11 @@ async function cohortOverviews(
       return {
         id: cohort._id,
         code: cohort.code,
+        title: cohort.title,
         pathId: cohort.pathId,
         pathTitle: titles.get(cohort.pathId) ?? cohort.pathId,
         teacherId: cohort.teacherId,
-        teacherName: teachers.get(cohort.teacherId)?.name ?? "—",
+        teacherName: teachers.get(cohort.teacherId)?.name ?? "Belum diisi",
         startDate: cohort.startDate,
         endDate: cohort.endDate,
         capacity: cohort.capacity,
@@ -282,6 +287,7 @@ async function cohortOverviews(
         nextSessionAt: nextSession?.startsAt ?? null,
         status: cohort.status,
         timezone: cohort.timezone,
+        updatedAt: cohort.updatedAt,
       }
     }),
   )
@@ -328,13 +334,21 @@ export const listPaths = query({
   handler: async (ctx) => {
     const viewer = await requireWorkspaceViewer(ctx)
     const now = nowMs()
-    const [paths, cohorts, enrollments, modules, lessons] = await Promise.all([
-      ctx.db.query("paths").withIndex("by_order").collect(),
-      ctx.db.query("cohorts").collect(),
-      ctx.db.query("enrollments").collect(),
-      ctx.db.query("pathModules").collect(),
-      ctx.db.query("lessons").collect(),
-    ])
+    const [paths, cohorts, enrollments, modules, lessons, teachers] =
+      await Promise.all([
+        ctx.db.query("paths").withIndex("by_order").collect(),
+        ctx.db.query("cohorts").collect(),
+        ctx.db.query("enrollments").collect(),
+        ctx.db.query("pathModules").collect(),
+        ctx.db.query("lessons").collect(),
+        ctx.db.query("teachers").collect(),
+      ])
+
+    const teacherByUserId = new Map(
+      teachers
+        .filter((teacher) => teacher.userId)
+        .map((teacher) => [teacher.userId as string, teacher] as const),
+    )
 
     const enrolledPathIds = new Set(
       viewer.enrollments
@@ -385,16 +399,26 @@ export const listPaths = query({
         const completed = relevantEnrollments.filter(
           (enrollment) => enrollment.status === "completed",
         ).length
+        const teacherProfile = path.teacherId
+          ? teacherByUserId.get(path.teacherId)
+          : undefined
         return {
           id: path.slug,
           slug: path.slug,
           code: path.code,
           title: path.title,
           subtitle: path.subtitle,
-          teacherName: path.teacher,
+          teacherId: path.teacherId ?? null,
+          teacherName: teacherProfile?.name ?? path.teacher,
+          teacherRole: path.teacherRole,
           region: path.region,
-          status: pathStatus(path),
+          level: path.level,
+          status: path.status as NonNullable<PathDoc["status"]>,
           price: path.price,
+          priceLabel: path.priceLabel ?? null,
+          tags: path.tags,
+          outcome: path.outcome,
+          includes: path.includes,
           modules:
             publishedModulesByPath.get(path.slug) ?? path.modules,
           lessons: publishedLessonsByPath.get(path.slug) ?? 0,
@@ -562,6 +586,7 @@ export const enrollmentDetail = query({
               estimatedMinutes: lesson.estimatedMinutes,
               state: progressByLesson.get(lesson._id)?.state ?? "not_started",
               attendance: progressByLesson.get(lesson._id)?.attendance ?? null,
+              completedAt: progressByLesson.get(lesson._id)?.completedAt ?? null,
             })),
         })),
       submissions: submissions
@@ -631,11 +656,11 @@ export const listSessions = query({
         return {
           id: session._id,
           cohortId: session.cohortId,
-          cohortCode: cohort?.code ?? "—",
+          cohortCode: cohort?.code ?? "Belum diisi",
           pathTitle: cohort ? (pathTitles.get(cohort.pathId) ?? cohort.pathId) : "",
           teacherName: cohort
-            ? (teacherNames.get(cohort.teacherId) ?? "—")
-            : "—",
+            ? (teacherNames.get(cohort.teacherId) ?? "Belum diisi")
+            : "Belum diisi",
           title: session.title,
           kind: session.kind,
           startsAt: session.startsAt,

@@ -52,7 +52,7 @@ describe("seed images resolve through Convex storage", () => {
     const t = createTestDb()
     await registerImages(t, seedFilenames())
 
-    await t.mutation(internal.seed.run, {})
+    await t.action(internal.seedRunner.run, {})
 
     const site = await t.query(api.content.getSite, {})
     expect(site).not.toBeNull()
@@ -80,7 +80,7 @@ describe("seed images resolve through Convex storage", () => {
     const filenames = seedFilenames()
     await registerImages(t, filenames.slice(1))
 
-    await expect(t.mutation(internal.seed.run, {})).rejects.toThrow(
+    await expect(t.action(internal.seedRunner.run, {})).rejects.toThrow(
       /belum ada di mediaAssets/,
     )
   })

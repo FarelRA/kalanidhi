@@ -50,6 +50,15 @@ function toneFor(status: CertificateOverview["status"]): StatusTone {
   return "muted"
 }
 
+const CERTIFICATE_EVENT_LABELS: Record<
+  CertificateOverview["events"][number]["kind"],
+  string
+> = {
+  issue: "Terbit",
+  revoke: "Dicabut",
+  replace: "Diganti",
+}
+
 export function LiveCredentialBoard() {
   const { can } = useViewer()
   const [tab, setTab] = React.useState("mine")
@@ -322,11 +331,92 @@ export function LiveCredentialBoard() {
                 { label: "Nilai penilaian", value: String(selected.assessmentScore) },
                 {
                   label: "Diganti dengan",
-                  value: selected.replacedByCode ?? "—",
+                  value: selected.replacedByCode ?? "Belum diisi",
+                },
+                {
+                  label: "Dicabut oleh",
+                  value:
+                    selected.revokedByName ??
+                    selected.revokedBy ??
+                    "Belum diisi",
+                },
+                {
+                  label: "Alasan pencabutan",
+                  value: selected.revokeReason ?? "Belum diisi",
                 },
                 { label: "Cakupan", value: selected.scope },
               ]}
             />
+            <DrawerSection title="Kartu Karya">
+              {selected.workCards.length === 0 ? (
+                <p className="text-[10.5px] text-ink-muted">
+                  Belum ada Kartu Karya terhubung.
+                </p>
+              ) : (
+                <ul className="divide-y divide-ink/10 border-y border-ink/10">
+                  {selected.workCards.map((card) => (
+                    <li
+                      key={card.id}
+                      className="flex items-center justify-between gap-3 py-2.5"
+                    >
+                      <div>
+                        <p className="text-[11.5px] font-semibold text-ink">
+                          {card.serial} · {card.title}
+                        </p>
+                        <p className="mt-0.5 text-[9.5px] text-ink-muted">
+                          {card.status}
+                        </p>
+                      </div>
+                      <StatusStamp
+                        label={
+                          card.accessLevel === "public"
+                            ? "Publik"
+                            : card.accessLevel === "community"
+                              ? "Komunitas"
+                              : "Terbatas"
+                        }
+                        tone={
+                          card.accessLevel === "public"
+                            ? "open"
+                            : card.accessLevel === "community"
+                              ? "progress"
+                              : "muted"
+                        }
+                      />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </DrawerSection>
+            <DrawerSection title="Riwayat sertifikat">
+              {selected.events.length === 0 ? (
+                <p className="text-[10.5px] text-ink-muted">
+                  Belum ada riwayat tercatat untuk sertifikat ini.
+                </p>
+              ) : (
+                <ol className="space-y-2 text-[10.5px]">
+                  {selected.events.map((event) => (
+                    <li
+                      key={event.id}
+                      className="border-b border-ink/10 pb-2 last:border-0 last:pb-0"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-semibold text-ink">
+                          {CERTIFICATE_EVENT_LABELS[event.kind]}
+                        </span>
+                        <span className="text-ink-muted">
+                          {formatWorkspaceDate(iso(event.createdAt))}
+                        </span>
+                      </div>
+                      <p className="mt-0.5 text-ink-soft">
+                        {event.actorName ?? event.actorId}
+                        {event.reason ? ` · ${event.reason}` : ""}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </DrawerSection>
             <DrawerSection title="Pratinjau verifikasi publik">
               <div className="border border-ink/25 bg-panel/30 p-4">
                 <div className="flex items-start justify-between gap-3">

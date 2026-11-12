@@ -66,6 +66,11 @@ export type SupportTicketDetail = SupportTicketSummary & {
   escalationReason: string | null
   sourceConversationId: string | null
   assignedAt: number | null
+  assignedBy: string | null
+  assignedByName: string | null
+  resolvedBy: string | null
+  resolvedByName: string | null
+  lastResponseAt: number | null
   canReply: boolean
 }
 

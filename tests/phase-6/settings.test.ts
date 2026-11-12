@@ -317,4 +317,59 @@ describe("settings / API keys, webhooks, templates", () => {
       state.slas.find((item) => item.flowKey === "support")?.targetMinutes,
     ).toBe(90)
   })
+
+  it("[P6-SET-06] admin settings rows expose who last updated them", async () => {
+    const t = createDb()
+    const world = await seedWorld(t)
+    await as(t, "auth-admin").mutation(api.settings.updateSetting, {
+      key: "platform.timezone",
+      value: "Asia/Makassar",
+      reason: "Penyesuaian zona waktu operasional.",
+    })
+
+    const state = await as(t, "auth-admin").query(api.settings.adminState, {})
+    const row = state.settings.find((item) => item.key === "platform.timezone")
+    expect(row?.updatedBy).toBe(world.adminId)
+    expect(row?.updatedByName).toBe("Nadia Kusuma")
+    expect(row?.updatedAt).toBeTypeOf("number")
+  })
+
+  it("[P6-SET-07] feature flags expose who last updated them", async () => {
+    const t = createDb()
+    const world = await seedWorld(t)
+    await as(t, "auth-admin").mutation(api.settings.setFeatureFlag, {
+      key: "calls",
+      description: "Panggilan suara dan video.",
+      enabled: true,
+      rolloutPercent: 50,
+      reason: "Uji rilis bertahap.",
+    })
+
+    const state = await as(t, "auth-admin").query(api.settings.adminState, {})
+    const flag = state.flags.find((item) => item.key === "calls")
+    expect(flag?.updatedBy).toBe(world.adminId)
+    expect(flag?.updatedByName).toBe("Nadia Kusuma")
+  })
+
+  it("[P6-SET-08] API key rotation exposes the chain without hashes", async () => {
+    const t = createDb()
+    await seedWorld(t)
+    const identity = as(t, "auth-admin")
+    const created = await identity.mutation(api.settings.createApiKey, {
+      name: "rotasi-uji",
+      scopes: ["orders:read"],
+      reason: "Uji rantai rotasi.",
+    })
+    const rotated = await identity.mutation(api.settings.rotateApiKey, {
+      keyId: created.keyId,
+      reason: "Rotasi rutin.",
+    })
+
+    const state = await identity.query(api.settings.adminState, {})
+    const previous = state.apiKeys.find((item) => item.id === created.keyId)
+    const next = state.apiKeys.find((item) => item.id === rotated.keyId)
+    expect(previous?.rotatedTo).toBe(rotated.keyId)
+    expect(next?.rotatedFrom).toBe(created.keyId)
+    expect(JSON.stringify(state.apiKeys)).not.toContain("keyHash")
+  })
 })

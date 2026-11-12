@@ -39,7 +39,7 @@ export type WorkListingView = {
   teacher: string
   region: string
   price: number
-  priceLabel?: string
+  priceLabel: string | null
   unit: string
   technique: string
   techniqueNote: string
@@ -48,11 +48,11 @@ export type WorkListingView = {
   image: string
   pathId: string | null
   certificateId: string | null
-  permission: string
-  provenance: string
-  materials: string
-  status: WorkStatus
-  cardStatus: WorkCardStatus
+  permission: string | null
+  provenance: string | null
+  materials: string | null
+  status: WorkStatus | null
+  cardStatus: WorkCardStatus | null
   createdAt: number
   split: MoneySplit | null
   canReview: boolean
@@ -71,14 +71,14 @@ export type PublicWorkView = {
   teacher: string
   region: string
   price: number
-  priceLabel?: string
+  priceLabel: string | null
   unit: string
   technique: string
   techniqueNote: string
   workCard: string
   description: string
   image: string
-  permission: string
+  permission: string | null
   split: MoneySplit
   /** False for curated seed works without a linked seller account. */
   purchasable: boolean
@@ -99,6 +99,17 @@ export type OrderTimelineEntry = {
   status: OrderStatus
   label: string
   at: number | null
+}
+
+export type OrderItemView = {
+  id: string
+  kind: "work" | "path" | "service"
+  refId: string | null
+  pathId: string | null
+  title: string
+  quantity: number
+  unitAmount: number
+  totalAmount: number
 }
 
 export type OrderView = {
@@ -124,6 +135,10 @@ export type OrderView = {
   paidAt: number | null
   deliveredAt: number | null
   completedAt: number | null
+  cancelledAt: number | null
+  cancelReason: string | null
+  consentVersion: string | null
+  consentAt: number | null
   claimedAt: number | null
   paymentId: string | null
   paymentStatus: string | null
@@ -131,6 +146,7 @@ export type OrderView = {
   refundId: string | null
   disputeId: string | null
   split: MoneySplit
+  items: OrderItemView[]
 }
 
 export type GuestOrderView = {
@@ -193,6 +209,8 @@ export type PaymentIntentView = {
   paidAt: number | null
   createdAt: number
   lastReconciledAt: number | null
+  settledEventId: string | null
+  idempotencyKey: string | null
   isLate: boolean
 }
 
@@ -329,6 +347,8 @@ export type DisputeView = {
   orderCode: string
   openedBy: string
   openerName: string
+  assignedTo: string | null
+  assigneeName: string | null
   status: "open" | "reviewing" | "resolved" | "closed"
   reason: string
   resolution: string | null

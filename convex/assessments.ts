@@ -107,6 +107,16 @@ async function submissionOverview(
       .first(),
   ])
   const teacher = cohort ? await ctx.db.get(cohort.teacherId) : null
+  const escalatedBy = submission.escalatedBy ?? null
+  let escalatedByName: string | null = null
+  if (escalatedBy) {
+    try {
+      const escalator = await ctx.db.get(escalatedBy as Id<"users">)
+      escalatedByName = escalator?.name ?? null
+    } catch {
+      escalatedByName = null
+    }
+  }
   const submittedAt = submission.submittedAt ?? null
   const ageHours = submittedAt
     ? Math.max(0, Math.round((now - submittedAt) / HOUR_MS))
@@ -115,10 +125,10 @@ async function submissionOverview(
     id: submission._id,
     code: submission.code,
     studentId: submission.studentId,
-    studentName: student?.name ?? "—",
-    studentInitials: student?.initials ?? "—",
+    studentName: student?.name ?? "Belum diisi",
+    studentInitials: student?.initials ?? "BD",
     cohortId: submission.cohortId,
-    cohort: cohort?.code ?? "—",
+    cohort: cohort?.code ?? "Belum diisi",
     pathId: submission.pathId,
     pathTitle: pathTitleValue,
     taskTitle: submission.taskTitle,
@@ -129,7 +139,7 @@ async function submissionOverview(
     dueAt: submission.dueAt,
     ageHours,
     slaHours: DEFAULT_SLA_HOURS,
-    teacher: teacher?.name ?? "—",
+    teacher: teacher?.name ?? "Belum diisi",
     teacherId: cohort?.teacherId ?? null,
     score: assessment?.score ?? null,
     feedback: assessment?.feedback ?? null,
@@ -154,6 +164,8 @@ async function submissionOverview(
     assessmentId: assessment?._id ?? null,
     assessmentStatus: assessment?.status ?? null,
     escalatedAt: submission.escalatedAt ?? null,
+    escalatedBy,
+    escalatedByName,
     escalationReason: submission.escalationReason ?? null,
   }
 }
@@ -374,8 +386,17 @@ export const getSubmission = query({
         q.eq("subjectType", "assessment").eq("subjectId", overview.assessmentId ?? ""),
       )
       .collect()
+    const assessment = overview.assessmentId
+      ? await ctx.db.get(overview.assessmentId)
+      : null
+    const secondReviewer = assessment?.secondReviewerId
+      ? await ctx.db.get(assessment.secondReviewerId)
+      : null
     return {
       ...overview,
+      overrideReason: assessment?.overrideReason ?? null,
+      secondReviewerId: assessment?.secondReviewerId ?? null,
+      secondReviewerName: secondReviewer?.name ?? null,
       history: history.map((event) => ({
         id: event._id,
         kind: event.kind,

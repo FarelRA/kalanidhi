@@ -23,6 +23,7 @@ import type {
   CallParticipantView,
   CallRecordingConsent,
   CallRecordingConsentResult,
+  CallRecordingView,
   CallScope,
   CallStartResult,
   CallStatusCounts,
@@ -301,8 +302,8 @@ async function participantViews(
     const account = await ctx.db.get(row.userId)
     views.push({
       userId: row.userId,
-      name: account?.name ?? "Akun",
-      initials: account?.initials ?? "AK",
+      name: account?.name ?? "Akun tidak ditemukan",
+      initials: account?.initials ?? "?",
       role: row.role,
       status: row.status ?? (row.joinedAt ? "joined" : "invited"),
       joinedAt: row.joinedAt ?? null,
@@ -349,6 +350,31 @@ async function toCallDetail(
   const joinable =
     !accessReason && canJoinCall({ status, viewerRole, monitorOnly })
   const consentIds = call.recordingConsentUserIds ?? []
+  const endedBy = call.endedBy ?? null
+  const endedByAccount = endedBy ? await ctx.db.get(endedBy) : null
+
+  const recordingRows = await ctx.db
+    .query("callRecordings")
+    .withIndex("by_callId", (q) => q.eq("callId", call._id))
+    .collect()
+  const recordings: CallRecordingView[] = []
+  for (const row of recordingRows.sort((a, b) => b.createdAt - a.createdAt)) {
+    const consentedBy: CallRecordingView["consentedBy"] = []
+    for (const userId of row.consentedBy) {
+      const account = await ctx.db.get(userId)
+      consentedBy.push({
+        userId,
+        name: account?.name ?? "Akun tidak ditemukan",
+      })
+    }
+    recordings.push({
+      id: row._id,
+      createdAt: row.createdAt,
+      retentionUntil: row.retentionUntil,
+      consentedBy,
+      accessLogCount: row.accessLog.length,
+    })
+  }
 
   return {
     id: call._id,
@@ -366,12 +392,17 @@ async function toCallDetail(
     scheduledEndsAt: call.scheduledEndsAt ?? null,
     startedAt: call.startedAt ?? null,
     endedAt: call.endedAt ?? null,
+    endedBy,
+    endedByName: endedByAccount?.name ?? null,
+    cancelledAt: call.cancelledAt ?? null,
+    endReason: call.endReason ?? null,
     durationMs: call.durationMs ?? null,
     recordingConsent: call.recordingConsent,
-    recordingEnabled: false,
+    recordingEnabled: call.recordingEnabled ?? false,
     recordingConsentUserIds: consentIds,
     recordingConsentRequired: consentParticipantIds(rows).length,
     qualitySummary: call.qualitySummary ?? null,
+    recordings,
     participants: await participantViews(ctx, rows),
     viewerRole,
     isHost: Boolean(participant && participant.role === "host"),
@@ -411,7 +442,7 @@ async function toCallSummary(
     status: call.status,
     initiatorId: call.initiatorId,
     hostId: hostIdOf(call),
-    hostName: host?.name ?? "Akun",
+    hostName: host?.name ?? "Akun tidak ditemukan",
     conversationId: call.conversationId ?? null,
     cohortId: call.cohortId ?? null,
     cohortSessionId: call.cohortSessionId ?? null,
@@ -1078,7 +1109,7 @@ export const end = mutation({
     for (const row of rows) {
       const account = await ctx.db.get(row.userId)
       named.push({
-        name: account?.name ?? "Akun",
+        name: account?.name ?? "Akun tidak ditemukan",
         quality: row.quality ?? null,
       })
     }

@@ -58,6 +58,8 @@ export type FeatureFlagView = {
   description: string
   enabled: boolean
   rolloutPercent: number
+  updatedBy: string | null
+  updatedByName: string | null
   updatedAt: number
 }
 
@@ -84,6 +86,8 @@ export type ApiKeyMetadataView = {
   lastUsedAt: number | null
   expiresAt: number | null
   revokedAt: number | null
+  rotatedFrom: string | null
+  rotatedTo: string | null
 }
 
 export type WebhookEndpointMetadataView = {
@@ -94,6 +98,19 @@ export type WebhookEndpointMetadataView = {
   status: "active" | "paused" | "revoked"
   createdAt: number
   updatedAt: number
+}
+
+export type WebhookDeliveryView = {
+  id: string
+  endpointName: string
+  event: string
+  status: "pending" | "delivered" | "failed" | "dead"
+  attempts: number
+  responseStatus: number | null
+  error: string | null
+  createdAt: number
+  lastAttemptAt: number | null
+  nextAttemptAt: number | null
 }
 
 export type NotificationTemplateView = {
@@ -129,6 +146,9 @@ export type PlatformSettingView = {
   label: string
   value: unknown
   editable: boolean
+  updatedBy: string | null
+  updatedByName: string | null
+  updatedAt: number | null
 }
 
 export type AdminSettingsState = {

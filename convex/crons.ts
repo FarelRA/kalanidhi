@@ -15,4 +15,15 @@ crons.interval(
   {},
 )
 
+/**
+ * Drains the notification outbox and retries due webhook deliveries. The
+ * action claims a small batch, so a slow provider never blocks the cron.
+ */
+crons.interval(
+  "process notification outbox",
+  { minutes: 1 },
+  internal.notifications.processOutbox,
+  {},
+)
+
 export default crons

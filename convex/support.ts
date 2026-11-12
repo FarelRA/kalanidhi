@@ -159,7 +159,7 @@ async function toSummary(
     code: ticket.code,
     subject: ticket.subject,
     requesterId: ticket.requesterId ?? null,
-    requesterName: ticket.requesterName ?? "Pengguna",
+    requesterName: ticket.requesterName ?? "Belum diisi",
     requesterEmail: ticket.requesterEmail ?? null,
     priority: ticket.priority,
     status: ticket.status,
@@ -257,7 +257,7 @@ export const get = query({
       id: message._id,
       kind: message.kind,
       authorName: message.authorId
-        ? (names.get(message.authorId) ?? "Pengguna")
+        ? (names.get(message.authorId) ?? "Tidak ditemukan")
         : "Sistem",
       body: message.body,
       createdAt: message.createdAt,
@@ -273,6 +273,15 @@ export const get = query({
       escalationReason: ticket.escalationReason ?? null,
       sourceConversationId: ticket.sourceConversationId ?? null,
       assignedAt: ticket.assignedAt ?? null,
+      assignedBy: ticket.assignedBy ?? null,
+      assignedByName: ticket.assignedBy
+        ? (names.get(ticket.assignedBy) ?? null)
+        : null,
+      resolvedBy: ticket.resolvedBy ?? null,
+      resolvedByName: ticket.resolvedBy
+        ? (names.get(ticket.resolvedBy) ?? null)
+        : null,
+      lastResponseAt: ticket.lastResponseAt ?? null,
       canReply: ticket.status !== "closed",
     }
   },

@@ -532,6 +532,21 @@ function SubmissionDrawerContent({
               { label: "Batas", value: formatWorkspaceDateTime(iso(detail.dueAt)) },
               { label: "Umur", value: `${detail.ageHours} jam` },
               { label: "Revisi", value: `${detail.revisionCount} kali` },
+              ...(detail.escalatedAt
+                ? [
+                    {
+                      label: "Dieskalasi oleh",
+                      value:
+                        detail.escalatedByName ??
+                        detail.escalatedBy ??
+                        "Belum diisi",
+                    },
+                    {
+                      label: "Alasan eskalasi",
+                      value: detail.escalationReason ?? "Belum diisi",
+                    },
+                  ]
+                : []),
             ]}
           />
 
@@ -599,7 +614,7 @@ function SubmissionDrawerContent({
                     />
                   ) : (
                     <span className="font-heading text-base text-ink">
-                      {item.score ?? "—"}
+                      {item.score ?? "Belum dinilai"}
                     </span>
                   )}
                 </li>
@@ -607,14 +622,25 @@ function SubmissionDrawerContent({
             </ul>
           </DrawerSection>
 
-          {detail.history.length ? (
+          {detail.history.length || detail.overrideReason ? (
             <DrawerSection title="Riwayat penilaian">
+              {detail.overrideReason ? (
+                <div className="mb-3 border border-ink/15 bg-panel/30 p-3">
+                  <p className="text-[11px] font-semibold text-ink">
+                    Override: {detail.overrideReason}
+                  </p>
+                  <p className="mt-1 text-[9.5px] text-ink-muted">
+                    Peninjau kedua:{" "}
+                    {detail.secondReviewerName ?? "Belum diisi"}
+                  </p>
+                </div>
+              ) : null}
               <ul className="divide-y divide-ink/10 border-y border-ink/10">
                 {detail.history.map((event) => (
                   <li key={event.id} className="py-2.5">
                     <p className="text-[11px] font-semibold text-ink">
-                      {event.kind} · {event.scoreBefore ?? "—"} →{" "}
-                      {event.scoreAfter ?? "—"}
+                      {event.kind} · {event.scoreBefore ?? "Belum ada"} →{" "}
+                      {event.scoreAfter ?? "Belum ada"}
                     </p>
                     <p className="mt-0.5 text-[9.5px] text-ink-muted">
                       {formatWorkspaceDateTime(iso(event.createdAt))}

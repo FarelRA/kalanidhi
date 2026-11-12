@@ -24,6 +24,7 @@ import type {
   ConversationMemberView,
   ConversationSummary,
   MessageAssetView,
+  MessageEditView,
   MessagePage,
   MessageView,
   ModerationFlagView,
@@ -257,9 +258,30 @@ async function toMessageView(
       replyTo = {
         id: parent._id,
         body: parent.deletedAt ? "Pesan dihapus" : (parent.body ?? ""),
-        senderName: parentSender?.name ?? "Sistem",
+        senderName: parentSender
+          ? parentSender.name
+          : parent.senderId
+            ? "Akun tidak ditemukan"
+            : "Sistem",
       }
     }
+  }
+
+  const editRows = await ctx.db
+    .query("messageEdits")
+    .withIndex("by_messageId", (q) => q.eq("messageId", message._id))
+    .collect()
+  const edits: MessageEditView[] = []
+  for (const row of editRows.sort((a, b) => a.createdAt - b.createdAt)) {
+    const editor = await ctx.db.get(row.editorId)
+    edits.push({
+      id: row._id,
+      previousBody: row.previousBody,
+      nextBody: row.nextBody,
+      editorId: row.editorId,
+      editorName: editor?.name ?? "Akun tidak ditemukan",
+      createdAt: row.createdAt,
+    })
   }
 
   let asset: MessageAssetView | null = null
@@ -269,6 +291,9 @@ async function toMessageView(
       .withIndex("by_messageId", (q) => q.eq("messageId", message._id))
       .unique()
     if (assetRow) {
+      const assetSender = assetRow.senderId
+        ? await ctx.db.get(assetRow.senderId)
+        : null
       asset = {
         id: assetRow._id,
         kind: assetRow.kind,
@@ -281,6 +306,11 @@ async function toMessageView(
         transcript: assetRow.transcript ?? null,
         url: await ctx.storage.getUrl(assetRow.storageId),
         waveform: message.waveform ?? [],
+        senderId: assetRow.senderId ?? null,
+        senderName: assetRow.senderId
+          ? (assetSender?.name ?? "Akun tidak ditemukan")
+          : null,
+        createdAt: assetRow.createdAt,
       }
     }
   }
@@ -290,10 +320,15 @@ async function toMessageView(
     conversationId: message.conversationId,
     kind: message.kind,
     senderId: message.senderId ?? null,
-    senderName: sender?.name ?? "Sistem",
+    senderName: sender
+      ? sender.name
+      : message.senderId
+        ? "Akun tidak ditemukan"
+        : "Sistem",
     body: deleted ? null : (message.body ?? null),
     containsExternalLink: message.containsExternalLink ?? false,
     replyTo,
+    edits,
     editedAt: message.editedAt ?? null,
     deletedAt: message.deletedAt ?? null,
     removedBy: message.removedBy ? "Moderator" : null,
@@ -341,8 +376,8 @@ async function conversationSummary(
     const user = await ctx.db.get(row.userId)
     members.push({
       userId: row.userId,
-      name: user?.name ?? "Akun",
-      initials: user?.initials ?? "AK",
+      name: user?.name ?? "Akun tidak ditemukan",
+      initials: user?.initials ?? "?",
       role: row.role,
     })
   }
@@ -615,7 +650,7 @@ async function notifyMembers(
       template: isSupport ? "support.reply" : "message.new",
       title: isSupport
         ? "Balasan dukungan baru"
-        : `Pesan baru dari ${sender?.name ?? "pengguna"}`,
+        : `Pesan baru dari ${sender?.name ?? "Akun tidak ditemukan"}`,
       body: preview ?? "Pesan baru",
       entityType: "conversations",
       entityId: conversation._id,
@@ -1370,8 +1405,8 @@ const messages = {
         }
         views.push({
           userId: member.userId,
-          name: account?.name ?? "Akun",
-          initials: account?.initials ?? "AK",
+          name: account?.name ?? "Akun tidak ditemukan",
+          initials: account?.initials ?? "?",
           lastReadAt: member.lastReadAt ?? null,
           readCount,
         })
@@ -1397,8 +1432,8 @@ const messages = {
         const account = await ctx.db.get(member.userId)
         views.push({
           userId: member.userId,
-          name: account?.name ?? "Akun",
-          initials: account?.initials ?? "AK",
+          name: account?.name ?? "Akun tidak ditemukan",
+          initials: account?.initials ?? "?",
           lastSeenAt: member.lastSeenAt ?? account?.lastActiveAt ?? null,
           typingUntil: member.typingUntil ?? null,
         })
@@ -1901,7 +1936,7 @@ const moderation = {
           messageId: flag.messageId,
           conversationId: message.conversationId,
           reporterId: flag.reportedBy,
-          reporterName: reporter?.name ?? "Akun",
+          reporterName: reporter?.name ?? "Akun tidak ditemukan",
           reason: flag.reason,
           status: flag.status,
           createdAt: flag.createdAt,

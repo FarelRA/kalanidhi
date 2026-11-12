@@ -108,7 +108,7 @@ Store it at `data/kalanidhi/convex-admin-key`, mode `600`. Use it for:
 CONVEX_SELF_HOSTED_URL=https://convex.kalanidhi.site
 CONVEX_SELF_HOSTED_ADMIN_KEY=<admin key>
 npx convex deploy
-npx convex run seed:run --prod
+npx convex run seedRunner:run --prod
 ```
 
 ### Data and backup

@@ -37,6 +37,7 @@ import type { WorkListingView } from "@/lib/commerce/types"
 import type { StatusTone } from "@/lib/workspace/types"
 
 function workStamp(work: WorkListingView): { label: string; tone: StatusTone } {
+  if (work.status === null) return { label: "Belum diisi", tone: "muted" }
   if (work.status === "published") return { label: "Tayang", tone: "done" }
   if (work.status === "paused") return { label: "Dijeda", tone: "wait" }
   if (work.status === "sold_out") return { label: "Habis", tone: "muted" }
@@ -83,10 +84,14 @@ export function WorksLive() {
   const myWorks = rows.filter((work) => work.makerId === viewer?.userId)
   const reviewWorks = rows.filter((work) =>
     can("works.moderate")
-      ? ["submitted", "teacher_confirmed", "admin_review", "review"].includes(
-          work.cardStatus,
-        ) || work.status === "review"
-      : work.canReview && ["submitted", "teacher_confirmed"].includes(work.cardStatus),
+      ? (work.cardStatus !== null &&
+          ["submitted", "teacher_confirmed", "admin_review", "review"].includes(
+            work.cardStatus,
+          )) ||
+        work.status === "review"
+      : work.canReview &&
+        work.cardStatus !== null &&
+        ["submitted", "teacher_confirmed"].includes(work.cardStatus),
   )
 
   const tabs = [

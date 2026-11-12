@@ -61,6 +61,15 @@ function intentLabel(intent: LeadSummary["intent"]): string {
         : "Kabar"
 }
 
+function dateTimeLabel(value: number | null): string {
+  if (value === null) return "—"
+  return new Intl.DateTimeFormat("id-ID", {
+    timeZone: "Asia/Jakarta",
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(new Date(value))
+}
+
 export function LeadsLive() {
   const [view, setView] = React.useState<View>("new")
   const [query, setQuery] = React.useState("")
@@ -165,6 +174,7 @@ export function LeadsLive() {
       cell: (row) => (
         <span className="block max-w-56 text-[11px] leading-snug text-ink-soft">
           {row.interest || row.institution || "—"}
+          {row.participants ? ` · ${row.participants} peserta` : ""}
         </span>
       ),
       className: "hidden lg:table-cell",
@@ -482,7 +492,13 @@ function LeadDrawer({
               { label: "WhatsApp", value: lead.whatsapp ?? "—" },
               { label: "Sumber", value: lead.source ?? "—" },
               { label: "Institusi", value: lead.institution ?? "—" },
+              { label: "Jenis institusi", value: lead.institutionType ?? "—" },
+              {
+                label: "Peserta",
+                value: lead.participants ? `${lead.participants} orang` : "—",
+              },
               { label: "Minat", value: lead.interest ?? "—" },
+              { label: "Dikonversi", value: dateTimeLabel(lead.convertedAt) },
             ]}
           />
 

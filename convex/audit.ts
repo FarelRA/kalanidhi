@@ -7,6 +7,7 @@ import type {
   LogRow,
 } from "../lib/admin/types"
 import { requireAdmin } from "./admin_context"
+import type { Id } from "./_generated/dataModel"
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"
 import { severityValidator } from "./tables/common"
 
@@ -245,7 +246,15 @@ async function collectRows(
           entityId: row._id,
           severity: severityForStatus(row.status),
           requestId: null,
-          detail: `${row.template} ke ${row.recipient.includes("@") ? maskEmail(row.recipient) : maskPhone(row.recipient)}.`,
+          detail: [
+            `${row.template} ke ${row.recipient.includes("@") ? maskEmail(row.recipient) : maskPhone(row.recipient)}.`,
+            `${row.attempts} percobaan.`,
+            `Dijadwalkan ${new Date(row.scheduledAt).toISOString()}.`,
+            row.sentAt ? `Terkirim ${new Date(row.sentAt).toISOString()}.` : "Belum terkirim.",
+            row.error ? `Galat: ${row.error}` : null,
+          ]
+            .filter(Boolean)
+            .join(" "),
           createdAt: row.createdAt,
         })),
         filters,
@@ -397,9 +406,19 @@ export const get = query({
     }
     related.sort((a, b) => b.createdAt - a.createdAt)
 
+    let before: Record<string, unknown> | null = null
+    let after: Record<string, unknown> | null = null
+    if (args.kind === "audit") {
+      const doc = await ctx.db.get(args.id as Id<"auditLogs">)
+      before = (doc?.before as Record<string, unknown> | undefined) ?? null
+      after = (doc?.after as Record<string, unknown> | undefined) ?? null
+    }
+
     return {
       ...row,
       available: result.available,
+      before,
+      after,
       correlation: {
         requestId: row.requestId,
         entityType: row.entity,

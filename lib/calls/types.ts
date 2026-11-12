@@ -35,6 +35,14 @@ export type CallParticipantView = {
   quality: string | null
 }
 
+export type CallRecordingView = {
+  id: string
+  createdAt: number
+  retentionUntil: number
+  consentedBy: { userId: string; name: string }[]
+  accessLogCount: number
+}
+
 export type CallDetail = {
   id: string
   roomName: string
@@ -51,12 +59,17 @@ export type CallDetail = {
   scheduledEndsAt: number | null
   startedAt: number | null
   endedAt: number | null
+  endedBy: string | null
+  endedByName: string | null
+  cancelledAt: number | null
+  endReason: string | null
   durationMs: number | null
   recordingConsent: CallRecordingConsent
-  recordingEnabled: false
+  recordingEnabled: boolean
   recordingConsentUserIds: string[]
   recordingConsentRequired: number
   qualitySummary: string | null
+  recordings: CallRecordingView[]
   participants: CallParticipantView[]
   viewerRole: CallParticipantRole | null
   isHost: boolean

@@ -342,9 +342,14 @@ describe("messages", () => {
       api.messaging.listMessages,
       { conversationId },
     )
-    expect(
-      typeof edited.messages.find((item) => item.id === firstId)?.editedAt,
-    ).toBe("number")
+    const editedMessage = edited.messages.find((item) => item.id === firstId)
+    expect(typeof editedMessage?.editedAt).toBe("number")
+    expect(editedMessage?.edits).toHaveLength(1)
+    expect(editedMessage?.edits[0]?.previousBody).toContain("dua celupan")
+    expect(editedMessage?.edits[0]?.nextBody).toContain("tiga celupan")
+    expect(editedMessage?.edits[0]?.editorId).toBe(world.teacherId)
+    expect(editedMessage?.edits[0]?.editorName).toBe("Bambang Hardjono")
+    expect(typeof editedMessage?.edits[0]?.createdAt).toBe("number")
 
     expect(
       await errorCode(
@@ -1192,5 +1197,48 @@ describe("conversation list metadata", () => {
       await as(t, "auth-admin").query(api.messaging.listConversations, {})
     ).find((item) => item.id === otherId)
     expect(summary?.lastMessagePreview).toBeNull()
+  })
+
+  it("[P4-MSG-48] message asset metadata exposes the uploader and upload time", async () => {
+    const t = createDb()
+    const world = await seedWorld(t)
+    const conversationId = await as(
+      t,
+      "auth-student",
+    ).mutation(api.messaging.startDirect, {
+      peerUserId: world.teacherId,
+    })
+    const createdAt = Date.now()
+    const messageId = await t.run(async (ctx) => {
+      const storageId = await ctx.storage.store(
+        new Blob(["kain"], { type: "image/png" }),
+      )
+      const id = await ctx.db.insert("messages", {
+        conversationId,
+        senderId: world.studentId,
+        kind: "image",
+        createdAt,
+      })
+      await ctx.db.insert("messageAssets", {
+        messageId: id,
+        storageId,
+        senderId: world.studentId,
+        kind: "image",
+        filename: "kain-soga.png",
+        mimeType: "image/png",
+        size: 4,
+        createdAt,
+      })
+      return id
+    })
+
+    const view = await as(t, "auth-teacher").query(
+      api.messaging.listMessages,
+      { conversationId },
+    )
+    const message = view.messages.find((item) => item.id === messageId)
+    expect(message?.asset?.senderId).toBe(world.studentId)
+    expect(message?.asset?.senderName).toBe("Anisa Rahmawati")
+    expect(message?.asset?.createdAt).toBe(createdAt)
   })
 })

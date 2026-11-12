@@ -362,6 +362,8 @@ function apiKeyView(row: Doc<"apiKeys">): ApiKeyMetadataView {
     lastUsedAt: row.lastUsedAt ?? null,
     expiresAt: row.expiresAt ?? null,
     revokedAt: row.revokedAt ?? null,
+    rotatedFrom: row.rotatedFrom ?? null,
+    rotatedTo: row.rotatedTo ?? null,
   }
 }
 
@@ -389,7 +391,10 @@ function templateView(row: Doc<"notificationTemplates">): NotificationTemplateVi
   }
 }
 
-function settingViews(rows: Doc<"settings">[]): PlatformSettingView[] {
+function settingViews(
+  rows: Doc<"settings">[],
+  names: Map<string, string>,
+): PlatformSettingView[] {
   return rows
     .filter((row) => ALLOWED_SETTING_KEYS.has(row.key))
     .sort((a, b) => a.key.localeCompare(b.key))
@@ -398,6 +403,11 @@ function settingViews(rows: Doc<"settings">[]): PlatformSettingView[] {
       label: SETTING_LABELS[row.key] ?? row.key,
       value: row.value,
       editable: true,
+      updatedBy: row.updatedBy ?? null,
+      updatedByName: row.updatedBy
+        ? (names.get(row.updatedBy) ?? "Akun tidak ditemukan")
+        : null,
+      updatedAt: row.updatedAt ?? null,
     }))
 }
 
@@ -428,6 +438,9 @@ export const adminState = query({
     ])
 
     const latestByIntegration = new Map<string, Doc<"integrationHealth">>()
+    const names = new Map<string, string>(
+      users.map((user) => [user._id, user.name]),
+    )
     for (const row of integrations.sort((a, b) => a.checkedAt - b.checkedAt)) {
       latestByIntegration.set(row.integration, row)
     }
@@ -452,6 +465,10 @@ export const adminState = query({
         description: row.description,
         enabled: row.enabled,
         rolloutPercent: row.rolloutPercent,
+        updatedBy: row.updatedBy ?? null,
+        updatedByName: row.updatedBy
+          ? (names.get(row.updatedBy) ?? "Akun tidak ditemukan")
+          : null,
         updatedAt: row.updatedAt,
       }))
 
@@ -497,7 +514,7 @@ export const adminState = query({
       : ["Yogyakarta", "Jawa Tengah"]
 
     return {
-      settings: settingViews(settings),
+      settings: settingViews(settings, names),
       flags: flagRows,
       integrations: integrationRows,
       apiKeys: apiKeys
@@ -826,6 +843,8 @@ export const createWebhookEndpoint = mutation({
     const secret = randomSecret("whsec")
     const secretHash = await hashToken(secret)
     const timestamp = Date.now()
+    // No delivery is sent here. The one-minute dispatcher picks up pending
+    // `webhookDeliveries` rows, so endpoint creation stays a pure write.
     const endpointId = await ctx.db.insert("webhookEndpoints", {
       name,
       url,

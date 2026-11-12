@@ -151,6 +151,43 @@ describe("leads / CRM", () => {
     expect(result.registrationPath).toContain("/daftar?email=")
   })
 
+  it("[P1-LEAD-06] lead summaries expose institution type, participants, and conversion time", async () => {
+    const { t } = await adminDb()
+    const identity = t.withIdentity({ subject: "auth-admin" })
+    const leadId = await t.mutation(api.leads.create, {
+      intent: "institution",
+      name: "Sanggar Lestari",
+      email: "sanggar@example.test",
+      institution: "Sanggar Lestari",
+      institutionType: "Sekolah dasar",
+      participants: 28,
+      consent: true,
+    })
+
+    const list = await identity.query(api.leads.list, { view: "institutions" })
+    expect(list[0]?.institutionType).toBe("Sekolah dasar")
+    expect(list[0]?.participants).toBe(28)
+    expect(list[0]?.convertedAt).toBeNull()
+
+    await identity.mutation(api.leads.setStatus, {
+      leadId,
+      status: "contacted",
+      reason: "Dihubungi",
+    })
+    await identity.mutation(api.leads.setStatus, {
+      leadId,
+      status: "qualified",
+      reason: "Siap mendaftar",
+    })
+    await identity.mutation(api.leads.convert, {
+      leadId,
+      reason: "Konversi ke pendaftaran",
+    })
+
+    const detail = await identity.query(api.leads.get, { id: leadId })
+    expect(detail?.lead.convertedAt).toBeTypeOf("number")
+  })
+
   it("[P1-EXP-03] export is scoped and logged", async () => {
     const { t } = await adminDb()
     await seedLead(t)

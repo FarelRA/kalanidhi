@@ -149,6 +149,8 @@ function toSummary(bundle: LeadBundle): LeadSummary {
     email: lead.email,
     whatsapp: lead.whatsapp ?? null,
     institution: lead.institution ?? null,
+    institutionType: lead.institutionType ?? null,
+    participants: lead.participants ?? null,
     interest: lead.interest ?? null,
     message: lead.message ?? null,
     source: lead.source ?? null,
@@ -157,6 +159,7 @@ function toSummary(bundle: LeadBundle): LeadSummary {
     owner: bundle.owner,
     notesCount: bundle.notesCount,
     followUpAt: bundle.followUpAt,
+    convertedAt: lead.convertedAt ?? null,
     createdAt: lead.createdAt,
     ageDays,
   }

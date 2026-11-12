@@ -24,7 +24,10 @@ import type {
   EnrollmentOverview,
   PathOverview,
 } from "@/lib/workspace/phase2-types"
-import { formatWorkspaceDate } from "@/lib/workspace/format"
+import {
+  formatCompactIDR,
+  formatWorkspaceDate,
+} from "@/lib/workspace/format"
 
 function iso(ms: number) {
   return new Date(ms).toISOString()
@@ -285,6 +288,9 @@ function CohortTable({
       cell: (row) => (
         <div>
           <p className="font-semibold text-ink">{row.code}</p>
+          <p className="mt-0.5 max-w-56 truncate text-[10px] text-ink">
+            {row.title}
+          </p>
           <p className="mt-0.5 max-w-56 truncate text-[10px] text-ink-muted">
             {row.pathTitle}
           </p>
@@ -381,7 +387,7 @@ function CohortTable({
         caption="Daftar kohort dengan pengajar, kapasitas, dan status"
         searchPlaceholder="Cari kohort atau pengajar"
         getSearchText={(row) =>
-          `${row.code} ${row.pathTitle} ${row.teacherName} ${row.status}`
+          `${row.code} ${row.title} ${row.pathTitle} ${row.teacherName} ${row.status}`
         }
         emptyTitle="Belum ada kohort"
         emptyDescription="Kohort akan muncul setelah pengelola membuka pendaftaran."
@@ -493,7 +499,23 @@ function EnrollmentTable({
   )
 }
 
+function pathStatusLabel(status: PathOverview["status"]) {
+  if (status === "open") return "Terbuka"
+  if (status === "mapping") return "Sedang dipetakan"
+  if (status === "archived") return "Diarsipkan"
+  return "Direncanakan"
+}
+
+function pathStatusTone(status: PathOverview["status"]): StatusTone {
+  if (status === "open") return "done"
+  if (status === "mapping") return "progress"
+  if (status === "archived") return "muted"
+  return "muted"
+}
+
 function PathCatalog({ paths }: { paths: PathOverview[] }) {
+  const [selected, setSelected] = React.useState<PathOverview | null>(null)
+
   const columns: Column<PathOverview>[] = [
     {
       id: "path",
@@ -506,6 +528,15 @@ function PathCatalog({ paths }: { paths: PathOverview[] }) {
           </p>
         </div>
       ),
+    },
+    {
+      id: "level",
+      header: "Tingkat",
+      cell: (row) => (
+        <span className="text-[11px] text-ink-soft">{row.level}</span>
+      ),
+      className: "hidden md:table-cell",
+      headClassName: "hidden md:table-cell",
     },
     {
       id: "modules",
@@ -539,6 +570,17 @@ function PathCatalog({ paths }: { paths: PathOverview[] }) {
       headClassName: "hidden lg:table-cell",
     },
     {
+      id: "price",
+      header: "Biaya",
+      cell: (row) => (
+        <span className="text-[11px] text-ink-soft">
+          {row.priceLabel ?? (row.price !== null ? formatCompactIDR(row.price) : "Belum diisi")}
+        </span>
+      ),
+      className: "hidden xl:table-cell",
+      headClassName: "hidden xl:table-cell",
+    },
+    {
       id: "completion",
       header: "Penyelesaian",
       cell: (row) => (
@@ -560,31 +602,120 @@ function PathCatalog({ paths }: { paths: PathOverview[] }) {
       header: "Status",
       cell: (row) => (
         <StatusStamp
-          label={
-            row.status === "open"
-              ? "Terbuka"
-              : row.status === "mapping"
-                ? "Sedang dipetakan"
-                : "Direncanakan"
-          }
-          tone={row.status === "open" ? "done" : row.status === "mapping" ? "progress" : "muted"}
+          label={pathStatusLabel(row.status)}
+          tone={pathStatusTone(row.status)}
         />
+      ),
+    },
+    {
+      id: "action",
+      header: "",
+      align: "right",
+      cell: (row) => (
+        <Button size="sm" variant="ghost" onClick={() => setSelected(row)}>
+          Buka
+        </Button>
       ),
     },
   ]
 
   return (
-    <Panel eyebrow="Katalog" title="Jalur dan kesiapan" bodyClassName="p-0">
-      <DataTable
-        rows={paths}
-        columns={columns}
-        caption="Katalog jalur dengan modul, kohort, dan penyelesaian"
-        searchPlaceholder="Cari jalur atau pengajar"
-        getSearchText={(row) => `${row.title} ${row.teacherName} ${row.status}`}
-        emptyTitle="Belum ada jalur"
-        minWidth={780}
-      />
-    </Panel>
+    <>
+      <Panel eyebrow="Katalog" title="Jalur dan kesiapan" bodyClassName="p-0">
+        <DataTable
+          rows={paths}
+          columns={columns}
+          caption="Katalog jalur dengan tingkat, modul, kohort, dan penyelesaian"
+          searchPlaceholder="Cari jalur atau pengajar"
+          getSearchText={(row) =>
+            `${row.title} ${row.teacherName} ${row.level} ${row.status}`
+          }
+          emptyTitle="Belum ada jalur"
+          minWidth={900}
+        />
+      </Panel>
+      <PathDrawer path={selected} onClose={() => setSelected(null)} />
+    </>
+  )
+}
+
+function PathDrawer({
+  path,
+  onClose,
+}: {
+  path: PathOverview | null
+  onClose: () => void
+}) {
+  return (
+    <DetailDrawer
+      open={Boolean(path)}
+      onOpenChange={(open) => {
+        if (!open) onClose()
+      }}
+      eyebrow="Jalur"
+      title={path?.title ?? "Jalur"}
+      stamp={path ? pathStatusLabel(path.status) : undefined}
+      tone={path ? pathStatusTone(path.status) : "muted"}
+      description={path?.subtitle}
+    >
+      {path ? (
+        <>
+          <DetailGrid
+            items={[
+              { label: "Kode", value: path.code },
+              { label: "Tingkat", value: path.level },
+              { label: "Pengajar", value: path.teacherName },
+              { label: "Peran pengajar", value: path.teacherRole },
+              { label: "Wilayah", value: path.region },
+              {
+                label: "Biaya",
+                value:
+                  path.priceLabel ??
+                  (path.price !== null
+                    ? formatCompactIDR(path.price)
+                    : "Belum diisi"),
+              },
+              { label: "Modul", value: `${path.modules} modul` },
+              { label: "Pelajaran", value: `${path.lessons} pelajaran` },
+              { label: "Durasi", value: `${path.weeks} minggu` },
+              { label: "Tugas", value: `${path.tasks} tugas` },
+            ]}
+          />
+          <DrawerSection title="Hasil belajar">
+            <p className="text-[12px] leading-relaxed text-ink-soft">
+              {path.outcome}
+            </p>
+          </DrawerSection>
+          <DrawerSection title="Yang termasuk">
+            {path.includes.length === 0 ? (
+              <p className="text-[12px] text-ink-muted">Belum diisi.</p>
+            ) : (
+              <ul className="list-disc space-y-1 pl-4 text-[12px] leading-relaxed text-ink-soft">
+                {path.includes.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            )}
+          </DrawerSection>
+          <DrawerSection title="Tag">
+            {path.tags.length === 0 ? (
+              <p className="text-[12px] text-ink-muted">Belum diisi.</p>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {path.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="border border-ink/20 bg-panel/40 px-2 py-1 text-[10px] text-ink-soft"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </DrawerSection>
+        </>
+      ) : null}
+    </DetailDrawer>
   )
 }
 
@@ -629,6 +760,7 @@ function CohortDrawer({
         <>
           <DetailGrid
             items={[
+              { label: "Judul kohort", value: cohort.title },
               { label: "Jalur", value: cohort.pathTitle },
               { label: "Pengajar", value: cohort.teacherName },
               { label: "Mulai", value: formatWorkspaceDate(iso(cohort.startDate)) },
@@ -639,6 +771,10 @@ function CohortDrawer({
               {
                 label: "Zona waktu",
                 value: cohort.timezone,
+              },
+              {
+                label: "Diperbarui",
+                value: formatWorkspaceDate(iso(cohort.updatedAt)),
               },
             ]}
           />
@@ -723,13 +859,16 @@ function EnrollmentDrawer({
         <>
           <DetailGrid
             items={[
-              { label: "Kohort", value: enrollment.cohortCode ?? "—" },
+              {
+                label: "Kohort",
+                value: enrollment.cohortCode ?? "Belum diisi",
+              },
               { label: "Progres", value: `${enrollment.progress}%` },
               {
                 label: "Aktivitas terakhir",
                 value: enrollment.lastActiveAt
                   ? formatWorkspaceDate(iso(enrollment.lastActiveAt))
-                  : "—",
+                  : "Belum diisi",
               },
               { label: "Langkah berikut", value: enrollment.nextTask },
               {
@@ -737,6 +876,22 @@ function EnrollmentDrawer({
                 value: detail.certificate
                   ? detail.certificate.serial
                   : "Belum terbit",
+              },
+              {
+                label: "Selesai",
+                value: enrollment.completedAt
+                  ? formatWorkspaceDate(iso(enrollment.completedAt))
+                  : "Belum diisi",
+              },
+              {
+                label: "Ditarik",
+                value: enrollment.withdrawnAt
+                  ? formatWorkspaceDate(iso(enrollment.withdrawnAt))
+                  : "Belum diisi",
+              },
+              {
+                label: "Alasan penarikan",
+                value: enrollment.withdrawReason ?? "Belum diisi",
               },
             ]}
           />
@@ -794,6 +949,11 @@ function EnrollmentDrawer({
                                     : "danger"
                               }
                             />
+                          ) : null}
+                          {lesson.completedAt ? (
+                            <span className="text-[9.5px] text-ink-muted">
+                              {formatWorkspaceDate(iso(lesson.completedAt))}
+                            </span>
                           ) : null}
                         </li>
                       ))}

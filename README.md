@@ -119,7 +119,7 @@ npm run convex:seed:if-empty
 ```
 
 Untuk mengisi deployment produksi, jalankan
-`npx convex run seed:run --prod` setelah `npx convex deploy`.
+`npx convex run seedRunner:run --prod` setelah `npx convex deploy`.
 
 Tanpa `NEXT_PUBLIC_CONVEX_URL`, aplikasi tetap bisa dibangun dan dijalankan memakai
 fallback dari `lib/content/fallback.ts`. Fallback itu membaca `convex/seedData.ts`,
@@ -140,7 +140,9 @@ convex/
                            works, testimonials, faqs, leads
   content.ts               Query getSite untuk merakit seluruh konten landing
   leads.ts                 Mutation create untuk formulir minat
-  seed.ts                  Mutation internal untuk mengisi dan mengosongkan konten
+  seed.ts                  Seed konten + orkestrasi domain
+  seedWorkspace.ts         Seed pengguna, kurikulum, kohort, sertifikat, commerce
+  seedOperations.ts        Seed pesan, panggilan, operasi, setelan, tata kelola, metrik
   seedData.ts              Sumber data awal untuk seed dan fallback
 components/
   landing/                 Section landing: bangku, lingkaran, rak bahan, jalur, pengajar,

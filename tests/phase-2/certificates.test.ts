@@ -321,4 +321,77 @@ describe("certificates / issuance and public verification", () => {
         .query(api.certificates.listRegistry, {}),
     ).rejects.toThrow()
   })
+
+  it("[P2-CRT-14] the certificate overview exposes issue and revoke history", async () => {
+    const t = createPhase2Db()
+    const { certificateId } = await issueForStudent(t)
+    await t.withIdentity({ subject: "auth-admin" }).mutation(
+      api.certificates.revoke,
+      {
+        certificateId,
+        reason: "Pencabutan untuk pengujian riwayat.",
+      },
+    )
+
+    const mine = await t
+      .withIdentity({ subject: "auth-student" })
+      .query(api.certificates.listMine, {})
+    const events = mine[0]?.events ?? []
+
+    expect(events.map((event) => event.kind)).toEqual(["issue", "revoke"])
+    expect(events[0]?.actorName).toBe("Bambang Hardjono")
+    expect(events[1]?.actorName).toBe("Nadia Kusuma")
+    expect(events[1]?.reason).toContain("Pencabutan")
+  })
+
+  it("[P2-CRT-15] a certificate without events returns an empty history", async () => {
+    const t = createPhase2Db()
+    const { certificateId } = await issueForStudent(t)
+    await t.run(async (ctx) => {
+      const events = await ctx.db
+        .query("certificateEvents")
+        .withIndex("by_certificateId", (q) =>
+          q.eq("certificateId", certificateId),
+        )
+        .collect()
+      for (const event of events) await ctx.db.delete(event._id)
+    })
+
+    const mine = await t
+      .withIdentity({ subject: "auth-student" })
+      .query(api.certificates.listMine, {})
+    expect(mine[0]?.events).toEqual([])
+  })
+
+  it("[P2-CRT-16] the certificate overview exposes the revoker and work card access level", async () => {
+    const t = createPhase2Db()
+    const { h, certificateId } = await issueForStudent(t)
+    await seedWorkForCertificate(t, {
+      certificateId,
+      makerId: h.studentId,
+      slug: "kain-akses",
+    })
+
+    const before = await t
+      .withIdentity({ subject: "auth-student" })
+      .query(api.certificates.listMine, {})
+    expect(before[0]?.workCards[0]?.accessLevel).toBe("public")
+    expect(before[0]?.revokedBy).toBeNull()
+    expect(before[0]?.revokedByName).toBeNull()
+
+    await t.withIdentity({ subject: "auth-admin" }).mutation(
+      api.certificates.revoke,
+      {
+        certificateId,
+        reason: "Pelanggaran etika sumber budaya.",
+      },
+    )
+
+    const after = await t
+      .withIdentity({ subject: "auth-student" })
+      .query(api.certificates.listMine, {})
+    expect(after[0]?.revokedBy).toBe(h.adminId)
+    expect(after[0]?.revokedByName).toBe("Nadia Kusuma")
+    expect(after[0]?.revokeReason).toBe("Pelanggaran etika sumber budaya.")
+  })
 })

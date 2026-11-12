@@ -108,6 +108,8 @@ export type LeadSummary = {
   email: string
   whatsapp: string | null
   institution: string | null
+  institutionType: string | null
+  participants: number | null
   interest: string | null
   message: string | null
   source: string | null
@@ -116,6 +118,7 @@ export type LeadSummary = {
   owner: LeadOwner | null
   notesCount: number
   followUpAt: number | null
+  convertedAt: number | null
   createdAt: number
   ageDays: number
 }
@@ -304,6 +307,8 @@ export type LogCorrelation = {
 export type LogDetail = LogRow & {
   correlation: LogCorrelation
   available: boolean
+  before: Record<string, unknown> | null
+  after: Record<string, unknown> | null
 }
 
 export type LogListResult = {
@@ -347,6 +352,27 @@ export type MetricsReport = {
   range: { from: number; to: number }
   definitions: MetricResult[]
   funnel: FunnelStep[]
+}
+
+export type MetricHistoryPoint = {
+  date: string
+  value: number
+}
+
+export type MetricHistorySeries = {
+  key: string
+  label: string
+  definition: string
+  formula: string
+  owner: string
+  version: number
+  points: MetricHistoryPoint[]
+}
+
+export type MetricHistoryReport = {
+  generatedAt: number
+  range: { from: number; to: number }
+  definitions: MetricHistorySeries[]
 }
 
 export type OverviewQueueItem = {

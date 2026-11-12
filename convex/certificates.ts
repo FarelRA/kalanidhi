@@ -69,7 +69,7 @@ export async function certificateOverview(
   ctx: MutationCtx | Parameters<typeof resolveViewer>[0],
   certificate: Doc<"certificates">,
 ) {
-  const [replacedBy, workCards] = await Promise.all([
+  const [replacedBy, workCards, eventRows] = await Promise.all([
     certificate.replacedBy ? ctx.db.get(certificate.replacedBy) : null,
     ctx.db
       .query("workCards")
@@ -77,7 +77,40 @@ export async function certificateOverview(
         q.eq("certificateId", certificate._id),
       )
       .collect(),
+    ctx.db
+      .query("certificateEvents")
+      .withIndex("by_certificateId", (q) =>
+        q.eq("certificateId", certificate._id),
+      )
+      .collect(),
   ])
+
+  const actorIds = Array.from(new Set(eventRows.map((event) => event.actorId)))
+  const actors = await Promise.all(
+    actorIds.map(async (actorId) => {
+      try {
+        return await ctx.db.get(actorId as Id<"users">)
+      } catch {
+        return null
+      }
+    }),
+  )
+  const actorNameById = new Map<string, string>()
+  actors.forEach((actor, index) => {
+    if (actor) actorNameById.set(actorIds[index], actor.name)
+  })
+
+  const revokedBy = certificate.revokedBy ?? null
+  let revokedByName: string | null = null
+  if (revokedBy) {
+    try {
+      const revoker = await ctx.db.get(revokedBy as Id<"users">)
+      revokedByName = revoker?.name ?? null
+    } catch {
+      revokedByName = null
+    }
+  }
+
   return {
     id: certificate._id,
     serial: certificate.serial,
@@ -99,6 +132,8 @@ export async function certificateOverview(
     assessmentScore: certificate.snapshot.assessmentScore,
     revokedAt: certificate.revokedAt ?? null,
     revokeReason: certificate.revokeReason ?? null,
+    revokedBy,
+    revokedByName,
     replacedByCode: replacedBy?.publicCode ?? null,
     scope:
       certificate.status === "issued"
@@ -106,11 +141,22 @@ export async function certificateOverview(
         : certificate.status === "revoked"
           ? "Cakupan penjualan untuk jalur ini dicabut."
           : "Diganti dengan kode publik terbaru.",
+    events: eventRows
+      .sort((a, b) => a.createdAt - b.createdAt)
+      .map((event) => ({
+        id: event._id,
+        kind: event.kind,
+        actorId: event.actorId,
+        actorName: actorNameById.get(event.actorId) ?? null,
+        reason: event.reason ?? null,
+        createdAt: event.createdAt,
+      })),
     workCards: workCards.map((card) => ({
       id: card._id,
       serial: card.serial,
       title: card.title,
       status: card.status,
+      accessLevel: card.accessLevel,
     })),
   }
 }

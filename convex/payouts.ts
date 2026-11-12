@@ -54,7 +54,7 @@ async function toPayoutView(
   return {
     id: payout._id,
     teacherId: payout.teacherId,
-    teacherName: teacher?.name ?? "Pengajar",
+    teacherName: teacher?.name ?? "Tidak ditemukan",
     orderId: payout.orderId ?? null,
     orderCode: order?.code ?? null,
     workTitle: work?.title ?? null,
@@ -532,11 +532,19 @@ export const reversePayout = mutation({
       updatedAt: timestamp,
     })
 
+    const originalEntries = await ctx.db
+      .query("ledgerEntries")
+      .withIndex("by_payoutId", (q) => q.eq("payoutId", payout._id))
+      .collect()
+
     for (const entry of [
       { account: "teacher" as const, amount: payout.teacherShare },
       { account: "platform" as const, amount: payout.platformShare },
       { account: "community" as const, amount: payout.communityShare },
     ]) {
+      const original = originalEntries.find(
+        (row) => row.account === entry.account && row.entryType === "sale",
+      )
       await ctx.db.insert("ledgerEntries", {
         orderId: payout.orderId,
         paymentId: payout.paymentId,
@@ -547,6 +555,7 @@ export const reversePayout = mutation({
         amount: entry.amount,
         currency: "IDR",
         entryType: "reversal",
+        reversalOf: original?._id,
         createdBy: viewer.userId,
         reason,
         createdAt: timestamp,
@@ -665,8 +674,7 @@ async function toRefundView(
 ): Promise<RefundView> {
   const order = await ctx.db.get(refund.orderId)
   if (!order) notFound("Pesanan tidak ditemukan.")
-  const [buyer, seller, work, payouts] = await Promise.all([
-    order.buyerUserId ? ctx.db.get(order.buyerUserId) : null,
+  const [seller, work, payouts] = await Promise.all([
     ctx.db.get(order.sellerId),
     order.workId ? ctx.db.get(order.workId) : null,
     ctx.db
@@ -680,9 +688,9 @@ async function toRefundView(
     id: refund._id,
     orderId: order._id,
     orderCode: order.code,
-    buyerName: buyer?.name ?? order.buyerName,
-    sellerName: seller?.name ?? "Penjual",
-    workTitle: work?.title ?? "Karya",
+    buyerName: order.buyerName,
+    sellerName: seller?.name ?? "Tidak ditemukan",
+    workTitle: work?.title ?? "Tidak ditemukan",
     amount: refund.amount,
     baseAmount: order.baseAmount,
     reason: refund.reason,
@@ -890,11 +898,18 @@ export const payRefund = mutation({
 
     // The payment stays `paid`; the refund is recorded separately. Only
     // reversal entries are added to the append-only ledger.
+    const originalEntries = await ctx.db
+      .query("ledgerEntries")
+      .withIndex("by_orderId", (q) => q.eq("orderId", order._id))
+      .collect()
     for (const entry of [
       { account: "teacher" as const, amount: split.teacherShare },
       { account: "platform" as const, amount: split.platformShare },
       { account: "community" as const, amount: split.communityShare },
     ]) {
+      const original = originalEntries.find(
+        (row) => row.account === entry.account && row.entryType === "sale",
+      )
       await ctx.db.insert("ledgerEntries", {
         orderId: order._id,
         paymentId: refund.paymentId,
@@ -906,6 +921,7 @@ export const payRefund = mutation({
         amount: entry.amount,
         currency: "IDR",
         entryType: "reversal",
+        reversalOf: original?._id,
         createdBy: viewer.userId,
         reason,
         createdAt: timestamp,

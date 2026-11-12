@@ -269,6 +269,24 @@ function LogDrawer({
               {detail.detail || "Tidak ada detail tambahan."}
             </p>
           </DrawerSection>
+          <DrawerSection title="Sebelum">
+            {detail.before ? (
+              <pre className="overflow-x-auto border border-ink/15 bg-panel/30 p-2.5 text-[10px] leading-relaxed text-ink-soft">
+                {JSON.stringify(detail.before, null, 2)}
+              </pre>
+            ) : (
+              <p className="text-[11.5px] text-ink-muted">Belum diisi.</p>
+            )}
+          </DrawerSection>
+          <DrawerSection title="Sesudah">
+            {detail.after ? (
+              <pre className="overflow-x-auto border border-ink/15 bg-panel/30 p-2.5 text-[10px] leading-relaxed text-ink-soft">
+                {JSON.stringify(detail.after, null, 2)}
+              </pre>
+            ) : (
+              <p className="text-[11.5px] text-ink-muted">Belum diisi.</p>
+            )}
+          </DrawerSection>
           <DrawerSection title="Peristiwa terkait">
             {detail.correlation.events.length === 0 ? (
               <p className="text-[11.5px] text-ink-muted">

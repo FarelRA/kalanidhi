@@ -621,6 +621,7 @@ describe("calls / recording consent", () => {
     expect(initial.recordingConsent).toBe("pending")
     expect(initial.recordingEnabled).toBe(false)
     expect(initial.recordingConsentRequired).toBe(2)
+    expect(initial.recordings).toEqual([])
 
     const first = await as(t, "auth-student").mutation(
       api.calls.setRecordingConsent,
@@ -644,6 +645,50 @@ describe("calls / recording consent", () => {
         }),
       ),
     ).toBe("NOT_FOUND")
+  })
+
+  it("[P5-CALL-14c] call detail reads recording metadata with consent names and access count", async () => {
+    const t = createDb()
+    const world = await seedWorld(t)
+    const conversationId = await directConversation(
+      t,
+      "auth-student",
+      world.teacherId,
+    )
+    const { callId } = await as(t, "auth-student").mutation(api.calls.startCall, {
+      conversationId,
+      kind: "audio",
+    })
+
+    const retentionUntil = Date.now() + 30 * 86_400_000
+    await t.run(async (ctx) => {
+      const assetId = await ctx.storage.store(new Blob(["recording"]))
+      await ctx.db.insert("callRecordings", {
+        callId,
+        assetId,
+        consentedBy: [world.studentId, world.teacherId],
+        retentionUntil,
+        accessLog: [
+          {
+            actorId: world.adminId,
+            reason: "Meninjau sengketa penilaian",
+            accessedAt: Date.now(),
+          },
+        ],
+        createdAt: Date.now(),
+      })
+    })
+
+    const call = await as(t, "auth-student").query(api.calls.getCall, { callId })
+    expect(call.recordings).toHaveLength(1)
+    expect(call.recordings[0]?.retentionUntil).toBe(retentionUntil)
+    expect(call.recordings[0]?.accessLogCount).toBe(1)
+    expect(call.recordings[0]?.consentedBy.map((item) => item.userId).sort()).toEqual(
+      [world.studentId, world.teacherId].sort(),
+    )
+    expect(call.recordings[0]?.consentedBy.map((item) => item.name)).toContain(
+      "Bambang Hardjono",
+    )
   })
 
   it("[P5-CALL-14b] one refusal keeps recording declined and cannot be reopened by the other party", async () => {
@@ -695,6 +740,71 @@ describe("calls / room naming", () => {
       callId,
     })
     expect(stored.roomName).toBe(`kn-call-${callId}`)
+  })
+})
+
+describe("calls / end metadata", () => {
+  it("[P5-CALL-23] call detail exposes who ended the call, the reason, and the stored recording flag", async () => {
+    const t = createDb()
+    const world = await seedWorld(t)
+    const conversationId = await directConversation(
+      t,
+      "auth-student",
+      world.teacherId,
+    )
+    const { callId } = await as(t, "auth-student").mutation(api.calls.startCall, {
+      conversationId,
+      kind: "audio",
+    })
+    await as(t, "auth-student").mutation(api.calls.accept, { callId })
+    await as(t, "auth-student").mutation(api.calls.end, {
+      callId,
+      reason: "Sesi selesai lebih awal",
+    })
+
+    const ended = await as(t, "auth-student").query(api.calls.getCall, {
+      callId,
+    })
+    expect(ended.endedBy).toBe(world.studentId)
+    expect(ended.endedByName).toBe("Anisa Rahmawati")
+    expect(ended.endReason).toBe("Sesi selesai lebih awal")
+    expect(ended.cancelledAt).toBeNull()
+    expect(ended.recordingEnabled).toBe(false)
+
+    await t.run(async (ctx) => {
+      await ctx.db.patch(callId, { recordingEnabled: true })
+    })
+    const stored = await as(t, "auth-student").query(api.calls.getCall, {
+      callId,
+    })
+    expect(stored.recordingEnabled).toBe(true)
+  })
+
+  it("[P5-CALL-24] a cancelled call exposes cancelledAt and the cancellation reason", async () => {
+    const t = createDb()
+    const world = await seedWorld(t)
+    const conversationId = await directConversation(
+      t,
+      "auth-student",
+      world.teacherId,
+    )
+    const { callId } = await as(t, "auth-student").mutation(api.calls.scheduleCall, {
+      conversationId,
+      kind: "video",
+      startsAt: Date.now() + 60 * 60_000,
+    })
+    await as(t, "auth-student").mutation(api.calls.cancelCall, {
+      callId,
+      reason: "Jadwal bergeser",
+    })
+
+    const cancelled = await as(t, "auth-student").query(api.calls.getCall, {
+      callId,
+    })
+    expect(cancelled.status).toBe("cancelled")
+    expect(cancelled.cancelledAt).toBeTypeOf("number")
+    expect(cancelled.endReason).toBe("Jadwal bergeser")
+    expect(cancelled.endedByName).toBeNull()
   })
 })
 

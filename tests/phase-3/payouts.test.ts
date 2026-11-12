@@ -245,6 +245,31 @@ describe("payout ledger", () => {
     expect(ledger).toEqual([])
   })
 
+  it("[P3-PYT-09] ledger rows expose the entry they reverse", async () => {
+    const t = createTestDb()
+    const { seller, payout } = await paidOrder(t, {
+      sellerAuth: "auth-ledger-reversal-seller",
+    })
+    await seedSellerPayoutAccount(t, seller.userId)
+    await seedAccount(t, {
+      authUserId: "auth-ledger-reversal-admin",
+      roles: ["admin"],
+    })
+    const admin = t.withIdentity({ subject: "auth-ledger-reversal-admin" })
+    const payoutId = payout?._id as Id<"payouts">
+    await admin.mutation(api.payouts.approvePayout, { payoutId })
+    await admin.mutation(api.payouts.releasePayout, { payoutId })
+    await admin.mutation(api.payouts.reversePayout, {
+      payoutId,
+      reason: "Transfer gagal dan dana dikembalikan.",
+    })
+
+    const rows = await admin.query(api.payouts.listLedger, {})
+    const reversals = rows.filter((entry) => entry.entryType === "reversal")
+    expect(reversals).toHaveLength(3)
+    expect(reversals.every((entry) => entry.reversalOf !== null)).toBe(true)
+  })
+
   it("[P3-PAY-68] a seller statement reconciles to ledger rows", async () => {
     const t = createTestDb()
     const { seller } = await paidOrder(t, { sellerAuth: "auth-statement-seller" })

@@ -46,11 +46,24 @@ function integrationLabel(key: string): string {
   }[key] ?? key
 }
 
+function deliveryTone(
+  status: "pending" | "delivered" | "failed" | "dead",
+): "done" | "wait" | "danger" | "muted" {
+  if (status === "delivered") return "done"
+  if (status === "pending") return "wait"
+  if (status === "failed") return "danger"
+  return "muted"
+}
+
 export function SettingsPanelLive() {
   const { can } = useViewer()
   const admin = can("settings.platform")
   const profile = useQuery(api.settings.profile)
   const adminState = useQuery(api.settings.adminState, admin ? {} : "skip")
+  const deliveries = useQuery(
+    api.notifications.listDeliveries,
+    admin ? { limit: 20 } : "skip",
+  )
   const updateProfile = useMutation(api.settings.updateProfile)
   const updatePreferences = useMutation(api.settings.updatePreferences)
   const setConsent = useMutation(api.settings.setConsent)
@@ -472,6 +485,11 @@ export function SettingsPanelLive() {
           {adminState.flags.map((flag) => (
             <Panel key={flag.id} eyebrow="Flag" title={flag.key}>
               <p className="text-[10.5px] leading-relaxed text-ink-muted">{flag.description}</p>
+              <p className="mt-1 text-[9px] text-ink-muted">
+                Terakhir diperbarui oleh{" "}
+                {flag.updatedByName ?? "Akun tidak ditemukan"} ·{" "}
+                {formatDateTime(flag.updatedAt)}
+              </p>
               <div className="mt-3 flex items-center justify-between gap-2">
                 <StatusStamp label={flag.enabled ? "Aktif" : "Mati"} tone={flag.enabled ? "done" : "muted"} />
                 <Button
@@ -559,6 +577,12 @@ export function SettingsPanelLive() {
                   <p className="text-[11.5px] font-semibold">{key.name}</p>
                   <p className="mt-0.5 text-[9.5px] text-ink-muted">
                     {key.keyPrefix ?? "tanpa awalan"} · {key.scopes.join(", ")} · {key.status}
+                  </p>
+                  <p className="mt-0.5 text-[9px] text-ink-muted">
+                    {key.rotatedFrom
+                      ? `Diputar dari ${key.rotatedFrom}`
+                      : "Belum pernah diputar"}
+                    {key.rotatedTo ? ` · digantikan oleh ${key.rotatedTo}` : ""}
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -660,6 +684,7 @@ export function SettingsPanelLive() {
       ) : null}
 
       {admin && activeTab === "webhooks" && adminState ? (
+        <div className="space-y-4">
         <Panel eyebrow="Webhook" title="Endpoint keluar">
           <ul className="divide-y divide-ink/10">
             {adminState.webhooks.map((endpoint) => (
@@ -734,6 +759,59 @@ export function SettingsPanelLive() {
             </div>
           ) : null}
         </Panel>
+        <Panel eyebrow="Pengiriman webhook" title="Riwayat pengiriman">
+          {deliveries === undefined ? (
+            <p className="text-[10.5px] text-ink-muted">Memuat riwayat pengiriman…</p>
+          ) : deliveries.length === 0 ? (
+            <EmptyState
+              title="Belum ada pengiriman webhook"
+              description="Baris akan muncul setelah peristiwa seperti order.paid diantrekan untuk endpoint aktif."
+            />
+          ) : (
+            <ul className="divide-y divide-ink/10">
+              {deliveries.map((delivery) => (
+                <li key={delivery.id} className="py-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="text-[11.5px] font-semibold">{delivery.event}</p>
+                      <p className="mt-0.5 text-[9.5px] text-ink-muted">
+                        {delivery.endpointName} · percobaan {delivery.attempts}
+                        {delivery.responseStatus
+                          ? ` · HTTP ${delivery.responseStatus}`
+                          : ""}
+                      </p>
+                    </div>
+                    <StatusStamp
+                      label={delivery.status}
+                      tone={deliveryTone(delivery.status)}
+                    />
+                  </div>
+                  {delivery.error ? (
+                    <p className="mt-1 text-[9.5px] text-[#9a3423]">{delivery.error}</p>
+                  ) : null}
+                  <p className="mt-1 text-[9px] text-ink-muted">
+                    Dibuat{" "}
+                    {new Intl.DateTimeFormat("id-ID", {
+                      dateStyle: "short",
+                      timeStyle: "short",
+                    }).format(new Date(delivery.createdAt))}
+                    {delivery.lastAttemptAt
+                      ? ` · terakhir ${new Intl.DateTimeFormat("id-ID", {
+                          timeStyle: "short",
+                        }).format(new Date(delivery.lastAttemptAt))}`
+                      : ""}
+                    {delivery.nextAttemptAt
+                      ? ` · berikutnya ${new Intl.DateTimeFormat("id-ID", {
+                          timeStyle: "short",
+                        }).format(new Date(delivery.nextAttemptAt))}`
+                      : ""}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
+        </div>
       ) : null}
 
       {admin && activeTab === "templates" && adminState ? (
@@ -849,10 +927,60 @@ export function SettingsPanelLive() {
               mengajukan jalur.
             </p>
           </Panel>
+          <Panel
+            className="lg:col-span-2"
+            eyebrow="Nilai tersimpan"
+            title="Pengaturan platform"
+            bodyClassName="p-0"
+          >
+            <ul className="divide-y divide-ink/10">
+              {adminState.settings.map((setting) => (
+                <li key={setting.key} className="px-4 py-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-[11.5px] font-semibold">{setting.label}</p>
+                    <span className="text-[9px] text-ink-muted">
+                      {setting.key}
+                    </span>
+                  </div>
+                  <p className="mt-1 break-all text-[10px] text-ink-soft">
+                    {formatSettingValue(setting.value)}
+                  </p>
+                  <p className="mt-1 text-[9px] text-ink-muted">
+                    Terakhir diperbarui oleh{" "}
+                    {setting.updatedByName ?? "Akun tidak ditemukan"}
+                    {setting.updatedAt
+                      ? ` · ${formatDateTime(setting.updatedAt)}`
+                      : ""}
+                  </p>
+                </li>
+              ))}
+            </ul>
+            {adminState.settings.length === 0 ? (
+              <p className="px-4 py-6 text-center text-[11px] text-ink-muted">
+                Belum ada pengaturan platform tersimpan.
+              </p>
+            ) : null}
+          </Panel>
         </div>
       ) : null}
     </div>
   )
+}
+
+function formatDateTime(timestamp: number): string {
+  return new Intl.DateTimeFormat("id-ID", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(timestamp))
+}
+
+function formatSettingValue(value: unknown): string {
+  if (value === null || value === undefined) return "Belum diisi"
+  if (typeof value === "string") return value
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value)
+  }
+  return JSON.stringify(value)
 }
 
 function SlaRow({

@@ -82,7 +82,10 @@ async function userNames(
   return new Map(users.map((user) => [user._id, user.name]))
 }
 
-function sourceView(source: Doc<"culturalSources">): CulturalSourceView {
+function sourceView(
+  source: Doc<"culturalSources">,
+  names: Map<string, string>,
+): CulturalSourceView {
   return {
     id: source._id,
     community: source.community,
@@ -98,8 +101,13 @@ function sourceView(source: Doc<"culturalSources">): CulturalSourceView {
     notes: source.notes ?? null,
     withdrawalStatus: source.withdrawalStatus,
     withdrawalReason: source.withdrawalReason ?? null,
+    withdrawalRequestedAt: source.withdrawalRequestedAt ?? null,
     withdrawnAt: source.withdrawnAt ?? null,
     status: source.status,
+    createdBy: source.createdBy ?? null,
+    createdByName: source.createdBy
+      ? (names.get(source.createdBy) ?? "Akun tidak ditemukan")
+      : null,
     createdAt: source.createdAt,
     updatedAt: source.updatedAt,
   }
@@ -114,6 +122,7 @@ export const listCulturalSources = query({
   handler: async (ctx, args): Promise<CulturalSourceView[]> => {
     await requireAdmin(ctx, "governance.manage")
     const needle = args.q?.trim().toLowerCase() ?? ""
+    const names = await userNames(ctx)
     const rows = await ctx.db.query("culturalSources").collect()
     return rows
       .filter((row) => !args.status || row.status === args.status)
@@ -125,7 +134,7 @@ export const listCulturalSources = query({
           .includes(needle)
       })
       .sort((a, b) => b.updatedAt - a.updatedAt)
-      .map(sourceView)
+      .map((row) => sourceView(row, names))
   },
 })
 
@@ -134,7 +143,9 @@ export const getCulturalSource = query({
   handler: async (ctx, args): Promise<CulturalSourceView | null> => {
     await requireAdmin(ctx, "governance.manage")
     const source = await ctx.db.get(args.sourceId)
-    return source ? sourceView(source) : null
+    if (!source) return null
+    const names = await userNames(ctx)
+    return sourceView(source, names)
   },
 })
 
@@ -230,6 +241,7 @@ export const updateCulturalSource = mutation({
       fail("SOURCE_WITHDRAWN", "Sumber yang ditarik tidak dapat diubah tanpa pemulihan.")
     }
     const timestamp = Date.now()
+    const names = await userNames(ctx)
     await ctx.db.patch(source._id, {
       community: args.community?.trim() ?? source.community,
       sourceName: args.sourceName?.trim() ?? source.sourceName,
@@ -252,7 +264,7 @@ export const updateCulturalSource = mutation({
       entityType: "culturalSources",
       entityId: source._id,
       reason,
-      before: sourceView(source),
+      before: sourceView(source, names),
       after: {
         accessLevel: args.accessLevel ?? source.accessLevel,
         status: args.status ?? source.status,
@@ -575,7 +587,7 @@ export const executeTakedown = mutation({
     if (request.targetType === "work") {
       const work = await ctx.db.get(request.targetId as Id<"works">)
       if (work) {
-        effects.before.push({ table: "works", id: work._id, status: work.status ?? "draft" })
+        effects.before.push({ table: "works", id: work._id, status: work.status as string })
         ownerId = work.makerId ?? null
         await ctx.db.patch(work._id, { status: "paused" })
         effects.items.push(`Karya ${work.title} dihentikan dari tayang.`)
@@ -775,9 +787,16 @@ function privacyView(
     status: request.status,
     reason: request.reason ?? null,
     resolution: request.resolution ?? null,
+    dataScope: request.dataScope ?? null,
+    evidence: request.evidence ?? null,
     retentionHoldUntil: request.retentionHoldUntil ?? null,
     deletionAppliedAt: request.deletionAppliedAt ?? null,
     handledBy: request.handledBy ?? null,
+    reviewedAt: request.reviewedAt ?? null,
+    completedBy: request.completedBy ?? null,
+    completedByName: request.completedBy
+      ? (names.get(request.completedBy) ?? "Akun tidak ditemukan")
+      : null,
     createdAt: request.createdAt,
     updatedAt: request.updatedAt,
     completedAt: request.completedAt ?? null,
@@ -1233,6 +1252,10 @@ export const listBreakGlass = query({
       createdAt: row.createdAt,
       expiresAt: row.expiresAt,
       revokedAt: row.revokedAt ?? null,
+      revokedBy: row.revokedBy ?? null,
+      revokedByName: row.revokedBy
+        ? (names.get(row.revokedBy) ?? "Akun tidak ditemukan")
+        : null,
       active: !row.revokedAt && row.expiresAt > timestamp,
     }))
     const messageViews: BreakGlassView[] = messages.map((row) => ({
@@ -1246,6 +1269,8 @@ export const listBreakGlass = query({
       createdAt: row.createdAt,
       expiresAt: row.expiresAt,
       revokedAt: row.revokedAt ?? null,
+      revokedBy: null,
+      revokedByName: null,
       active: !row.revokedAt && row.expiresAt > timestamp,
     }))
     const rows = [...recordViews, ...messageViews].sort(

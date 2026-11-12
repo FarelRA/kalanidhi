@@ -443,6 +443,14 @@ export function PaymentConsoleLive() {
                   value: formatCommerceDateTime(selected.expiresAt),
                 },
                 { label: "Dibayar", value: formatCommerceDateTime(selected.paidAt) },
+                {
+                  label: "Event settlement",
+                  value: selected.settledEventId ?? "Belum ada",
+                },
+                {
+                  label: "Kunci idempotensi",
+                  value: selected.idempotencyKey ?? "Belum diisi",
+                },
               ]}
             />
             {selected.reconciliationReason ? (

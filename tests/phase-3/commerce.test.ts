@@ -266,6 +266,7 @@ describe("works / scope and moderation", () => {
       slug: await workSlug(t, published),
     })
     expect(view?.title).toBe("Kain tayang")
+    expect(view?.permission).toBe("Izin komunitas Giriloyo")
     expect(view && "makerId" in view).toBe(false)
     expect(view && "certificateId" in view).toBe(false)
     expect(view && "status" in view).toBe(false)
@@ -726,6 +727,50 @@ describe("order lifecycle and access scope", () => {
   })
 })
 
+describe("order line items", () => {
+  it("[P3-ORD-30] order detail returns the stored line items", async () => {
+    const t = createTestDb()
+    const seller = await seedSeller(t, { authUserId: "auth-items-seller" })
+    await admin(t)
+    const workId = await seedPublishedWork(t, { makerId: seller.userId })
+    const checkout = await createGuestCheckout(t, { workId })
+
+    const view = await t
+      .withIdentity({ subject: "auth-admin" })
+      .query(api.commerce.getOrder, { orderId: checkout.orderId })
+
+    expect(view.items).toHaveLength(1)
+    expect(view.items[0]).toMatchObject({
+      kind: "work",
+      title: "Kain Soga Anyaman",
+      quantity: 1,
+      unitAmount: 1_450_000,
+      totalAmount: 1_450_000,
+    })
+  })
+
+  it("[P3-ORD-31] an order without line items returns an empty array", async () => {
+    const t = createTestDb()
+    const seller = await seedSeller(t, { authUserId: "auth-no-items-seller" })
+    await admin(t)
+    const workId = await seedPublishedWork(t, { makerId: seller.userId })
+    const checkout = await createGuestCheckout(t, { workId })
+
+    await t.run(async (ctx) => {
+      const items = await ctx.db
+        .query("orderItems")
+        .withIndex("by_orderId", (q) => q.eq("orderId", checkout.orderId))
+        .collect()
+      for (const item of items) await ctx.db.delete(item._id)
+    })
+
+    const view = await t
+      .withIdentity({ subject: "auth-admin" })
+      .query(api.commerce.getOrder, { orderId: checkout.orderId })
+    expect(view.items).toEqual([])
+  })
+})
+
 describe("order disputes", () => {
   it("[P3-RFD-06] a dispute follows open → reviewing → resolved → closed", async () => {
     const t = createTestDb()
@@ -773,5 +818,70 @@ describe("order disputes", () => {
 
     const dispute = await t.run(async (ctx) => ctx.db.get(opened.disputeId))
     expect(dispute?.status).toBe("closed")
+  })
+})
+
+describe("order and dispute read models", () => {
+  it("[P3-ORD-32] order detail exposes cancellation and consent fields", async () => {
+    const t = createTestDb()
+    const seller = await seedSeller(t, { authUserId: "auth-consent-view-seller" })
+    await admin(t)
+    const workId = await seedPublishedWork(t, { makerId: seller.userId })
+    const checkout = await createGuestCheckout(t, { workId })
+
+    await t.withIdentity({ subject: "auth-admin" }).mutation(api.commerce.cancelOrder, {
+      orderId: checkout.orderId,
+      reason: "Pembeli membatalkan sebelum membayar.",
+    })
+
+    const view = await t
+      .withIdentity({ subject: "auth-admin" })
+      .query(api.commerce.getOrder, { orderId: checkout.orderId })
+    expect(view.cancelledAt).toBeTypeOf("number")
+    expect(view.cancelReason).toContain("membatalkan")
+    expect(view.consentVersion).toBeTruthy()
+    expect(view.consentAt).toBeTypeOf("number")
+  })
+
+  it("[P3-RFD-07] a reviewed dispute exposes the assigned reviewer", async () => {
+    const t = createTestDb()
+    const seller = await seedSeller(t, { authUserId: "auth-dispute-view-seller" })
+    const adminId = await admin(t)
+    await seedAccount(t, {
+      authUserId: "auth-dispute-view-buyer",
+      email: "dispute-view@example.test",
+    })
+    const workId = await seedPublishedWork(t, { makerId: seller.userId })
+    const checkout = await createGuestCheckout(t, {
+      workId,
+      buyerEmail: "dispute-view@example.test",
+    })
+    await t
+      .withIdentity({ subject: "auth-dispute-view-buyer" })
+      .mutation(api.commerce.claimOrder, { token: checkout.token })
+    const charge = await createChargeForCheckout(t, checkout)
+    await settleViaWebhook(t, {
+      chargeId: charge.chargeId,
+      orderCode: charge.code,
+      amount: charge.uniqueAmount,
+      paidAt: charge.paymentCreatedAt + 1_000,
+    })
+
+    const opened = await t
+      .withIdentity({ subject: "auth-dispute-view-buyer" })
+      .mutation(api.commerce.openOrderDispute, {
+        orderId: checkout.orderId,
+        reason: "Barang tidak sesuai deskripsi.",
+      })
+    await t
+      .withIdentity({ subject: "auth-admin" })
+      .mutation(api.commerce.reviewOrderDispute, { disputeId: opened.disputeId })
+
+    const disputes = await t
+      .withIdentity({ subject: "auth-admin" })
+      .query(api.commerce.listOrderDisputes, {})
+    const view = disputes.find((row) => row.id === opened.disputeId)
+    expect(view?.assignedTo).toBe(adminId)
+    expect(view?.assigneeName).toBe("Nadia Kusuma")
   })
 })

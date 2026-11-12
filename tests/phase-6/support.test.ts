@@ -40,6 +40,8 @@ describe("support / ticket lifecycle", () => {
     })
     expect(detail?.priority).toBe("high")
     expect(detail?.assigneeId).toBe(world.adminId)
+    expect(detail?.assignedBy).toBe(world.adminId)
+    expect(detail?.assignedByName).toBe("Nadia Kusuma")
     expect(detail?.links).toEqual([
       { type: "work", id: workId, label: "Kain Soga Giriloyo" },
     ])
@@ -166,6 +168,9 @@ describe("support / ticket lifecycle", () => {
       ticketId,
     })
     expect(resolved?.status).toBe("resolved")
+    expect(resolved?.resolvedBy).toBe(world.adminId)
+    expect(resolved?.resolvedByName).toBe("Nadia Kusuma")
+    expect(resolved?.lastResponseAt).toBeTypeOf("number")
 
     await as(t, "auth-admin").mutation(api.support.close, {
       ticketId,

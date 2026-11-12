@@ -10,6 +10,7 @@ import type {
 } from "../lib/commerce/types"
 import type { Doc, Id } from "./_generated/dataModel"
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"
+import { enqueueWebhookDelivery } from "./dispatch"
 import {
   assertInternalKey,
   assertNotOwnMoney,
@@ -55,8 +56,7 @@ async function toIntentView(
 ): Promise<PaymentIntentView> {
   const order = await ctx.db.get(payment.orderId)
   if (!order) notFound("Pesanan tidak ditemukan.")
-  const [buyer, seller, work] = await Promise.all([
-    order.buyerUserId ? ctx.db.get(order.buyerUserId) : null,
+  const [seller, work] = await Promise.all([
     ctx.db.get(order.sellerId),
     order.workId ? ctx.db.get(order.workId) : null,
   ])
@@ -65,9 +65,9 @@ async function toIntentView(
     id: payment._id,
     orderId: order._id,
     orderCode: order.code,
-    buyerName: buyer?.name ?? order.buyerName,
-    sellerName: seller?.name ?? "Penjual",
-    workTitle: work?.title ?? "Karya",
+    buyerName: order.buyerName,
+    sellerName: seller?.name ?? "Tidak ditemukan",
+    workTitle: work?.title ?? "Tidak ditemukan",
     provider: payment.provider,
     providerChargeId: payment.providerChargeId,
     providerReference: payment.providerReference ?? null,
@@ -84,6 +84,8 @@ async function toIntentView(
     paidAt: payment.paidAt ?? null,
     createdAt: payment.createdAt,
     lastReconciledAt: payment.lastReconciledAt ?? null,
+    settledEventId: payment.settledEventId ?? null,
+    idempotencyKey: payment.idempotencyKey ?? null,
     isLate: payment.expiresAt + PAYMENT_SKEW_MS < now(),
   }
 }
@@ -789,7 +791,7 @@ export const settleFromWebhook = mutation({
       return { status: "late", orderId: order._id, paymentId: payment._id }
     }
 
-    return await settle(ctx, {
+    const result = await settle(ctx, {
       payment,
       order,
       providerTransactionId: args.providerTransactionId,
@@ -801,6 +803,15 @@ export const settleFromWebhook = mutation({
       actorRole: "Sistem",
       reason: "Pembayaran diselesaikan dari webhook gateway terverifikasi.",
     })
+
+    // Queue outbound partner webhooks in the same transaction. The dispatcher
+    // performs the network call later; this mutation never blocks on a partner.
+    await enqueueWebhookDelivery(ctx, {
+      event: "order.paid",
+      eventId: `order.paid:${order._id}:${args.eventId}`,
+    })
+
+    return result
   },
 })
 

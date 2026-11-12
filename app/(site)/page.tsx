@@ -13,13 +13,14 @@ import { SeasonNote } from "@/components/landing/season-note"
 import { WorksShelf } from "@/components/landing/works-shelf"
 import { WorkshopRules } from "@/components/landing/workshop-rules"
 import { getSiteData } from "@/lib/convex/server"
+import { buildPageMetadata } from "@/lib/content/metadata"
 import { buildLandingJsonLd } from "@/lib/structured-data"
 
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getSiteData()
 
-  return {
+  return buildPageMetadata("/", {
     title: {
       absolute: data.metadata.title,
     },
@@ -27,7 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: {
       canonical: "/",
     },
-  }
+  })
 }
 
 export default async function HomePage() {

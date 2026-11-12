@@ -11,6 +11,7 @@ import type {
   CatalogField,
   Faq,
   LearningPath,
+  SeoOverride,
   SiteCopy,
   SiteData,
   Teacher,
@@ -319,6 +320,34 @@ export async function assemblePublishedSite(
     }
   }
 
+  const teacherByUserId = new Map(
+    teachers
+      .filter((teacher) => teacher.userId)
+      .map((teacher) => [teacher.userId as string, teacher] as const),
+  )
+
+  const resolvePath = async (path: Doc<"paths">) => {
+    const resolved = await resolveEntity(path)
+    if (!path.teacherId) return resolved
+    const profile = teacherByUserId.get(path.teacherId)
+    let teacherName = profile?.name
+    if (!teacherName) {
+      try {
+        const user = await ctx.db.get(path.teacherId as Id<"users">)
+        teacherName = user?.name
+      } catch {
+        teacherName = undefined
+      }
+    }
+    if (!teacherName) return resolved
+    return {
+      ...resolved,
+      teacher: teacherName,
+      teacherRole:
+        path.teacherRole || profile?.specialty || resolved.teacherRole,
+    }
+  }
+
   return {
     ...copy,
     catalog: {
@@ -330,13 +359,13 @@ export async function assemblePublishedSite(
         paths.filter((path) => path.status !== "archived"),
         featured?.pathSlugs,
         (path) => path.slug,
-      ).map((path) => resolveEntity(path)),
+      ).map((path) => resolvePath(path)),
     ),
     teachers: await Promise.all(
       orderByKeys(
         teachers.filter(
           (teacher) =>
-            teacher.published !== false &&
+            teacher.published === true &&
             teacher.status !== "review" &&
             teacher.status !== "suspended",
         ),
@@ -348,7 +377,7 @@ export async function assemblePublishedSite(
       orderByKeys(
         works.filter(
           (work) =>
-            work.status === undefined || work.status === "published",
+            work.status === "published",
         ),
         featured?.workSlugs,
         (work) => work.slug,
@@ -367,6 +396,34 @@ export const getSite = query({
   args: {},
   handler: async (ctx): Promise<SiteData | null> => {
     return await assemblePublishedSite(ctx)
+  },
+})
+
+/**
+ * Per-route SEO override. Returns null when the route has no override so the
+ * caller can fall back to the content defaults.
+ */
+export const getSeoOverride = query({
+  args: { route: v.string() },
+  handler: async (ctx, args): Promise<SeoOverride | null> => {
+    const route = args.route.trim()
+    if (!route) return null
+    const override = await ctx.db
+      .query("seoOverrides")
+      .withIndex("by_route", (q) => q.eq("route", route))
+      .unique()
+    if (!override) return null
+    return {
+      route: override.route,
+      title: override.title,
+      description: override.description,
+      ogTitle: override.ogTitle ?? null,
+      ogDescription: override.ogDescription ?? null,
+      canonical: override.canonical ?? null,
+      keywords: override.keywords ?? null,
+      robots: override.robots ?? null,
+      updatedAt: override.updatedAt,
+    }
   },
 })
 
@@ -1284,7 +1341,7 @@ export const getFeaturedOptions = query({
       teachers: teachers
         .filter(
           (teacher) =>
-            teacher.published !== false &&
+            teacher.published === true &&
             teacher.status !== "review" &&
             teacher.status !== "suspended",
         )
@@ -1292,7 +1349,7 @@ export const getFeaturedOptions = query({
       works: works
         .filter(
           (work) =>
-            work.status === undefined || work.status === "published",
+            work.status === "published",
         )
         .map((work) => ({ slug: work.slug, title: work.title })),
       testimonials: testimonials.map((testimonial) => ({
@@ -1353,7 +1410,7 @@ export const setFeatured = mutation({
       teachers
         .filter(
           (teacher) =>
-            teacher.published !== false &&
+            teacher.published === true &&
             teacher.status !== "review" &&
             teacher.status !== "suspended",
         )
@@ -1363,7 +1420,7 @@ export const setFeatured = mutation({
       works
         .filter(
           (work) =>
-            work.status === undefined || work.status === "published",
+            work.status === "published",
         )
         .map((work) => work.slug),
     )

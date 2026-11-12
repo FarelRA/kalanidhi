@@ -3,6 +3,7 @@ import { v } from "convex/values"
 import type {
   AdminOverview,
   FunnelStep,
+  MetricHistoryReport,
   MetricResult,
   MetricsReport,
   OverviewQueueItem,
@@ -703,6 +704,62 @@ export const metrics = query({
       definitions,
       funnel: buildFunnel(data, range),
     }
+  },
+})
+
+function dateKey(timestamp: number): string {
+  return new Date(timestamp + PRODUCT_OFFSET_MS).toISOString().slice(0, 10)
+}
+
+/**
+ * Active metric definitions plus their materialised daily series. Rows with a
+ * dimension are breakdowns, so the daily trend uses the undimensioned rows.
+ */
+export const metricHistory = query({
+  args: { from: v.optional(v.number()), to: v.optional(v.number()) },
+  handler: async (ctx, args): Promise<MetricHistoryReport> => {
+    await requireAdmin(ctx, "stats.read")
+    const range = resolveRange(args.from, args.to)
+    const fromDate = dateKey(range.from)
+    const toDate = dateKey(range.to)
+
+    const definitions = await ctx.db
+      .query("metricDefinitions")
+      .withIndex("by_key")
+      .collect()
+    const active = definitions
+      .filter((definition) => definition.active)
+      .sort((a, b) => a.label.localeCompare(b.label, "id"))
+
+    const series = await Promise.all(
+      active.map(async (definition) => {
+        const rows = await ctx.db
+          .query("dailyMetrics")
+          .withIndex("by_metric_date", (q) =>
+            q
+              .eq("metricKey", definition.key)
+              .gte("date", fromDate)
+              .lte("date", toDate),
+          )
+          .collect()
+        const points = rows
+          .filter((row) => row.dimension === undefined)
+          .sort((a, b) => a.date.localeCompare(b.date))
+          .map((row) => ({ date: row.date, value: row.value }))
+
+        return {
+          key: definition.key,
+          label: definition.label,
+          definition: definition.definition,
+          formula: definition.formula,
+          owner: definition.owner,
+          version: definition.version,
+          points,
+        }
+      }),
+    )
+
+    return { generatedAt: now(), range, definitions: series }
   },
 })
 

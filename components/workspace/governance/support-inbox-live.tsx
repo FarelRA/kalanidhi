@@ -53,6 +53,15 @@ function ageLabel(minutes: number): string {
   return `${Math.floor(hours / 24)} hari`
 }
 
+function dateTimeLabel(value: number | null): string {
+  if (value === null) return "—"
+  return new Intl.DateTimeFormat("id-ID", {
+    timeZone: "Asia/Jakarta",
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(new Date(value))
+}
+
 export function SupportInboxLive() {
   const { can } = useViewer()
   const admin = can("support.manage")
@@ -305,6 +314,11 @@ export function SupportInboxLive() {
                 <p className="mt-1 text-[10px] text-ink-muted">
                   {detail.requesterName} · pemilik {detail.assigneeName ?? "belum ada"}
                   {detail.escalatedTo ? ` · eskalasi ${detail.escalatedTo}` : ""}
+                </p>
+                <p className="mt-1 text-[10px] text-ink-muted">
+                  Ditugaskan oleh {detail.assignedByName ?? "—"} · Diselesaikan oleh{" "}
+                  {detail.resolvedByName ?? "—"} · Respons terakhir{" "}
+                  {dateTimeLabel(detail.lastResponseAt)}
                 </p>
               </div>
               <div className="flex flex-wrap gap-1.5">

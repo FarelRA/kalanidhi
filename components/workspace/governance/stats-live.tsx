@@ -12,7 +12,7 @@ import { PageHeader } from "@/components/workspace/data/page-header"
 import { Panel } from "@/components/workspace/data/panel"
 import { api } from "@/convex/_generated/api"
 import { downloadCsv } from "@/lib/admin/csv"
-import type { MetricResult } from "@/lib/admin/types"
+import type { MetricHistoryPoint, MetricResult } from "@/lib/admin/types"
 import { useMutation, useQuery } from "convex/react"
 
 function toDateInput(timestamp: number): string {
@@ -44,6 +44,39 @@ function formatMetric(metric: MetricResult): string {
   )
 }
 
+function formatHistoryValue(value: number): string {
+  return new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(
+    value,
+  )
+}
+
+function MetricTrend({ points }: { points: MetricHistoryPoint[] }) {
+  const max = Math.max(...points.map((point) => Math.abs(point.value)), 0)
+
+  return (
+    <div
+      className="flex h-10 items-end gap-0.5"
+      role="img"
+      aria-label={`Tren harian ${points.length} titik`}
+    >
+      {points.map((point) => {
+        const height =
+          max > 0
+            ? Math.max(2, Math.round((Math.abs(point.value) / max) * 100))
+            : 2
+        return (
+          <span
+            key={point.date}
+            title={`${point.date}: ${formatHistoryValue(point.value)}`}
+            className="min-w-0 flex-1 bg-copper-dark/70"
+            style={{ height: `${height}%` }}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
 function formatPrevious(metric: MetricResult): string {
   if (metric.previous === null) return "tanpa pembanding"
   if (metric.unit === "ratio") return `sebelumnya ${(metric.previous * 100).toFixed(1)}%`
@@ -67,6 +100,10 @@ export function StatsLive() {
   const [to, setTo] = React.useState(() => toDateInput(Date.now()))
   const [definition, setDefinition] = React.useState<string | null>(null)
   const report = useQuery(api.stats.metrics, {
+    from: fromDateInput(from),
+    to: fromDateInput(to, true),
+  })
+  const history = useQuery(api.stats.metricHistory, {
     from: fromDateInput(from),
     to: fromDateInput(to, true),
   })
@@ -212,6 +249,51 @@ export function StatsLive() {
           </Panel>
         </>
       )}
+
+      <Panel eyebrow="Riwayat" title="Riwayat metrik">
+        {history === undefined ? (
+          <p className="text-[11px] text-ink-muted">Memuat riwayat metrik…</p>
+        ) : history.definitions.length === 0 ? (
+          <EmptyState
+            title="Belum ada data"
+            description="Definisi metrik aktif belum tersedia. Riwayat akan muncul setelah definisi dan agregat harian diisi."
+          />
+        ) : (
+          <div className="space-y-3">
+            {history.definitions.map((series) => (
+              <div
+                key={series.key}
+                className="border border-ink/15 bg-paper/40 p-3"
+              >
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-ink">
+                    {series.label}
+                  </p>
+                  <p className="text-[9px] text-ink-muted">{series.formula}</p>
+                </div>
+                <p className="mt-1 text-[9.5px] leading-snug text-ink-muted">
+                  {series.definition}
+                </p>
+                <div className="mt-2">
+                  {series.points.length === 0 ? (
+                    <p className="text-[10px] text-ink-muted">Belum ada data</p>
+                  ) : (
+                    <>
+                      <MetricTrend points={series.points} />
+                      <div className="mt-1 flex justify-between text-[8.5px] text-ink-muted">
+                        <span>{series.points[0].date}</span>
+                        <span>
+                          {series.points[series.points.length - 1].date}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Panel>
 
       {selected ? (
         <Panel

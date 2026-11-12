@@ -82,6 +82,8 @@ describe("audit / append-only log", () => {
         (event) => event.entityId === target && event.action === "users.suspend",
       ),
     ).toBe(true)
+    expect(detail?.before).toEqual({ roles: ["student"] })
+    expect(detail?.after).toEqual({ roles: ["student", "teacher"] })
   })
 
   it("[P1-LOG-08] logs redact tokens, session values, and contact details", async () => {
@@ -126,6 +128,8 @@ describe("audit / append-only log", () => {
     expect(serialised).toContain("p***@example.test")
     expect(serialised).not.toContain("person@example.test")
     expect(serialised).not.toContain("secret-token-value")
+    expect(serialised).toContain("0 percobaan")
+    expect(serialised).toContain("Belum terkirim")
   })
 
   it("[P1-LOG-04] export is capsulated, logged, and scoped", async () => {

@@ -412,4 +412,108 @@ describe("learning / paths, cohorts, enrollment", () => {
     expect(enrollment?.studentId).toBe(fresh)
     expect(enrollment?.status).toBe("pending_payment")
   })
+
+  it("[P2-LRN-18] listPaths resolves the linked teacher and exposes teacherId", async () => {
+    const t = createPhase2Db()
+    const h = await seedPhase2(t)
+    await t.run(async (ctx) => {
+      const path = await ctx.db
+        .query("paths")
+        .withIndex("by_slug", (q) => q.eq("slug", h.pathId))
+        .unique()
+      if (path) {
+        await ctx.db.patch(path._id, {
+          teacherId: h.teacherId,
+          teacher: "Nama Lama",
+        })
+      }
+    })
+
+    const paths = await t
+      .withIdentity({ subject: "auth-student" })
+      .query(api.learning.listPaths, {})
+    const path = paths.find((row) => row.slug === h.pathId)
+    expect(path?.teacherId).toBe(h.teacherId)
+    expect(path?.teacherName).toBe("Bambang Hardjono")
+  })
+
+  it("[P2-LRN-19] cohort overview exposes the stored title and updated timestamp", async () => {
+    const t = createPhase2Db()
+    const h = await seedPhase2(t)
+
+    const cohorts = await t
+      .withIdentity({ subject: "auth-teacher" })
+      .query(api.learning.listCohorts, {})
+    expect(cohorts[0]?.title).toBe("Batik Tulis Soga · BTG-06")
+    expect(cohorts[0]?.updatedAt).toBe(NOW)
+
+    const detail = await t
+      .withIdentity({ subject: "auth-teacher" })
+      .query(api.learning.cohortDetail, { cohortId: h.cohortId })
+    expect(detail?.cohort.title).toBe("Batik Tulis Soga · BTG-06")
+    expect(detail?.cohort.updatedAt).toBe(NOW)
+  })
+
+  it("[P2-LRN-20] enrollment overview exposes withdrawal and completion timestamps", async () => {
+    const t = createPhase2Db()
+    const h = await seedPhase2(t)
+
+    await t.withIdentity({ subject: "auth-student" }).mutation(
+      api.learning.withdrawEnrollment,
+      { enrollmentId: h.enrollmentId, reason: "Alasan keluarga" },
+    )
+    const withdrawn = await t
+      .withIdentity({ subject: "auth-student" })
+      .query(api.learning.listEnrollments, {})
+    const withdrawnRow = withdrawn.find((item) => item.id === h.enrollmentId)
+    expect(withdrawnRow?.withdrawnAt).toBeGreaterThan(0)
+    expect(withdrawnRow?.withdrawReason).toBe("Alasan keluarga")
+    expect(withdrawnRow?.completedAt).toBeNull()
+
+    const other = await t
+      .withIdentity({ subject: "auth-student-other" })
+      .query(api.learning.listEnrollments, {})
+    const otherRow = other.find((item) => item.id === h.enrollmentOtherId)
+    expect(otherRow?.withdrawnAt).toBeNull()
+    expect(otherRow?.withdrawReason).toBeNull()
+  })
+
+  it("[P2-LRN-21] path overview exposes level, tags, outcome, includes, price label, and teacher role", async () => {
+    const t = createPhase2Db()
+    const h = await seedPhase2(t)
+
+    const paths = await t
+      .withIdentity({ subject: "auth-student" })
+      .query(api.learning.listPaths, {})
+    const path = paths.find((row) => row.slug === h.pathId)
+    expect(path?.level).toBe("Pemula")
+    expect(path?.teacherRole).toBe("Pengajar batik")
+    expect(path?.outcome).toBe("Kain")
+    expect(path?.tags).toEqual([])
+    expect(path?.includes).toEqual([])
+    expect(path?.priceLabel).toBeNull()
+    expect(path?.status).toBe("open")
+  })
+
+  it("[P2-LRN-22] enrollment detail exposes lesson completion dates", async () => {
+    const t = createPhase2Db()
+    const h = await seedPhase2(t)
+
+    await t.withIdentity({ subject: "auth-student" }).mutation(
+      api.learning.recordProgress,
+      {
+        enrollmentId: h.enrollmentId,
+        lessonId: h.lessonOneId,
+        state: "completed",
+      },
+    )
+
+    const detail = await t
+      .withIdentity({ subject: "auth-student" })
+      .query(api.learning.enrollmentDetail, { enrollmentId: h.enrollmentId })
+    const lesson = detail?.modules
+      .flatMap((module) => module.lessons)
+      .find((item) => item.id === h.lessonOneId)
+    expect(lesson?.completedAt).toBeGreaterThan(0)
+  })
 })

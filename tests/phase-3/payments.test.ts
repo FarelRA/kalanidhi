@@ -507,6 +507,27 @@ describe("payment intents and reconciliation", () => {
     ).rejects.toThrow()
   })
 
+  it("[P3-PAY-56] a settled intent exposes the settlement event and idempotency key", async () => {
+    const t = createTestDb()
+    const { checkout, charge } = await setupCheckout(t)
+    await t.run(async (ctx) => {
+      await ctx.db.patch(charge.paymentId, { idempotencyKey: "pay-idem-1" })
+    })
+    await settleViaWebhook(t, {
+      chargeId: charge.chargeId,
+      orderCode: charge.code,
+      amount: charge.uniqueAmount,
+      paidAt: charge.paymentCreatedAt + 1_000,
+      eventId: "evt_view",
+    })
+
+    const view = await t.query(api.payments.getIntentByToken, {
+      token: checkout.token,
+    })
+    expect(view?.settledEventId).toBe("evt_view")
+    expect(view?.idempotencyKey).toBe("pay-idem-1")
+  })
+
   it("[P3-PAY-70] health records require the internal key", async () => {
     const t = createTestDb()
     await expect(

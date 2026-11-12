@@ -264,15 +264,6 @@ export const contentTables = {
     answer: v.string(),
   }).index("by_order", ["order"]),
 
-  redirects: defineTable({
-    fromPath: v.string(),
-    toPath: v.string(),
-    statusCode: v.number(),
-    hits: v.number(),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  }).index("by_fromPath", ["fromPath"]),
-
   seoOverrides: defineTable({
     route: v.string(),
     title: v.string(),

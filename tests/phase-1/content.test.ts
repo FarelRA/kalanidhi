@@ -8,6 +8,7 @@ import {
   NOW,
   seedAdmin,
   seedContent,
+  seedStudent,
 } from "./fixtures"
 
 async function adminDb() {
@@ -442,5 +443,48 @@ describe("content CMS / entities and validation", () => {
     })
     const after = await t.query(api.content.getSite, {})
     expect(after?.teachers.some((teacher) => teacher.slug === "pengajar-draf")).toBe(false)
+  })
+})
+
+describe("content CMS / linked path teacher", () => {
+  it("[P1-CMS-34] a path linked by teacherId resolves the teacher profile", async () => {
+    const t = await adminDb()
+    await seedContent(t)
+    const teacherId = await seedStudent(t, "auth-path-teacher", "Sri Wahyuni")
+
+    await t.run(async (ctx) => {
+      const teacher = await ctx.db
+        .query("teachers")
+        .withIndex("by_order")
+        .first()
+      if (teacher) {
+        await ctx.db.patch(teacher._id, {
+          userId: teacherId,
+          name: "Sri Wahyuni",
+        })
+      }
+      const path = await ctx.db.query("paths").withIndex("by_order").first()
+      if (path) {
+        await ctx.db.patch(path._id, {
+          teacherId,
+          teacher: "Nama Lama",
+        })
+      }
+    })
+
+    const site = await t.query(api.content.getSite, {})
+    const path = site?.paths[0]
+    expect(path?.teacherId).toBe(teacherId)
+    expect(path?.teacher).toBe("Sri Wahyuni")
+  })
+
+  it("[P1-CMS-35] a path without teacherId keeps the stored teacher string", async () => {
+    const t = await adminDb()
+    await seedContent(t)
+
+    const site = await t.query(api.content.getSite, {})
+    const path = site?.paths[0]
+    expect(path?.teacherId).toBeUndefined()
+    expect(path?.teacher).toBeTruthy()
   })
 })

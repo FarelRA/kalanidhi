@@ -13,9 +13,15 @@ export type PathOverview = {
   title: string
   subtitle: string
   teacherName: string
+  teacherRole: string
   region: string
+  level: string
   status: LearningPathStatus
   price: number | null
+  priceLabel: string | null
+  tags: string[]
+  outcome: string
+  includes: string[]
   modules: number
   lessons: number
   weeks: number
@@ -36,6 +42,7 @@ export type CohortStatus =
 export type CohortOverview = {
   id: Id<"cohorts">
   code: string
+  title: string
   pathId: string
   pathTitle: string
   teacherId: Id<"users">
@@ -49,6 +56,7 @@ export type CohortOverview = {
   nextSessionAt: number | null
   status: CohortStatus
   timezone: string
+  updatedAt: number
 }
 
 export type EnrollmentStatus =
@@ -72,6 +80,9 @@ export type EnrollmentOverview = {
   nextTask: string
   certificateId: Id<"certificates"> | null
   deadlineAt: number | null
+  withdrawnAt: number | null
+  withdrawReason: string | null
+  completedAt: number | null
 }
 
 export type LessonProgressState = "not_started" | "in_progress" | "completed"
@@ -90,6 +101,7 @@ export type EnrollmentDetail = {
       estimatedMinutes: number
       state: LessonProgressState
       attendance: AttendanceState | null
+      completedAt: number | null
     }[]
   }[]
   submissions: {
@@ -190,6 +202,8 @@ export type SubmissionOverview = {
   assessmentId: Id<"assessments"> | null
   assessmentStatus: AssessmentStatus | null
   escalatedAt: number | null
+  escalatedBy: string | null
+  escalatedByName: string | null
   escalationReason: string | null
 }
 
@@ -206,11 +220,25 @@ export type AssessmentHistoryView = {
 }
 
 export type SubmissionDetail = SubmissionOverview & {
+  overrideReason: string | null
+  secondReviewerId: Id<"users"> | null
+  secondReviewerName: string | null
   history: AssessmentHistoryView[]
   disputes: DisputeOverview[]
 }
 
 export type CertificateStatus = "issued" | "revoked" | "replaced"
+
+export type CertificateEventKind = "issue" | "revoke" | "replace"
+
+export type CertificateEventView = {
+  id: Id<"certificateEvents">
+  kind: CertificateEventKind
+  actorId: string
+  actorName: string | null
+  reason: string | null
+  createdAt: number
+}
 
 export type CertificateOverview = {
   id: Id<"certificates">
@@ -228,13 +256,17 @@ export type CertificateOverview = {
   assessmentScore: number
   revokedAt: number | null
   revokeReason: string | null
+  revokedBy: string | null
+  revokedByName: string | null
   replacedByCode: string | null
   scope: string
+  events: CertificateEventView[]
   workCards: {
     id: Id<"workCards">
     serial: string
     title: string
     status: "draft" | "submitted" | "teacher_confirmed" | "admin_review" | "published" | "paused" | "sold_out"
+    accessLevel: "public" | "community" | "restricted"
   }[]
 }
 

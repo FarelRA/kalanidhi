@@ -17,8 +17,11 @@ export type CulturalSourceView = {
   notes: string | null
   withdrawalStatus: "active" | "withdrawal_requested" | "withdrawn"
   withdrawalReason: string | null
+  withdrawalRequestedAt: number | null
   withdrawnAt: number | null
   status: "active" | "suspended" | "archived"
+  createdBy: string | null
+  createdByName: string | null
   createdAt: number
   updatedAt: number
 }
@@ -63,9 +66,14 @@ export type PrivacyRequestView = {
   status: "open" | "reviewing" | "completed" | "rejected"
   reason: string | null
   resolution: string | null
+  dataScope: string | null
+  evidence: string | null
   retentionHoldUntil: number | null
   deletionAppliedAt: number | null
   handledBy: string | null
+  reviewedAt: number | null
+  completedBy: string | null
+  completedByName: string | null
   createdAt: number
   updatedAt: number
   completedAt: number | null
@@ -96,6 +104,8 @@ export type BreakGlassView = {
   createdAt: number
   expiresAt: number
   revokedAt: number | null
+  revokedBy: string | null
+  revokedByName: string | null
   active: boolean
 }
 

@@ -8,7 +8,6 @@ import type {
   OrderTimelineEntry,
   OrderView,
   PublicWorkView,
-  WorkCardStatus,
   WorkListingView,
   WorkStatus,
 } from "../lib/commerce/types"
@@ -48,14 +47,6 @@ const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   cancelled: "Dibatalkan",
   refunded: "Dikembalikan",
   disputed: "Sengketa",
-}
-
-function workStatusOf(work: Doc<"works">): WorkStatus {
-  return (work.status ?? "draft") as WorkStatus
-}
-
-function cardStatusOf(card: Doc<"workCards"> | null): WorkCardStatus {
-  return (card?.status ?? "draft") as WorkCardStatus
 }
 
 function safeSplit(baseAmount: number) {
@@ -193,7 +184,7 @@ async function cardForView(
     teacher: work.teacher,
     region: work.region,
     price: work.price,
-    priceLabel: work.priceLabel,
+    priceLabel: work.priceLabel ?? null,
     unit: work.unit,
     technique: work.technique,
     techniqueNote: work.techniqueNote,
@@ -202,11 +193,11 @@ async function cardForView(
     image: await workImageUrl(ctx, work),
     pathId: work.pathId ?? null,
     certificateId: work.certificateId ?? null,
-    permission: card?.permission ?? work.permission ?? "",
-    provenance: card?.provenance ?? "",
-    materials: card?.materials ?? "",
-    status: workStatusOf(work),
-    cardStatus: cardStatusOf(card),
+    permission: card?.permission ?? work.permission ?? null,
+    provenance: card?.provenance ?? null,
+    materials: card?.materials ?? null,
+    status: work.status ?? null,
+    cardStatus: card?.status ?? null,
     createdAt: work.createdAt ?? work._creationTime,
     split: safeSplit(work.price),
     canReview: Boolean(
@@ -217,7 +208,7 @@ async function cardForView(
     canModerate: viewer.capabilities.includes("works.moderate"),
     canEdit:
       work.makerId === viewer.userId &&
-      ["draft", "review"].includes(workStatusOf(work)),
+      (work.status === "draft" || work.status === "review"),
   }
 }
 
@@ -242,8 +233,7 @@ async function publicWork(
   ctx: ReadCtx,
   work: Doc<"works">,
 ): Promise<PublicWorkView | null> {
-  // Curated seed works predate the status field; treat them as published.
-  if (work.status !== undefined && work.status !== "published") return null
+  if (work.status !== "published") return null
   let split
   try {
     split = splitAmount(work.price)
@@ -270,14 +260,14 @@ async function publicWork(
     teacher: work.teacher,
     region: work.region,
     price: work.price,
-    priceLabel: work.priceLabel,
+    priceLabel: work.priceLabel ?? null,
     unit: work.unit,
     technique: work.technique,
     techniqueNote: work.techniqueNote,
     workCard: work.workCard,
     description: work.description,
     image: await workImageUrl(ctx, work),
-    permission: work.permission ?? "",
+    permission: work.permission ?? null,
     split,
     purchasable,
   }
@@ -291,28 +281,33 @@ async function toOrderView(
   ctx: ReadCtx,
   order: Doc<"orders">,
 ): Promise<OrderView> {
-  const [work, seller, payments, payouts, refunds, disputes] = await Promise.all([
-    order.workId ? ctx.db.get(order.workId) : null,
-    findUser(ctx, order.sellerId),
-    ctx.db
-      .query("payments")
-      .withIndex("by_orderId", (q) => q.eq("orderId", order._id))
-      .collect(),
-    ctx.db
-      .query("payouts")
-      .withIndex("by_orderId", (q) => q.eq("orderId", order._id))
-      .collect(),
-    ctx.db
-      .query("refunds")
-      .withIndex("by_orderId", (q) => q.eq("orderId", order._id))
-      .collect(),
-    ctx.db
-      .query("disputes")
-      .withIndex("by_subject", (q) =>
-        q.eq("subjectType", "order").eq("subjectId", order._id),
-      )
-      .collect(),
-  ])
+  const [work, seller, payments, payouts, refunds, disputes, orderItems] =
+    await Promise.all([
+      order.workId ? ctx.db.get(order.workId) : null,
+      findUser(ctx, order.sellerId),
+      ctx.db
+        .query("payments")
+        .withIndex("by_orderId", (q) => q.eq("orderId", order._id))
+        .collect(),
+      ctx.db
+        .query("payouts")
+        .withIndex("by_orderId", (q) => q.eq("orderId", order._id))
+        .collect(),
+      ctx.db
+        .query("refunds")
+        .withIndex("by_orderId", (q) => q.eq("orderId", order._id))
+        .collect(),
+      ctx.db
+        .query("disputes")
+        .withIndex("by_subject", (q) =>
+          q.eq("subjectType", "order").eq("subjectId", order._id),
+        )
+        .collect(),
+      ctx.db
+        .query("orderItems")
+        .withIndex("by_orderId", (q) => q.eq("orderId", order._id))
+        .collect(),
+    ])
 
   const payment = [...payments].sort((a, b) => b.createdAt - a.createdAt)[0] ?? null
   const payout =
@@ -331,9 +326,9 @@ async function toOrderView(
     buyerEmail: order.buyerEmail,
     buyerWhatsapp: order.buyerWhatsapp,
     sellerId: order.sellerId,
-    sellerName: seller?.name ?? "Penjual",
+    sellerName: seller?.name ?? "Tidak ditemukan",
     workId: order.workId ?? null,
-    workTitle: work?.title ?? "Karya",
+    workTitle: work?.title ?? "Tidak ditemukan",
     workSlug: work?.slug ?? null,
     pathId: order.pathId ?? null,
     baseAmount: order.baseAmount,
@@ -346,6 +341,10 @@ async function toOrderView(
     paidAt: order.paidAt ?? null,
     deliveredAt: order.deliveredAt ?? null,
     completedAt: order.completedAt ?? null,
+    cancelledAt: order.cancelledAt ?? null,
+    cancelReason: order.cancelReason ?? null,
+    consentVersion: order.consentVersion ?? null,
+    consentAt: order.consentAt ?? null,
     claimedAt: order.claimedAt ?? null,
     paymentId: payment?._id ?? null,
     paymentStatus: payment?.status ?? null,
@@ -353,6 +352,16 @@ async function toOrderView(
     refundId: refund?._id ?? null,
     disputeId: dispute?._id ?? null,
     split: splitAmount(order.baseAmount),
+    items: orderItems.map((item) => ({
+      id: item._id,
+      kind: item.kind,
+      refId: item.refId ?? null,
+      pathId: item.pathId ?? null,
+      title: item.title,
+      quantity: item.quantity,
+      unitAmount: item.unitAmount,
+      totalAmount: item.totalAmount,
+    })),
   }
 }
 
@@ -516,7 +525,7 @@ export const createWork = mutation({
           .unique()
       : null
 
-    let teacherName = teacherDoc?.name ?? "Belum ditentukan"
+    let teacherName = teacherDoc?.name ?? "Belum diisi"
     if (args.certificateId) {
       const certificate = await ctx.db.get(args.certificateId)
       if (certificate) {
@@ -606,7 +615,7 @@ export const updateWork = mutation({
     const { viewer } = await requireViewer(ctx, "sell")
     const work = await ctx.db.get(args.workId)
     if (!work || work.makerId !== viewer.userId) notFound("Karya tidak ditemukan.")
-    if (!["draft", "review"].includes(workStatusOf(work))) {
+    if (work.status !== "draft" && work.status !== "review") {
       commerceError(
         "INVALID_STATE",
         "Karya yang sudah tayang tidak dapat diedit langsung.",
@@ -802,7 +811,7 @@ export const pauseWork = mutation({
     const isAdmin = viewer.capabilities.includes("works.moderate")
     const isOwner = work.makerId === viewer.userId
     if (!isAdmin && !isOwner) notFound("Karya tidak ditemukan.")
-    if (workStatusOf(work) === "paused") return null
+    if (work.status === "paused") return null
 
     const reason = isAdmin
       ? assertReason(args.reason, "Alasan penjedaan")
@@ -835,7 +844,7 @@ export const resumeWork = mutation({
     const reason = assertReason(args.reason, "Alasan penerbitan ulang")
     const work = await ctx.db.get(args.workId)
     if (!work) notFound("Karya tidak ditemukan.")
-    if (workStatusOf(work) !== "paused") {
+    if (work.status !== "paused") {
       commerceError("INVALID_STATE", "Hanya karya yang dijeda dapat diterbitkan ulang.")
     }
     const card = await workCardFor(ctx, work._id)
@@ -867,7 +876,7 @@ export const markWorkSoldOut = mutation({
     const { viewer } = await requireViewer(ctx, "sell")
     const work = await ctx.db.get(args.workId)
     if (!work || work.makerId !== viewer.userId) notFound("Karya tidak ditemukan.")
-    if (workStatusOf(work) !== "published") {
+    if (work.status !== "published") {
       commerceError("INVALID_STATE", "Hanya karya tayang dapat ditandai habis.")
     }
     await ctx.db.patch(work._id, { status: "sold_out" })
@@ -962,7 +971,7 @@ export const createGuestOrder = mutation({
       .withIndex("by_slug", (q) => q.eq("slug", args.workSlug))
       .unique()
     if (!work) notFound("Karya tidak ditemukan.")
-    if (!["published"].includes(workStatusOf(work)) || !work.pathId) {
+    if (work.status !== "published" || !work.pathId) {
       commerceError("WORK_UNAVAILABLE", "Karya ini tidak sedang dijual.")
     }
     if (!work.makerId) {
@@ -1114,7 +1123,7 @@ export const getOrderByToken = query({
       buyerName: order.buyerName,
       buyerEmailMasked: maskEmail(order.buyerEmail),
       workTitle: work.title,
-      sellerName: seller?.name ?? "Penjual",
+      sellerName: seller?.name ?? "Tidak ditemukan",
       baseAmount: order.baseAmount,
       uniqueAmount: order.uniqueAmount ?? null,
       createdAt: order.createdAt,
@@ -1611,13 +1620,18 @@ export const listOrderDisputes = query({
       const order = await ctx.db.get(dispute.subjectId as Id<"orders">)
       if (!order) continue
       if (!isAdmin && !hasOrderRelation(viewer, order)) continue
-      const opener = await findUser(ctx, dispute.openedBy)
+      const [opener, assignee] = await Promise.all([
+        findUser(ctx, dispute.openedBy),
+        dispute.assignedTo ? findUser(ctx, dispute.assignedTo) : null,
+      ])
       views.push({
         id: dispute._id,
         orderId: order._id,
         orderCode: order.code,
         openedBy: dispute.openedBy,
-        openerName: opener?.name ?? "Pengguna",
+        openerName: opener?.name ?? "Tidak ditemukan",
+        assignedTo: dispute.assignedTo ?? null,
+        assigneeName: assignee?.name ?? null,
         status: dispute.status,
         reason: dispute.reason,
         resolution: dispute.resolution ?? null,

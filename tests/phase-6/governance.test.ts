@@ -300,6 +300,92 @@ describe("governance / privacy requests", () => {
   })
 })
 
+describe("governance / detail metadata", () => {
+  it("[P6-GOV-13] source detail exposes the creator and withdrawal request time", async () => {
+    const t = createDb()
+    const world = await seedWorld(t)
+    const source = await seedSource(t)
+
+    const detail = await as(t, "auth-admin").query(
+      api.governance.getCulturalSource,
+      { sourceId: source.sourceId },
+    )
+    expect(detail?.createdBy).toBe(world.adminId)
+    expect(detail?.createdByName).toBe("Nadia Kusuma")
+    expect(detail?.withdrawalRequestedAt).toBeNull()
+
+    await as(t, "auth-admin").mutation(api.governance.requestWithdrawal, {
+      sourceId: source.sourceId,
+      reason: "Komunitas meminta peninjauan ulang izin.",
+    })
+    const requested = await as(t, "auth-admin").query(
+      api.governance.getCulturalSource,
+      { sourceId: source.sourceId },
+    )
+    expect(requested?.withdrawalRequestedAt).toBeTypeOf("number")
+  })
+
+  it("[P6-GOV-14] privacy detail exposes scope, evidence, review time, and completer", async () => {
+    const t = createDb()
+    const world = await seedWorld(t)
+    const created = await as(t, "auth-admin").mutation(
+      api.governance.createPrivacyRequest,
+      {
+        kind: "access",
+        subjectUserId: world.studentId,
+        reason: "Permintaan salinan data pribadi.",
+        dataScope: "Profil, pendaftaran, dan tugas",
+      },
+    )
+    await t.run(async (ctx) => {
+      await ctx.db.patch(created.requestId, {
+        evidence: "Email permintaan 12 November 2026",
+      })
+    })
+    await as(t, "auth-admin").mutation(api.governance.reviewPrivacyRequest, {
+      requestId: created.requestId,
+      decision: "completed",
+      resolution: "Salinan data dikirim melalui email terdaftar.",
+    })
+
+    const rows = await as(t, "auth-admin").query(
+      api.governance.listPrivacyRequests,
+      {},
+    )
+    const row = rows.find((item) => item.id === created.requestId)
+    expect(row?.dataScope).toBe("Profil, pendaftaran, dan tugas")
+    expect(row?.evidence).toBe("Email permintaan 12 November 2026")
+    expect(row?.reviewedAt).toBeTypeOf("number")
+    expect(row?.completedBy).toBe(world.adminId)
+    expect(row?.completedByName).toBe("Nadia Kusuma")
+  })
+
+  it("[P6-GOV-15] break-glass history exposes who revoked a grant", async () => {
+    const t = createDb()
+    const world = await seedWorld(t)
+    const grant = await as(t, "auth-admin").mutation(
+      api.governance.grantBreakGlass,
+      {
+        entityType: "call_recording",
+        entityId: "recording-one",
+        reason: "Investigasi sengketa kualitas sesi.",
+      },
+    )
+    await as(t, "auth-admin").mutation(api.governance.revokeBreakGlass, {
+      grantId: grant.grantId,
+      reason: "Investigasi selesai.",
+    })
+
+    const rows = await as(t, "auth-admin").query(
+      api.governance.listBreakGlass,
+      {},
+    )
+    const row = rows.find((item) => item.id === grant.grantId)
+    expect(row?.revokedBy).toBe(world.adminId)
+    expect(row?.revokedByName).toBe("Nadia Kusuma")
+  })
+})
+
 describe("governance / impersonation registry", () => {
   it("[P6-GOV-12] impersonation sessions are read-only, expiring, and audited", async () => {
     const t = createDb()

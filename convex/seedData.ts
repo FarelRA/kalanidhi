@@ -805,6 +805,21 @@ export const teachersSeed: SeedTeacher[] = [
     imageFile: "teacher-sudarsono.jpg",
     verified: true,
   },
+  {
+    slug: "joko-santoso",
+    name: "Joko Santoso",
+    initials: "JS",
+    specialty: "Pengrajin ukir kayu",
+    region: "Jepara, Jawa Tengah",
+    experience: "27 tahun mengukir",
+    quote:
+      "Ukiran yang baik lahir dari arah pahat yang sabar. Saya ajarkan urutan, bukan hanya bentuk akhir.",
+    focus: "Ukir relief dan ornamen sulur",
+    path: "Kriya Ukir Kayu Jepara",
+    community: "Sanggar Ukir Jepara",
+    imageFile: "teacher-joko.jpg",
+    verified: false,
+  },
 ]
 
 export const worksSeed: SeedWork[] = [

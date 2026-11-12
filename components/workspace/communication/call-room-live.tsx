@@ -294,6 +294,7 @@ export function CallRoomLive({
           }
         />
         <CallMonitor call={call} />
+        <CallRecordingsPanel call={call} />
       </div>
     )
   }
@@ -304,7 +305,11 @@ export function CallRoomLive({
         <PageHeader
           eyebrow="Panggilan"
           title={call.title}
-          description="Panggilan berakhir. Tidak ada rekaman yang dibuat pada fase ini."
+          description={
+            call.recordingEnabled
+              ? "Panggilan berakhir. Rekaman tercatat aktif pada metadata panggilan."
+              : "Panggilan berakhir. Tidak ada rekaman yang dibuat pada panggilan ini."
+          }
           meta={<CallMeta call={call} />}
           actions={
             <Button asChild variant="outline">
@@ -313,6 +318,7 @@ export function CallRoomLive({
           }
         />
         <CallSummaryPanel call={call} left={left} />
+        <CallRecordingsPanel call={call} />
       </div>
     )
   }
@@ -323,7 +329,11 @@ export function CallRoomLive({
         <PageHeader
           eyebrow={`Panggilan · ${call.kind === "video" ? "video" : "suara"}`}
           title={call.title}
-          description="Rekaman mati. Panggilan ini tidak direkam oleh siapa pun."
+          description={
+            call.recordingEnabled
+              ? "Rekaman tercatat aktif. Persetujuan peserta tetap ditampilkan."
+              : "Rekaman mati. Panggilan ini tidak direkam oleh siapa pun."
+          }
           meta={<CallMeta call={call} />}
           actions={
             <Button asChild variant="outline">
@@ -1015,11 +1025,12 @@ function CallRoomStage({
         <div className="text-[9.5px] leading-relaxed text-paper/60">
           <p className="flex items-center gap-1.5 text-brass">
             <ShieldCheck className="size-3.5" aria-hidden="true" />
-            Rekaman mati
+            {call.recordingEnabled ? "Rekaman aktif" : "Rekaman mati"}
           </p>
           <p className="mt-1">
-            Tidak ada rekaman pada fase ini. Persetujuan hanya metadata, dan
-            berlaku bila semua pihak menyetujui.
+            {call.recordingEnabled
+              ? "Panggilan ini tercatat aktif. Persetujuan hanya metadata dan berlaku bila semua pihak menyetujui."
+              : "Tidak ada rekaman pada panggilan ini. Persetujuan hanya metadata, dan berlaku bila semua pihak menyetujui."}
           </p>
         </div>
       </div>
@@ -1113,6 +1124,12 @@ function CallConsentPanel({
           <span className="font-semibold">{consentLabel(call.recordingConsent)}</span>
         </p>
         <p className="flex items-center justify-between gap-2 text-[10px]">
+          <span className="text-ink-muted">Rekaman</span>
+          <span className="font-semibold">
+            {call.recordingEnabled ? "Aktif" : "Mati"}
+          </span>
+        </p>
+        <p className="flex items-center justify-between gap-2 text-[10px]">
           <span className="text-ink-muted">Persetujuan</span>
           <span className="font-semibold tabular-nums">
             {call.recordingConsentUserIds.length}/{call.recordingConsentRequired}
@@ -1148,7 +1165,7 @@ function CallConsentPanel({
       </div>
       {call.recordingConsent === "both" ? (
         <p className="mt-2 text-[9.5px] text-moss">
-          Semua pihak setuju. Rekaman tetap mati pada fase ini.
+          Semua pihak setuju. Status rekaman mengikuti catatan panggilan.
         </p>
       ) : null}
     </Panel>
@@ -1263,6 +1280,24 @@ function CallMonitor({ call }: { call: CallDetail }) {
             />
             <Fact label="Durasi" value={formatDuration(call.durationMs ?? 0)} />
             <Fact
+              label="Rekaman"
+              value={call.recordingEnabled ? "Aktif" : "Mati"}
+            />
+            <Fact
+              label="Diakhiri oleh"
+              value={call.endedByName ?? "Belum diisi"}
+            />
+            <Fact
+              label="Alasan berakhir"
+              value={call.endReason ?? "Belum diisi"}
+            />
+            <Fact
+              label="Dibatalkan"
+              value={
+                call.cancelledAt ? formatDateTime(call.cancelledAt) : "Belum diisi"
+              }
+            />
+            <Fact
               label="Konsen rekaman"
               value={`${consentLabel(call.recordingConsent)} · ${call.recordingConsentUserIds.length}/${call.recordingConsentRequired}`}
             />
@@ -1282,7 +1317,7 @@ function CallMonitor({ call }: { call: CallDetail }) {
                   </span>
                 </span>
                 <span className="text-[9px] text-ink-muted">
-                  {participant.quality ?? "—"}
+                  {participant.quality ?? "Belum diisi"}
                 </span>
               </li>
             ))}
@@ -1328,8 +1363,15 @@ function CallSummaryPanel({ call, left }: { call: CallDetail; left: boolean }) {
       <dl className="mx-auto mt-5 grid max-w-sm gap-2 text-left">
         <Fact label="Jenis" value={kindLabel(call.kind)} />
         <Fact label="Peserta" value={String(call.participants.length)} />
+        <Fact label="Rekaman" value={call.recordingEnabled ? "Aktif" : "Mati"} />
         <Fact label="Konsen rekaman" value={consentLabel(call.recordingConsent)} />
         <Fact label="Kualitas" value={call.qualitySummary ?? "Belum ada ringkasan"} />
+        <Fact label="Diakhiri oleh" value={call.endedByName ?? "Belum diisi"} />
+        <Fact label="Alasan berakhir" value={call.endReason ?? "Belum diisi"} />
+        <Fact
+          label="Dibatalkan"
+          value={call.cancelledAt ? formatDateTime(call.cancelledAt) : "Belum diisi"}
+        />
       </dl>
       <div className="mt-5 flex flex-wrap justify-center gap-2">
         <Button asChild>
@@ -1340,6 +1382,41 @@ function CallSummaryPanel({ call, left }: { call: CallDetail; left: boolean }) {
         </Button>
       </div>
     </div>
+  )
+}
+
+function CallRecordingsPanel({ call }: { call: CallDetail }) {
+  if (call.recordings.length === 0) return null
+  return (
+    <Panel eyebrow="Rekaman" title="Metadata rekaman">
+      <p className="text-[10.5px] leading-relaxed text-ink-soft">
+        Rekaman tersimpan sebagai metadata. Pemutaran dan unduhan tidak tersedia
+        pada fase ini.
+      </p>
+      <ul className="mt-3 divide-y divide-ink/10 border border-ink/15">
+        {call.recordings.map((recording) => (
+          <li key={recording.id} className="px-2.5 py-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-[11px] font-semibold text-ink">
+                {formatDateTime(recording.createdAt)}
+              </span>
+              <StatusStamp
+                label={`${recording.accessLogCount} akses`}
+                tone="muted"
+              />
+            </div>
+            <p className="mt-1 text-[9.5px] text-ink-muted">
+              Disimpan hingga {formatDateTime(recording.retentionUntil)}
+            </p>
+            <p className="mt-0.5 text-[9.5px] text-ink-soft">
+              Persetujuan:{" "}
+              {recording.consentedBy.map((item) => item.name).join(", ") ||
+                "Belum diisi"}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </Panel>
   )
 }
 
@@ -1367,7 +1444,7 @@ function CallRow({ item }: { item: CallSummary }) {
             ? formatDateTime(item.scheduledAt)
             : item.durationMs
               ? formatDuration(item.durationMs)
-              : "—"}
+              : "Belum diisi"}
         </span>
       </span>
     </Link>
@@ -1576,7 +1653,7 @@ function qualityLabel(participant: Participant): string {
   if (quality === "excellent") return "Sangat baik"
   if (quality === "good") return "Baik"
   if (quality === "poor") return "Buruk"
-  return "—"
+  return "Belum diisi"
 }
 
 function errorMessage(error: unknown): string {

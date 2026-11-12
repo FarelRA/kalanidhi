@@ -455,8 +455,54 @@ export function OrdersLive() {
                 { label: "Dibuat", value: formatCommerceDateTime(selected.createdAt) },
                 { label: "Pembayaran", value: selected.paymentStatus ?? "Belum" },
                 { label: "Payout", value: selected.payoutId ?? "Belum dijadwalkan" },
+                {
+                  label: "Dibatalkan",
+                  value: selected.cancelledAt
+                    ? formatCommerceDateTime(selected.cancelledAt)
+                    : "—",
+                },
+                {
+                  label: "Alasan batal",
+                  value: selected.cancelReason ?? "—",
+                },
+                {
+                  label: "Versi persetujuan",
+                  value: selected.consentVersion ?? "Belum diisi",
+                },
+                {
+                  label: "Persetujuan",
+                  value: selected.consentAt
+                    ? formatCommerceDateTime(selected.consentAt)
+                    : "Belum diisi",
+                },
               ]}
             />
+            <DrawerSection title="Rincian pesanan">
+              {selected.items.length === 0 ? (
+                <p className="text-[10.5px] text-ink-muted">
+                  Rincian baris belum tercatat untuk pesanan ini.
+                </p>
+              ) : (
+                <ul className="space-y-2 text-[10.5px]">
+                  {selected.items.map((item) => (
+                    <li
+                      key={item.id}
+                      className="flex items-start justify-between gap-3 border-b border-ink/10 pb-2 last:border-0 last:pb-0"
+                    >
+                      <div>
+                        <p className="font-semibold text-ink">{item.title}</p>
+                        <p className="mt-0.5 text-ink-muted">
+                          {item.quantity} × {formatIDR(item.unitAmount)}
+                        </p>
+                      </div>
+                      <span className="font-semibold tabular-nums">
+                        {formatIDR(item.totalAmount)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </DrawerSection>
             <DrawerSection title="Jejak">
               <ol className="space-y-2 text-[10.5px]">
                 {[
@@ -877,6 +923,15 @@ function disputeColumns(
       id: "opener",
       header: "Dibuka oleh",
       cell: (row) => <span className="text-[11.5px]">{row.openerName}</span>,
+    },
+    {
+      id: "assignee",
+      header: "Ditangani",
+      cell: (row) => (
+        <span className="text-[11.5px]">
+          {row.assigneeName ?? "Belum ditangani"}
+        </span>
+      ),
     },
     {
       id: "status",
