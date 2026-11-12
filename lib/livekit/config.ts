@@ -17,14 +17,20 @@ export const LIVEKIT_ENV_KEYS = [
   "LIVEKIT_URL",
   "LIVEKIT_API_KEY",
   "LIVEKIT_API_SECRET",
+  "LIVEKIT_PUBLIC_URL",
   "NEXT_PUBLIC_LIVEKIT_URL",
 ] as const
 
 export function readLiveKitConfig(
   env: Partial<Record<string, string | undefined>> = process.env,
 ): LiveKitConfigResult {
-  const missing = LIVEKIT_ENV_KEYS.filter((key) => !env[key]?.trim())
-  if (missing.length > 0) return { ok: false, missing: [...missing] }
+  const clientUrl =
+    env.LIVEKIT_PUBLIC_URL?.trim() || env.NEXT_PUBLIC_LIVEKIT_URL?.trim()
+  const missing = ["LIVEKIT_URL", "LIVEKIT_API_KEY", "LIVEKIT_API_SECRET"].filter(
+    (key) => !env[key]?.trim(),
+  )
+  if (!clientUrl) missing.push("LIVEKIT_PUBLIC_URL")
+  if (missing.length > 0) return { ok: false, missing }
 
   return {
     ok: true,
@@ -32,7 +38,7 @@ export function readLiveKitConfig(
       url: env.LIVEKIT_URL!.trim(),
       apiKey: env.LIVEKIT_API_KEY!.trim(),
       apiSecret: env.LIVEKIT_API_SECRET!.trim(),
-      clientUrl: env.NEXT_PUBLIC_LIVEKIT_URL!.trim(),
+      clientUrl: clientUrl!,
     },
   }
 }

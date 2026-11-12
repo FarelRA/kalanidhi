@@ -2,7 +2,8 @@ import { convexBetterAuthNextJs } from "@convex-dev/better-auth/nextjs"
 
 const convexUrl =
   process.env.CONVEX_URL ?? process.env.NEXT_PUBLIC_CONVEX_URL ?? ""
-const convexSiteUrl = process.env.NEXT_PUBLIC_CONVEX_SITE_URL ?? ""
+const convexSiteUrl =
+  process.env.CONVEX_SITE_URL ?? process.env.NEXT_PUBLIC_CONVEX_SITE_URL ?? ""
 
 export function isAuthConfigured(): boolean {
   return Boolean(convexUrl && convexSiteUrl)
@@ -19,7 +20,7 @@ let helpers: AuthServer | null = null
 export function getAuthServer(): AuthServer {
   if (!isAuthConfigured()) {
     throw new Error(
-      "Better Auth is not configured: set CONVEX_URL and NEXT_PUBLIC_CONVEX_SITE_URL.",
+      "Better Auth is not configured: set CONVEX_URL and CONVEX_SITE_URL.",
     )
   }
   helpers ??= convexBetterAuthNextJs({
