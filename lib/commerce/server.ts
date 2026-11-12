@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache"
 import { fetchMutation, fetchQuery } from "convex/nextjs"
 
 import { api } from "@/convex/_generated/api"
@@ -32,6 +33,9 @@ function requireConfigured() {
 export async function getPublicWork(
   slug: string,
 ): Promise<PublicWorkView | null> {
+  "use cache"
+  cacheLife("minutes")
+
   if (!options) return null
   return await fetchQuery(api.commerce.getPublicWork, { slug }, options)
 }
@@ -39,6 +43,9 @@ export async function getPublicWork(
 export async function getPublicWorks(
   limit = 60,
 ): Promise<PublicWorkView[]> {
+  "use cache"
+  cacheLife("minutes")
+
   if (!options) return []
   return await fetchQuery(api.commerce.listPublicWorks, { limit }, options)
 }
