@@ -269,13 +269,24 @@ function QuickLink({
 }
 
 export function OverviewLive() {
-  const { can, profile, viewer } = useViewer()
-  const admin = can("operate")
-  const data = useQuery(api.stats.overview)
+  const { can } = useViewer()
 
-  if (!admin) {
-    return (
-      <div className="space-y-6">
+  if (!can("operate")) {
+    return <RoleOverviewNotice />
+  }
+
+  return <AdminOverviewLive />
+}
+
+/**
+ * Non-admin roles must not subscribe to the admin-only overview query: a
+ * rejected subscription would surface as a render error in the workspace.
+ */
+function RoleOverviewNotice() {
+  const { profile, viewer } = useViewer()
+
+  return (
+    <div className="space-y-6">
         <PageHeader
           eyebrow="Ruang kerja"
           title="Ringkasan belum tersambung untuk peran ini."
@@ -294,7 +305,11 @@ export function OverviewLive() {
         />
       </div>
     )
-  }
+}
+
+function AdminOverviewLive() {
+  const { profile } = useViewer()
+  const data = useQuery(api.stats.overview)
 
   if (data === undefined) {
     return (

@@ -39,4 +39,20 @@ describe("workspace / real versus preview data", () => {
     expect(source).toContain("index: false")
     expect(source).toContain("follow: false")
   })
+
+  it("[P0-SHL-05] non-operators never subscribe to the admin overview query", () => {
+    const source = readFileSync(
+      path.join(ROOT, "components/workspace/overview/overview-live.tsx"),
+      "utf8",
+    )
+    const gate = source.slice(
+      source.indexOf("export function OverviewLive"),
+      source.indexOf("function RoleOverviewNotice"),
+    )
+    expect(gate).toContain('can("operate")')
+    expect(gate).not.toContain("useQuery")
+
+    const admin = source.slice(source.indexOf("function AdminOverviewLive"))
+    expect(admin).toContain("useQuery(api.stats.overview)")
+  })
 })
