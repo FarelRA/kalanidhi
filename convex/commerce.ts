@@ -242,7 +242,8 @@ async function publicWork(
   ctx: ReadCtx,
   work: Doc<"works">,
 ): Promise<PublicWorkView | null> {
-  if (workStatusOf(work) !== "published") return null
+  // Curated seed works predate the status field; treat them as published.
+  if (work.status !== undefined && work.status !== "published") return null
   let split
   try {
     split = splitAmount(work.price)
@@ -395,13 +396,9 @@ export const getPublicWork = query({
 export const listPublicWorks = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args): Promise<PublicWorkView[]> => {
-    const works = await ctx.db
-      .query("works")
-      .withIndex("by_status", (q) => q.eq("status", "published"))
-      .order("asc")
-      .take(Math.min(Math.max(args.limit ?? 24, 1), 60))
+    const works = await ctx.db.query("works").withIndex("by_order").collect()
     const result: PublicWorkView[] = []
-    for (const work of works) {
+    for (const work of works.slice(0, Math.min(Math.max(args.limit ?? 24, 1), 60))) {
       const view = await publicWork(ctx, work)
       if (view) result.push(view)
     }
