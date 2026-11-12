@@ -17,6 +17,7 @@ import type { Viewer } from "@/lib/access/viewer"
 import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
 import { buildPageMetadata } from "@/lib/content/metadata"
 import {
+  enrollHref,
   interestHref,
   pathHref,
   PUBLIC_ROUTES,
@@ -119,7 +120,7 @@ export default async function PathDetailPage({
     ),
   )
   const purchasable = !path.comingSoon && path.price !== null && path.price > 0
-  const checkoutHref = `/pesan/jalur/${path.slug}`
+  const checkoutHref = enrollHref(path.slug)
   const primaryHref = path.comingSoon
     ? interestHref({ path: path.slug, intent: "notify" })
     : enrolled
@@ -180,7 +181,8 @@ export default async function PathDetailPage({
 
           <div className="lg:col-span-5">
             <p className="text-[9.5px] font-bold uppercase tracking-[0.1em] text-copper-dark">
-              {path.teacherRole} · {path.level}
+              {path.teacherRole ? `${path.teacherRole} · ` : ""}
+              {path.level}
             </p>
             <h1 className="heading-section mt-3 text-[clamp(2rem,4vw,3rem)]">
               {path.title}
@@ -189,11 +191,11 @@ export default async function PathDetailPage({
 
             <dl className="mt-6 grid grid-cols-2 gap-3 border-y border-ink/15 py-4 text-[11.5px]">
               {[
-                ["Pengajar", path.teacher],
-                ["Daerah", path.region],
-                ["Level", path.level],
+                [copy.teacherLabel, path.teacher],
+                [copy.regionLabel, path.region],
+                [copy.levelLabel, path.level],
                 [
-                  "Isi",
+                  copy.contentLabel,
                   path.comingSoon
                     ? copy.curriculumPending
                     : `${path.modules} modul · ${path.lessons} pelajaran · ${path.weeks} pekan`,

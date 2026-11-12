@@ -87,6 +87,7 @@ export async function seedContent(t: TestDb): Promise<void> {
       await ctx.db.insert("paths", {
         ...rest,
         order: index,
+        modules: 1,
         status: rest.comingSoon ? "planned" : "open",
         teacherId: teacher,
         createdAt: NOW,

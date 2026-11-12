@@ -20,6 +20,7 @@ import { QueueList } from "@/components/workspace/data/queue-list"
 import { RoleTag } from "@/components/workspace/data/role-tag"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
+import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
 import {
   activityFeed,
   adminMetrics,
@@ -28,6 +29,8 @@ import {
   cohorts,
   enrollments,
   gatewayHealth,
+  leads,
+  orders,
   paths,
   payouts,
   scheduleSessions,
@@ -122,6 +125,16 @@ export function OverviewBoard() {
 }
 
 function AdminOverview() {
+  const gmv = orders
+    .filter((order) => !["awaiting_payment", "refunded"].includes(order.status))
+    .reduce((sum, order) => sum + order.amount, 0)
+  const refunds = orders
+    .filter((order) => order.status === "refunded")
+    .reduce((sum, order) => sum + order.amount, 0)
+  const pendingPayout = payouts
+    .filter((payout) => payout.status === "pending" || payout.status === "approved")
+    .reduce((sum, payout) => sum + payout.teacherShare, 0)
+
   return (
     <>
       <MetricStrip metrics={adminMetrics} />
@@ -188,21 +201,52 @@ function AdminOverview() {
       <div className="grid gap-4 lg:grid-cols-3">
         <Panel eyebrow="Hari ini" title="Antrean operasi">
           <div className="grid grid-cols-2 gap-2">
-            <MiniStat label="Lead baru" value="2" note="1 institusi" />
-            <MiniStat label="Tugas lewat SLA" value="4" note="2 jalur" tone="danger" />
-            <MiniStat label="Karya menunggu" value="2" note="satu lintas jalur" tone="wait" />
-            <MiniStat label="Payout jatuh tempo" value="3" note="Rp12,7 jt" />
+            <MiniStat
+              label="Lead baru"
+              value={String(leads.filter((item) => item.status === "new").length)}
+              note={`${leads.filter((item) => item.intent === "Institusi").length} institusi`}
+            />
+            <MiniStat
+              label="Tugas lewat SLA"
+              value={String(
+                submissions.filter((item) => item.ageHours > item.slaHours).length,
+              )}
+              note={`${new Set(submissions.map((item) => item.pathTitle)).size} jalur`}
+              tone="danger"
+            />
+            <MiniStat
+              label="Karya menunggu"
+              value={String(
+                works.filter((item) => item.status === "review").length,
+              )}
+              note="menunggu tinjauan"
+              tone="wait"
+            />
+            <MiniStat
+              label="Payout jatuh tempo"
+              value={String(
+                payouts.filter((item) => item.status === "pending" || item.status === "approved").length,
+              )}
+              note={formatIDR(
+                payouts
+                  .filter((item) => item.status === "pending" || item.status === "approved")
+                  .reduce((sum, item) => sum + item.teacherShare, 0),
+              )}
+            />
           </div>
         </Panel>
         <Panel eyebrow="Keuangan" title="Ringkas bulan ini">
           <dl className="space-y-2.5">
-            <Row label="GMV" value="Rp38.400.000" />
-            <Row label="Refund" value="−Rp2.500.000" />
-            <Row label="Biaya gerbang" value="−Rp1.800.000" />
-            <Row label="Payout menunggu" value="Rp12.685.000" strong />
+            <Row label="GMV" value={formatIDR(gmv)} />
+            <Row label="Refund" value={`−${formatIDR(refunds)}`} />
+            <Row label="Biaya gerbang" value="Belum dilaporkan" />
+            <Row label="Payout menunggu" value={formatIDR(pendingPayout)} strong />
           </dl>
           <Button asChild variant="outline" size="sm" className="mt-4 w-full">
-            <Link href="/ruang/pesanan/payout">Buka ledger 70/15/15</Link>
+            <Link href="/ruang/pesanan/payout">
+              Buka ledger {SPLIT_PERCENTAGES.teacher}/{SPLIT_PERCENTAGES.platform}/
+              {SPLIT_PERCENTAGES.community}
+            </Link>
           </Button>
         </Panel>
         <Panel eyebrow="Pintasan" title="Tindakan cepat">
@@ -219,14 +263,20 @@ function AdminOverview() {
 }
 
 function TeacherOverview() {
-  const myCohorts = cohorts.filter((cohort) => cohort.teacher === "Bambang Hardjono")
+  const { profile } = useViewer()
+  const myCohorts = cohorts.filter(
+    (cohort) => cohort.teacher === profile.user.name,
+  )
+  const myCohortIds = new Set(myCohorts.map((cohort) => cohort.id))
   const atRisk = enrollments.filter(
-    (item) => item.status === "at_risk" && item.cohortId.startsWith("c-batik"),
+    (item) => item.status === "at_risk" && myCohortIds.has(item.cohortId),
   )
   const upcoming = scheduleSessions.filter(
-    (item) => item.teacher === "Bambang Hardjono",
+    (item) => item.teacher === profile.user.name,
   )
-  const duePayout = payouts.find((item) => item.id === "po-310")
+  const duePayout = payouts.find(
+    (item) => item.teacher === profile.user.name,
+  )
 
   return (
     <section aria-labelledby="mengajar-heading" className="space-y-4">
@@ -338,7 +388,10 @@ function TeacherOverview() {
             ))}
           </ul>
         </Panel>
-        <Panel eyebrow="Pendapatan" title="70% dari penjualan">
+        <Panel
+          eyebrow="Pendapatan"
+          title={`${SPLIT_PERCENTAGES.teacher}% dari penjualan`}
+        >
           <p className="font-heading text-3xl leading-none text-ink">
             {formatIDR(duePayout?.teacherShare ?? 0)}
           </p>
@@ -348,15 +401,21 @@ function TeacherOverview() {
           <dl className="mt-4 grid grid-cols-3 gap-2 border-y border-ink/15 py-3 text-center">
             <div>
               <dt className="text-[8px] font-bold uppercase tracking-[0.06em] text-ink-muted">Pengajar</dt>
-              <dd className="mt-1 text-[12px] font-semibold text-ink">70%</dd>
+              <dd className="mt-1 text-[12px] font-semibold text-ink">
+                {SPLIT_PERCENTAGES.teacher}%
+              </dd>
             </div>
             <div>
               <dt className="text-[8px] font-bold uppercase tracking-[0.06em] text-ink-muted">Platform</dt>
-              <dd className="mt-1 text-[12px] font-semibold text-ink">15%</dd>
+              <dd className="mt-1 text-[12px] font-semibold text-ink">
+                {SPLIT_PERCENTAGES.platform}%
+              </dd>
             </div>
             <div>
               <dt className="text-[8px] font-bold uppercase tracking-[0.06em] text-ink-muted">Komunitas</dt>
-              <dd className="mt-1 text-[12px] font-semibold text-ink">15%</dd>
+              <dd className="mt-1 text-[12px] font-semibold text-ink">
+                {SPLIT_PERCENTAGES.community}%
+              </dd>
             </div>
           </dl>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -374,10 +433,17 @@ function TeacherOverview() {
 }
 
 function StudentOverview() {
-  const certificate = certificates.find((item) => item.student === "Anisa Rahmawati")
-  const myWorks = works.filter((item) => item.maker === "Anisa Rahmawati")
+  const { profile } = useViewer()
+  const certificate = certificates.find(
+    (item) => item.student === profile.user.name,
+  )
+  const myWorks = works.filter(
+    (item) => item.maker === profile.user.name,
+  )
   const openTasks = submissions.filter(
-    (item) => item.student === "Anisa Rahmawati" && !["approved", "rejected"].includes(item.status),
+    (item) =>
+      item.student === profile.user.name &&
+      !["approved", "rejected"].includes(item.status),
   )
 
   return (
@@ -387,7 +453,8 @@ function StudentOverview() {
           Meja belajar
         </h2>
         <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-          Batik Tulis Soga · BTG-06
+          {openTasks[0]?.pathTitle ?? certificate?.pathTitle ?? "Jalur belajar"}
+          {openTasks[0]?.cohort ? ` · ${openTasks[0].cohort}` : ""}
         </p>
       </div>
       <MetricStrip metrics={studentMetrics} />

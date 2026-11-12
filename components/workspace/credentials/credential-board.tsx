@@ -34,6 +34,10 @@ import { Panel } from "@/components/workspace/data/panel"
 import { SegmentedTabs } from "@/components/workspace/data/segmented-tabs"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
+import {
+  CERTIFICATE_STATUSES,
+  CERTIFICATE_STATUS_LABELS,
+} from "@/lib/credentials/options"
 import { certificates, works } from "@/lib/workspace/mock-data"
 import type { Certificate } from "@/lib/workspace/types"
 import { formatWorkspaceDate } from "@/lib/workspace/format"
@@ -46,7 +50,7 @@ export function CredentialBoard() {
 }
 
 function PreviewCredentialBoard() {
-  const { can } = useViewer()
+  const { can, profile } = useViewer()
   const [tab, setTab] = React.useState("mine")
   const [selected, setSelected] = React.useState<Certificate | null>(null)
   const [revokeTarget, setRevokeTarget] = React.useState<Certificate | null>(null)
@@ -63,9 +67,11 @@ function PreviewCredentialBoard() {
   ].filter(Boolean) as { id: string; label: string; count?: number }[]
 
   const active = tabs.some((item) => item.id === tab) ? tab : tabs[0]?.id
-  const mine = certificates.filter((item) => item.student === "Anisa Rahmawati")
+  const mine = certificates.filter(
+    (item) => item.student === profile.user.name,
+  )
   const cohortCerts = certificates.filter((item) =>
-    ["Batik Tulis Soga", "Batik Tulis Soga · Pewarna Alam"].includes(item.pathTitle),
+    profile.cohortPathIds.includes(item.pathId),
   )
 
   return (
@@ -121,13 +127,14 @@ function PreviewCredentialBoard() {
             ))}
             <Panel eyebrow="Cakupan penjual" title="Satu sertifikat, satu jalur" className="lg:col-span-2">
               <p className="max-w-3xl text-[12px] leading-relaxed text-ink-soft">
-                Sertifikat Batik Tulis Soga hanya membuka penjualan karya batik pada
-                jalur itu. Sertifikat pranatacara tidak membuka karya batik, dan
-                sebaliknya. Setiap karya mencantumkan jalur dan sertifikat asalnya.
+                Setiap sertifikat hanya membuka penjualan karya pada jalur yang
+                diselesaikan. Sertifikat jalur lain tidak membuka karya di jalur
+                ini, dan sebaliknya. Setiap karya mencantumkan jalur dan
+                sertifikat asalnya.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {works
-                  .filter((work) => work.maker === "Anisa Rahmawati")
+                  .filter((work) => work.maker === profile.user.name)
                   .map((work) => (
                     <Link
                       key={work.id}
@@ -183,9 +190,10 @@ function PreviewCredentialBoard() {
                 label: "Status",
                 options: [
                   { value: "all", label: "Semua", count: certificates.length },
-                  { value: "issued", label: "Terbit", count: 4 },
-                  { value: "revoked", label: "Dicabut", count: 1 },
-                  { value: "replaced", label: "Diganti", count: 1 },
+                  ...CERTIFICATE_STATUSES.map((status) => ({
+                    value: status,
+                    label: CERTIFICATE_STATUS_LABELS[status],
+                  })),
                 ],
               },
               {
@@ -193,8 +201,14 @@ function PreviewCredentialBoard() {
                 label: "Jalur",
                 options: [
                   { value: "all", label: "Semua" },
-                  { value: "batik", label: "Batik" },
-                  { value: "pranatacara", label: "Pranatacara" },
+                  ...Array.from(
+                    new Set(certificates.map((item) => item.pathId)),
+                  ).map((pathId) => ({
+                    value: pathId,
+                    label:
+                      certificates.find((item) => item.pathId === pathId)
+                        ?.pathTitle ?? pathId,
+                  })),
                 ],
               },
             ]}
@@ -204,8 +218,7 @@ function PreviewCredentialBoard() {
               const pathOk =
                 !values.path ||
                 values.path === "all" ||
-                (values.path === "batik" && row.pathId === "batik-tulis-soga") ||
-                (values.path === "pranatacara" && row.pathId === "pranatacara-jawa")
+                row.pathId === values.path
               return statusOk && pathOk
             }}
             minWidth={900}

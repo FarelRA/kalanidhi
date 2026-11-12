@@ -28,21 +28,39 @@ import { Panel } from "@/components/workspace/data/panel"
 import { SegmentedTabs } from "@/components/workspace/data/segmented-tabs"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
+import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
+import {
+  ORDER_STATUSES,
+  ORDER_STATUS_LABELS,
+} from "@/lib/commerce/options"
 import { adminMetrics, orders } from "@/lib/workspace/mock-data"
 import type { Order } from "@/lib/workspace/types"
 import { formatIDR } from "@/lib/format"
 import { formatWorkspaceDateTime } from "@/lib/workspace/format"
 
 export function OrdersPreview() {
-  const { can } = useViewer()
+  const { can, profile } = useViewer()
   const [tab, setTab] = React.useState(can("orders.read.all") ? "all" : "buy")
   const [selected, setSelected] = React.useState<Order | null>(null)
   const [correction, setCorrection] = React.useState<Order | null>(null)
   const [reason, setReason] = React.useState("")
 
+  const myPurchases = orders.filter(
+    (item) => item.buyer === profile.user.name,
+  )
+  const mySales = orders.filter((item) => item.seller === profile.user.name)
+
   const tabs = [
-    can("orders.buy") && { id: "buy", label: "Pembelian", count: 3 },
-    can("orders.sell") && { id: "sell", label: "Penjualan", count: 4 },
+    can("orders.buy") && {
+      id: "buy",
+      label: "Pembelian",
+      count: myPurchases.length,
+    },
+    can("orders.sell") && {
+      id: "sell",
+      label: "Penjualan",
+      count: mySales.length,
+    },
     can("orders.read.all") && {
       id: "all",
       label: "Semua pesanan",
@@ -58,9 +76,9 @@ export function OrdersPreview() {
   const active = tabs.some((item) => item.id === tab) ? tab : tabs[0]?.id
   const rows =
     active === "buy"
-      ? orders.filter((item) => ["Bayu Pratama", "Maya Kartika", "Nadia Kusuma"].includes(item.buyer))
+      ? myPurchases
       : active === "sell"
-        ? orders.filter((item) => item.seller === "Anisa Rahmawati")
+        ? mySales
         : active === "dispute"
           ? orders.filter((item) => ["disputed", "refunded"].includes(item.status))
           : orders
@@ -84,7 +102,7 @@ export function OrdersPreview() {
           can("orders.read.all")
             ? "Semua pesanan lintas pembeli, penjual, dan kanal. Koreksi status manual memerlukan alasan."
             : can("orders.sell")
-              ? "Pesanan karya dan jasa, status pengiriman, serta bagi hasil 70%."
+              ? `Pesanan karya dan jasa, status pengiriman, serta bagi hasil ${SPLIT_PERCENTAGES.teacher}%.`
               : "Pesanan yang kamu bayar, status pembayaran, dan tanda terima."
         }
         actions={
@@ -149,11 +167,10 @@ export function OrdersPreview() {
                 label: "Status",
                 options: [
                   { value: "all", label: "Semua", count: rows.length },
-                  { value: "paid", label: "Dibayar" },
-                  { value: "delivered", label: "Dikirim" },
-                  { value: "awaiting_payment", label: "Menunggu" },
-                  { value: "completed", label: "Selesai" },
-                  { value: "disputed", label: "Sengketa" },
+                  ...ORDER_STATUSES.map((status) => ({
+                    value: status,
+                    label: ORDER_STATUS_LABELS[status],
+                  })),
                 ],
               },
               {
@@ -161,9 +178,17 @@ export function OrdersPreview() {
                 label: "Kanal",
                 options: [
                   { value: "all", label: "Semua" },
-                  { value: "web", label: "Web" },
-                  { value: "whatsapp", label: "WhatsApp" },
-                  { value: "institusi", label: "Institusi" },
+                  ...Array.from(
+                    new Set(orders.map((item) => item.channel)),
+                  ).map((channel) => ({
+                    value: channel,
+                    label:
+                      channel === "whatsapp"
+                        ? "WhatsApp"
+                        : channel === "institusi"
+                          ? "Institusi"
+                          : "Web",
+                  })),
                 ],
               },
             ]}
@@ -198,18 +223,29 @@ export function OrdersPreview() {
             {active === "sell" ? (
               <>
                 <div className="mt-4 flex h-5 border border-ink/25" aria-hidden="true">
-                  <span className="h-full bg-copper-dark" style={{ width: "70%" }} />
-                  <span className="h-full bg-ink" style={{ width: "15%" }} />
-                  <span className="h-full bg-moss" style={{ width: "15%" }} />
+                  <span
+                    className="h-full bg-copper-dark"
+                    style={{ width: `${SPLIT_PERCENTAGES.teacher}%` }}
+                  />
+                  <span
+                    className="h-full bg-ink"
+                    style={{ width: `${SPLIT_PERCENTAGES.platform}%` }}
+                  />
+                  <span
+                    className="h-full bg-moss"
+                    style={{ width: `${SPLIT_PERCENTAGES.community}%` }}
+                  />
                 </div>
                 <div className="mt-2 flex justify-between text-[8px] font-bold uppercase tracking-[0.05em] text-ink-muted">
-                  <span>Pengrajin 70%</span>
-                  <span>Platform 15%</span>
-                  <span>Komunitas 15%</span>
+                  <span>Pengrajin {SPLIT_PERCENTAGES.teacher}%</span>
+                  <span>Platform {SPLIT_PERCENTAGES.platform}%</span>
+                  <span>Komunitas {SPLIT_PERCENTAGES.community}%</span>
                 </div>
                 <p className="mt-3 border-t border-ink/15 pt-2.5 text-[10.5px] text-ink-soft">
                   Bagian pengrajin:{" "}
-                  <strong className="text-ink">{formatIDR(Math.round(gross * 0.7))}</strong>
+                  <strong className="text-ink">{formatIDR(
+                    Math.round((gross * SPLIT_PERCENTAGES.teacher) / 100),
+                  )}</strong>
                 </p>
               </>
             ) : (
@@ -248,7 +284,7 @@ export function OrdersPreview() {
               <Button asChild variant="outline" size="sm" className="justify-start">
                 <Link href="/ruang/pesanan/payout">
                   <ReceiptText aria-hidden="true" />
-                  Ledger payout 70/15/15
+                  Ledger payout {SPLIT_PERCENTAGES.teacher}/{SPLIT_PERCENTAGES.platform}/{SPLIT_PERCENTAGES.community}
                 </Link>
               </Button>
               <Button asChild variant="ghost" size="sm" className="justify-start">

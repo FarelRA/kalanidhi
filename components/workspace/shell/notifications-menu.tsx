@@ -13,50 +13,12 @@ import type { Id } from "@/convex/_generated/dataModel"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import type { NotificationView } from "@/lib/messaging/types"
 import { formatWorkspaceDateTime } from "@/lib/workspace/format"
+import {
+  previewNotifications,
+  type PreviewNotification,
+} from "@/lib/workspace/mock-data"
 
-type NotificationItem = {
-  id: string
-  title: string
-  body: string
-  time: string
-  href: string
-  unread: boolean
-}
-
-const previewNotifications: NotificationItem[] = [
-  {
-    id: "n-1",
-    title: "Panggilan umpan balik 16.00",
-    body: "Bambang Hardjono · 15 menit · panggilan suara",
-    time: "12 menit lalu",
-    href: "/ruang/panggilan",
-    unread: true,
-  },
-  {
-    id: "n-2",
-    title: "Tugas TGS-2408 sedang dinilai",
-    body: "Batik Tulis Soga · BTG-06",
-    time: "1 jam lalu",
-    href: "/ruang/tugas",
-    unread: true,
-  },
-  {
-    id: "n-3",
-    title: "Payout PAY-309 ditahan",
-    body: "Sengketa ORD-1034 masih terbuka",
-    time: "2 jam lalu",
-    href: "/ruang/pesanan/payout",
-    unread: false,
-  },
-  {
-    id: "n-4",
-    title: "Karya baru menunggu tinjauan",
-    body: "w-05 · Selendang Soga Remaja",
-    time: "Kemarin",
-    href: "/ruang/karya",
-    unread: false,
-  },
-]
+type NotificationItem = PreviewNotification
 
 function hrefFor(notification: NotificationView): string {
   if (notification.conversationId) return "/ruang/pesan"

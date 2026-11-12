@@ -6,9 +6,15 @@ import { ArrowRight, ShieldCheck } from "lucide-react"
 
 import { formatIDR } from "@/lib/format"
 import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
+import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
 import { getPublicWork } from "@/lib/commerce/server"
-import { buildPageMetadata, workRoute } from "@/lib/content/metadata"
-import { interestHref } from "@/lib/content/routes"
+import { buildPageMetadata } from "@/lib/content/metadata"
+import {
+  buyHref,
+  interestHref,
+  PUBLIC_ROUTES,
+  workHref,
+} from "@/lib/content/routes"
 
 export const instant = false
 
@@ -34,10 +40,10 @@ export async function generateMetadata({
   if (!work) {
     return { title: "Karya tidak ditemukan" }
   }
-  return buildPageMetadata(workRoute(work.slug), {
+  return buildPageMetadata(workHref(work.slug), {
     title: work.title,
     description: work.description.slice(0, 160),
-    alternates: { canonical: workRoute(work.slug) },
+    alternates: { canonical: workHref(work.slug) },
     openGraph: {
       title: work.title,
       description: work.description.slice(0, 160),
@@ -56,14 +62,14 @@ export default async function WorkDetailPage({
   if (!work) notFound()
 
   const checkoutHref = signedIn
-    ? `/pesan/${work.slug}`
-    : `/masuk?next=${encodeURIComponent(`/pesan/${work.slug}`)}`
+    ? buyHref(work.slug)
+    : `${PUBLIC_ROUTES.signIn}?next=${encodeURIComponent(buyHref(work.slug))}`
 
   return (
     <div className="bg-cream">
       <section aria-labelledby="karya-title" className="shell py-12 sm:py-16">
         <nav aria-label="Remah roti" className="text-[10px] text-ink-muted">
-          <Link href="/" className="hover:text-copper-dark">
+          <Link href={PUBLIC_ROUTES.home} className="hover:text-copper-dark">
             Beranda
           </Link>
           <span aria-hidden="true"> / </span>
@@ -182,19 +188,28 @@ export default async function WorkDetailPage({
             Bagi hasil sebelum transaksi
           </h2>
           <div className="mt-3 flex h-6 border border-ink/25" aria-hidden="true">
-            <span className="h-full bg-copper-dark" style={{ width: "70%" }} />
-            <span className="h-full bg-ink" style={{ width: "15%" }} />
-            <span className="h-full bg-moss" style={{ width: "15%" }} />
+            <span
+              className="h-full bg-copper-dark"
+              style={{ width: `${SPLIT_PERCENTAGES.teacher}%` }}
+            />
+            <span
+              className="h-full bg-ink"
+              style={{ width: `${SPLIT_PERCENTAGES.platform}%` }}
+            />
+            <span
+              className="h-full bg-moss"
+              style={{ width: `${SPLIT_PERCENTAGES.community}%` }}
+            />
           </div>
           <dl className="mt-3 grid gap-3 sm:grid-cols-3">
             {[
-              ["Pengrajin 70%", work.split.teacherShare],
-              ["Platform 15%", work.split.platformShare],
-              ["Komunitas 15%", work.split.communityShare],
-            ].map(([label, value]) => (
+              ["Pengrajin", SPLIT_PERCENTAGES.teacher, work.split.teacherShare],
+              ["Platform", SPLIT_PERCENTAGES.platform, work.split.platformShare],
+              ["Komunitas", SPLIT_PERCENTAGES.community, work.split.communityShare],
+            ].map(([label, percent, value]) => (
               <div key={String(label)}>
                 <dt className="text-[9px] font-bold uppercase tracking-[0.07em] text-ink-muted">
-                  {label}
+                  {label} {percent}%
                 </dt>
                 <dd className="mt-1 text-[12px] font-semibold tabular-nums">
                   {formatIDR(Number(value))}

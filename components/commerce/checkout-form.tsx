@@ -8,7 +8,7 @@ import { ArrowRight, Loader2, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { splitAmount } from "@/lib/commerce/money"
+import { splitAmount, SPLIT_PERCENTAGES } from "@/lib/commerce/money"
 import { formatIDR } from "@/lib/format"
 
 type CheckoutResponse = {
@@ -142,14 +142,23 @@ export function CheckoutForm({
 
       <div className="mt-5 border border-ink/15 bg-panel/30 p-3">
         <div className="flex h-4 border border-ink/25" aria-hidden="true">
-          <span className="h-full bg-copper-dark" style={{ width: "70%" }} />
-          <span className="h-full bg-ink" style={{ width: "15%" }} />
-          <span className="h-full bg-moss" style={{ width: "15%" }} />
+          <span
+            className="h-full bg-copper-dark"
+            style={{ width: `${SPLIT_PERCENTAGES.teacher}%` }}
+          />
+          <span
+            className="h-full bg-ink"
+            style={{ width: `${SPLIT_PERCENTAGES.platform}%` }}
+          />
+          <span
+            className="h-full bg-moss"
+            style={{ width: `${SPLIT_PERCENTAGES.community}%` }}
+          />
         </div>
         <dl className="mt-2 grid grid-cols-3 gap-2 text-[9.5px]">
           <div>
             <dt className="font-bold uppercase tracking-[0.06em] text-ink-muted">
-              Pengrajin 70%
+              Pengrajin {SPLIT_PERCENTAGES.teacher}%
             </dt>
             <dd className="mt-0.5 font-semibold tabular-nums">
               {formatIDR(split.teacherShare)}
@@ -157,7 +166,7 @@ export function CheckoutForm({
           </div>
           <div>
             <dt className="font-bold uppercase tracking-[0.06em] text-ink-muted">
-              Platform 15%
+              Platform {SPLIT_PERCENTAGES.platform}%
             </dt>
             <dd className="mt-0.5 font-semibold tabular-nums">
               {formatIDR(split.platformShare)}
@@ -165,7 +174,7 @@ export function CheckoutForm({
           </div>
           <div>
             <dt className="font-bold uppercase tracking-[0.06em] text-ink-muted">
-              Komunitas 15%
+              Komunitas {SPLIT_PERCENTAGES.community}%
             </dt>
             <dd className="mt-0.5 font-semibold tabular-nums">
               {formatIDR(split.communityShare)}

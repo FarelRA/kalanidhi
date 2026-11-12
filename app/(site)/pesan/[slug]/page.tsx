@@ -7,8 +7,10 @@ import { ArrowLeft } from "lucide-react"
 import { CheckoutForm } from "@/components/commerce/checkout-form"
 import { api } from "@/convex/_generated/api"
 import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
+import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
 import { formatIDR } from "@/lib/format"
 import { getPublicWork, isCommerceConfigured } from "@/lib/commerce/server"
+import { buyHref, PUBLIC_ROUTES, workHref } from "@/lib/content/routes"
 
 export const instant = false
 
@@ -49,7 +51,7 @@ export default async function CheckoutPage({
             pengelola melalui halaman kontak untuk menyelesaikan pesanan.
           </p>
           <Link
-            href="/"
+            href={PUBLIC_ROUTES.home}
             className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
           >
             Kembali ke beranda
@@ -74,7 +76,7 @@ export default async function CheckoutPage({
             pada lingkungan ini. Hubungi pengelola untuk menyelesaikan pesanan.
           </p>
           <Link
-            href={`/karya/${slug}`}
+            href={workHref(slug)}
             className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
           >
             Kembali ke karya
@@ -86,7 +88,9 @@ export default async function CheckoutPage({
 
   const auth = getAuthServer()
   if (!(await auth.isAuthenticated())) {
-    redirect(`/masuk?next=${encodeURIComponent(`/pesan/${slug}`)}`)
+    redirect(
+      `${PUBLIC_ROUTES.signIn}?next=${encodeURIComponent(buyHref(slug))}`,
+    )
   }
 
   let viewer
@@ -112,7 +116,7 @@ export default async function CheckoutPage({
             pengelola untuk menyelesaikan profil akun sebelum membeli.
           </p>
           <Link
-            href={`/karya/${slug}`}
+            href={workHref(slug)}
             className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
           >
             Kembali ke karya
@@ -140,7 +144,7 @@ export default async function CheckoutPage({
             untuk menghubungkan penjual dan membuka pembelian.
           </p>
           <Link
-            href={`/karya/${work.slug}`}
+            href={workHref(work.slug)}
             className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
           >
             Kembali ke karya
@@ -154,7 +158,7 @@ export default async function CheckoutPage({
     <div className="bg-cream">
       <section aria-labelledby="checkout-title" className="shell py-12 sm:py-16">
         <Link
-          href={`/karya/${work.slug}`}
+          href={workHref(work.slug)}
           className="inline-flex items-center gap-2 text-[10.5px] font-semibold text-ink-muted hover:text-copper-dark"
         >
           <ArrowLeft className="size-3.5" aria-hidden="true" />
@@ -207,13 +211,24 @@ export default async function CheckoutPage({
 
             <div className="mt-4 border border-ink/20 bg-panel/30 p-3">
               <div className="flex h-4 border border-ink/25" aria-hidden="true">
-                <span className="h-full bg-copper-dark" style={{ width: "70%" }} />
-                <span className="h-full bg-ink" style={{ width: "15%" }} />
-                <span className="h-full bg-moss" style={{ width: "15%" }} />
+                <span
+                  className="h-full bg-copper-dark"
+                  style={{ width: `${SPLIT_PERCENTAGES.teacher}%` }}
+                />
+                <span
+                  className="h-full bg-ink"
+                  style={{ width: `${SPLIT_PERCENTAGES.platform}%` }}
+                />
+                <span
+                  className="h-full bg-moss"
+                  style={{ width: `${SPLIT_PERCENTAGES.community}%` }}
+                />
               </div>
               <p className="mt-2 text-[9.5px] leading-relaxed text-ink-muted">
-                Pembagian 70% pengrajin, 15% platform, 15% komunitas dihitung
-                dari harga dasar sebelum biaya gerbang.
+                Pembagian {SPLIT_PERCENTAGES.teacher}% pengrajin,{" "}
+                {SPLIT_PERCENTAGES.platform}% platform,{" "}
+                {SPLIT_PERCENTAGES.community}% komunitas dihitung dari harga
+                dasar sebelum biaya gerbang.
               </p>
             </div>
           </div>

@@ -39,17 +39,24 @@ import {
   formatCommerceDateTime,
   PAYMENT_STATUS_LABELS,
 } from "@/lib/commerce/format"
+import {
+  GATEWAY_HEALTH_LABELS,
+  PAYMENT_EVENT_LABELS,
+  PAYMENT_STATUSES,
+  PAYMENT_STATUS_TONES,
+} from "@/lib/commerce/options"
 import type { PaymentEventView, PaymentIntentView } from "@/lib/commerce/types"
 import type { StatusTone } from "@/lib/workspace/types"
 import { formatIDR } from "@/lib/format"
 
 function intentTone(intent: PaymentIntentView): StatusTone {
-  if (intent.status === "paid") return "done"
-  if (intent.reconciliationState === "late" || intent.reconciliationState === "unmatched") {
+  if (
+    intent.reconciliationState === "late" ||
+    intent.reconciliationState === "unmatched"
+  ) {
     return "danger"
   }
-  if (intent.status === "pending") return "wait"
-  return "muted"
+  return PAYMENT_STATUS_TONES[intent.status]
 }
 
 function intentLabel(intent: PaymentIntentView): string {
@@ -226,10 +233,10 @@ export function PaymentConsoleLive() {
                 label: "Status",
                 options: [
                   { value: "all", label: "Semua", count: intents.length },
-                  { value: "pending", label: "Menunggu" },
-                  { value: "paid", label: "Lunas" },
-                  { value: "expired", label: "Kedaluwarsa" },
-                  { value: "failed", label: "Gagal" },
+                  ...PAYMENT_STATUSES.map((status) => ({
+                    value: status,
+                    label: PAYMENT_STATUS_LABELS[status],
+                  })),
                 ],
               },
             ]}
@@ -311,7 +318,10 @@ export function PaymentConsoleLive() {
           {[
             {
               label: "Status gerbang",
-              status: health?.status ?? "unknown",
+              status:
+                GATEWAY_HEALTH_LABELS[
+                  (health?.status ?? "unknown") as keyof typeof GATEWAY_HEALTH_LABELS
+                ],
               note: health?.message ?? "Belum ada probe.",
               done: health?.status === "healthy",
             },
@@ -722,7 +732,9 @@ const eventColumns: Column<PaymentEventView>[] = [
     header: "Peristiwa",
     cell: (row) => (
       <div>
-        <p className="font-semibold text-ink">{row.kind}</p>
+        <p className="font-semibold text-ink">
+          {PAYMENT_EVENT_LABELS[row.kind]}
+        </p>
         <p className="mt-0.5 max-w-64 truncate text-[9.5px] text-ink-muted">
           {row.eventId}
         </p>

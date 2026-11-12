@@ -15,21 +15,14 @@ import { PageHeader } from "@/components/workspace/data/page-header"
 import { Panel } from "@/components/workspace/data/panel"
 import { SegmentedTabs } from "@/components/workspace/data/segmented-tabs"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
+import { LOG_KINDS, LOG_KIND_LABELS, LOG_SEVERITIES, LOG_SEVERITY_LABELS } from "@/lib/admin/log"
 import { logs } from "@/lib/workspace/mock-data"
 import type { LogEntry, StatusTone } from "@/lib/workspace/types"
 import { formatWorkspaceDateTime } from "@/lib/workspace/format"
 
 const types = [
   "Semua",
-  "Audit",
-  "Auth",
-  "Pembayaran",
-  "Notifikasi",
-  "Panggilan",
-  "Moderasi",
-  "Konten",
-  "API",
-  "Galat",
+  ...LOG_KINDS.map((kind) => LOG_KIND_LABELS[kind]),
 ] as const
 
 const severityTone: Record<LogEntry["severity"], StatusTone> = {
@@ -120,9 +113,10 @@ export function LogExplorer() {
                 label: "Tingkat",
                 options: [
                   { value: "all", label: "Semua" },
-                  { value: "info", label: "Info" },
-                  { value: "warning", label: "Peringatan" },
-                  { value: "error", label: "Galat" },
+                  ...LOG_SEVERITIES.map((severity) => ({
+                    value: severity,
+                    label: LOG_SEVERITY_LABELS[severity],
+                  })),
                 ],
               },
             ]}

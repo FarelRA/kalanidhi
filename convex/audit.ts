@@ -1,5 +1,6 @@
 import { v } from "convex/values"
 
+import { LOG_KINDS } from "../lib/admin/log"
 import type {
   LogDetail,
   LogKind,
@@ -12,15 +13,7 @@ import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/s
 import { severityValidator } from "./tables/common"
 
 const logKindValidator = v.union(
-  v.literal("audit"),
-  v.literal("auth"),
-  v.literal("payments"),
-  v.literal("notifications"),
-  v.literal("calls"),
-  v.literal("moderation"),
-  v.literal("content"),
-  v.literal("api"),
-  v.literal("errors"),
+  ...LOG_KINDS.map((kind) => v.literal(kind)),
 )
 
 export type AuditInput = {
@@ -379,15 +372,9 @@ export const get = query({
     const row = result.rows.find((item) => item.id === args.id)
     if (!row) return null
 
-    const allKinds: LogKind[] = [
-      "audit",
-      "auth",
-      "payments",
-      "notifications",
-      "calls",
-      "moderation",
-      "content",
-    ]
+    const allKinds: LogKind[] = LOG_KINDS.filter(
+      (kind) => kind !== "api" && kind !== "errors",
+    )
     const related: LogRow[] = []
     for (const kind of allKinds) {
       const collection = await collectRows(ctx, kind, {

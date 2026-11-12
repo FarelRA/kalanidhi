@@ -129,7 +129,10 @@ function PreviewTaskBoard() {
 }
 
 function StudentTasks({ onSelect }: { onSelect: (row: Submission) => void }) {
-  const mine = submissions.filter((item) => item.student === "Anisa Rahmawati")
+  const { profile } = useViewer()
+  const mine = submissions.filter(
+    (item) => item.student === profile.user.name,
+  )
 
   return (
     <div className="grid gap-4 lg:grid-cols-12">
@@ -212,7 +215,7 @@ function StudentTasks({ onSelect }: { onSelect: (row: Submission) => void }) {
             “Garis tepi sudah rata. Jangan buru-buru masuk pewarnaan; pastikan malam
             benar-benar kering.”
             <footer className="mt-2 text-[9px] font-bold uppercase tracking-[0.07em] text-ink-muted">
-              Bambang Hardjono · 9 Nov
+              {mine[0]?.teacher ?? "Pengajar"}
             </footer>
           </blockquote>
           <div className="mt-3 flex items-center gap-2 border-t border-ink/15 pt-3">
@@ -249,10 +252,10 @@ const queueFilters = [
 ]
 
 function GradingQueue({ onSelect }: { onSelect: (row: Submission) => void }) {
-  const { can } = useViewer()
+  const { can, profile } = useViewer()
   const rows = can("operate")
     ? submissions
-    : submissions.filter((item) => item.teacher === "Bambang Hardjono")
+    : submissions.filter((item) => item.teacher === profile.user.name)
 
   return (
     <Panel eyebrow="Antrean" title="Tugas menunggu keputusan" bodyClassName="p-0">
@@ -377,8 +380,12 @@ function EscalationQueue({ onSelect }: { onSelect: (row: Submission) => void }) 
               label: "Jalur",
               options: [
                 { value: "all", label: "Semua" },
-                { value: "Batik Tulis Soga", label: "Batik" },
-                { value: "Seni Pembawa Acara Tradisi Jawa", label: "Pranatacara" },
+                ...Array.from(
+                  new Set(submissions.map((item) => item.pathTitle)),
+                ).map((pathTitle) => ({
+                  value: pathTitle,
+                  label: pathTitle,
+                })),
               ],
             },
           ]}

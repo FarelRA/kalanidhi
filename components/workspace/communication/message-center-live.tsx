@@ -51,6 +51,10 @@ import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
 import {
+  CONVERSATION_KIND_LABELS,
+  CONVERSATION_STATUS_LABELS,
+} from "@/lib/messaging/options"
+import {
   attachmentProblem,
   extensionForMime,
   MAX_TEXT_LENGTH,
@@ -2253,16 +2257,11 @@ function ModerationPanel({
 }
 
 function kindLabel(kind: ConversationSummary["kind"] | undefined): string {
-  if (kind === "cohort") return "Kohort"
-  if (kind === "support") return "Dukungan"
-  if (kind === "system") return "Sistem"
-  return "Langsung"
+  return kind ? CONVERSATION_KIND_LABELS[kind] : CONVERSATION_KIND_LABELS.direct
 }
 
 function statusLabel(status: "open" | "archived" | "flagged"): string {
-  if (status === "archived") return "Ditutup"
-  if (status === "flagged") return "Terlapor"
-  return "Terbuka"
+  return CONVERSATION_STATUS_LABELS[status]
 }
 
 function initialsFor(value: string): string {

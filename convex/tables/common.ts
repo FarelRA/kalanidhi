@@ -1,6 +1,7 @@
 import { v } from "convex/values"
 
 import { WORKSPACE_ROLES } from "../../lib/access/capabilities"
+import { LOG_SEVERITIES } from "../../lib/admin/log"
 
 export const roleValidator = v.union(
   ...WORKSPACE_ROLES.map((role) => v.literal(role)),
@@ -14,10 +15,7 @@ export const accountStatusValidator = v.union(
 )
 
 export const severityValidator = v.union(
-  v.literal("info"),
-  v.literal("warning"),
-  v.literal("error"),
-  v.literal("critical"),
+  ...LOG_SEVERITIES.map((severity) => v.literal(severity)),
 )
 
 /**

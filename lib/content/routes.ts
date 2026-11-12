@@ -9,6 +9,7 @@ export const PUBLIC_ROUTES = {
   teachers: "/pengajar",
   works: "/karya",
   interest: "/minat",
+  consult: "/tanya",
   verify: "/verifikasi",
   about: "/tentang",
   ethics: "/etika",
@@ -30,6 +31,7 @@ export const PUBLIC_STATIC_ROUTES = [
   PUBLIC_ROUTES.teachers,
   PUBLIC_ROUTES.works,
   PUBLIC_ROUTES.interest,
+  PUBLIC_ROUTES.consult,
   PUBLIC_ROUTES.verify,
   PUBLIC_ROUTES.about,
   PUBLIC_ROUTES.ethics,
@@ -49,7 +51,7 @@ export const PUBLIC_STATIC_ROUTES = [
 const LEGACY_ANCHOR_ROUTES: Record<string, string> = {
   "#top": PUBLIC_ROUTES.home,
   "#lingkaran": `${PUBLIC_ROUTES.about}#lingkaran`,
-  "#indeks": PUBLIC_ROUTES.paths,
+  "#indeks": `${PUBLIC_ROUTES.home}#indeks`,
   "#jalur": PUBLIC_ROUTES.paths,
   "#pengajar": PUBLIC_ROUTES.teachers,
   "#karya": PUBLIC_ROUTES.works,
@@ -59,22 +61,12 @@ const LEGACY_ANCHOR_ROUTES: Record<string, string> = {
   "#mangsa": PUBLIC_ROUTES.mangsa,
 }
 
-const FOOTER_LABEL_ROUTES: Record<string, string> = {
-  "Tentang KalaNidhi Digital": PUBLIC_ROUTES.about,
-  "Etika dan hak budaya": PUBLIC_ROUTES.ethics,
-  "Untuk institusi": PUBLIC_ROUTES.institution,
-  "Pertanyaan umum": PUBLIC_ROUTES.faq,
-  "Kebijakan privasi": PUBLIC_ROUTES.privacy,
-  "Ketentuan layanan": PUBLIC_ROUTES.terms,
-}
-
 export function publicHref(href: string): string {
   return LEGACY_ANCHOR_ROUTES[href] ?? href
 }
 
-export function footerHref(label: string, href: string): string {
-  return FOOTER_LABEL_ROUTES[label] ?? publicHref(href)
-}
+/** Real route for the loop section on the about page. */
+export const ABOUT_LOOP_HREF = `${PUBLIC_ROUTES.about}#lingkaran`
 
 export type InterestLinkInput = {
   path?: string
@@ -84,8 +76,10 @@ export type InterestLinkInput = {
   interest?: string
 }
 
-/** Builds a real lead-form URL instead of opening a generic dialog. */
-export function interestHref(input: InterestLinkInput = {}): string {
+function withInterestParams(
+  route: string,
+  input: InterestLinkInput,
+): string {
   const params = new URLSearchParams()
   if (input.path) params.set("path", input.path)
   if (input.teacher) params.set("teacher", input.teacher)
@@ -93,7 +87,30 @@ export function interestHref(input: InterestLinkInput = {}): string {
   if (input.intent) params.set("intent", input.intent)
   if (input.interest) params.set("interest", input.interest)
   const query = params.toString()
-  return query ? `${PUBLIC_ROUTES.interest}?${query}` : PUBLIC_ROUTES.interest
+  return query ? `${route}?${query}` : route
+}
+
+/**
+ * Builds a real interest URL. `/minat` is a smart router: it sends student
+ * intent straight to checkout and everything else to the consultation page.
+ */
+export function interestHref(input: InterestLinkInput = {}): string {
+  return withInterestParams(PUBLIC_ROUTES.interest, input)
+}
+
+/** Builds a consultation/lead-form URL. */
+export function consultHref(input: InterestLinkInput = {}): string {
+  return withInterestParams(PUBLIC_ROUTES.consult, input)
+}
+
+/** Checkout URL for a learning path. */
+export function enrollHref(pathSlug: string): string {
+  return `/pesan/jalur/${pathSlug}`
+}
+
+/** Checkout URL for a work. */
+export function buyHref(workSlug: string): string {
+  return `/pesan/${workSlug}`
 }
 
 export function pathHref(slug: string): string {
@@ -110,4 +127,9 @@ export function workHref(slug: string): string {
 
 export function verifyHref(code: string): string {
   return `${PUBLIC_ROUTES.verify}/${encodeURIComponent(code)}`
+}
+
+/** Catalog field filter on the paths index. */
+export function fieldHref(name: string): string {
+  return `${PUBLIC_ROUTES.paths}?bidang=${encodeURIComponent(name)}`
 }

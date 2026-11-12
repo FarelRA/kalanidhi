@@ -17,6 +17,7 @@ import {
   getPaymentStatus,
   isCommerceConfigured,
 } from "@/lib/commerce/server"
+import { PUBLIC_ROUTES } from "@/lib/content/routes"
 
 export const instant = false
 
@@ -50,7 +51,7 @@ export default async function OrderStatusPage({
             pembayaran.
           </p>
           <Link
-            href="/"
+            href={PUBLIC_ROUTES.home}
             className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
           >
             Kembali ke beranda
@@ -137,13 +138,13 @@ export default async function OrderStatusPage({
 
         <div className="mt-8 flex flex-wrap gap-3 border-t border-ink/15 pt-5">
           <Link
-            href="/"
+            href={PUBLIC_ROUTES.home}
             className="inline-flex min-h-11 items-center border border-ink/25 bg-paper-2 px-4 text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink"
           >
             Kembali ke beranda
           </Link>
           <Link
-            href={signedIn ? "/ruang/pesanan" : "/masuk"}
+            href={signedIn ? `${PUBLIC_ROUTES.workspace}/pesanan` : PUBLIC_ROUTES.signIn}
             className="inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[10.5px] font-bold uppercase tracking-[0.08em] text-paper"
           >
             {signedIn ? "Buka pesanan saya" : "Masuk ke ruang kerja"}

@@ -8,6 +8,11 @@ import type {
   PrivacyRequestView,
   TakedownView,
 } from "../lib/governance/types"
+import {
+  ACCESS_LEVELS,
+  BREAK_GLASS_ENTITY_TYPES,
+  PRIVACY_REQUEST_KINDS,
+} from "../lib/governance/options"
 import { viewerForUser } from "./access"
 import { requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
@@ -15,9 +20,7 @@ import type { Doc, Id } from "./_generated/dataModel"
 import { mutation, query, type QueryCtx, type MutationCtx } from "./_generated/server"
 
 const accessLevelValidator = v.union(
-  v.literal("public"),
-  v.literal("community"),
-  v.literal("restricted"),
+  ...ACCESS_LEVELS.map((level) => v.literal(level)),
 )
 const withdrawalStatusValidator = v.union(
   v.literal("active"),
@@ -45,10 +48,7 @@ const takedownStatusValidator = v.union(
   v.literal("reversed"),
 )
 const privacyKindValidator = v.union(
-  v.literal("access"),
-  v.literal("correction"),
-  v.literal("deletion"),
-  v.literal("hold"),
+  ...PRIVACY_REQUEST_KINDS.map((kind) => v.literal(kind)),
 )
 const privacyStatusValidator = v.union(
   v.literal("open"),
@@ -57,10 +57,7 @@ const privacyStatusValidator = v.union(
   v.literal("rejected"),
 )
 const breakGlassEntityValidator = v.union(
-  v.literal("call_recording"),
-  v.literal("identity_document"),
-  v.literal("submission_asset"),
-  v.literal("message_asset"),
+  ...BREAK_GLASS_ENTITY_TYPES.map((entity) => v.literal(entity)),
 )
 
 const DAY_MS = 86_400_000

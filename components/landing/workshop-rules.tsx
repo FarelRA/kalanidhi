@@ -1,6 +1,7 @@
 import { BookMarked, HandCoins, LockKeyhole } from "lucide-react"
 
-import type { EthicsContent } from "@/lib/content/types"
+import type { EthicsContent, PublicCulturalSource } from "@/lib/content/types"
+import { formatDate } from "@/lib/format"
 import { cn } from "cn"
 
 const principleIcons = [BookMarked, LockKeyhole, HandCoins] as const
@@ -11,7 +12,39 @@ const shareStyles = [
   "bg-brass text-ink",
 ] as const
 
-export function WorkshopRules({ ethics }: { ethics: EthicsContent }) {
+const ACCESS_ORDER = ["public", "community", "restricted"] as const
+
+const PERMISSION_STATUS_LABELS: Record<
+  PublicCulturalSource["permissionStatus"],
+  string
+> = {
+  pending: "Menunggu persetujuan",
+  granted: "Izin diberikan",
+  withdrawn: "Izin ditarik",
+}
+
+function initialsOf(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase() ?? "")
+    .join("")
+}
+
+export function WorkshopRules({
+  ethics,
+  sources,
+}: {
+  ethics: EthicsContent
+  sources: PublicCulturalSource[]
+}) {
+  const latest = sources.at(-1)
+  const activeAccess = new Set(sources.map((source) => source.accessLevel))
+  const accessLabel = (level: PublicCulturalSource["accessLevel"]) => {
+    const index = ACCESS_ORDER.indexOf(level)
+    return ethics.accessLevels[index]?.label ?? level
+  }
   return (
     <section
       id="etika"
@@ -62,33 +95,47 @@ export function WorkshopRules({ ethics }: { ethics: EthicsContent }) {
                   {ethics.card.sourceTitle}
                 </span>
                 <span className="stamp border-moss bg-moss text-cream-2">
-                  {ethics.attribution.access}
+                  {latest ? accessLabel(latest.accessLevel) : "—"}
                 </span>
               </div>
-              <ul className="mt-4 divide-y divide-ink/15 border-y border-ink/15">
-                {ethics.attribution.sources.map((source) => (
-                  <li key={source.name} className="flex items-start gap-3 py-3">
-                    <span className="flex size-9 shrink-0 items-center justify-center border border-ink/30 bg-cream text-[10px] font-bold tracking-[0.08em] text-ink">
-                      {source.initials}
-                    </span>
-                    <div>
-                      <p className="font-heading text-[1.25rem] leading-tight">
-                        {source.name}
-                      </p>
-                      <p className="mt-0.5 text-[11.5px] leading-snug text-ink-muted">
-                        {source.field}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              {sources.length === 0 ? (
+                <p className="mt-4 border-y border-ink/15 py-4 text-[12px] leading-relaxed text-ink-muted">
+                  {ethics.card.emptyState}
+                </p>
+              ) : (
+                <ul className="mt-4 divide-y divide-ink/15 border-y border-ink/15">
+                  {sources.map((source) => (
+                    <li
+                      key={`${source.community}-${source.sourceName}`}
+                      className="flex items-start gap-3 py-3"
+                    >
+                      <span className="flex size-9 shrink-0 items-center justify-center border border-ink/30 bg-cream text-[10px] font-bold tracking-[0.08em] text-ink">
+                        {initialsOf(source.community)}
+                      </span>
+                      <div>
+                        <p className="font-heading text-[1.25rem] leading-tight">
+                          {source.community}
+                        </p>
+                        <p className="mt-0.5 text-[11.5px] leading-snug text-ink-muted">
+                          {source.sourceName}
+                        </p>
+                        <p className="mt-1 text-[10.5px] leading-snug text-ink/60">
+                          {source.attribution}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
               <dl className="mt-4 space-y-3">
                 <div>
                   <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
                     {ethics.card.permissionLabel}
                   </dt>
                   <dd className="mt-0.5 text-[12px] leading-snug text-ink/75">
-                    {ethics.attribution.permission}
+                    {latest
+                      ? `${formatDate(latest.permissionDate)} · ${PERMISSION_STATUS_LABELS[latest.permissionStatus]}`
+                      : ethics.card.emptyState}
                   </dd>
                 </div>
                 <div>
@@ -96,24 +143,31 @@ export function WorkshopRules({ ethics }: { ethics: EthicsContent }) {
                     {ethics.card.referenceLabel}
                   </dt>
                   <dd className="mt-0.5 text-[12px] leading-snug text-ink/75">
-                    {ethics.attribution.reference}
+                    {latest
+                      ? [latest.attribution, latest.notes]
+                          .filter(Boolean)
+                          .join(" ")
+                      : "—"}
                   </dd>
                 </div>
               </dl>
               <div className="mt-4 flex flex-wrap gap-2 border-t border-ink/15 pt-3">
-                {ethics.accessLevels.map((level) => (
-                  <span
-                    key={level.label}
-                    className={cn(
-                      "inline-flex min-h-7 items-center border px-2 text-[9.5px] font-bold uppercase tracking-[0.06em]",
-                      level.label === ethics.attribution.access
-                        ? "border-moss bg-moss/10 text-moss"
-                        : "border-ink/25 text-ink-muted",
-                    )}
-                  >
-                    {level.label}
-                  </span>
-                ))}
+                {ethics.accessLevels.map((level, index) => {
+                  const access = ACCESS_ORDER[index]
+                  return (
+                    <span
+                      key={level.label}
+                      className={cn(
+                        "inline-flex min-h-7 items-center border px-2 text-[9.5px] font-bold uppercase tracking-[0.06em]",
+                        access && activeAccess.has(access)
+                          ? "border-moss bg-moss/10 text-moss"
+                          : "border-ink/25 text-ink-muted",
+                      )}
+                    >
+                      {level.label}
+                    </span>
+                  )
+                })}
               </div>
             </div>
 

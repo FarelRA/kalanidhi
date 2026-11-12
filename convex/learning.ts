@@ -1,6 +1,10 @@
 import { ConvexError, v } from "convex/values"
 
 import type { Viewer } from "../lib/access/viewer"
+import {
+  LESSON_ACCESS_LEVELS,
+  LESSON_KINDS,
+} from "../lib/learning/options"
 import { assertScope } from "./access"
 import { certificateOverview } from "./certificates"
 import type { Doc, Id } from "./_generated/dataModel"
@@ -2035,19 +2039,11 @@ export const createLesson = mutation({
   args: {
     moduleId: v.id("pathModules"),
     title: v.string(),
-    kind: v.union(
-      v.literal("text"),
-      v.literal("video"),
-      v.literal("audio"),
-      v.literal("file"),
-      v.literal("practice"),
-    ),
+    kind: v.union(...LESSON_KINDS.map((kind) => v.literal(kind))),
     body: v.string(),
     estimatedMinutes: v.number(),
     accessLevel: v.union(
-      v.literal("public"),
-      v.literal("enrolled"),
-      v.literal("certified"),
+      ...LESSON_ACCESS_LEVELS.map((level) => v.literal(level)),
     ),
     mediaAssetIds: v.optional(v.array(v.id("mediaAssets"))),
   },
@@ -2101,22 +2097,12 @@ export const updateLesson = mutation({
     lessonId: v.id("lessons"),
     title: v.optional(v.string()),
     kind: v.optional(
-      v.union(
-        v.literal("text"),
-        v.literal("video"),
-        v.literal("audio"),
-        v.literal("file"),
-        v.literal("practice"),
-      ),
+      v.union(...LESSON_KINDS.map((kind) => v.literal(kind))),
     ),
     body: v.optional(v.string()),
     estimatedMinutes: v.optional(v.number()),
     accessLevel: v.optional(
-      v.union(
-        v.literal("public"),
-        v.literal("enrolled"),
-        v.literal("certified"),
-      ),
+      v.union(...LESSON_ACCESS_LEVELS.map((level) => v.literal(level))),
     ),
     mediaAssetIds: v.optional(v.array(v.id("mediaAssets"))),
     order: v.optional(v.number()),

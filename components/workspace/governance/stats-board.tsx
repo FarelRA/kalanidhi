@@ -26,6 +26,12 @@ export function StatsBoard() {
   const { can } = useViewer()
   const [range, setRange] = React.useState("30")
   const admin = can("stats.read")
+  const ownerOptions = Array.from(
+    new Set(statsDefinitions.map((definition) => definition.owner)),
+  ).map((owner) => ({
+    value: owner,
+    label: owner.split(" ")[0] ?? owner,
+  }))
 
   return (
     <div className="space-y-6">
@@ -267,9 +273,7 @@ export function StatsBoard() {
               label: "Pemilik",
               options: [
                 { value: "all", label: "Semua" },
-                { value: "Nadia Kusuma", label: "Nadia" },
-                { value: "Bambang Hardjono", label: "Bambang" },
-                { value: "Fajar Nugroho", label: "Fajar" },
+                ...ownerOptions,
               ],
             },
           ]}

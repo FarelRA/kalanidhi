@@ -13,7 +13,7 @@ export function MobileCtaDock({
   startingPrice,
   copy,
 }: {
-  startingPrice: number
+  startingPrice: number | null
   copy: MobileCtaCopy
 }) {
   const [visible, setVisible] = useState(false)
@@ -44,15 +44,19 @@ export function MobileCtaDock({
     >
       <div className="flex items-center gap-4">
         <div className="min-w-0">
-          <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-ink-muted">
-            {copy.label}
-          </p>
-          <p className="font-heading text-[1.35rem] leading-tight text-ink">
-            {formatIDR(startingPrice)}
-            <span className="ml-1 font-sans text-[10px] font-semibold text-ink-muted">
-              {copy.priceSuffix}
-            </span>
-          </p>
+          {startingPrice !== null ? (
+            <>
+              <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-ink-muted">
+                {copy.label}
+              </p>
+              <p className="font-heading text-[1.35rem] leading-tight text-ink">
+                {formatIDR(startingPrice)}
+                <span className="ml-1 font-sans text-[10px] font-semibold text-ink-muted">
+                  {copy.priceSuffix}
+                </span>
+              </p>
+            </>
+          ) : null}
         </div>
         <Button
           asChild

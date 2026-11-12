@@ -1,6 +1,8 @@
 import { z } from "zod"
 
+import { CATALOG_STATUSES } from "../content/status"
 import type { ContentDocument, SiteCopy } from "../content/types"
+import { LEAD_INTENTS } from "../leads/options"
 
 /**
  * One schema validates the editor form, the save mutation, the stored
@@ -62,11 +64,7 @@ const href = z.string().trim().min(1).max(600).refine(
 )
 
 
-export const catalogStatusSchema = z.enum([
-  "Terbuka",
-  "Sedang dipetakan",
-  "Direncanakan",
-])
+export const catalogStatusSchema = z.enum(CATALOG_STATUSES)
 
 export const infoKeySchema = z.enum([
   "policy",
@@ -78,15 +76,18 @@ export const infoKeySchema = z.enum([
   "terms",
 ])
 
-const leadVariantSchema = z.enum([
-  "student",
-  "institution",
-  "consultation",
-  "notify",
+const leadVariantSchema = z.enum(LEAD_INTENTS)
+
+const tractionMetricSchema = z.enum([
+  "fields",
+  "teachers",
+  "participants",
+  "submissions",
+  "works",
 ])
 
 const metricSchema = z.object({
-  value: required(120),
+  metric: tractionMetricSchema,
   label: required(240),
 })
 
@@ -140,6 +141,7 @@ const loopSchema = z.object({
   description: required(2_000),
   returnLabel: required(120),
   returnNote: required(1_000),
+  returnCaveat: required(1_200),
   stages: z.array(loopStageSchema).min(3).max(8),
   diagram: z.object({
     title: required(200),
@@ -204,20 +206,7 @@ const ethicsSchema = z.object({
     sourceTitle: required(160),
     permissionLabel: required(120),
     referenceLabel: required(120),
-  }),
-  attribution: z.object({
-    permission: required(400),
-    access: required(120),
-    reference: required(600),
-    sources: z
-      .array(
-        z.object({
-          initials: required(8),
-          name: required(200),
-          field: required(200),
-        }),
-      )
-      .min(1),
+    emptyState: required(600),
   }),
 })
 
@@ -327,6 +316,10 @@ const sectionCopySchema = z.object({
     contentLabel: required(80),
     includesLabel: required(80),
     curriculumPending: required(120),
+    teacherLabel: required(80),
+    regionLabel: required(80),
+    levelLabel: required(80),
+    emptyState: required(600),
   }),
   teachers: z.object({
     label: required(120),
@@ -335,6 +328,7 @@ const sectionCopySchema = z.object({
     profileCta: required(80),
     dialogLabel: required(120),
     askCta: required(120),
+    emptyState: required(600),
   }),
   works: z.object({
     label: required(120),
@@ -344,11 +338,19 @@ const sectionCopySchema = z.object({
     serviceLabel: required(80),
     priceLabel: required(80),
     askCta: required(120),
+    openCta: required(80),
+    cardLabel: required(80),
+    makerLabel: required(80),
+    teacherLabel: required(80),
+    techniqueLabel: required(80),
+    regionLabel: required(80),
+    emptyState: required(600),
   }),
   notes: z.object({
     label: required(120),
     title: required(300),
     description: required(1_000),
+    emptyState: required(600),
   }),
   faq: z.object({
     label: required(120),
@@ -356,6 +358,8 @@ const sectionCopySchema = z.object({
     description: required(1_000),
     policyCta: required(80),
     askCta: required(120),
+    askInterest: required(120),
+    emptyState: required(600),
   }),
   closing: z.object({
     label: required(120),
@@ -381,6 +385,7 @@ const headerSchema = z.object({
   sheetTitle: required(160),
   sheetDescription: required(400),
   region: required(160),
+  homeLabel: required(80),
 })
 
 const searchSchema = z.object({

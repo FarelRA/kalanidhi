@@ -4,6 +4,9 @@ import path from "node:path"
 import { describe, expect, it } from "vitest"
 
 import {
+  buyHref,
+  consultHref,
+  enrollHref,
   interestHref,
   pathHref,
   PUBLIC_STATIC_ROUTES,
@@ -98,6 +101,10 @@ describe("public routes", () => {
       interestHref({ path: "batik-tulis-soga", intent: "student" }),
       interestHref({ teacher: "bambang-hardjono", intent: "consultation" }),
       interestHref({ work: "batik-soga-anyaman", intent: "consultation" }),
+      consultHref({ intent: "consultation" }),
+      consultHref({ teacher: "bambang-hardjono", intent: "consultation" }),
+      enrollHref("batik-tulis-soga"),
+      buyHref("batik-soga-anyaman"),
       "/masuk?next=%2Fruang%2Fbelajar",
       "/daftar?next=%2Fruang%2Fbelajar",
       "/ruang/belajar",

@@ -24,6 +24,7 @@ import type {
   SupportTicket,
   WorkItem,
 } from "./types"
+import { SPLIT_PERCENTAGES } from "../commerce/money"
 
 export const people: Person[] = [
   {
@@ -2053,7 +2054,7 @@ export const teacherMetrics: Metric[] = [
     id: "earnings",
     label: "Pendapatan bulan ini",
     value: "Rp10,9 jt",
-    note: "70% dari Rp15,6 jt",
+    note: `${SPLIT_PERCENTAGES.teacher}% dari Rp15,6 jt`,
     delta: "+18%",
     direction: "up",
     series: [20, 24, 22, 30, 28, 34, 38, 36, 42, 48, 44, 52],
@@ -2464,7 +2465,7 @@ export const flows: Flow[] = [
   },
   {
     id: "flow-payout",
-    name: "Payout 70/15/15",
+    name: `Payout ${SPLIT_PERCENTAGES.teacher}/${SPLIT_PERCENTAGES.platform}/${SPLIT_PERCENTAGES.community}`,
     owner: "Nadia Kusuma",
     description: "Ledger append-only, tahan, setujui, bayar, dan pembalikan.",
     states: [
@@ -2809,3 +2810,91 @@ export const teachers = [
     verified: true,
   },
 ]
+
+export type PreviewNotification = {
+  id: string
+  title: string
+  body: string
+  time: string
+  href: string
+  unread: boolean
+}
+
+export const previewNotifications: PreviewNotification[] = [
+  {
+    id: "n-1",
+    title: "Panggilan umpan balik 16.00",
+    body: "Bambang Hardjono · 15 menit · panggilan suara",
+    time: "12 menit lalu",
+    href: "/ruang/panggilan",
+    unread: true,
+  },
+  {
+    id: "n-2",
+    title: "Tugas TGS-2408 sedang dinilai",
+    body: "Batik Tulis Soga · BTG-06",
+    time: "1 jam lalu",
+    href: "/ruang/tugas",
+    unread: true,
+  },
+  {
+    id: "n-3",
+    title: "Payout PAY-309 ditahan",
+    body: "Sengketa ORD-1034 masih terbuka",
+    time: "2 jam lalu",
+    href: "/ruang/pesanan/payout",
+    unread: false,
+  },
+  {
+    id: "n-4",
+    title: "Karya baru menunggu tinjauan",
+    body: "w-05 · Selendang Soga Remaja",
+    time: "Kemarin",
+    href: "/ruang/karya",
+    unread: false,
+  },
+]
+
+/** Preview-only canned replies. The live inbox reads these from Convex. */
+export const supportCannedReplies = [
+  {
+    id: "canned-double-payment",
+    label: "Pembayaran ganda",
+    body: "Terima kasih, kami sudah menerima laporan Anda. Mohon jangan melakukan pembayaran ulang.",
+  },
+  {
+    id: "canned-dispute",
+    label: "Sengketa",
+    body: "Kami sedang meninjau bukti dari kedua pihak. Payout terkait ditahan sampai selesai.",
+  },
+  {
+    id: "canned-call",
+    label: "Masalah panggilan",
+    body: "Silakan coba bergabung kembali dengan mode suara saja, lalu kabari kami bila masih gagal.",
+  },
+] as const
+
+export type PreviewSession = {
+  device: string
+  location: string
+  status: "Aktif" | "Kedaluwarsa"
+}
+
+export const previewSessions: PreviewSession[] = [
+  { device: "Chrome · Android", location: "Yogyakarta · sekarang", status: "Aktif" },
+  { device: "Safari · iPhone", location: "Yogyakarta · 2 hari lalu", status: "Aktif" },
+  { device: "Chrome · Linux", location: "Yogyakarta · 9 hari lalu", status: "Kedaluwarsa" },
+]
+
+export const previewPayoutAccount = {
+  bank: "BCA",
+  number: "8820 1144 27",
+}
+
+export const previewFeatureFlags = {
+  seller: true,
+  calls: true,
+  recordings: false,
+  newCatalog: false,
+  maintenance: false,
+}

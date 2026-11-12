@@ -1522,6 +1522,7 @@ export const seedCurriculum = internalMutation({
     for (const [pathSlug, modules] of Object.entries(MODULES)) {
       const path = await pathBySlug(ctx, pathSlug)
       const isDraft = pathSlug === "kriya-ukir-jepara"
+      let publishedModules = 0
       for (const [moduleIndex, module] of modules.entries()) {
         const moduleId = await ctx.db.insert("pathModules", {
           order: moduleIndex + 1,
@@ -1533,6 +1534,7 @@ export const seedCurriculum = internalMutation({
           createdAt: ago(90),
         })
         moduleCount += 1
+        if (!isDraft) publishedModules += 1
         for (const [lessonIndex, lesson] of module.lessons.entries()) {
           const mediaAssetIds: Id<"mediaAssets">[] = []
           if (pathSlug === "batik-tulis-soga" && moduleIndex === 0 && lessonIndex === 0 && audio) {
@@ -1557,6 +1559,8 @@ export const seedCurriculum = internalMutation({
           lessonCount += 1
         }
       }
+      // `paths.modules` mirrors published curriculum, never seed copy.
+      await ctx.db.patch(path._id, { modules: publishedModules })
     }
 
     return { modules: moduleCount, lessons: lessonCount }

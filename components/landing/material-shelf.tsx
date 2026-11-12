@@ -2,7 +2,7 @@ import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import type { CatalogField, SiteData } from "@/lib/content/types"
-import { PUBLIC_ROUTES } from "@/lib/content/routes"
+import { fieldHref, PUBLIC_ROUTES } from "@/lib/content/routes"
 import { cn } from "cn"
 
 function StatusMark({ status }: { status: CatalogField["status"] }) {
@@ -87,34 +87,21 @@ export function MaterialShelf({ catalog }: { catalog: SiteData["catalog"] }) {
                     const base =
                       "flex min-h-[96px] w-full flex-col justify-between gap-3 border-2 p-3.5 sm:w-[218px]"
 
-                    if (field.status === "Terbuka") {
-                      return (
-                        <li key={field.name} className="w-full sm:w-auto">
-                          <Link
-                            href={PUBLIC_ROUTES.paths}
-                            className={cn(
-                              base,
-                              "border-ink bg-paper-2 text-ink shadow-[4px_4px_0_var(--copper-dark)] transition-transform hover:-translate-y-0.5 focus-visible:-translate-y-0.5",
-                            )}
-                          >
-                            {content}
-                          </Link>
-                        </li>
-                      )
-                    }
-
                     return (
-                      <li
-                        key={field.name}
-                        className={cn(
-                          base,
-                          "w-full sm:w-auto",
-                          group.status === "Sedang dipetakan"
-                            ? "border-ink/35 bg-cream/65 text-ink"
-                            : "border-dashed border-ink/30 bg-transparent text-ink/75",
-                        )}
-                      >
-                        {content}
+                      <li key={field.name} className="w-full sm:w-auto">
+                        <Link
+                          href={fieldHref(field.name)}
+                          className={cn(
+                            base,
+                            field.status === "Terbuka"
+                              ? "border-ink bg-paper-2 text-ink shadow-[4px_4px_0_var(--copper-dark)] transition-transform hover:-translate-y-0.5 focus-visible:-translate-y-0.5"
+                              : group.status === "Sedang dipetakan"
+                                ? "border-ink/35 bg-cream/65 text-ink transition-colors hover:border-ink"
+                                : "border-dashed border-ink/30 bg-transparent text-ink/75 transition-colors hover:border-ink/60",
+                          )}
+                        >
+                          {content}
+                        </Link>
                       </li>
                     )
                   })}

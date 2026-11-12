@@ -508,7 +508,7 @@ describe("content CMS / linked path teacher", () => {
     expect(path?.teacher).toBe("Sri Wahyuni")
   })
 
-  it("[P1-CMS-35] a path without teacherId keeps the stored teacher string", async () => {
+  it("[P1-CMS-35] a path without teacherId never shows a static seed name", async () => {
     const t = await adminDb()
     await seedContent(t)
 
@@ -525,6 +525,58 @@ describe("content CMS / linked path teacher", () => {
     const site = await t.query(api.content.getSite, {})
     const path = site?.paths[0]
     expect(path?.teacherId).toBeUndefined()
-    expect(path?.teacher).toBe("Nama Simpanan")
+    expect(path?.teacher).toBe("Pengajar belum ditautkan")
+    expect(path?.teacherRole).toBe("")
+  })
+})
+
+describe("content CMS / computed public data", () => {
+  it("[P1-CMS-36] traction figures come from table counts, not seed numbers", async () => {
+    const t = await adminDb()
+    await seedContent(t)
+
+    const stats = await t.query(api.content.getPublicStats, {})
+    expect(stats.fields).toBe(10)
+    expect(stats.teachers).toBe(4)
+    expect(stats.participants).toBe(4)
+    expect(stats.submissions).toBe(4)
+    expect(stats.works).toBe(4)
+
+    const site = await t.query(api.content.getSite, {})
+    const values = site?.traction.figures.map((figure) => figure.value)
+    expect(values).toEqual(["10", "4", "4", "4", "4"])
+  })
+
+  it("[P1-CMS-37] public attribution reads culturalSources rows", async () => {
+    const t = await adminDb()
+    await seedContent(t)
+
+    await t.run(async (ctx) => {
+      await ctx.db.insert("culturalSources", {
+        community: "Sanggar Uji",
+        sourceName: "Arsip uji",
+        pathId: "batik-tulis-soga",
+        permissionDocumentRef: "IZIN-UJI-01",
+        permissionDate: NOW,
+        permissionStatus: "granted",
+        accessLevel: "public",
+        attribution: "Sanggar Uji, Bantul.",
+        notes: "Catatan uji.",
+        withdrawalStatus: "active",
+        status: "active",
+        createdBy: "system",
+        createdAt: NOW,
+        updatedAt: NOW,
+      })
+    })
+
+    const sources = await t.query(api.content.listPublicCulturalSources, {})
+    expect(sources).toHaveLength(1)
+    expect(sources[0]?.community).toBe("Sanggar Uji")
+    expect(sources[0]?.permissionReference).toBe("IZIN-UJI-01")
+    expect(sources[0]?.attribution).toBe("Sanggar Uji, Bantul.")
+
+    const site = await t.query(api.content.getSite, {})
+    expect(site?.culturalSources[0]?.community).toBe("Sanggar Uji")
   })
 })

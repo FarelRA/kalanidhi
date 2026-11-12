@@ -3,16 +3,21 @@ import Link from "next/link"
 import { BrandLockup } from "@/components/brand/brand-mark"
 import { NewsletterForm } from "@/components/forms/newsletter-form"
 import { FooterPreferences } from "@/components/layout/footer-preferences"
-import type { EthicsContent, FooterContent } from "@/lib/content/types"
-import { footerHref, PUBLIC_ROUTES } from "@/lib/content/routes"
+import type {
+  FooterContent,
+  PublicCulturalSource,
+} from "@/lib/content/types"
+import { PUBLIC_ROUTES, publicHref } from "@/lib/content/routes"
+import { formatDate } from "@/lib/format"
 
 export function SiteFooter({
   footer,
-  ethics,
+  sources,
 }: {
   footer: FooterContent
-  ethics: EthicsContent
+  sources: PublicCulturalSource[]
 }) {
+  const latest = sources.at(-1)
   return (
     <footer className="wood-deep border-t-2 border-copper-dark pb-28 text-paper md:pb-0">
       <div className="shell py-14 lg:py-20">
@@ -42,7 +47,7 @@ export function SiteFooter({
                   {column.links.map((link) => (
                     <li key={link.label} className="border-b border-paper/10">
                       <Link
-                        href={footerHref(link.label, link.href)}
+                        href={publicHref(link.href)}
                         className="flex min-h-11 items-center py-2 text-[12.5px] text-paper/70 transition-colors hover:text-paper"
                       >
                         {link.label}
@@ -86,13 +91,17 @@ export function SiteFooter({
               {footer.sourcesLabel}
             </p>
             <p className="mt-2 text-[12px] text-paper">
-              {ethics.attribution.sources.map((source) => source.name).join(" · ")}
+              {sources.length > 0
+                ? sources.map((source) => source.community).join(" · ")
+                : "Belum ada catatan sumber yang terbit."}
             </p>
             <p className="mt-1 text-[10.5px] leading-relaxed text-paper/65">
-              {ethics.attribution.permission}
+              {latest
+                ? `Izin tercatat ${formatDate(latest.permissionDate)}`
+                : "Izin dan atribusi menyusul setelah dicatat di Convex."}
             </p>
             <p className="mt-1 text-[10px] leading-relaxed text-paper/65">
-              {ethics.attribution.reference}
+              {latest ? latest.attribution : "—"}
             </p>
           </div>
           <div className="lg:col-span-3">

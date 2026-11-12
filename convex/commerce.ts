@@ -1,9 +1,14 @@
 import { ConvexError, v } from "convex/values"
 
 import { assertRupiah, MoneyError, splitAmount } from "../lib/commerce/money"
+import {
+  ORDER_STATUS_LABELS,
+  WORK_CATEGORIES,
+  WORK_KINDS,
+  WORK_READINESS_LABELS,
+} from "../lib/commerce/options"
 import type {
   DisputeView,
-  OrderStatus,
   OrderStatusView,
   OrderTimelineEntry,
   OrderView,
@@ -12,6 +17,7 @@ import type {
   WorkStatus,
 } from "../lib/commerce/types"
 import type { Viewer } from "../lib/access/viewer"
+import { UNLINKED_TEACHER_LABEL } from "../lib/content/status"
 import { assertScope } from "./access"
 import {
   assertEmail,
@@ -35,18 +41,6 @@ import type { Doc, Id } from "./_generated/dataModel"
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"
 
 type ReadCtx = Pick<QueryCtx, "db" | "auth" | "storage"> | MutationCtx
-
-const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
-  draft: "Draf",
-  awaiting_payment: "Menunggu pembayaran",
-  paid: "Dibayar",
-  in_progress: "Diproses",
-  delivered: "Dikirim",
-  completed: "Selesai",
-  cancelled: "Dibatalkan",
-  refunded: "Dikembalikan",
-  disputed: "Sengketa",
-}
 
 function safeSplit(baseAmount: number) {
   try {
@@ -127,20 +121,6 @@ async function assetIdForImageUrl(
     "Foto karya harus berasal dari penyimpanan Convex.",
   )
 }
-
-const WORK_READINESS_LABELS = {
-  image: "Foto karya",
-  title: "Judul",
-  price: "Harga lebih dari 0",
-  unit: "Satuan",
-  technique: "Teknik",
-  maker: "Pembuat",
-  teacher: "Pengajar",
-  path: "Jalur",
-  permission: "Izin sumber",
-  provenance: "Provenans",
-  materials: "Bahan",
-} as const
 
 function workReadiness(
   work: Doc<"works">,
@@ -341,6 +321,24 @@ async function publicWork(
       purchasable = false
     }
   }
+
+  let teacher = UNLINKED_TEACHER_LABEL
+  if (work.pathId) {
+    const path = await ctx.db
+      .query("paths")
+      .withIndex("by_slug", (q) => q.eq("slug", work.pathId as string))
+      .unique()
+    if (path?.teacherId) {
+      const profile = await ctx.db
+        .query("teachers")
+        .withIndex("by_userId", (q) =>
+          q.eq("userId", path.teacherId as Id<"users">),
+        )
+        .unique()
+      if (profile?.name) teacher = profile.name
+    }
+  }
+
   return {
     id: work._id,
     slug: work.slug,
@@ -349,7 +347,7 @@ async function publicWork(
     category: work.category,
     maker: work.maker,
     makerRole: work.makerRole,
-    teacher: work.teacher,
+    teacher,
     region: work.region,
     price: work.price,
     priceLabel: work.priceLabel ?? null,
@@ -362,6 +360,7 @@ async function publicWork(
     permission: work.permission ?? null,
     split,
     purchasable,
+    updatedAt: work.createdAt ?? undefined,
   }
 }
 
@@ -585,8 +584,8 @@ export const createWork = mutation({
     description: v.string(),
     image: v.optional(v.string()),
     imageAssetId: v.optional(v.id("mediaAssets")),
-    kind: v.union(v.literal("product"), v.literal("service")),
-    category: v.union(v.literal("batik"), v.literal("layanan")),
+    kind: v.union(...WORK_KINDS.map((kind) => v.literal(kind))),
+    category: v.union(...WORK_CATEGORIES.map((category) => v.literal(category))),
     permission: v.optional(v.string()),
     provenance: v.optional(v.string()),
     materials: v.optional(v.string()),
@@ -699,8 +698,8 @@ export const updateWork = mutation({
     title: v.optional(v.string()),
     pathId: v.optional(v.string()),
     certificateId: v.optional(v.id("certificates")),
-    kind: v.optional(v.union(v.literal("product"), v.literal("service"))),
-    category: v.optional(v.union(v.literal("batik"), v.literal("layanan"))),
+    kind: v.optional(v.union(...WORK_KINDS.map((kind) => v.literal(kind)))),
+    category: v.optional(v.union(...WORK_CATEGORIES.map((category) => v.literal(category)))),
     price: v.optional(v.number()),
     priceLabel: v.optional(v.string()),
     unit: v.optional(v.string()),

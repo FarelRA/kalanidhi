@@ -30,35 +30,31 @@ import { api } from "@/convex/_generated/api"
 import { downloadCsv } from "@/lib/admin/csv"
 import type { Id } from "@/convex/_generated/dataModel"
 import type { LeadStatus, LeadSummary } from "@/lib/admin/types"
+import {
+  LEAD_INTENT_LABELS,
+  LEAD_STATUS_LABELS,
+  LEAD_STATUS_TONES,
+  LEAD_TRANSITIONS,
+} from "@/lib/leads/options"
 import type { StatusTone } from "@/lib/workspace/types"
 import { useMutation, useQuery } from "convex/react"
 
 type View = "new" | "follow" | "institutions" | "done" | "spam" | "all"
 
 const VIEWS: { id: View; label: string }[] = [
-  { id: "new", label: "Baru" },
+  { id: "new", label: LEAD_STATUS_LABELS.new },
   { id: "follow", label: "Perlu dihubungi" },
-  { id: "institutions", label: "Institusi" },
-  { id: "done", label: "Selesai" },
-  { id: "spam", label: "Spam" },
+  { id: "institutions", label: LEAD_INTENT_LABELS.institution },
+  { id: "done", label: LEAD_STATUS_LABELS.converted },
+  { id: "spam", label: LEAD_STATUS_LABELS.spam },
 ]
 
 function statusTone(status: LeadStatus): StatusTone {
-  if (status === "converted") return "done"
-  if (status === "qualified") return "progress"
-  if (status === "spam" || status === "lost") return "danger"
-  if (status === "contacted") return "wait"
-  return "open"
+  return LEAD_STATUS_TONES[status]
 }
 
 function intentLabel(intent: LeadSummary["intent"]): string {
-  return intent === "student"
-    ? "Peserta"
-    : intent === "institution"
-      ? "Institusi"
-      : intent === "consultation"
-        ? "Konsultasi"
-        : "Kabar"
+  return LEAD_INTENT_LABELS[intent]
 }
 
 function dateTimeLabel(value: number | null): string {
@@ -117,7 +113,7 @@ export function LeadsLive() {
       downloadCsv("prospek-kalanidhi.csv", [
         ["email", "nama", "niat", "status", "minat", "pemilik", "masuk"],
         ...result.rows.map((row) => [
-          row.email,
+          row.email ?? "",
           row.name ?? "",
           row.intent,
           row.status,
@@ -156,8 +152,12 @@ export function LeadsLive() {
       header: "Lead",
       cell: (row) => (
         <div>
-          <p className="font-semibold text-ink">{row.name ?? row.email}</p>
-          <p className="mt-0.5 text-[10px] text-ink-muted">{row.email}</p>
+          <p className="font-semibold text-ink">
+            {row.name ?? row.email ?? "Belum diisi"}
+          </p>
+          <p className="mt-0.5 text-[10px] text-ink-muted">
+            {row.email ?? "Belum diisi"}
+          </p>
         </div>
       ),
     },
@@ -202,7 +202,10 @@ export function LeadsLive() {
       id: "status",
       header: "Status",
       cell: (row) => (
-        <StatusStamp label={row.status} tone={statusTone(row.status)} />
+        <StatusStamp
+          label={LEAD_STATUS_LABELS[row.status]}
+          tone={statusTone(row.status)}
+        />
       ),
     },
     {
@@ -280,7 +283,7 @@ export function LeadsLive() {
             caption="Lead dengan niat, kontak, minat, umur, pemilik, dan status"
             searchPlaceholder="Cari nama, kontak, minat, atau wilayah"
             getSearchText={(row) =>
-              `${row.name ?? ""} ${row.email} ${row.whatsapp ?? ""} ${row.interest ?? ""} ${row.owner?.name ?? ""} ${row.status}`
+              `${row.name ?? ""} ${row.email ?? ""} ${row.whatsapp ?? ""} ${row.interest ?? ""} ${row.owner?.name ?? ""} ${row.status}`
             }
             toolbar={
               <div className="flex items-center gap-2">
@@ -323,7 +326,7 @@ export function LeadsLive() {
                       className="w-full text-left"
                     >
                       <p className="text-[11px] font-semibold text-ink hover:text-copper-dark">
-                        {lead.name ?? lead.email}
+                        {lead.name ?? lead.email ?? "Belum diisi"}
                       </p>
                       <p className="mt-0.5 text-[9.5px] leading-snug text-ink-muted">
                         {lead.interest || lead.institution || "Belum ada minat"}
@@ -418,13 +421,7 @@ function LeadDrawer({
   if (leadId === null) return null
 
   const lead = detail?.lead
-  const nextStatuses: Record<string, LeadStatus[]> = {
-    new: ["contacted", "qualified", "lost", "spam"],
-    contacted: ["qualified", "lost", "spam"],
-    qualified: ["lost", "spam"],
-    lost: ["qualified", "spam"],
-    spam: ["new"],
-  }
+  const nextStatuses = LEAD_TRANSITIONS
 
   return (
     <DetailDrawer
@@ -436,28 +433,31 @@ function LeadDrawer({
       }
       stamp={lead?.status}
       tone={lead ? statusTone(lead.status) : "muted"}
-      description={lead?.email}
+      description={lead ? (lead.email ?? "Belum diisi") : undefined}
       width="sm:max-w-[660px]"
       footer={
         lead ? (
           <div className="flex flex-wrap gap-2">
-            {nextStatuses[lead.status]?.slice(0, 2).map((status) => (
+            {nextStatuses[lead.status]
+              ?.filter((status) => status !== "converted")
+              .slice(0, 2)
+              .map((status) => (
               <Button
                 key={status}
                 size="sm"
                 variant="outline"
                 onClick={() =>
                   onReasonAction({
-                    title: `Ubah status ke ${status}`,
+                    title: `Ubah status ke ${LEAD_STATUS_LABELS[status]}`,
                     description: "Transisi status mengikuti state machine lead dan dicatat di audit.",
-                    label: status,
+                    label: LEAD_STATUS_LABELS[status],
                     run: async (reason) => {
                       await setStatus({ leadId, status, reason })
                     },
                   })
                 }
               >
-                {status}
+                {LEAD_STATUS_LABELS[status]}
               </Button>
             ))}
             {lead.status === "qualified" ? (
@@ -485,11 +485,12 @@ function LeadDrawer({
         <div className="space-y-6">
           <DetailGrid
             items={[
-              { label: "Status", value: <StatusStamp label={lead.status} tone={statusTone(lead.status)} /> },
+              { label: "Status", value: <StatusStamp label={LEAD_STATUS_LABELS[lead.status]} tone={statusTone(lead.status)} /> },
               { label: "Niat", value: intentLabel(lead.intent) },
               { label: "Pemilik", value: lead.owner?.name ?? "Belum ada" },
               { label: "Umur", value: `${lead.ageDays} hari` },
               { label: "WhatsApp", value: lead.whatsapp ?? "—" },
+              { label: "Email", value: lead.email ?? "Belum diisi" },
               { label: "Sumber", value: lead.source ?? "—" },
               { label: "Institusi", value: lead.institution ?? "—" },
               { label: "Jenis institusi", value: lead.institutionType ?? "—" },
@@ -638,12 +639,14 @@ function LeadDrawer({
                   </a>
                 </Button>
               ) : null}
-              <Button size="sm" variant="outline" asChild>
-                <a href={`mailto:${lead.email}`}>
-                  <Mail aria-hidden="true" />
-                  Email
-                </a>
-              </Button>
+              {lead.email ? (
+                <Button size="sm" variant="outline" asChild>
+                  <a href={`mailto:${lead.email}`}>
+                    <Mail aria-hidden="true" />
+                    Email
+                  </a>
+                </Button>
+              ) : null}
             </div>
           </DrawerSection>
         </div>

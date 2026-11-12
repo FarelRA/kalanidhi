@@ -49,7 +49,10 @@ export function SiteHeader({
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const searchTriggerRef = useRef<HTMLElement | null>(null)
   const nextQuery =
-    pathname && pathname !== "/" && !pathname.startsWith("/masuk") && !pathname.startsWith("/daftar")
+    pathname &&
+    pathname !== PUBLIC_ROUTES.home &&
+    !pathname.startsWith(PUBLIC_ROUTES.signIn) &&
+    !pathname.startsWith(PUBLIC_ROUTES.signUp)
       ? `?next=${encodeURIComponent(pathname)}`
       : ""
 

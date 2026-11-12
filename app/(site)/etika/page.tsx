@@ -27,6 +27,7 @@ export default async function EthicsPage() {
     <div className="bg-cream">
       <section className="shell py-12 sm:py-16">
         <PublicPageIntro
+          homeLabel={data.header.homeLabel}
           eyebrow={data.ethics.label}
           title={data.ethics.title}
           description={data.ethics.description}
@@ -68,21 +69,23 @@ export default async function EthicsPage() {
                   </div>
                 ))}
               </dl>
-              <Link
-                href={interestHref({
-                  intent: "consultation",
-                  interest: policy.action?.lead.interest ?? "Etika dan hak budaya",
-                })}
-                className="mt-4 inline-flex min-h-11 items-center text-[10.5px] font-bold uppercase tracking-[0.06em] text-copper-dark hover:text-ink"
-              >
-                {policy.action?.label ?? "Tanyakan kebijakan"}
-              </Link>
+              {policy.action ? (
+                <Link
+                  href={interestHref({
+                    intent: policy.action.lead.variant,
+                    interest: policy.action.lead.interest,
+                  })}
+                  className="mt-4 inline-flex min-h-11 items-center text-[10.5px] font-bold uppercase tracking-[0.06em] text-copper-dark hover:text-ink"
+                >
+                  {policy.action.label}
+                </Link>
+              ) : null}
             </div>
           </aside>
         </div>
       </section>
 
-      <WorkshopRules ethics={data.ethics} />
+      <WorkshopRules ethics={data.ethics} sources={data.culturalSources} />
     </div>
   )
 }

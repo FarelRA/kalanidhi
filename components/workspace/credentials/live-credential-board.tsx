@@ -36,6 +36,11 @@ import { SegmentedTabs } from "@/components/workspace/data/segmented-tabs"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import { api } from "@/convex/_generated/api"
+import {
+  CERTIFICATE_EVENT_LABELS,
+  CERTIFICATE_STATUSES,
+  CERTIFICATE_STATUS_LABELS,
+} from "@/lib/credentials/options"
 import type { CertificateOverview } from "@/lib/workspace/phase2-types"
 import type { StatusTone } from "@/lib/workspace/types"
 import { formatWorkspaceDate } from "@/lib/workspace/format"
@@ -48,15 +53,6 @@ function toneFor(status: CertificateOverview["status"]): StatusTone {
   if (status === "issued") return "done"
   if (status === "revoked") return "danger"
   return "muted"
-}
-
-const CERTIFICATE_EVENT_LABELS: Record<
-  CertificateOverview["events"][number]["kind"],
-  string
-> = {
-  issue: "Terbit",
-  revoke: "Dicabut",
-  replace: "Diganti",
 }
 
 export function LiveCredentialBoard() {
@@ -244,9 +240,10 @@ export function LiveCredentialBoard() {
                 label: "Status",
                 options: [
                   { value: "all", label: "Semua", count: registry?.length ?? 0 },
-                  { value: "issued", label: "Terbit" },
-                  { value: "revoked", label: "Dicabut" },
-                  { value: "replaced", label: "Diganti" },
+                  ...CERTIFICATE_STATUSES.map((status) => ({
+                    value: status,
+                    label: CERTIFICATE_STATUS_LABELS[status],
+                  })),
                 ],
               },
             ]}

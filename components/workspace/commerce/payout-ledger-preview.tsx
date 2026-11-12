@@ -26,13 +26,18 @@ import { PageHeader } from "@/components/workspace/data/page-header"
 import { Panel } from "@/components/workspace/data/panel"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
+import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
+import {
+  PAYOUT_STATUSES,
+  PAYOUT_STATUS_LABELS,
+} from "@/lib/commerce/options"
 import { payouts } from "@/lib/workspace/mock-data"
 import type { Payout } from "@/lib/workspace/types"
 import { formatIDR } from "@/lib/format"
 import { formatWorkspaceDate } from "@/lib/workspace/format"
 
 export function PayoutLedgerPreview() {
-  const { can } = useViewer()
+  const { can, profile } = useViewer()
   const [selected, setSelected] = React.useState<Payout | null>(null)
   const [action, setAction] = React.useState<{
     payout: Payout
@@ -43,7 +48,7 @@ export function PayoutLedgerPreview() {
   const release = can("payouts.release")
   const rows = release
     ? payouts
-    : payouts.filter((item) => item.teacher === "Anisa Rahmawati" || item.teacher === "Bambang Hardjono")
+    : payouts.filter((item) => item.teacher === profile.user.name)
 
   const totals = rows.reduce(
     (acc, item) => {
@@ -60,11 +65,15 @@ export function PayoutLedgerPreview() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Pesanan · payout"
-        title={release ? "Ledger 70 / 15 / 15." : "Pendapatan dan statement."}
+        title={
+          release
+            ? `Ledger ${SPLIT_PERCENTAGES.teacher} / ${SPLIT_PERCENTAGES.platform} / ${SPLIT_PERCENTAGES.community}.`
+            : "Pendapatan dan statement."
+        }
         description={
           release
             ? "Ledger append-only. Tahan, setujui, bayar, atau balik dengan entri baru — tidak pernah mengedit baris yang sudah dibayar."
-            : "Bagian pengajar 70% dari setiap pesanan, status pencairan, dan statement per periode."
+            : `Bagian pengajar ${SPLIT_PERCENTAGES.teacher}% dari setiap pesanan, status pencairan, dan statement per periode.`
         }
         actions={
           <>
@@ -98,7 +107,7 @@ export function PayoutLedgerPreview() {
         </div>
         <div className="border border-ink/20 bg-paper-2 p-4">
           <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-ink-muted">
-            Bagian pengajar 70%
+            Bagian pengajar {SPLIT_PERCENTAGES.teacher}%
           </p>
           <p className="mt-2 font-heading text-2xl text-ink">{formatIDR(totals.teacher)}</p>
           <p className="mt-1 text-[10px] text-ink-muted">Sebelum pajak penjual</p>
@@ -110,7 +119,7 @@ export function PayoutLedgerPreview() {
           <p className="mt-2 font-heading text-2xl text-ink">
             {formatIDR(totals.platform + totals.community)}
           </p>
-          <p className="mt-1 text-[10px] text-ink-muted">Masing-masing 15%</p>
+          <p className="mt-1 text-[10px] text-ink-muted">Masing-masing {SPLIT_PERCENTAGES.platform}%</p>
         </div>
       </div>
 
@@ -135,10 +144,10 @@ export function PayoutLedgerPreview() {
                 label: "Status",
                 options: [
                   { value: "all", label: "Semua", count: rows.length },
-                  { value: "pending", label: "Menunggu" },
-                  { value: "held", label: "Ditahan" },
-                  { value: "approved", label: "Disetujui" },
-                  { value: "paid", label: "Dibayar" },
+                  ...PAYOUT_STATUSES.map((status) => ({
+                    value: status,
+                    label: PAYOUT_STATUS_LABELS[status],
+                  })),
                 ],
               },
             ]}
@@ -159,9 +168,18 @@ export function PayoutLedgerPreview() {
         <div className="space-y-4 xl:col-span-3">
           <Panel eyebrow="Bagi hasil" title="Dihitung sistem">
             <div className="flex h-6 border border-ink/25" aria-hidden="true">
-              <span className="h-full bg-copper-dark" style={{ width: "70%" }} />
-              <span className="h-full bg-ink" style={{ width: "15%" }} />
-              <span className="h-full bg-moss" style={{ width: "15%" }} />
+              <span
+                className="h-full bg-copper-dark"
+                style={{ width: `${SPLIT_PERCENTAGES.teacher}%` }}
+              />
+              <span
+                className="h-full bg-ink"
+                style={{ width: `${SPLIT_PERCENTAGES.platform}%` }}
+              />
+              <span
+                className="h-full bg-moss"
+                style={{ width: `${SPLIT_PERCENTAGES.community}%` }}
+              />
             </div>
             <dl className="mt-3 space-y-2.5">
               <div className="flex items-center justify-between gap-2">
@@ -169,25 +187,32 @@ export function PayoutLedgerPreview() {
                   <span className="size-2 bg-copper-dark" aria-hidden="true" />
                   Pengajar
                 </dt>
-                <dd className="text-[11px] font-semibold">70%</dd>
+                <dd className="text-[11px] font-semibold">
+                  {SPLIT_PERCENTAGES.teacher}%
+                </dd>
               </div>
               <div className="flex items-center justify-between gap-2">
                 <dt className="flex items-center gap-1.5 text-[10.5px] text-ink-soft">
                   <span className="size-2 bg-ink" aria-hidden="true" />
                   Platform
                 </dt>
-                <dd className="text-[11px] font-semibold">15%</dd>
+                <dd className="text-[11px] font-semibold">
+                  {SPLIT_PERCENTAGES.platform}%
+                </dd>
               </div>
               <div className="flex items-center justify-between gap-2">
                 <dt className="flex items-center gap-1.5 text-[10.5px] text-ink-soft">
                   <span className="size-2 bg-moss" aria-hidden="true" />
                   Komunitas
                 </dt>
-                <dd className="text-[11px] font-semibold">15%</dd>
+                <dd className="text-[11px] font-semibold">
+                  {SPLIT_PERCENTAGES.community}%
+                </dd>
               </div>
             </dl>
             <p className="mt-3 border-t border-ink/15 pt-2.5 text-[9.5px] leading-relaxed text-ink-muted">
-              Biaya gerbang diserap dari bagian platform. Janji 70/15/15 dihitung
+              Biaya gerbang diserap dari bagian platform. Janji {SPLIT_PERCENTAGES.teacher}/{SPLIT_PERCENTAGES.platform}/
+              {SPLIT_PERCENTAGES.community} dihitung
               dari bruto.
             </p>
           </Panel>
@@ -407,7 +432,7 @@ function payoutColumns(
     },
     {
       id: "share",
-      header: "70%",
+      header: `${SPLIT_PERCENTAGES.teacher}%`,
       cell: (row) => (
         <span className="text-[11px] font-semibold tabular-nums">
           {formatIDR(row.teacherShare)}

@@ -44,35 +44,38 @@ import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import type { Viewer } from "@/lib/access/viewer"
 import { formatIDR } from "@/lib/format"
 import { formatCommerceDate } from "@/lib/commerce/format"
+import {
+  WORK_ACCESS_LEVEL_LABELS,
+  WORK_CATEGORIES,
+  WORK_CATEGORY_LABELS,
+  WORK_KINDS,
+  WORK_KIND_LABELS,
+  WORK_READINESS_LABELS,
+  WORK_STAGES,
+  WORK_STATUSES,
+  WORK_STATUS_LABELS,
+  WORK_STATUS_TONES,
+} from "@/lib/commerce/options"
+import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
 import type { WorkListingView, WorkReadiness } from "@/lib/commerce/types"
 import type { StatusTone } from "@/lib/workspace/types"
 
-const WORK_STAGES = [
-  { id: "draft", label: "Draf" },
-  { id: "submitted", label: "Diajukan" },
-  { id: "teacher_confirmed", label: "Konfirmasi pengajar" },
-  { id: "admin_review", label: "Moderasi admin" },
-  { id: "published", label: "Terbit" },
-] as const
-
-const READINESS_ITEMS = [
-  "Foto karya",
-  "Judul",
-  "Harga lebih dari 0",
-  "Satuan",
-  "Teknik",
-  "Pembuat",
-  "Pengajar",
-  "Jalur",
-  "Izin sumber",
-  "Provenans",
-  "Bahan",
-] as const
-
 function workStamp(work: WorkListingView): { label: string; tone: StatusTone } {
-  if (work.status === "paused") return { label: "Dijeda", tone: "wait" }
-  if (work.status === "sold_out") return { label: "Habis", tone: "muted" }
-  if (work.status === "published") return { label: "Terbit", tone: "done" }
+  if (work.status === "paused") {
+    return { label: WORK_STATUS_LABELS.paused, tone: WORK_STATUS_TONES.paused }
+  }
+  if (work.status === "sold_out") {
+    return {
+      label: WORK_STATUS_LABELS.sold_out,
+      tone: WORK_STATUS_TONES.sold_out,
+    }
+  }
+  if (work.status === "published") {
+    return {
+      label: WORK_STATUS_LABELS.published,
+      tone: WORK_STATUS_TONES.published,
+    }
+  }
   if (work.cardStatus === "submitted") {
     return { label: "Menunggu konfirmasi pengajar", tone: "wait" }
   }
@@ -82,7 +85,7 @@ function workStamp(work: WorkListingView): { label: string; tone: StatusTone } {
   ) {
     return { label: "Menunggu peninjauan admin", tone: "progress" }
   }
-  return { label: "Draf", tone: "muted" }
+  return { label: WORK_STATUS_LABELS.draft, tone: WORK_STATUS_TONES.draft }
 }
 
 function nextActionLabel(work: WorkListingView): string {
@@ -149,10 +152,8 @@ function isPathEligible(viewer: Viewer | null, pathId: string): boolean {
 }
 
 function accessLevelLabel(level: WorkListingView["accessLevel"]): string {
-  if (level === "public") return "Publik"
-  if (level === "community") return "Komunitas"
-  if (level === "restricted") return "Terbatas"
-  return "Belum diisi"
+  if (!level) return "Belum diisi"
+  return WORK_ACCESS_LEVEL_LABELS[level]
 }
 
 type ReasonAction =
@@ -214,6 +215,7 @@ function FieldError({ message }: { message?: string }) {
 export function WorksLive() {
   const { can, viewer } = useViewer()
   const works = useQuery(api.commerce.listWorks, {})
+  const site = useQuery(api.content.getSite)
   const submitWork = useMutation(api.commerce.submitWork)
   const confirmWork = useMutation(api.commerce.confirmWork)
   const beginReview = useMutation(api.commerce.beginWorkReview)
@@ -238,6 +240,10 @@ export function WorksLive() {
   const current = detail ?? selected
 
   const rows = works ?? []
+  const pathTitles = new Map(
+    (site?.paths ?? []).map((path) => [path.slug, path.title] as const),
+  )
+  const pathTitle = (pathId: string) => pathTitles.get(pathId) ?? pathId
   const myWorks = rows.filter((work) => work.makerId === viewer?.userId)
   const reviewWorks = rows.filter((work) =>
     can("works.moderate")
@@ -329,7 +335,7 @@ export function WorksLive() {
               ? "Karya peserta yang kamu ampu."
               : "Karya yang kamu bawa ke pembeli."
         }
-        description="Setiap karya membawa jalur, sertifikat, izin sumber budaya, dan bagi hasil 70/15/15. Data berasal dari catatan Convex."
+        description={`Setiap karya membawa jalur, sertifikat, izin sumber budaya, dan bagi hasil ${SPLIT_PERCENTAGES.teacher}/${SPLIT_PERCENTAGES.platform}/${SPLIT_PERCENTAGES.community}. Data berasal dari catatan Convex.`}
         actions={
           eligible ? (
             <Button onClick={openCreate}>
@@ -452,10 +458,10 @@ export function WorksLive() {
                 label: "Status",
                 options: [
                   { value: "all", label: "Semua", count: visible.length },
-                  { value: "published", label: "Terbit" },
-                  { value: "review", label: "Tinjauan" },
-                  { value: "paused", label: "Dijeda" },
-                  { value: "draft", label: "Draf" },
+                  ...WORK_STATUSES.map((status) => ({
+                    value: status,
+                    label: WORK_STATUS_LABELS[status],
+                  })),
                 ],
               },
             ]}
@@ -596,7 +602,7 @@ export function WorksLive() {
                   new Set(rows.map((work) => work.pathId).filter(Boolean)),
                 ).map((pathId) => (
                   <option key={String(pathId)} value={String(pathId)}>
-                    {pathId}
+                    {pathTitle(String(pathId))}
                   </option>
                 ))}
               </select>
@@ -701,6 +707,7 @@ function WorkFormDialog({
   const updateWork = useMutation(api.commerce.updateWork)
   const generateUploadUrl = useMutation(api.media.generateWorkImageUploadUrl)
   const saveWorkImage = useMutation(api.media.saveWorkImage)
+  const site = useQuery(api.content.getSite)
 
   const [values, setValues] = React.useState<WorkFormValues>(() =>
     initialValues(work, viewer),
@@ -717,6 +724,14 @@ function WorkFormDialog({
       ? [...scopes, currentPath]
       : scopes
   }, [viewer, work])
+  const pathTitles = React.useMemo(
+    () =>
+      new Map(
+        (site?.paths ?? []).map((path) => [path.slug, path.title] as const),
+      ),
+    [site],
+  )
+  const pathTitle = (pathId: string) => pathTitles.get(pathId) ?? pathId
   const pathCertificates = certificatesForPath(viewer, values.pathId)
   const teacherPath = isTeacherPath(viewer, values.pathId)
   const pathEligible = isPathEligible(viewer, values.pathId)
@@ -950,8 +965,11 @@ function WorkFormDialog({
                 }
                 className="mt-1.5 min-h-11 w-full border border-ink/25 bg-paper-2 px-2 text-[11px]"
               >
-                <option value="product">Barang</option>
-                <option value="service">Layanan</option>
+                {WORK_KINDS.map((kind) => (
+                  <option key={kind} value={kind}>
+                    {WORK_KIND_LABELS[kind]}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -967,8 +985,11 @@ function WorkFormDialog({
                 }
                 className="mt-1.5 min-h-11 w-full border border-ink/25 bg-paper-2 px-2 text-[11px]"
               >
-                <option value="batik">Batik</option>
-                <option value="layanan">Layanan</option>
+                {WORK_CATEGORIES.map((category) => (
+                  <option key={category} value={category}>
+                    {WORK_CATEGORY_LABELS[category]}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -988,7 +1009,7 @@ function WorkFormDialog({
                 </option>
                 {pathOptions.map((pathId) => (
                   <option key={pathId} value={pathId}>
-                    {pathId}
+                    {pathTitle(pathId)}
                   </option>
                 ))}
               </select>
@@ -1456,9 +1477,18 @@ function WorkDetail({ work }: { work: WorkListingView }) {
         {work.split ? (
           <>
             <div className="flex h-6 border border-ink/25" aria-hidden="true">
-              <span className="h-full bg-copper-dark" style={{ width: "70%" }} />
-              <span className="h-full bg-ink" style={{ width: "15%" }} />
-              <span className="h-full bg-moss" style={{ width: "15%" }} />
+              <span
+                className="h-full bg-copper-dark"
+                style={{ width: `${SPLIT_PERCENTAGES.teacher}%` }}
+              />
+              <span
+                className="h-full bg-ink"
+                style={{ width: `${SPLIT_PERCENTAGES.platform}%` }}
+              />
+              <span
+                className="h-full bg-moss"
+                style={{ width: `${SPLIT_PERCENTAGES.community}%` }}
+              />
             </div>
             <div className="mt-2 grid grid-cols-3 gap-2 text-[9.5px]">
               <p>
@@ -1537,7 +1567,10 @@ function WorkStatusFlow({ work }: { work: WorkListingView }) {
       </ol>
       {special ? (
         <p className="mt-2 text-[10.5px] font-semibold text-[#8a5a16]">
-          Status khusus: {work.status === "paused" ? "Dijeda" : "Habis"}
+          Status khusus:{" "}
+          {work.status
+            ? WORK_STATUS_LABELS[work.status]
+            : "Tidak diketahui"}
         </p>
       ) : null}
     </div>
@@ -1547,7 +1580,7 @@ function WorkStatusFlow({ work }: { work: WorkListingView }) {
 function ReadinessChecklist({ readiness }: { readiness: WorkReadiness }) {
   return (
     <ul className="space-y-2">
-      {READINESS_ITEMS.map((item) => {
+      {Object.values(WORK_READINESS_LABELS).map((item) => {
         const done = !readiness.missing.includes(item)
         return (
           <li key={item} className="flex items-start gap-2.5">

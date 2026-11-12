@@ -61,6 +61,12 @@ export type Capability = (typeof CAPABILITIES)[number]
 export const WORKSPACE_ROLES = ["student", "teacher", "admin"] as const
 export type WorkspaceRole = (typeof WORKSPACE_ROLES)[number]
 
+export const WORKSPACE_ROLE_LABELS: Record<WorkspaceRole, string> = {
+  student: "Peserta",
+  teacher: "Pengajar",
+  admin: "Pengelola",
+}
+
 export const ACCOUNT_STATUSES = [
   "active",
   "suspended",
@@ -68,6 +74,22 @@ export const ACCOUNT_STATUSES = [
   "deleted",
 ] as const
 export type AccountStatus = (typeof ACCOUNT_STATUSES)[number]
+
+export const ACCOUNT_STATUS_LABELS: Record<AccountStatus, string> = {
+  active: "Aktif",
+  suspended: "Ditangguhkan",
+  invited: "Diundang",
+  deleted: "Dihapus",
+}
+
+export const TEACHER_STATUSES = ["review", "active", "suspended"] as const
+export type TeacherStatus = (typeof TEACHER_STATUSES)[number]
+
+export const TEACHER_STATUS_LABELS: Record<TeacherStatus, string> = {
+  review: "Tinjauan",
+  active: "Aktif",
+  suspended: "Ditangguhkan",
+}
 
 /** Capabilities that an admin account must never hold, even when another role is also attached. */
 export const ADMIN_FORBIDDEN_CAPABILITIES: readonly Capability[] = [

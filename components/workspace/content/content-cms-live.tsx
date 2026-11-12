@@ -24,6 +24,10 @@ import { PageHeader } from "@/components/workspace/data/page-header"
 import { Panel } from "@/components/workspace/data/panel"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { api } from "@/convex/_generated/api"
+import {
+  CONTENT_REVISION_STATUS_LABELS,
+  CONTENT_REVISION_STATUS_TONES,
+} from "@/lib/content/status"
 import type { ContentDocument } from "@/lib/content/types"
 import { validateContentDocument } from "@/lib/validation/content"
 import { useMutation, useQuery } from "convex/react"
@@ -81,12 +85,11 @@ function setValue(root: unknown, path: string[], value: unknown): unknown {
 function templateFor(path: string[]): unknown {
   const key = path.join(".")
   const templates: Record<string, unknown> = {
-    "traction.figures": { value: "", label: "" },
+    "traction.figures": { metric: "fields", label: "" },
     "loop.stages": { code: "06", title: "", description: "" },
     "ethics.principles": { title: "", description: "" },
     "ethics.accessLevels": { label: "", note: "" },
     "ethics.share": { label: "", value: 0, note: "" },
-    "ethics.attribution.sources": { initials: "", name: "", field: "" },
     "institution.segments": "",
     "institution.points": "",
     "institution.brief": ["", ""],
@@ -557,16 +560,8 @@ export function ContentCmsLive() {
                         v{revision.version}
                       </span>
                       <StatusStamp
-                        label={
-                          revision.status === "published"
-                            ? "Terbit"
-                            : revision.status === "scheduled"
-                              ? "Jadwal"
-                              : revision.status === "draft"
-                                ? "Draf"
-                                : "Arsip"
-                        }
-                        tone={revision.status === "published" ? "done" : "wait"}
+                        label={CONTENT_REVISION_STATUS_LABELS[revision.status]}
+                        tone={CONTENT_REVISION_STATUS_TONES[revision.status]}
                       />
                     </span>
                     <span className="mt-0.5 block text-[10px] leading-snug text-ink-muted">
@@ -825,7 +820,9 @@ function RevisionDrawer({
           <div className="grid grid-cols-2 gap-3 text-[11px]">
             <div>
               <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">Status</p>
-              <p className="mt-1 text-ink">{revision.status}</p>
+              <p className="mt-1 text-ink">
+                {CONTENT_REVISION_STATUS_LABELS[revision.status]}
+              </p>
             </div>
             <div>
               <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">Penulis</p>

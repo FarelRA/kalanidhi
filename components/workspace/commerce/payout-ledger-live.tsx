@@ -35,17 +35,20 @@ import {
   formatCommerceDateTime,
   PAYOUT_STATUS_LABELS,
 } from "@/lib/commerce/format"
+import {
+  LEDGER_ACCOUNT_LABELS,
+  LEDGER_DIRECTION_LABELS,
+  LEDGER_ENTRY_TYPE_LABELS,
+  PAYOUT_KIND_LABELS,
+  PAYOUT_STATUSES,
+  PAYOUT_STATUS_TONES,
+} from "@/lib/commerce/options"
+import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
 import type { LedgerEntryView, PayoutView } from "@/lib/commerce/types"
-import type { StatusTone } from "@/lib/workspace/types"
 import { formatIDR } from "@/lib/format"
 
-function payoutTone(status: string): StatusTone {
-  if (status === "paid") return "done"
-  if (status === "reversed") return "danger"
-  if (status === "approved") return "progress"
-  if (status === "held") return "danger"
-  return "wait"
-}
+const SPLIT_LABEL = `${SPLIT_PERCENTAGES.teacher} / ${SPLIT_PERCENTAGES.platform} / ${SPLIT_PERCENTAGES.community}`
+const TEACHER_SHARE_LABEL = `${SPLIT_PERCENTAGES.teacher}%`
 
 type PayoutAction =
   | { kind: "hold"; payout: PayoutView }
@@ -122,11 +125,11 @@ export function PayoutLedgerLive() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Pesanan · payout"
-        title={release ? "Ledger 70 / 15 / 15." : "Pendapatan dan statement."}
+        title={release ? `Ledger ${SPLIT_LABEL}.` : "Pendapatan dan statement."}
         description={
           release
             ? "Ledger append-only. Tahan, setujui, bayar, atau balik dengan entri baru — tidak pernah mengedit baris yang sudah dibayar."
-            : "Bagian pengajar 70% dari setiap pesanan, status pencairan, dan statement dari ledger."
+            : `Bagian pengajar ${TEACHER_SHARE_LABEL} dari setiap pesanan, status pencairan, dan statement dari ledger.`
         }
         actions={
           <Button asChild variant="outline">
@@ -141,7 +144,11 @@ export function PayoutLedgerLive() {
       <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
         {[
           ["Bruto pada tampilan", formatIDR(totals.gross), `${saleRows.length} baris`],
-          ["Bagian pengrajin", formatIDR(totals.teacher), "70% dari bruto"],
+          [
+            "Bagian pengrajin",
+            formatIDR(totals.teacher),
+            `${TEACHER_SHARE_LABEL} dari bruto`,
+          ],
           ["Belum cair", formatIDR(pendingTotal), "menunggu / ditahan / disetujui"],
           ["Sudah cair", formatIDR(paidTotal), "payout berstatus dibayar"],
         ].map(([label, value, note]) => (
@@ -199,7 +206,7 @@ export function PayoutLedgerLive() {
         ) : rows.length === 0 ? (
           <EmptyState
             title="Belum ada payout"
-            description="Payout dibuat otomatis dari setiap pesanan yang lunas, dengan pembagian 70/15/15."
+            description={`Payout dibuat otomatis dari setiap pesanan yang lunas, dengan pembagian ${SPLIT_LABEL}.`}
           />
         ) : (
           <Panel eyebrow="Ledger" title="Baris payout" bodyClassName="p-0">
@@ -217,11 +224,10 @@ export function PayoutLedgerLive() {
                   label: "Status",
                   options: [
                     { value: "all", label: "Semua", count: rows.length },
-                    { value: "pending", label: "Menunggu" },
-                    { value: "held", label: "Ditahan" },
-                    { value: "approved", label: "Disetujui" },
-                    { value: "paid", label: "Dibayar" },
-                    { value: "reversed", label: "Dibalik" },
+                    ...PAYOUT_STATUSES.map((status) => ({
+                      value: status,
+                      label: PAYOUT_STATUS_LABELS[status],
+                    })),
                   ],
                 },
               ]}
@@ -266,8 +272,12 @@ export function PayoutLedgerLive() {
         eyebrow="Payout"
         title={selected?.reference ?? selected?.orderCode ?? ""}
         stamp={selected ? PAYOUT_STATUS_LABELS[selected.status] : undefined}
-        tone={selected ? payoutTone(selected.status) : undefined}
-        description={selected ? `${selected.teacherName} · ${selected.kind}` : undefined}
+        tone={selected ? PAYOUT_STATUS_TONES[selected.status] : undefined}
+        description={
+          selected
+            ? `${selected.teacherName} · ${PAYOUT_KIND_LABELS[selected.kind]}`
+            : undefined
+        }
         footer={
           selected && release ? (
             <div className="flex flex-wrap gap-2">
@@ -317,7 +327,7 @@ export function PayoutLedgerLive() {
               items={[
                 { label: "Pengrajin", value: selected.teacherName },
                 { label: "Pesanan", value: selected.orderCode ?? "—" },
-                { label: "Jenis", value: selected.kind },
+                { label: "Jenis", value: PAYOUT_KIND_LABELS[selected.kind] },
                 { label: "Bruto", value: formatIDR(selected.gross) },
                 { label: "Bagian pengrajin", value: formatIDR(selected.teacherShare) },
                 { label: "Bagian platform", value: formatIDR(selected.platformShare) },
@@ -349,7 +359,7 @@ export function PayoutLedgerLive() {
               <ul className="space-y-2">
                 <li className="flex items-center justify-between gap-2 text-[10.5px]">
                   <span className="text-ink-muted">Dihitung otomatis</span>
-                  <StatusStamp label="70 / 15 / 15" tone="done" />
+                  <StatusStamp label={SPLIT_LABEL} tone="done" />
                 </li>
                 <li className="flex items-center justify-between gap-2 text-[10.5px]">
                   <span className="text-ink-muted">Perubahan status</span>
@@ -468,7 +478,7 @@ function payoutColumns(
         <div>
           <p className="font-semibold text-ink">{row.orderCode ?? row.reference ?? "—"}</p>
           <p className="mt-0.5 text-[10px] text-ink-muted">
-            {row.kind === "reversal" ? "Pembalik" : "Penjualan"}
+            {PAYOUT_KIND_LABELS[row.kind]}
           </p>
         </div>
       ),
@@ -490,7 +500,7 @@ function payoutColumns(
     },
     {
       id: "share",
-      header: "70%",
+      header: TEACHER_SHARE_LABEL,
       cell: (row) => (
         <span className="text-[11px] font-semibold tabular-nums">
           {formatIDR(row.teacherShare)}
@@ -504,7 +514,7 @@ function payoutColumns(
       cell: (row) => (
         <StatusStamp
           label={PAYOUT_STATUS_LABELS[row.status] ?? row.status}
-          tone={payoutTone(row.status)}
+          tone={PAYOUT_STATUS_TONES[row.status]}
         />
       ),
     },
@@ -558,9 +568,12 @@ const ledgerColumns: Column<LedgerEntryView>[] = [
     header: "Entri",
     cell: (row) => (
       <div>
-        <p className="font-semibold text-ink">{row.account}</p>
+        <p className="font-semibold text-ink">
+          {LEDGER_ACCOUNT_LABELS[row.account]}
+        </p>
         <p className="mt-0.5 text-[10px] text-ink-muted">
-          {row.entryType} · {row.direction}
+          {LEDGER_ENTRY_TYPE_LABELS[row.entryType]} ·{" "}
+          {LEDGER_DIRECTION_LABELS[row.direction]}
         </p>
       </div>
     ),

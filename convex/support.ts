@@ -1,6 +1,12 @@
 import { ConvexError, v } from "convex/values"
 
 import { flowSpec } from "../lib/flows/definitions"
+import {
+  SUPPORT_CHANNELS,
+  SUPPORT_ESCALATIONS,
+  SUPPORT_PRIORITIES,
+  SUPPORT_STATUSES,
+} from "../lib/support/options"
 import type {
   SupportCannedReplyView,
   SupportLink,
@@ -19,21 +25,13 @@ const TICKET_PREFIX = "DKN"
 const DEFAULT_SUPPORT_SLA_MINUTES = flowSpec("support").sla.targetMinutes
 
 const statusValidator = v.union(
-  v.literal("open"),
-  v.literal("pending"),
-  v.literal("resolved"),
-  v.literal("closed"),
+  ...SUPPORT_STATUSES.map((status) => v.literal(status)),
 )
 const priorityValidator = v.union(
-  v.literal("low"),
-  v.literal("normal"),
-  v.literal("high"),
-  v.literal("urgent"),
+  ...SUPPORT_PRIORITIES.map((priority) => v.literal(priority)),
 )
 const channelValidator = v.union(
-  v.literal("chat"),
-  v.literal("email"),
-  v.literal("whatsapp"),
+  ...SUPPORT_CHANNELS.map((channel) => v.literal(channel)),
 )
 const linkTypeValidator = v.union(
   v.literal("account"),
@@ -57,10 +55,7 @@ const cannedCategoryValidator = v.union(
   v.literal("general"),
 )
 const escalationValidator = v.union(
-  v.literal("payment"),
-  v.literal("content"),
-  v.literal("trust_safety"),
-  v.literal("technical"),
+  ...SUPPORT_ESCALATIONS.map((escalation) => v.literal(escalation)),
 )
 
 function fail(code: string, message: string): never {

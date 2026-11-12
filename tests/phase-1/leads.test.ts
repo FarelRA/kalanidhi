@@ -31,6 +31,26 @@ describe("leads / public form", () => {
     expect(lead?.status).toBe("new")
     expect(lead?.email).toBe("wahyu@example.test")
   })
+
+  it("[P1-LEAD-01b] accepts a WhatsApp-only lead without email", async () => {
+    const t = createTestDb()
+    const id = await t.mutation(api.leads.create, {
+      intent: "student",
+      name: "Wahyu Pratama",
+      whatsapp: "+62 800 1234",
+      consent: true,
+    })
+
+    const lead = await t.run(async (ctx) => ctx.db.get(id))
+    expect(lead?.whatsapp).toBe("+62 800 1234")
+    expect(lead?.email).toBeUndefined()
+
+    const adminId = await seedAdmin(t, "auth-admin")
+    void adminId
+    const identity = t.withIdentity({ subject: "auth-admin" })
+    const list = await identity.query(api.leads.list, {})
+    expect(list[0]?.email).toBeNull()
+  })
 })
 
 describe("leads / CRM", () => {

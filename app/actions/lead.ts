@@ -1,53 +1,9 @@
 "use server"
 
-import { z } from "zod"
-
 import type { LeadArgs } from "@/lib/convex/types"
 import type { LeadState } from "@/lib/forms/lead"
+import { leadSchema } from "@/lib/forms/lead-schema"
 import { isConvexConfigured, persistLead } from "@/lib/convex/server"
-
-const leadSchema = z
-  .object({
-    intent: z.enum(["student", "institution", "consultation", "notify"]),
-    name: z.string().trim().max(120).optional(),
-    email: z.email("Masukkan alamat email yang valid.").max(200),
-    whatsapp: z.string().trim().max(30).optional(),
-    institution: z.string().trim().max(160).optional(),
-    institutionType: z.string().trim().max(80).optional(),
-    participants: z.preprocess(
-      (value) => (value === "" || value == null ? undefined : Number(value)),
-      z
-        .number("Jumlah peserta harus berupa angka.")
-        .int("Jumlah peserta harus bilangan bulat.")
-        .min(1, "Minimal 1 peserta.")
-        .max(10_000, "Maksimal 10.000 peserta.")
-        .optional(),
-    ),
-    interest: z.string().trim().max(120).optional(),
-    message: z.string().trim().max(2_000).optional(),
-    consent: z.string().refine((value) => value === "on", {
-      message: "Kamu perlu menyetujui untuk dihubungi.",
-    }),
-    source: z.string().trim().max(80).optional(),
-    company_website: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.intent !== "notify" && !data.name) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["name"],
-        message: "Nama diperlukan agar kami bisa menyapa kamu.",
-      })
-    }
-
-    if (data.intent === "institution" && !data.institution) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["institution"],
-        message: "Nama institusi diperlukan.",
-      })
-    }
-  })
 
 export async function submitLead(
   _previousState: LeadState,
@@ -96,7 +52,7 @@ export async function submitLead(
     return {
       status: "error",
       message:
-        "Pendaftaranmu belum bisa disimpan. Coba lagi sebentar, atau hubungi kami lewat email.",
+        "Pendaftaranmu belum bisa disimpan. Coba lagi sebentar, atau hubungi kami lewat WhatsApp.",
     }
   }
 
@@ -108,7 +64,7 @@ export async function submitLead(
     consultation:
       "Pertanyaanmu tercatat. Kami akan menghubungi kamu untuk membahas langkah berikutnya.",
     notify:
-      "Kabar akan dikirim ke emailmu saat bagian ini dibuka.",
+      "Kabar akan dikirim ke WhatsApp-mu saat bagian ini dibuka.",
   }
 
   return { status: "success", message: messages[parsed.data.intent] }

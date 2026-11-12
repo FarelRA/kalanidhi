@@ -19,21 +19,20 @@ import { SegmentedTabs } from "@/components/workspace/data/segmented-tabs"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { api } from "@/convex/_generated/api"
 import { downloadCsv } from "@/lib/admin/csv"
+import {
+  LOG_KINDS,
+  LOG_KIND_LABELS,
+  LOG_SEVERITIES,
+  LOG_SEVERITY_LABELS,
+} from "@/lib/admin/log"
 import type { LogKind, LogRow } from "@/lib/admin/types"
 import type { StatusTone } from "@/lib/workspace/types"
 import { useMutation, useQuery } from "convex/react"
 
-const TABS: { id: LogKind; label: string }[] = [
-  { id: "audit", label: "Audit" },
-  { id: "auth", label: "Auth" },
-  { id: "payments", label: "Pembayaran" },
-  { id: "notifications", label: "Notifikasi" },
-  { id: "calls", label: "Panggilan" },
-  { id: "moderation", label: "Moderasi" },
-  { id: "content", label: "Konten" },
-  { id: "api", label: "API" },
-  { id: "errors", label: "Galat" },
-]
+const TABS: { id: LogKind; label: string }[] = LOG_KINDS.map((kind) => ({
+  id: kind,
+  label: LOG_KIND_LABELS[kind],
+}))
 
 function severityTone(severity: LogRow["severity"]): StatusTone {
   if (severity === "critical" || severity === "error") return "danger"
@@ -133,9 +132,11 @@ export function LogLive() {
             className="mt-1 flex h-8 border border-ink/20 bg-paper-2 px-2 text-[11px]"
           >
             <option value="">Semua</option>
-            <option value="warning">warning</option>
-            <option value="error">error</option>
-            <option value="critical">critical</option>
+            {LOG_SEVERITIES.map((value) => (
+              <option key={value} value={value}>
+                {LOG_SEVERITY_LABELS[value]}
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -156,7 +157,10 @@ export function LogLive() {
         ) : (
           <div className="w-full overflow-x-auto">
             <table className="w-full min-w-[820px] border-collapse text-left">
-              <caption className="sr-only">Log {kind} dengan waktu, aktor, aksi, entitas, dan severity</caption>
+              <caption className="sr-only">
+                Log {LOG_KIND_LABELS[kind]} dengan waktu, aktor, aksi,
+                entitas, dan severity
+              </caption>
               <thead>
                 <tr className="border-b border-ink/25 bg-panel/55">
                   {["Waktu", "Aktor", "Aksi", "Entitas", "Severity", ""].map((header) => (
@@ -195,7 +199,10 @@ export function LogLive() {
                       ) : null}
                     </td>
                     <td className="px-3 py-2.5">
-                      <StatusStamp label={row.severity} tone={severityTone(row.severity)} />
+                      <StatusStamp
+                        label={LOG_SEVERITY_LABELS[row.severity]}
+                        tone={severityTone(row.severity)}
+                      />
                     </td>
                     <td className="px-3 py-2.5 text-right">
                       <Button
@@ -238,7 +245,7 @@ function LogDrawer({
     <DetailDrawer
       open
       onOpenChange={(open) => !open && onClose()}
-      eyebrow={`Log · ${selection.kind}`}
+      eyebrow={`Log · ${LOG_KIND_LABELS[selection.kind]}`}
       title={
         detail?.action ??
         (detail === null ? "Catatan tidak ditemukan" : "Memuat catatan")
@@ -300,7 +307,7 @@ function LogDrawer({
                       {event.action} · {event.entity}
                     </p>
                     <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.05em] text-ink-muted">
-                      {event.kind} ·{" "}
+                      {LOG_KIND_LABELS[event.kind]} ·{" "}
                       {new Intl.DateTimeFormat("id-ID", {
                         timeZone: "Asia/Jakarta",
                         dateStyle: "short",

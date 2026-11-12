@@ -1,7 +1,7 @@
 import type { SiteData } from "@/lib/content/types"
 import {
+  fieldHref,
   pathHref,
-  PUBLIC_ROUTES,
   publicHref,
   teacherHref,
   workHref,
@@ -60,7 +60,7 @@ export function buildSearchGroups(
       items: data.catalog.fields.map((field) => ({
         label: field.name,
         description: `${field.region}, ${field.status.toLowerCase()}`,
-        href: PUBLIC_ROUTES.paths,
+        href: fieldHref(field.name),
       })),
     },
     {

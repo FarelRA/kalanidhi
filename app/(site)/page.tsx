@@ -47,7 +47,7 @@ export default async function HomePage() {
       <OpenPaths paths={data.paths} copy={data.sections.paths} />
       <BenchTeachers teachers={data.teachers} copy={data.sections.teachers} />
       <WorksShelf works={data.works} copy={data.sections.works} />
-      <WorkshopRules ethics={data.ethics} />
+      <WorkshopRules ethics={data.ethics} sources={data.culturalSources} />
       <SeasonNote mangsa={data.mangsa} />
       <InstitutionBench institution={data.institution} />
       <ParticipantNotes

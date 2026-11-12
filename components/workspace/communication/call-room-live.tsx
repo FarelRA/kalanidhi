@@ -53,6 +53,14 @@ import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import {
+  CALL_KIND_LABELS,
+  CALL_PARTICIPANT_ROLE_LABELS,
+  CALL_RECORDING_CONSENT_LABELS,
+  CALL_SCOPE_LABELS,
+  CALL_STATUS_LABELS,
+  CALL_STATUS_TONES,
+} from "@/lib/calls/options"
 import type {
   CallDetail,
   CallKind,
@@ -1566,49 +1574,27 @@ function isTerminal(status: CallStatus): boolean {
 }
 
 function statusLabel(status: CallStatus): string {
-  switch (status) {
-    case "scheduled":
-      return "Terjadwal"
-    case "ringing":
-      return "Berdering"
-    case "active":
-      return "Berlangsung"
-    case "ended":
-      return "Selesai"
-    case "missed":
-      return "Terlewat"
-    case "declined":
-      return "Ditolak"
-    case "cancelled":
-      return "Dibatalkan"
-  }
+  return CALL_STATUS_LABELS[status]
 }
 
 function statusTone(status: CallStatus): StatusTone {
-  if (status === "active") return "progress"
-  if (status === "ringing") return "wait"
-  if (status === "scheduled") return "open"
-  if (status === "ended") return "done"
-  if (status === "missed" || status === "declined") return "danger"
-  return "muted"
+  return CALL_STATUS_TONES[status]
 }
 
 function kindLabel(kind: CallKind): string {
-  return kind === "video" ? "Video" : "Suara"
+  return CALL_KIND_LABELS[kind]
 }
 
 function scopeLabel(scope: CallDetail["scope"]): string {
-  return scope === "cohort" ? "Kohort" : scope === "support" ? "Dukungan" : "Langsung"
+  return CALL_SCOPE_LABELS[scope]
 }
 
 function consentLabel(consent: CallRecordingConsent): string {
-  if (consent === "both") return "Semua setuju"
-  if (consent === "declined") return "Ditolak"
-  return "Menunggu"
+  return CALL_RECORDING_CONSENT_LABELS[consent]
 }
 
 function roleLabel(role: CallDetail["participants"][number]["role"]): string {
-  return role === "host" ? "Tuan rumah" : role === "support" ? "Dukungan" : "Peserta"
+  return CALL_PARTICIPANT_ROLE_LABELS[role]
 }
 
 function initialsFor(value: string): string {

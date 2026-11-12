@@ -1,3 +1,8 @@
+import { SPLIT_PERCENTAGES } from "../lib/commerce/money"
+import {
+  ABOUT_LOOP_HREF,
+  PUBLIC_ROUTES,
+} from "../lib/content/routes"
 import type {
   CatalogField,
   Faq,
@@ -15,7 +20,8 @@ import type {
  */
 type WithImageFile<T> = Omit<T, "image"> & { imageFile: string }
 
-export type SeedLearningPath = WithImageFile<LearningPath>
+/** `modules` is derived from `pathModules`, never stored as seed copy. */
+export type SeedLearningPath = WithImageFile<Omit<LearningPath, "modules">>
 export type SeedTeacher = WithImageFile<Teacher>
 export type SeedWork = WithImageFile<Work>
 
@@ -38,7 +44,7 @@ export const siteSeed: SeedSiteCopy = {
       "Platform belajar praktik budaya Nusantara. Tugas dinilai pengajar, sertifikat platform bisa diverifikasi, karya punya Kartu Karya. Lulusan dapat kembali sebagai pengajar, penilai, atau pemasok.",
     ogTitle: "KalaNidhi Digital: belajar sampai bisa, bisa sampai mengajari",
     ogDescription:
-      "Sepuluh bidang budaya dipetakan, dua jalur terbuka. Belajar langsung dari pengajar, dinilai manusia, lalu berkarya dengan Kartu Karya.",
+      "Bidang budaya dipetakan, jalur belajar dibuka bertahap. Belajar langsung dari pengajar, dinilai manusia, lalu berkarya dengan Kartu Karya.",
     twitterTitle:
       "KalaNidhi Digital: belajar sampai bisa, bisa sampai mengajari",
     twitterDescription:
@@ -80,6 +86,7 @@ export const siteSeed: SeedSiteCopy = {
     sheetDescription:
       "Navigasi utama, pencarian, dan pendaftaran KalaNidhi Digital.",
     region: "Yogyakarta dan Jawa Tengah",
+    homeLabel: "Beranda",
   },
   hero: {
     title: ["Duduk di bangku ini.", "Nanti kamu yang mengajari."],
@@ -99,13 +106,13 @@ export const siteSeed: SeedSiteCopy = {
   },
   traction: {
     label: "Capaian 2026",
-    note: "Angka capaian di Yogyakarta dan Jawa Tengah, bukan proyeksi nasional.",
+    note: "Angka dihitung dari catatan publik Convex: bidang, pengajar terbit, peserta aktif, tugas yang sudah dinilai, dan karya terbit.",
     figures: [
-      { value: "10", label: "bidang budaya dipetakan" },
-      { value: "14", label: "pengajar dan praktisi" },
-      { value: "24", label: "peserta" },
-      { value: "36", label: "tugas dinilai" },
-      { value: "12", label: "karya dan jasa" },
+      { metric: "fields", label: "bidang budaya dipetakan" },
+      { metric: "teachers", label: "pengajar dan praktisi" },
+      { metric: "participants", label: "peserta" },
+      { metric: "submissions", label: "tugas dinilai" },
+      { metric: "works", label: "karya dan jasa" },
     ],
   },
   loop: {
@@ -116,6 +123,8 @@ export const siteSeed: SeedSiteCopy = {
     returnLabel: "jalur kembali",
     returnNote:
       "Karya yang selesai dibawa kembali ke bangku pertama. Lulusan yang mengajar menaruh alatnya di rak, dan pelajar berikutnya duduk.",
+    returnCaveat:
+      "Jalur kembali tidak menjanjikan semua lulusan mengajar. Pintu ini disiapkan untuk pengajar pendamping, penilai tugas, atau pemasok bahan. Setiap pintu yang terisi membuka jalur baru.",
     diagram: {
       title: "Bangku kerja melingkar dengan lima tahap",
       description:
@@ -184,7 +193,7 @@ export const siteSeed: SeedSiteCopy = {
   sections: {
     paths: {
       label: "Jalur belajar",
-      title: "Dua jalur sudah terbuka. Satu masih disusun.",
+      title: "Jalur yang sudah terbuka, satu per satu.",
       description:
         "Setiap jalur punya pengajar, modul, dan tugas praktik yang dinilai manusia. Pilih yang paling dekat dengan tanganmu sekarang.",
       detailCta: "Buka rincian",
@@ -195,6 +204,11 @@ export const siteSeed: SeedSiteCopy = {
       contentLabel: "Isi",
       includesLabel: "Yang termasuk",
       curriculumPending: "Kurikulum disusun",
+      teacherLabel: "Pengajar",
+      regionLabel: "Daerah",
+      levelLabel: "Level",
+      emptyState:
+        "Belum ada jalur terbit di Convex. Jalur akan muncul di sini setelah kurikulum, pengajar, dan angkatan pertama tersedia.",
     },
     teachers: {
       label: "Pengajar",
@@ -204,6 +218,8 @@ export const siteSeed: SeedSiteCopy = {
       profileCta: "Baca profil",
       dialogLabel: "Profil pengajar",
       askCta: "Tanya lewat formulir",
+      emptyState:
+        "Belum ada pengajar terbit di Convex. Profil akan muncul di sini setelah pengajar menyelesaikan verifikasi dan publikasi.",
     },
     works: {
       label: "Karya dan jasa",
@@ -214,12 +230,21 @@ export const siteSeed: SeedSiteCopy = {
       serviceLabel: "Jasa pilihan",
       priceLabel: "Harga karya",
       askCta: "Tanya karya ini",
+      openCta: "Buka karya",
+      cardLabel: "Kartu Karya",
+      makerLabel: "Pembuat",
+      teacherLabel: "Pengajar",
+      techniqueLabel: "Teknik",
+      regionLabel: "Daerah",
+      emptyState:
+        "Belum ada karya terbit di Convex. Karya akan muncul di sini setelah Kartu Karya dan sertifikat platformnya terbit.",
     },
     notes: {
       label: "Catatan peserta",
       title: "Catatan dari peserta.",
       description:
-        "Tiga catatan dari peserta dan mitra, dikutip dengan izin. Isinya pengalaman yang bisa diperiksa.",
+        "Catatan dari peserta dan mitra, dikutip dengan izin. Isinya pengalaman yang bisa diperiksa.",
+      emptyState: "Belum ada catatan peserta yang terbit di Convex.",
     },
     faq: {
       label: "Pertanyaan",
@@ -228,6 +253,8 @@ export const siteSeed: SeedSiteCopy = {
         "Jawaban singkat untuk hal yang paling sering ditanyakan sebelum orang mengirim tugas pertama.",
       policyCta: "Baca aturan bengkel",
       askCta: "Tanya lewat formulir",
+      askInterest: "Pertanyaan umum",
+      emptyState: "Belum ada pertanyaan umum yang terbit di Convex.",
     },
     closing: {
       label: "Mulai dari sini",
@@ -291,45 +318,29 @@ export const siteSeed: SeedSiteCopy = {
     share: [
       {
         label: "Pengajar dan pembuat karya",
-        value: 70,
+        value: SPLIT_PERCENTAGES.teacher,
         note: "Imbalan bimbingan dan kompensasi langsung pembuat karya.",
       },
       {
         label: "Dana komunitas dan sanggar",
-        value: 15,
+        value: SPLIT_PERCENTAGES.community,
         note: "Konservasi bahan, perawatan alat, dan kegiatan sanggar.",
       },
       {
         label: "Operasional platform",
-        value: 15,
+        value: SPLIT_PERCENTAGES.platform,
         note: "Verifikasi, sertifikat, dan pengelolaan pengiriman paket.",
       },
     ],
     shareTitle: "Bagi hasil",
     shareNote: "Ditampilkan sebelum transaksi",
-    shareAriaLabel:
-      "Bagi hasil 70 persen untuk pengajar dan pembuat karya, 15 persen untuk dana komunitas dan sanggar, 15 persen untuk operasional platform",
+    shareAriaLabel: `Bagi hasil ${SPLIT_PERCENTAGES.teacher} persen untuk pengajar dan pembuat karya, ${SPLIT_PERCENTAGES.community} persen untuk dana komunitas dan sanggar, ${SPLIT_PERCENTAGES.platform} persen untuk operasional platform`,
     card: {
       sourceTitle: "Kartu Sumber Budaya",
       permissionLabel: "Izin",
       referenceLabel: "Rujukan",
-    },
-    attribution: {
-      permission: "Izin berbagi pengetahuan tercatat 12 Maret 2026",
-      access: "Publik",
-      reference: "Rujukan: arsip sanggar dan wawancara pengajar, 2026",
-      sources: [
-        {
-          initials: "SG",
-          name: "Sanggar Soga Giriloyo",
-          field: "Batik tulis dan pewarnaan soga",
-        },
-        {
-          initials: "SW",
-          name: "Sanggar Wicara Surakarta",
-          field: "Pranatacara dan tata upacara",
-        },
-      ],
+      emptyState:
+        "Belum ada catatan sumber budaya yang terbit di Convex. Izin dan atribusi akan tampil di sini setelah dicatat.",
     },
   },
   institution: {
@@ -368,20 +379,20 @@ export const siteSeed: SeedSiteCopy = {
       {
         title: "Isi bangku",
         links: [
-          { label: "Lingkaran", href: "#lingkaran" },
-          { label: "Rak bahan", href: "#indeks" },
-          { label: "Jalur belajar", href: "#jalur" },
-          { label: "Pengajar", href: "#pengajar" },
-          { label: "Karya dan jasa", href: "#karya" },
+          { label: "Lingkaran", href: ABOUT_LOOP_HREF },
+          { label: "Rak bahan", href: `${PUBLIC_ROUTES.home}#indeks` },
+          { label: "Jalur belajar", href: PUBLIC_ROUTES.paths },
+          { label: "Pengajar", href: PUBLIC_ROUTES.teachers },
+          { label: "Karya dan jasa", href: PUBLIC_ROUTES.works },
         ],
       },
       {
         title: "Platform",
         links: [
-          { label: "Etika dan hak budaya", href: "#etika" },
-          { label: "Untuk institusi", href: "#institusi" },
-          { label: "Pertanyaan umum", href: "#faq" },
-          { label: "Tentang KalaNidhi Digital", href: "#faq" },
+          { label: "Etika dan hak budaya", href: PUBLIC_ROUTES.ethics },
+          { label: "Untuk institusi", href: PUBLIC_ROUTES.institution },
+          { label: "Pertanyaan umum", href: PUBLIC_ROUTES.faq },
+          { label: "Tentang KalaNidhi Digital", href: PUBLIC_ROUTES.about },
         ],
       },
     ],
@@ -417,12 +428,12 @@ export const siteSeed: SeedSiteCopy = {
     },
   },
   navigation: [
-    { label: "Lingkaran", href: "#lingkaran" },
-    { label: "Rak bahan", href: "#indeks" },
-    { label: "Jalur", href: "#jalur" },
-    { label: "Pengajar", href: "#pengajar" },
-    { label: "Karya", href: "#karya" },
-    { label: "Etika", href: "#etika" },
+    { label: "Lingkaran", href: ABOUT_LOOP_HREF },
+    { label: "Rak bahan", href: `${PUBLIC_ROUTES.home}#indeks` },
+    { label: "Jalur", href: PUBLIC_ROUTES.paths },
+    { label: "Pengajar", href: PUBLIC_ROUTES.teachers },
+    { label: "Karya", href: PUBLIC_ROUTES.works },
+    { label: "Etika", href: PUBLIC_ROUTES.ethics },
   ],
   overlays: {
     policy: {
@@ -499,7 +510,7 @@ export const siteSeed: SeedSiteCopy = {
       icon: "about",
       title: "Tentang KalaNidhi Digital",
       description:
-        "KalaNidhi Digital adalah ruang belajar praktik budaya Nusantara yang dibangun bersama pengajar dan sanggar. Sepuluh bidang sudah dipetakan; dua jalur sudah terbuka.",
+        "KalaNidhi Digital adalah ruang belajar praktik budaya Nusantara yang dibangun bersama pengajar dan sanggar. Bidang budaya dipetakan dan jalur belajar dibuka bertahap.",
       bullets: [
         "Jalur belajar disusun bersama pengajar, kurator, dan praktisi sanggar.",
         "Setiap karya membawa Kartu Karya yang mencatat pembuat, teknik, dan proses.",
@@ -690,7 +701,6 @@ export const pathsSeed: SeedLearningPath[] = [
     teacherRole: "Pengajar batik Giriloyo",
     region: "Giriloyo, Yogyakarta",
     level: "Pemula sampai menengah",
-    modules: 8,
     weeks: 6,
     tasks: 3,
     price: 1_450_000,
@@ -714,7 +724,6 @@ export const pathsSeed: SeedLearningPath[] = [
     teacherRole: "Pembina pembawa acara adat",
     region: "Surakarta",
     level: "Terbuka umum",
-    modules: 6,
     weeks: 4,
     tasks: 3,
     price: 980_000,
@@ -738,7 +747,6 @@ export const pathsSeed: SeedLearningPath[] = [
     teacherRole: "Kurikulum dalam penyusunan",
     region: "Jepara",
     level: "Pemula",
-    modules: 0,
     weeks: 0,
     tasks: 0,
     price: null,
@@ -936,7 +944,7 @@ export const faqsSeed: Faq[] = [
   {
     question: "Bidang apa saja yang bisa dipelajari?",
     answer:
-      "Sepuluh bidang sudah dipetakan, dari batik tulis dan pranatacara sampai tenun, karawitan, tari, keramik, kuliner tradisi, jamu, dan wayang. Dua jalur sudah terbuka. Jalur lain dibuka bertahap setelah kurikulum dan izin komunitas selesai.",
+      "Bidang budaya sudah dipetakan, dari batik tulis dan pranatacara sampai tenun, karawitan, tari, keramik, kuliner tradisi, jamu, dan wayang. Jalur dibuka bertahap setelah kurikulum dan izin komunitas selesai.",
   },
   {
     question: "Bagaimana pengajar menilai tugas praktik saya?",

@@ -26,6 +26,7 @@ export default async function InstitutionPage() {
     <div className="bg-cream">
       <section className="shell py-12 sm:py-16">
         <PublicPageIntro
+          homeLabel={data.header.homeLabel}
           eyebrow={institution.label}
           title={institution.title}
           description={institution.description}

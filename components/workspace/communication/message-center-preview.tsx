@@ -34,12 +34,13 @@ import { PageHeader } from "@/components/workspace/data/page-header"
 import { Panel } from "@/components/workspace/data/panel"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
+import { CONVERSATION_KIND_LABELS } from "@/lib/messaging/options"
 import { chatMessages, conversations } from "@/lib/workspace/mock-data"
 import type { ChatMessage } from "@/lib/workspace/types"
 import { cn } from "cn"
 
 export function MessageCenterPreview() {
-  const { can } = useViewer()
+  const { can, profile } = useViewer()
   const [activeId, setActiveId] = React.useState("conv-anisa-bambang")
   const [messages, setMessages] = React.useState<ChatMessage[]>(chatMessages)
   const [draft, setDraft] = React.useState("")
@@ -62,8 +63,8 @@ export function MessageCenterPreview() {
       {
         id: `m-local-${current.length + 1}`,
         conversationId: activeId,
-        from: "Anisa Rahmawati",
-        fromId: "u-anisa",
+        from: profile.user.name,
+        fromId: profile.user.id,
         kind: "text",
         body: draft.trim(),
         time: "Baru saja",
@@ -159,14 +160,8 @@ export function MessageCenterPreview() {
                       ) : null}
                     </span>
                     <span className="mt-0.5 block truncate text-[9px] font-bold uppercase tracking-[0.05em] text-ink-muted">
-                      {conversation.kind === "cohort"
-                        ? "Kohort"
-                        : conversation.kind === "support"
-                          ? "Dukungan"
-                          : conversation.kind === "system"
-                            ? "Sistem"
-                            : "Langsung"}{" "}
-                      · {conversation.pathTitle}
+                      {CONVERSATION_KIND_LABELS[conversation.kind]} ·{" "}
+                      {conversation.pathTitle}
                     </span>
                     <span className="mt-1 line-clamp-2 block text-[10px] leading-snug text-ink-muted">
                       {conversation.lastMessage}

@@ -5,6 +5,8 @@ import { fetchQuery } from "convex/nextjs"
 import { BadgeCheck, ShieldCheck } from "lucide-react"
 
 import { api } from "@/convex/_generated/api"
+import { PUBLIC_ROUTES, verifyHref } from "@/lib/content/routes"
+import { getSiteData } from "@/lib/convex/server"
 import { formatWorkspaceDate } from "@/lib/workspace/format"
 
 export const instant = false
@@ -23,7 +25,7 @@ export async function generateMetadata({
   return {
     title: `Verifikasi ${kode}`,
     description:
-      "Verifikasi sertifikat platform KalaNidhi Digital. Sertifikat platform, bukan sertifikasi pemerintah atau BNSP.",
+      "Verifikasi sertifikat platform. Sertifikat platform, bukan sertifikasi pemerintah atau BNSP.",
     robots: {
       index: false,
       follow: false,
@@ -39,13 +41,15 @@ export default async function VerificationPage({
   const { kode } = await params
   await connection()
   const url = convexUrl()
+  const data = await getSiteData().catch(() => null)
+  const siteName = data?.metadata.siteName ?? "platform"
 
   if (!url) {
     return (
       <VerificationShell>
         <p className="text-[12.5px] leading-relaxed text-ink-soft">
           Layanan verifikasi belum tersambung pada lingkungan ini. Coba lagi
-          nanti atau hubungi pengelola KalaNidhi Digital.
+          nanti atau hubungi pengelola {siteName}.
         </p>
       </VerificationShell>
     )
@@ -74,7 +78,7 @@ export default async function VerificationPage({
       <VerificationShell>
         <p className="text-[12.5px] leading-relaxed text-ink-soft">
           Kode <code className="border border-ink/15 bg-panel/40 px-1.5 py-0.5">{kode}</code>{" "}
-          tidak ditemukan dalam registry sertifikat platform KalaNidhi Digital.
+          tidak ditemukan dalam registry sertifikat platform {siteName}.
         </p>
         <p className="mt-3 text-[11px] leading-relaxed text-ink-muted">
           Periksa kembali kode pada sertifikat. Kode publik berbeda dari nomor
@@ -147,7 +151,7 @@ export default async function VerificationPage({
         <p className="mt-5 border border-ink/20 bg-panel/30 p-3 text-[11.5px] leading-relaxed text-ink-soft">
           Kode ini telah diganti. Gunakan kode terbaru:{" "}
           <Link
-            href={`/verifikasi/${certificate.replacedByPublicCode}`}
+            href={verifyHref(certificate.replacedByPublicCode)}
             className="font-semibold text-copper-dark underline underline-offset-2"
           >
             {certificate.replacedByPublicCode}
@@ -159,27 +163,30 @@ export default async function VerificationPage({
       <p className="mt-6 flex items-start gap-2 border-t border-ink/15 pt-4 text-[10px] leading-relaxed text-ink-muted">
         <BadgeCheck className="mt-0.5 size-3.5 shrink-0 text-copper-dark" aria-hidden="true" />
         <span>
-          Sertifikat platform KalaNidhi Digital dengan verifikasi publik. Ini
-          bukan sertifikasi pemerintah atau BNSP.
+          Sertifikat platform {siteName} dengan verifikasi publik. Ini bukan
+          sertifikasi pemerintah atau BNSP.
         </span>
       </p>
     </VerificationShell>
   )
 }
 
-function VerificationShell({ children }: { children: React.ReactNode }) {
+async function VerificationShell({ children }: { children: React.ReactNode }) {
+  const data = await getSiteData().catch(() => null)
+  const siteName = data?.metadata.siteName
+
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
       <div className="border border-ink/25 bg-paper-2 p-5 shadow-[4px_4px_0_rgba(32,19,13,0.06)] sm:p-8">
         <div className="mb-6 flex items-center justify-between gap-3">
           <Link
-            href="/"
+            href={PUBLIC_ROUTES.home}
             className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-soft hover:text-ink"
           >
-            KalaNidhi Digital
+            {siteName ?? "Beranda"}
           </Link>
           <Link
-            href="/verifikasi"
+            href={PUBLIC_ROUTES.verify}
             className="text-[9px] font-bold uppercase tracking-[0.1em] text-ink-muted hover:text-ink"
           >
             Registry kredensial

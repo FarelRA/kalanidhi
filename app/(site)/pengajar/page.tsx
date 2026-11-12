@@ -28,6 +28,7 @@ export default async function TeachersPage() {
     <div className="bg-cream">
       <section className="shell py-12 sm:py-16">
         <PublicPageIntro
+          homeLabel={data.header.homeLabel}
           eyebrow={copy.label}
           title={copy.title}
           description={copy.description}

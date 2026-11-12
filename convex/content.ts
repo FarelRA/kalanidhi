@@ -12,13 +12,21 @@ import type {
   FeaturedSelection,
   HeroWorkCard,
   LearningPath,
+  PublicCulturalSource,
   PublicPathDetail,
+  PublicStats,
   PublicTeacherDetail,
   SeoOverride,
   SiteData,
   Teacher,
+  TractionContent,
+  TractionMetricKey,
   Work,
 } from "../lib/content/types"
+import { TRACTION_METRICS } from "../lib/content/types"
+import { CONTENT_FALLBACKS } from "../lib/content/defaults"
+import { PUBLIC_ROUTES, publicHref } from "../lib/content/routes"
+import { UNLINKED_TEACHER_LABEL } from "../lib/content/status"
 import {
   contentDocumentSchema,
   validateContentDocument,
@@ -237,14 +245,85 @@ function featuredSelection(value: unknown): FeaturedSelection | null {
   }
 }
 
+function isTractionMetric(value: unknown): value is TractionMetricKey {
+  return (
+    typeof value === "string" &&
+    (TRACTION_METRICS as readonly string[]).includes(value)
+  )
+}
+
+/**
+ * Earlier revisions stored invented numbers (`{ value: "10", label }`). Keep
+ * reading them by index so a live site never breaks, but drop the number and
+ * map the label onto a computed metric.
+ */
+function normalizeTraction(value: unknown): TractionContent {
+  const raw = (
+    value && typeof value === "object" ? value : {}
+  ) as Partial<TractionContent> & {
+    figures?: Array<Partial<TractionContent["figures"][number]> & { value?: unknown }>
+  }
+  const figures = Array.isArray(raw.figures) ? raw.figures : []
+  return {
+    label: typeof raw.label === "string" ? raw.label : "",
+    note: typeof raw.note === "string" ? raw.note : "",
+    figures: figures.slice(0, TRACTION_METRICS.length).map((figure, index) => {
+      const entry =
+        figure && typeof figure === "object"
+          ? (figure as { metric?: unknown; label?: unknown })
+          : {}
+      return {
+        metric: isTractionMetric(entry.metric)
+          ? entry.metric
+          : (TRACTION_METRICS[index] ?? "fields"),
+        label: typeof entry.label === "string" ? entry.label : "",
+      }
+    }),
+  }
+}
+
+/** Legacy footer labels that used to resolve to the wrong anchor. */
+function legacyFooterHref(label: string, href: string): string {
+  if (label === "Tentang KalaNidhi Digital") return PUBLIC_ROUTES.about
+  return publicHref(href)
+}
+
+function normalizeFooter(footer: ContentDocument["footer"]) {
+  if (!footer) return footer
+  return {
+    ...footer,
+    columns: footer.columns.map((column) => ({
+      ...column,
+      links: column.links.map((link) => ({
+        ...link,
+        href: legacyFooterHref(link.label, link.href),
+      })),
+    })),
+  }
+}
+
+function normalizeNavigation(navigation: ContentDocument["navigation"]) {
+  if (!navigation) return navigation
+  return navigation.map((item) => ({
+    ...item,
+    href: publicHref(item.href),
+  }))
+}
+
 function normalizeContentDocument(value: unknown): ContentDocument {
   const raw = (
     value && typeof value === "object" ? value : {}
   ) as ContentDocument
+  const fallback = CONTENT_FALLBACKS
   return {
     hero: raw.hero,
-    traction: raw.traction,
-    loop: raw.loop,
+    traction: normalizeTraction(raw.traction),
+    loop: raw.loop
+      ? {
+          ...raw.loop,
+          returnCaveat: raw.loop.returnCaveat ?? fallback.loop.returnCaveat,
+        }
+      : raw.loop,
     catalog: raw.catalog
       ? {
           label: raw.catalog.label,
@@ -255,13 +334,88 @@ function normalizeContentDocument(value: unknown): ContentDocument {
         }
       : raw.catalog,
     mangsa: raw.mangsa,
-    ethics: raw.ethics,
+    ethics: raw.ethics
+      ? {
+          ...raw.ethics,
+          card: {
+            ...raw.ethics.card,
+            emptyState:
+              raw.ethics.card?.emptyState ?? fallback.ethicsCard.emptyState,
+          },
+        }
+      : raw.ethics,
     institution: raw.institution,
-    sections: raw.sections,
-    footer: raw.footer,
-    navigation: raw.navigation,
+    sections: raw.sections
+      ? {
+          ...raw.sections,
+          paths: {
+            ...raw.sections.paths,
+            teacherLabel:
+              raw.sections.paths.teacherLabel ??
+              fallback.sections.paths.teacherLabel,
+            regionLabel:
+              raw.sections.paths.regionLabel ??
+              fallback.sections.paths.regionLabel,
+            levelLabel:
+              raw.sections.paths.levelLabel ??
+              fallback.sections.paths.levelLabel,
+            emptyState:
+              raw.sections.paths.emptyState ??
+              fallback.sections.paths.emptyState,
+          },
+          teachers: {
+            ...raw.sections.teachers,
+            emptyState:
+              raw.sections.teachers.emptyState ??
+              fallback.sections.teachers.emptyState,
+          },
+          works: {
+            ...raw.sections.works,
+            openCta:
+              raw.sections.works.openCta ?? fallback.sections.works.openCta,
+            cardLabel:
+              raw.sections.works.cardLabel ?? fallback.sections.works.cardLabel,
+            makerLabel:
+              raw.sections.works.makerLabel ??
+              fallback.sections.works.makerLabel,
+            teacherLabel:
+              raw.sections.works.teacherLabel ??
+              fallback.sections.works.teacherLabel,
+            techniqueLabel:
+              raw.sections.works.techniqueLabel ??
+              fallback.sections.works.techniqueLabel,
+            regionLabel:
+              raw.sections.works.regionLabel ??
+              fallback.sections.works.regionLabel,
+            emptyState:
+              raw.sections.works.emptyState ??
+              fallback.sections.works.emptyState,
+          },
+          notes: {
+            ...raw.sections.notes,
+            emptyState:
+              raw.sections.notes.emptyState ??
+              fallback.sections.notes.emptyState,
+          },
+          faq: {
+            ...raw.sections.faq,
+            askInterest:
+              raw.sections.faq.askInterest ??
+              fallback.sections.faq.askInterest,
+            emptyState:
+              raw.sections.faq.emptyState ?? fallback.sections.faq.emptyState,
+          },
+        }
+      : raw.sections,
+    footer: normalizeFooter(raw.footer),
+    navigation: normalizeNavigation(raw.navigation),
     overlays: raw.overlays,
-    header: raw.header,
+    header: raw.header
+      ? {
+          ...raw.header,
+          homeLabel: raw.header.homeLabel ?? fallback.header.homeLabel,
+        }
+      : raw.header,
     search: raw.search,
     mobileCta: raw.mobileCta,
     leadDialogs: raw.leadDialogs,
@@ -347,9 +501,10 @@ async function resolveLearningPath(
     code: path.code,
     title: path.title,
     subtitle: path.subtitle,
-    teacher: profile?.name ?? path.teacher,
-    teacherRole: path.teacherRole || profile?.specialty || "Pengajar",
+    teacher: profile?.name ?? UNLINKED_TEACHER_LABEL,
+    teacherRole: profile?.specialty ?? "",
     teacherId: path.teacherId,
+    updatedAt: path.createdAt ?? undefined,
     region: path.region,
     level: path.level,
     modules: facts.modules.length,
@@ -387,6 +542,7 @@ async function resolveTeacher(
     community: teacher.community,
     image: image ?? "",
     verified: teacher.verified,
+    updatedAt: teacher.publishedAt ?? teacher.verifiedAt ?? undefined,
   }
 }
 
@@ -426,7 +582,7 @@ async function resolveWork(
     kind: work.kind,
     maker: maker.name,
     makerRole: work.makerRole,
-    teacher: profile?.name ?? path.teacher,
+    teacher: profile?.name ?? UNLINKED_TEACHER_LABEL,
     region: work.region,
     price: work.price,
     priceLabel: work.priceLabel,
@@ -452,6 +608,94 @@ function isPublishedTeacher(teacher: Doc<"teachers">): boolean {
   )
 }
 
+const ASSESSED_SUBMISSION_STATUSES = new Set([
+  "approved",
+  "revision_requested",
+  "rejected",
+])
+
+/**
+ * Real public counts for the landing traction block. Every number comes from
+ * a table; a missing table simply yields 0 instead of an invented figure.
+ */
+async function computePublicStats(ctx: AnyCtx): Promise<PublicStats> {
+  const [fields, teachers, enrollments, submissions, works] = await Promise.all([
+    ctx.db.query("catalogFields").collect(),
+    ctx.db.query("teachers").collect(),
+    ctx.db.query("enrollments").collect(),
+    ctx.db.query("submissions").collect(),
+    ctx.db.query("works").collect(),
+  ])
+
+  const participants = new Set(
+    enrollments
+      .filter(
+        (enrollment) =>
+          enrollment.status === "active" || enrollment.status === "completed",
+      )
+      .map((enrollment) => enrollment.studentId as string),
+  )
+
+  return {
+    fields: fields.length,
+    teachers: teachers.filter(isPublishedTeacher).length,
+    participants: participants.size,
+    submissions: submissions.filter((submission) =>
+      ASSESSED_SUBMISSION_STATUSES.has(submission.status),
+    ).length,
+    works: works.filter((work) => work.status === "published").length,
+  }
+}
+
+/** Public cultural permission records, read from `culturalSources`. */
+async function publicCulturalSources(
+  ctx: AnyCtx,
+): Promise<PublicCulturalSource[]> {
+  const [sources, works] = await Promise.all([
+    ctx.db.query("culturalSources").collect(),
+    ctx.db.query("works").collect(),
+  ])
+  const workSlugById = new Map(
+    works.map((work) => [work._id as string, work.slug] as const),
+  )
+
+  return sources
+    .filter(
+      (source) =>
+        source.status === "active" &&
+        source.withdrawalStatus !== "withdrawn",
+    )
+    .sort((a, b) => a.permissionDate - b.permissionDate)
+    .map((source) => ({
+      community: source.community,
+      sourceName: source.sourceName,
+      pathSlug: source.pathId ?? null,
+      workSlug: source.workId
+        ? (workSlugById.get(source.workId as string) ?? null)
+        : null,
+      permissionReference: source.permissionDocumentRef,
+      permissionDate: source.permissionDate,
+      permissionStatus: source.permissionStatus,
+      accessLevel: source.accessLevel,
+      attribution: source.attribution,
+      notes: source.notes ?? null,
+    }))
+}
+
+function tractionView(
+  copy: TractionContent,
+  stats: PublicStats,
+): SiteData["traction"] {
+  return {
+    label: copy.label,
+    note: copy.note,
+    figures: copy.figures.map((figure) => ({
+      ...figure,
+      value: String(stats[figure.metric] ?? 0),
+    })),
+  }
+}
+
 export async function assemblePublishedSite(
   ctx: AnyCtx,
 ): Promise<SiteData | null> {
@@ -461,15 +705,25 @@ export async function assemblePublishedSite(
     .unique()
   if (!site) return null
 
-  const [catalogFields, paths, teachers, works, testimonials, faqs] =
-    await Promise.all([
-      ctx.db.query("catalogFields").withIndex("by_order").collect(),
-      ctx.db.query("paths").withIndex("by_order").collect(),
-      ctx.db.query("teachers").withIndex("by_order").collect(),
-      ctx.db.query("works").withIndex("by_order").collect(),
-      ctx.db.query("testimonials").withIndex("by_order").collect(),
-      ctx.db.query("faqs").withIndex("by_order").collect(),
-    ])
+  const [
+    catalogFields,
+    paths,
+    teachers,
+    works,
+    testimonials,
+    faqs,
+    stats,
+    culturalSources,
+  ] = await Promise.all([
+    ctx.db.query("catalogFields").withIndex("by_order").collect(),
+    ctx.db.query("paths").withIndex("by_order").collect(),
+    ctx.db.query("teachers").withIndex("by_order").collect(),
+    ctx.db.query("works").withIndex("by_order").collect(),
+    ctx.db.query("testimonials").withIndex("by_order").collect(),
+    ctx.db.query("faqs").withIndex("by_order").collect(),
+    computePublicStats(ctx),
+    publicCulturalSources(ctx),
+  ])
 
   const featured = featuredSelection(site.value)
   const cache: AssetUrlCache = new Map()
@@ -573,6 +827,8 @@ export async function assemblePublishedSite(
 
   return {
     ...copy,
+    traction: tractionView(copy.traction, stats),
+    culturalSources,
     catalog: {
       ...copy.catalog,
       fields: selectedFields.map((field) => ({
@@ -604,6 +860,22 @@ export const getSite = query({
   args: {},
   handler: async (ctx): Promise<SiteData | null> => {
     return await assemblePublishedSite(ctx)
+  },
+})
+
+/** Computed landing counts. Never editorial numbers. */
+export const getPublicStats = query({
+  args: {},
+  handler: async (ctx): Promise<PublicStats> => {
+    return await computePublicStats(ctx)
+  },
+})
+
+/** Public attribution and permission records from `culturalSources`. */
+export const listPublicCulturalSources = query({
+  args: {},
+  handler: async (ctx): Promise<PublicCulturalSource[]> => {
+    return await publicCulturalSources(ctx)
   },
 })
 

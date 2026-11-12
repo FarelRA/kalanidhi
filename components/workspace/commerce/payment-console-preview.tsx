@@ -35,6 +35,10 @@ import { PageHeader } from "@/components/workspace/data/page-header"
 import { Panel } from "@/components/workspace/data/panel"
 import { SegmentedTabs } from "@/components/workspace/data/segmented-tabs"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
+import {
+  PAYMENT_STATUSES,
+  PAYMENT_STATUS_LABELS,
+} from "@/lib/commerce/options"
 import { gatewayHealth, paymentIntents } from "@/lib/workspace/mock-data"
 import type { Metric, PaymentIntent } from "@/lib/workspace/types"
 import { formatIDR } from "@/lib/format"
@@ -151,10 +155,10 @@ export function PaymentConsolePreview() {
                 label: "Status",
                 options: [
                   { value: "all", label: "Semua", count: paymentIntents.length },
-                  { value: "pending", label: "Menunggu" },
-                  { value: "paid", label: "Lunas" },
-                  { value: "expired", label: "Kedaluwarsa" },
-                  { value: "failed", label: "Gagal" },
+                  ...PAYMENT_STATUSES.map((status) => ({
+                    value: status,
+                    label: PAYMENT_STATUS_LABELS[status],
+                  })),
                 ],
               },
               {
@@ -162,9 +166,12 @@ export function PaymentConsolePreview() {
                 label: "Provider",
                 options: [
                   { value: "all", label: "Semua" },
-                  { value: "QRIS", label: "QRIS" },
-                  { value: "GoPay", label: "GoPay" },
-                  { value: "Transfer", label: "Transfer" },
+                  ...Array.from(
+                    new Set(paymentIntents.map((item) => item.provider)),
+                  ).map((provider) => ({
+                    value: provider,
+                    label: provider,
+                  })),
                 ],
               },
             ]}

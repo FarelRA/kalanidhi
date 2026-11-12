@@ -1,12 +1,15 @@
 import { defineTable } from "convex/server"
 import { v } from "convex/values"
 
+import { CATALOG_STATUSES } from "../../lib/content/status"
+import {
+  LESSON_ACCESS_LEVELS,
+  LESSON_KINDS,
+} from "../../lib/learning/options"
 import { jsonBagValidator } from "./common"
 
 export const catalogStatus = v.union(
-  v.literal("Terbuka"),
-  v.literal("Sedang dipetakan"),
-  v.literal("Direncanakan"),
+  ...CATALOG_STATUSES.map((status) => v.literal(status)),
 )
 
 const pathStatus = v.union(
@@ -144,20 +147,12 @@ export const contentTables = {
     moduleId: v.id("pathModules"),
     pathId: v.string(),
     title: v.string(),
-    kind: v.union(
-      v.literal("text"),
-      v.literal("video"),
-      v.literal("audio"),
-      v.literal("file"),
-      v.literal("practice"),
-    ),
+    kind: v.union(...LESSON_KINDS.map((kind) => v.literal(kind))),
     body: v.string(),
     mediaAssetIds: v.array(v.id("mediaAssets")),
     estimatedMinutes: v.number(),
     accessLevel: v.union(
-      v.literal("public"),
-      v.literal("enrolled"),
-      v.literal("certified"),
+      ...LESSON_ACCESS_LEVELS.map((level) => v.literal(level)),
     ),
     status: v.union(v.literal("draft"), v.literal("published")),
     createdAt: v.number(),

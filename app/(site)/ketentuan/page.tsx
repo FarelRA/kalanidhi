@@ -25,6 +25,7 @@ export default async function TermsPage() {
     <div className="bg-cream">
       <section className="shell py-12 sm:py-16">
         <PublicPageIntro
+          homeLabel={data.header.homeLabel}
           eyebrow="Ketentuan"
           title={content.title}
           description={content.description}

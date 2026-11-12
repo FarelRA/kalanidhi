@@ -13,19 +13,38 @@ import { Panel } from "@/components/workspace/data/panel"
 import { SegmentedTabs } from "@/components/workspace/data/segmented-tabs"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
-import { supportTickets } from "@/lib/workspace/mock-data"
-import type { SupportTicket } from "@/lib/workspace/types"
+import {
+  SUPPORT_PRIORITY_LABELS,
+  SUPPORT_PRIORITY_TONES,
+} from "@/lib/support/options"
+import { supportCannedReplies, supportTickets } from "@/lib/workspace/mock-data"
+import type { StatusTone, SupportTicket } from "@/lib/workspace/types"
 import { cn } from "cn"
 
-const priorities: Record<SupportTicket["priority"], { label: string; tone: "muted" | "progress" | "wait" | "danger" }> = {
-  low: { label: "Rendah", tone: "muted" },
-  normal: { label: "Normal", tone: "progress" },
-  high: { label: "Tinggi", tone: "wait" },
-  urgent: { label: "Mendesak", tone: "danger" },
+const priorities: Record<
+  SupportTicket["priority"],
+  { label: string; tone: StatusTone }
+> = {
+  low: {
+    label: SUPPORT_PRIORITY_LABELS.low,
+    tone: SUPPORT_PRIORITY_TONES.low,
+  },
+  normal: {
+    label: SUPPORT_PRIORITY_LABELS.normal,
+    tone: SUPPORT_PRIORITY_TONES.normal,
+  },
+  high: {
+    label: SUPPORT_PRIORITY_LABELS.high,
+    tone: SUPPORT_PRIORITY_TONES.high,
+  },
+  urgent: {
+    label: SUPPORT_PRIORITY_LABELS.urgent,
+    tone: SUPPORT_PRIORITY_TONES.urgent,
+  },
 }
 
 export function SupportInbox() {
-  const { can } = useViewer()
+  const { can, profile } = useViewer()
   const [tickets, setTickets] = React.useState(supportTickets)
   const [tab, setTab] = React.useState("open")
   const [activeId, setActiveId] = React.useState(supportTickets[0]?.id ?? "")
@@ -61,7 +80,7 @@ export function SupportInbox() {
                 ...ticket.messages,
                 {
                   id: `tm-local-${ticket.messages.length + 1}`,
-                  from: internal ? "Catatan internal" : "Fajar Nugroho",
+                  from: internal ? "Catatan internal" : profile.user.name,
                   internal,
                   time: "Baru saja",
                   body: reply.trim(),
@@ -289,15 +308,11 @@ export function SupportInbox() {
                   defaultValue=""
                 >
                   <option value="">Balasan siap pakai</option>
-                  <option value="Terima kasih, kami sudah menerima laporan Anda. Mohon jangan melakukan pembayaran ulang.">
-                    Pembayaran ganda
-                  </option>
-                  <option value="Kami sedang meninjau bukti dari kedua pihak. Payout terkait ditahan sampai selesai.">
-                    Sengketa
-                  </option>
-                  <option value="Silakan coba bergabung kembali dengan mode suara saja, lalu kabari kami bila masih gagal.">
-                    Masalah panggilan
-                  </option>
+                  {supportCannedReplies.map((item) => (
+                    <option key={item.id} value={item.body}>
+                      {item.label}
+                    </option>
+                  ))}
                 </select>
               </div>
               <Textarea

@@ -28,9 +28,32 @@ import { SegmentedTabs } from "@/components/workspace/data/segmented-tabs"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import {
+  ACCOUNT_STATUS_LABELS,
+  TEACHER_STATUS_LABELS,
+  WORKSPACE_ROLES,
+  WORKSPACE_ROLE_LABELS,
+} from "@/lib/access/capabilities"
+import {
+  AUTH_LOG_KIND_LABELS,
+  ROLE_ACTION_LABELS,
+  SELLER_STATUS_LABELS,
+  SELLER_STATUS_TONES,
+} from "@/lib/admin/people"
+import {
+  emptySellerChecklist,
+  ORDER_STATUS_LABELS,
+  SELLER_CHECKLIST_KEYS,
+  SELLER_CHECKLIST_LABELS,
+  WORK_STATUS_LABELS,
+} from "@/lib/commerce/options"
+import { CERTIFICATE_STATUS_LABELS } from "@/lib/credentials/options"
+import { ENROLLMENT_STATUS_LABELS } from "@/lib/learning/options"
 import type { PersonSummary } from "@/lib/admin/types"
 import type { StatusTone } from "@/lib/workspace/types"
 import { useMutation, useQuery } from "convex/react"
+
+const INVITABLE_ROLES = WORKSPACE_ROLES.filter((role) => role !== "student")
 
 function roleTone(status: PersonSummary["status"]): StatusTone {
   if (status === "active") return "done"
@@ -50,6 +73,13 @@ type ReasonAction = {
   description: string
   label: string
   run: (reason: string) => Promise<void>
+}
+
+function statusLabel(
+  labels: Record<string, string>,
+  status: string,
+): string {
+  return labels[status] ?? status
 }
 
 export function PeopleLive() {
@@ -126,7 +156,7 @@ export function PeopleLive() {
         <div className="space-y-1">
           <p className="text-[10.5px] text-ink-soft">{row.roleLabel}</p>
           {row.roles.map((role) => (
-            <StatusStamp key={role} label={role} tone="muted" />
+            <StatusStamp key={role} label={WORKSPACE_ROLE_LABELS[role]} tone="muted" />
           ))}
         </div>
       ),
@@ -137,7 +167,10 @@ export function PeopleLive() {
       id: "status",
       header: "Status",
       cell: (row) => (
-        <StatusStamp label={row.status} tone={roleTone(row.status)} />
+        <StatusStamp
+          label={ACCOUNT_STATUS_LABELS[row.status]}
+          tone={roleTone(row.status)}
+        />
       ),
     },
     {
@@ -147,7 +180,7 @@ export function PeopleLive() {
         row.teacherStatus ? (
           <div className="space-y-1">
             <StatusStamp
-              label={row.teacherStatus}
+              label={TEACHER_STATUS_LABELS[row.teacherStatus]}
               tone={teacherTone(row.teacherStatus)}
             />
             <p className="text-[9.5px] text-ink-muted">
@@ -309,8 +342,11 @@ export function PeopleLive() {
                 }
                 className="mt-1.5 flex h-9 w-full border border-ink/20 bg-paper-2 px-2 text-[12px]"
               >
-                <option value="teacher">Pengajar</option>
-                <option value="admin">Pengelola</option>
+                {INVITABLE_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {WORKSPACE_ROLE_LABELS[role]}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -379,12 +415,9 @@ function PersonDrawer({
   const [sellerOpen, setSellerOpen] = React.useState(false)
   const [sellerName, setSellerName] = React.useState("")
   const [sellerReason, setSellerReason] = React.useState("")
-  const [sellerChecklist, setSellerChecklist] = React.useState({
-    payoutAccount: false,
-    consent: false,
-    firstWorkCard: false,
-    taxDetails: false,
-  })
+  const [sellerChecklist, setSellerChecklist] = React.useState(
+    emptySellerChecklist,
+  )
   const [teacherOpen, setTeacherOpen] = React.useState(false)
   const [teacherReason, setTeacherReason] = React.useState("")
   const [teacherDraft, setTeacherDraft] = React.useState({
@@ -512,9 +545,9 @@ function PersonDrawer({
         <div className="space-y-6">
           <DetailGrid
             items={[
-              { label: "Status", value: <StatusStamp label={detail.user.status} tone={roleTone(detail.user.status)} /> },
+              { label: "Status", value: <StatusStamp label={ACCOUNT_STATUS_LABELS[detail.user.status]} tone={roleTone(detail.user.status)} /> },
               { label: "Wilayah", value: detail.user.region || "—" },
-              { label: "Peran", value: detail.user.roles.join(", ") },
+              { label: "Peran", value: detail.user.roles.map((role) => WORKSPACE_ROLE_LABELS[role]).join(", ") },
               { label: "Label", value: detail.user.roleLabel },
               {
                 label: "Hak",
@@ -533,7 +566,7 @@ function PersonDrawer({
 
           <DrawerSection title="Peran">
             <div className="grid gap-2 sm:grid-cols-3">
-              {(["student", "teacher", "admin"] as const).map((role) => (
+              {WORKSPACE_ROLES.map((role) => (
                 <label
                   key={role}
                   className="flex items-center gap-2 border border-ink/15 bg-paper/40 px-2.5 py-2 text-[11px]"
@@ -550,7 +583,7 @@ function PersonDrawer({
                     }
                     className="size-4 accent-[#a9552c]"
                   />
-                  {role}
+                  {WORKSPACE_ROLE_LABELS[role]}
                 </label>
               ))}
             </div>
@@ -565,7 +598,10 @@ function PersonDrawer({
               title="Dossier pengajar"
               aside={
                 <StatusStamp
-                  label={detail.teacher.verificationStatus ?? detail.teacher.status}
+                  label={
+                    detail.teacher.verificationStatus ??
+                    TEACHER_STATUS_LABELS[detail.teacher.status]
+                  }
                   tone={teacherTone(detail.teacher.status)}
                 />
               }
@@ -685,14 +721,8 @@ function PersonDrawer({
             aside={
               detail.seller ? (
                 <StatusStamp
-                  label={detail.seller.status}
-                  tone={
-                    detail.seller.status === "active"
-                      ? "done"
-                      : detail.seller.status === "suspended"
-                        ? "danger"
-                        : "wait"
-                  }
+                  label={SELLER_STATUS_LABELS[detail.seller.status]}
+                  tone={SELLER_STATUS_TONES[detail.seller.status]}
                 />
               ) : (
                 <StatusStamp label="Belum aktif" tone="muted" />
@@ -705,17 +735,12 @@ function PersonDrawer({
                   <dt className="text-ink-muted">Nama tampil</dt>
                   <dd className="text-right text-ink">{detail.seller.displayName}</dd>
                 </div>
-                {(
-                  [
-                    ["Rekening pencairan", detail.seller.onboardingChecklist.payoutAccount],
-                    ["Persetujuan", detail.seller.onboardingChecklist.consent],
-                    ["Kartu Karya pertama", detail.seller.onboardingChecklist.firstWorkCard],
-                    ["Data pajak", detail.seller.onboardingChecklist.taxDetails],
-                  ] as const
-                ).map(([label, done]) => (
-                  <div key={label} className="flex justify-between gap-3">
-                    <dt className="text-ink-muted">{label}</dt>
-                    <dd className="text-right text-ink">{done ? "Lengkap" : "Belum"}</dd>
+                {SELLER_CHECKLIST_KEYS.map((key) => (
+                  <div key={key} className="flex justify-between gap-3">
+                    <dt className="text-ink-muted">{SELLER_CHECKLIST_LABELS[key]}</dt>
+                    <dd className="text-right text-ink">
+                      {detail.seller?.onboardingChecklist[key] ? "Lengkap" : "Belum"}
+                    </dd>
                   </div>
                 ))}
               </dl>
@@ -731,12 +756,7 @@ function PersonDrawer({
                   onClick={() => {
                     setSellerName(detail.user.name)
                     setSellerReason("")
-                    setSellerChecklist({
-                      payoutAccount: false,
-                      consent: false,
-                      firstWorkCard: false,
-                      taxDetails: false,
-                    })
+                    setSellerChecklist(emptySellerChecklist())
                     setSellerOpen(true)
                   }}
                 >
@@ -782,13 +802,19 @@ function PersonDrawer({
               {detail.enrollments.map((item) => (
                 <div key={item.id} className="border border-ink/15 bg-paper/40 px-2.5 py-2">
                   <p className="text-[11px] font-semibold text-ink">{item.title}</p>
-                  <StatusStamp label={item.status} tone="muted" />
+                  <StatusStamp
+                    label={statusLabel(ENROLLMENT_STATUS_LABELS, item.status)}
+                    tone="muted"
+                  />
                 </div>
               ))}
               {detail.certificates.map((item) => (
                 <div key={item.id} className="border border-ink/15 bg-paper/40 px-2.5 py-2">
                   <p className="text-[11px] font-semibold text-ink">{item.title}</p>
-                  <StatusStamp label={item.status} tone={item.status === "issued" ? "done" : "danger"} />
+                  <StatusStamp
+                    label={statusLabel(CERTIFICATE_STATUS_LABELS, item.status)}
+                    tone={item.status === "issued" ? "done" : "danger"}
+                  />
                 </div>
               ))}
             </div>
@@ -802,14 +828,20 @@ function PersonDrawer({
               {detail.works.map((item) => (
                 <div key={item.id} className="border border-ink/15 bg-paper/40 px-2.5 py-2">
                   <p className="text-[11px] font-semibold text-ink">{item.title}</p>
-                  <StatusStamp label={item.status} tone="muted" />
+                  <StatusStamp
+                    label={statusLabel(WORK_STATUS_LABELS, item.status)}
+                    tone="muted"
+                  />
                 </div>
               ))}
               {detail.orders.map((item) => (
                 <div key={item.id} className="border border-ink/15 bg-paper/40 px-2.5 py-2">
                   <p className="text-[11px] font-semibold text-ink">{item.id}</p>
                   <p className="text-[10px] text-ink-muted">{item.title}</p>
-                  <StatusStamp label={item.status} tone="muted" />
+                  <StatusStamp
+                    label={statusLabel(ORDER_STATUS_LABELS, item.status)}
+                    tone="muted"
+                  />
                 </div>
               ))}
             </div>
@@ -843,7 +875,7 @@ function PersonDrawer({
             <ul className="mt-3 space-y-1.5 border-t border-ink/15 pt-3">
               {detail.authLogs.slice(0, 6).map((log) => (
                 <li key={log.id} className="flex justify-between gap-2 text-[10px] text-ink-muted">
-                  <span>{log.kind}</span>
+                  <span>{AUTH_LOG_KIND_LABELS[log.kind]}</span>
                   <span>
                     {new Intl.DateTimeFormat("id-ID", {
                       timeZone: "Asia/Jakarta",
@@ -861,7 +893,8 @@ function PersonDrawer({
               {detail.roleAssignments.map((assignment) => (
                 <li key={assignment.id} className="border-l-2 border-copper/40 pl-2.5">
                   <p className="text-[10.5px] text-ink">
-                    {assignment.action} · {assignment.role}
+                    {ROLE_ACTION_LABELS[assignment.action]} ·{" "}
+                    {WORKSPACE_ROLE_LABELS[assignment.role]}
                   </p>
                   <p className="mt-0.5 text-[9.5px] text-ink-muted">
                     {assignment.reason}
@@ -900,14 +933,7 @@ function PersonDrawer({
               />
             </div>
             <div className="space-y-2">
-              {(
-                [
-                  ["payoutAccount", "Rekening pencairan terverifikasi"],
-                  ["consent", "Persetujuan bagi hasil dan ketentuan"],
-                  ["firstWorkCard", "Kartu Karya pertama siap"],
-                  ["taxDetails", "Data pajak lengkap"],
-                ] as const
-              ).map(([key, label]) => (
+              {SELLER_CHECKLIST_KEYS.map((key) => (
                 <label
                   key={key}
                   className="flex items-center gap-2 text-[11.5px] text-ink"
@@ -922,7 +948,7 @@ function PersonDrawer({
                       }))
                     }
                   />
-                  {label}
+                  {SELLER_CHECKLIST_LABELS[key]}
                 </label>
               ))}
             </div>

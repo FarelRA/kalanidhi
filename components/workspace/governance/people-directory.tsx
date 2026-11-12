@@ -34,6 +34,7 @@ import { PageHeader } from "@/components/workspace/data/page-header"
 import { Panel } from "@/components/workspace/data/panel"
 import { SegmentedTabs } from "@/components/workspace/data/segmented-tabs"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
+import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
 import { people } from "@/lib/workspace/mock-data"
 import type { Person } from "@/lib/workspace/types"
 import { formatWorkspaceDate } from "@/lib/workspace/format"
@@ -166,7 +167,10 @@ export function PeopleDirectory() {
             <ul className="space-y-2.5">
               {[
                 ["Peserta", "Belajar, kirim tugas, baca kredensial sendiri."],
-                ["Pengajar", "Kohort, nilai, kredensial kohort, jual 70%."],
+                [
+                  "Pengajar",
+                  `Kohort, nilai, kredensial kohort, jual ${SPLIT_PERCENTAGES.teacher}%.`,
+                ],
                 ["Pengelola", "Operasi penuh, tanpa menilai atau mengirim tugas."],
               ].map(([role, note]) => (
                 <li key={role}>

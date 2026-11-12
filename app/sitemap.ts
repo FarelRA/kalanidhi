@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next"
 
 import { getPublicWorks } from "@/lib/commerce/server"
+import { getSiteBaseUrl } from "@/lib/content/metadata"
 import {
   pathHref,
   PUBLIC_ROUTES,
@@ -13,14 +14,13 @@ import {
   isConvexConfigured,
 } from "@/lib/convex/server"
 
-const baseUrl = "https://kalanidhi.site"
-
 const staticRoutes = [
   PUBLIC_ROUTES.home,
   PUBLIC_ROUTES.paths,
   PUBLIC_ROUTES.teachers,
   PUBLIC_ROUTES.works,
   PUBLIC_ROUTES.interest,
+  PUBLIC_ROUTES.consult,
   PUBLIC_ROUTES.verify,
   PUBLIC_ROUTES.about,
   PUBLIC_ROUTES.ethics,
@@ -32,6 +32,9 @@ const staticRoutes = [
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = await getSiteBaseUrl()
+  if (!baseUrl) return []
+
   const entries: MetadataRoute.Sitemap = staticRoutes.map((route) => ({
     url: `${baseUrl}${route === "/" ? "" : route}`,
     lastModified: new Date(),
@@ -50,7 +53,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const path of paths) {
       entries.push({
         url: `${baseUrl}${pathHref(path.slug)}`,
-        lastModified: new Date(),
+        lastModified: path.updatedAt ? new Date(path.updatedAt) : new Date(),
         changeFrequency: "monthly",
         priority: 0.8,
       })
@@ -58,7 +61,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const teacher of teachers) {
       entries.push({
         url: `${baseUrl}${teacherHref(teacher.slug)}`,
-        lastModified: new Date(),
+        lastModified: teacher.updatedAt
+          ? new Date(teacher.updatedAt)
+          : new Date(),
         changeFrequency: "monthly",
         priority: 0.6,
       })
@@ -66,7 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const work of works) {
       entries.push({
         url: `${baseUrl}${workHref(work.slug)}`,
-        lastModified: new Date(),
+        lastModified: work.updatedAt ? new Date(work.updatedAt) : new Date(),
         changeFrequency: "monthly",
         priority: 0.6,
       })

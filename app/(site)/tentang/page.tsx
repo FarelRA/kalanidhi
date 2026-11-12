@@ -30,6 +30,7 @@ export default async function AboutPage() {
     <div className="bg-cream">
       <section className="shell py-12 sm:py-16">
         <PublicPageIntro
+          homeLabel={data.header.homeLabel}
           eyebrow="Tentang"
           title={about.title}
           description={about.description}
@@ -52,16 +53,18 @@ export default async function AboutPage() {
             </ul>
 
             <div className="mt-6 flex flex-wrap gap-2">
-              <Link
-                href={interestHref({
-                  intent: "consultation",
-                  interest: about.action?.lead.interest ?? "Tentang KalaNidhi Digital",
-                })}
-                className="inline-flex min-h-11 items-center gap-2 border border-ink bg-ink px-5 text-[11px] font-bold uppercase tracking-[0.06em] text-paper transition-colors hover:bg-ink-2"
-              >
-                {about.action?.label ?? "Hubungi kami"}
-                <ArrowRight className="size-3.5" aria-hidden="true" />
-              </Link>
+              {about.action ? (
+                <Link
+                  href={interestHref({
+                    intent: about.action.lead.variant,
+                    interest: about.action.lead.interest,
+                  })}
+                  className="inline-flex min-h-11 items-center gap-2 border border-ink bg-ink px-5 text-[11px] font-bold uppercase tracking-[0.06em] text-paper transition-colors hover:bg-ink-2"
+                >
+                  {about.action.label}
+                  <ArrowRight className="size-3.5" aria-hidden="true" />
+                </Link>
+              ) : null}
               <Link
                 href={PUBLIC_ROUTES.institution}
                 className="inline-flex min-h-11 items-center border border-ink/35 px-5 text-[11px] font-bold uppercase tracking-[0.06em] text-ink transition-colors hover:border-copper-dark hover:text-copper-dark"
@@ -74,7 +77,7 @@ export default async function AboutPage() {
           <aside className="lg:col-span-5">
             <div className="border-2 border-ink bg-paper-2 p-5 shadow-[5px_5px_0_var(--teak)]">
               <span className="stamp stamp-soft border-ink/35 text-ink-soft">
-                Sekretariat
+                {data.footer.secretariat.label}
               </span>
               <p className="mt-3 text-[12.5px] leading-relaxed text-ink-soft">
                 {data.footer.secretariat.value}

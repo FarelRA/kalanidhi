@@ -24,6 +24,7 @@ export default async function MangsaPage() {
     <div className="bg-cream">
       <section className="shell py-12 sm:py-16">
         <PublicPageIntro
+          homeLabel={data.header.homeLabel}
           eyebrow={data.mangsa.label}
           title={data.mangsa.title}
           description={data.mangsa.description}

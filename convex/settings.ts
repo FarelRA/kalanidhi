@@ -20,6 +20,7 @@ import type {
 import { viewerForUser } from "./access"
 import { isHttpUrl, requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
+import { CONSENT_KINDS } from "../lib/settings/options"
 import type { Doc } from "./_generated/dataModel"
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"
 
@@ -39,10 +40,7 @@ const DEFAULT_PREFERENCES: Omit<ProfilePreferences, "whatsapp" | "bio"> = {
 }
 
 const CONSENT_KIND = v.union(
-  v.literal("privacy"),
-  v.literal("recording"),
-  v.literal("marketing"),
-  v.literal("guardian"),
+  ...CONSENT_KINDS.map((kind) => v.literal(kind)),
 )
 const featureKeyPattern = /^[a-z][a-z0-9_.-]{1,48}$/
 const ALLOWED_SETTING_KEYS = new Set([

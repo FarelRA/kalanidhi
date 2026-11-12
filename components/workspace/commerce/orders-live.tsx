@@ -35,30 +35,24 @@ import {
   DISPUTE_STATUS_LABELS,
   formatCommerceDateTime,
   ORDER_STATUS_LABELS,
+  PAYMENT_STATUS_LABELS,
   REFUND_STATUS_LABELS,
 } from "@/lib/commerce/format"
+import {
+  DISPUTE_STATUS_TONES,
+  ORDER_CHANNEL_LABELS,
+  ORDER_CORRECTION_STATUSES,
+  ORDER_DISPUTE_RESOLUTION_STATUSES,
+  ORDER_STATUS_TONES,
+  ORDER_STATUSES,
+  REFUND_STATUS_TONES,
+} from "@/lib/commerce/options"
 import type {
   DisputeView,
   OrderView,
   RefundView,
 } from "@/lib/commerce/types"
-import type { StatusTone } from "@/lib/workspace/types"
 import { formatIDR } from "@/lib/format"
-
-function orderTone(status: string): StatusTone {
-  if (status === "completed" || status === "paid") return "done"
-  if (status === "disputed") return "danger"
-  if (status === "cancelled" || status === "refunded") return "muted"
-  if (status === "in_progress" || status === "delivered") return "progress"
-  return "wait"
-}
-
-function refundTone(status: string): StatusTone {
-  if (status === "paid") return "done"
-  if (status === "rejected") return "danger"
-  if (status === "approved") return "progress"
-  return "wait"
-}
 
 type DialogState =
   | { kind: "cancel"; order: OrderView }
@@ -312,12 +306,10 @@ export function OrdersLive() {
                 label: "Status",
                 options: [
                   { value: "all", label: "Semua", count: visible.length },
-                  { value: "paid", label: "Dibayar" },
-                  { value: "delivered", label: "Dikirim" },
-                  { value: "completed", label: "Selesai" },
-                  { value: "awaiting_payment", label: "Menunggu" },
-                  { value: "disputed", label: "Sengketa" },
-                  { value: "refunded", label: "Refund" },
+                  ...ORDER_STATUSES.map((status) => ({
+                    value: status,
+                    label: ORDER_STATUS_LABELS[status],
+                  })),
                 ],
               },
             ]}
@@ -343,7 +335,7 @@ export function OrdersLive() {
         eyebrow="Pesanan"
         title={selected?.code ?? ""}
         stamp={selected ? ORDER_STATUS_LABELS[selected.status] : undefined}
-        tone={selected ? orderTone(selected.status) : undefined}
+        tone={selected ? ORDER_STATUS_TONES[selected.status] : undefined}
         description={selected?.workTitle}
         footer={
           selected ? (
@@ -451,9 +443,19 @@ export function OrdersLive() {
                     ? formatIDR(selected.uniqueAmount)
                     : "Belum dibuat",
                 },
-                { label: "Kanal", value: selected.channel },
+                {
+                  label: "Kanal",
+                  value: ORDER_CHANNEL_LABELS[selected.channel],
+                },
                 { label: "Dibuat", value: formatCommerceDateTime(selected.createdAt) },
-                { label: "Pembayaran", value: selected.paymentStatus ?? "Belum" },
+                {
+                  label: "Pembayaran",
+                  value: selected.paymentStatus
+                    ? (PAYMENT_STATUS_LABELS[
+                        selected.paymentStatus as keyof typeof PAYMENT_STATUS_LABELS
+                      ] ?? selected.paymentStatus)
+                    : "Belum",
+                },
                 { label: "Payout", value: selected.payoutId ?? "Belum dijadwalkan" },
                 {
                   label: "Dibatalkan",
@@ -581,11 +583,11 @@ export function OrdersLive() {
                 onChange={(event) => setStatusTarget(event.target.value)}
                 className="mt-1.5 min-h-11 w-full border border-ink/25 bg-paper-2 px-2 text-[11px]"
               >
-                <option value="in_progress">Diproses</option>
-                <option value="delivered">Dikirim</option>
-                <option value="completed">Selesai</option>
-                <option value="cancelled">Dibatalkan</option>
-                <option value="disputed">Sengketa</option>
+                {ORDER_CORRECTION_STATUSES.map((status) => (
+                  <option key={status} value={status}>
+                    {ORDER_STATUS_LABELS[status]}
+                  </option>
+                ))}
               </select>
             </div>
           ) : null}
@@ -627,8 +629,11 @@ export function OrdersLive() {
                 onChange={(event) => setStatusTarget(event.target.value)}
                 className="mt-1.5 min-h-11 w-full border border-ink/25 bg-paper-2 px-2 text-[11px]"
               >
-                <option value="delivered">Dikirim</option>
-                <option value="completed">Selesai</option>
+                {ORDER_DISPUTE_RESOLUTION_STATUSES.map((status) => (
+                  <option key={status} value={status}>
+                    {ORDER_STATUS_LABELS[status]}
+                  </option>
+                ))}
               </select>
             </div>
           ) : null}
@@ -787,7 +792,7 @@ function orderColumns(
       cell: (row) => (
         <StatusStamp
           label={ORDER_STATUS_LABELS[row.status] ?? row.status}
-          tone={orderTone(row.status)}
+          tone={ORDER_STATUS_TONES[row.status]}
         />
       ),
     },
@@ -860,7 +865,7 @@ function refundColumns(
       cell: (row) => (
         <StatusStamp
           label={REFUND_STATUS_LABELS[row.status] ?? row.status}
-          tone={refundTone(row.status)}
+          tone={REFUND_STATUS_TONES[row.status]}
         />
       ),
     },
@@ -939,7 +944,7 @@ function disputeColumns(
       cell: (row) => (
         <StatusStamp
           label={DISPUTE_STATUS_LABELS[row.status] ?? row.status}
-          tone={row.status === "closed" || row.status === "resolved" ? "done" : "wait"}
+          tone={DISPUTE_STATUS_TONES[row.status]}
         />
       ),
     },

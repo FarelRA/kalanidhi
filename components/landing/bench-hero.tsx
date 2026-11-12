@@ -3,7 +3,7 @@ import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import type { HeroContent, HeroWorkCard } from "@/lib/content/types"
-import { PUBLIC_ROUTES } from "@/lib/content/routes"
+import { ABOUT_LOOP_HREF, PUBLIC_ROUTES } from "@/lib/content/routes"
 
 export function BenchHero({
   hero,
@@ -45,9 +45,7 @@ export function BenchHero({
               size="lg"
               className="border-paper/35 text-paper hover:border-brass hover:bg-paper/5 hover:text-brass"
             >
-              <Link href={`${PUBLIC_ROUTES.about}#lingkaran`}>
-                {hero.secondaryCta}
-              </Link>
+              <Link href={ABOUT_LOOP_HREF}>{hero.secondaryCta}</Link>
             </Button>
           </div>
         </div>

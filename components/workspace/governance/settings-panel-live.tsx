@@ -17,7 +17,21 @@ import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import {
+  API_KEY_STATUS_LABELS,
+  CONSENT_KINDS,
+  CONSENT_KIND_LABELS,
+  INTEGRATION_LABELS,
+  INTEGRATION_STATUS_LABELS,
+  INTEGRATION_STATUS_TONES,
+  NOTIFICATION_KEYS,
+  NOTIFICATION_LABELS,
+  WEBHOOK_DELIVERY_STATUS_LABELS,
+  WEBHOOK_DELIVERY_STATUS_TONES,
+  WEBHOOK_STATUS_LABELS,
+} from "@/lib/settings/options"
 import type { AdminSettingsState } from "@/lib/settings/types"
+import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
 
 const tabs = [
   { id: "profile", label: "Profil" },
@@ -37,22 +51,13 @@ const adminTabs = [
 ]
 
 function integrationLabel(key: string): string {
-  return {
-    payment_gateway: "Gerbang pembayaran",
-    email: "Email transaksional",
-    whatsapp: "WhatsApp",
-    livekit: "LiveKit",
-    storage: "Penyimpanan media",
-  }[key] ?? key
+  return INTEGRATION_LABELS[key as keyof typeof INTEGRATION_LABELS] ?? key
 }
 
 function deliveryTone(
-  status: "pending" | "delivered" | "failed" | "dead",
-): "done" | "wait" | "danger" | "muted" {
-  if (status === "delivered") return "done"
-  if (status === "pending") return "wait"
-  if (status === "failed") return "danger"
-  return "muted"
+  status: keyof typeof WEBHOOK_DELIVERY_STATUS_TONES,
+) {
+  return WEBHOOK_DELIVERY_STATUS_TONES[status]
 }
 
 export function SettingsPanelLive() {
@@ -138,7 +143,7 @@ export function SettingsPanelLive() {
         title={admin ? "Ruang, tim, dan integrasi." : "Profil dan preferensi."}
         description={
           admin
-            ? "Profil, undangan tim, integrasi, flag rilis, ambang SLA, kunci API, webhook, dan template. Rahasia hanya ditampilkan sekali. 70/15/15 hanya ditampilkan."
+            ? `Profil, undangan tim, integrasi, flag rilis, ambang SLA, kunci API, webhook, dan template. Rahasia hanya ditampilkan sekali. ${SPLIT_PERCENTAGES.teacher}/${SPLIT_PERCENTAGES.platform}/${SPLIT_PERCENTAGES.community} hanya ditampilkan.`
             : "Nama, kontak, preferensi pemberitahuan, sesi perangkat, dan permintaan data."
         }
         actions={
@@ -241,19 +246,13 @@ export function SettingsPanelLive() {
           <div className="space-y-4 lg:col-span-5">
             <Panel eyebrow="Konsen" title="Izin yang kamu beri">
               <ul className="space-y-2.5">
-                {(["privacy", "recording", "marketing", "guardian"] as const).map((kind) => {
+                {CONSENT_KINDS.map((kind) => {
                   const latest = profile.consents.find((consent) => consent.kind === kind)
                   const active = latest?.granted ?? false
                   return (
                     <li key={kind} className="flex items-center justify-between gap-2">
                       <span className="text-[10.5px] text-ink-soft">
-                        {kind === "privacy"
-                          ? "Kebijakan privasi"
-                          : kind === "recording"
-                            ? "Rekaman panggilan"
-                            : kind === "marketing"
-                              ? "Kabar pemasaran"
-                              : "Konsen wali"}
+                        {CONSENT_KIND_LABELS[kind]}
                       </span>
                       <Button
                         size="sm"
@@ -288,45 +287,40 @@ export function SettingsPanelLive() {
       {activeTab === "notifications" ? (
         <Panel eyebrow="Pemberitahuan" title="Preferensi kanal">
           <div className="grid gap-3 md:grid-cols-2">
-            {(
-              [
-                ["tasks", "Tugas dan penilaian", profile.preferences.notifications.tasks],
-                ["messages", "Pesan langsung", profile.preferences.notifications.messages],
-                ["sessionReminders", "Pengingat sesi", profile.preferences.notifications.sessionReminders],
-                ["weeklyDigest", "Ringkasan mingguan", profile.preferences.notifications.weeklyDigest],
-                ["promotions", "Promosi jalur baru", profile.preferences.notifications.promotions],
-              ] as const
-            ).map(([key, label, active]) => (
-              <div key={key} className="flex items-center justify-between gap-2 border border-ink/15 bg-paper/40 p-3">
-                <div>
-                  <p className="text-[11px] font-semibold text-ink">{label}</p>
-                  <StatusStamp className="mt-1" label={active ? "Aktif" : "Mati"} tone={active ? "done" : "muted"} />
+            {NOTIFICATION_KEYS.map((key) => {
+              const active = profile.preferences.notifications[key]
+              return (
+                <div key={key} className="flex items-center justify-between gap-2 border border-ink/15 bg-paper/40 p-3">
+                  <div>
+                    <p className="text-[11px] font-semibold text-ink">{NOTIFICATION_LABELS[key]}</p>
+                    <StatusStamp className="mt-1" label={active ? "Aktif" : "Mati"} tone={active ? "done" : "muted"} />
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      void run(
+                        () =>
+                          updatePreferences({
+                            whatsapp: profile.preferences.whatsapp ?? undefined,
+                            bio: profile.preferences.bio ?? undefined,
+                            locale: profile.preferences.locale,
+                            timezone: profile.preferences.timezone,
+                            dataSaver: profile.preferences.dataSaver,
+                            notifications: {
+                              ...profile.preferences.notifications,
+                              [key]: !active,
+                            },
+                          }),
+                        "Preferensi pemberitahuan disimpan.",
+                      )
+                    }
+                  >
+                    Ubah
+                  </Button>
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() =>
-                    void run(
-                      () =>
-                        updatePreferences({
-                          whatsapp: profile.preferences.whatsapp ?? undefined,
-                          bio: profile.preferences.bio ?? undefined,
-                          locale: profile.preferences.locale,
-                          timezone: profile.preferences.timezone,
-                          dataSaver: profile.preferences.dataSaver,
-                          notifications: {
-                            ...profile.preferences.notifications,
-                            [key]: !active,
-                          },
-                        }),
-                      "Preferensi pemberitahuan disimpan.",
-                    )
-                  }
-                >
-                  Ubah
-                </Button>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </Panel>
       ) : null}
@@ -462,7 +456,10 @@ export function SettingsPanelLive() {
                 {integration.message ?? "Belum ada laporan kesehatan."}
               </p>
               <div className="mt-3 flex items-center justify-between gap-2">
-                <StatusStamp label={integration.status} tone={integration.status === "healthy" ? "done" : integration.status === "down" ? "danger" : "wait"} />
+                <StatusStamp
+                  label={INTEGRATION_STATUS_LABELS[integration.status]}
+                  tone={INTEGRATION_STATUS_TONES[integration.status]}
+                />
                 <span className="text-[9px] text-ink-muted">
                   {integration.checkedAt
                     ? new Intl.DateTimeFormat("id-ID", { timeStyle: "short" }).format(new Date(integration.checkedAt))
@@ -550,11 +547,23 @@ export function SettingsPanelLive() {
               ) : null}
             </div>
           </Panel>
-          <Panel eyebrow="Bagi hasil" title="70 / 15 / 15">
+          <Panel
+            eyebrow="Bagi hasil"
+            title={`${adminState.revenueSplit.teacher} / ${adminState.revenueSplit.platform} / ${adminState.revenueSplit.community}`}
+          >
             <div className="flex h-7 border border-ink/25" aria-hidden="true">
-              <span className="h-full bg-copper-dark" style={{ width: "70%" }} />
-              <span className="h-full bg-ink" style={{ width: "15%" }} />
-              <span className="h-full bg-moss" style={{ width: "15%" }} />
+              <span
+                className="h-full bg-copper-dark"
+                style={{ width: `${adminState.revenueSplit.teacher}%` }}
+              />
+              <span
+                className="h-full bg-ink"
+                style={{ width: `${adminState.revenueSplit.platform}%` }}
+              />
+              <span
+                className="h-full bg-moss"
+                style={{ width: `${adminState.revenueSplit.community}%` }}
+              />
             </div>
             <div className="mt-2 grid grid-cols-3 text-center text-[9px] font-bold uppercase tracking-[0.05em] text-ink-muted">
               <span>Pengajar {adminState.revenueSplit.teacher}%</span>
@@ -586,7 +595,7 @@ export function SettingsPanelLive() {
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <StatusStamp label={key.status} tone={key.status === "active" ? "done" : "muted"} />
+                  <StatusStamp label={API_KEY_STATUS_LABELS[key.status]} tone={key.status === "active" ? "done" : "muted"} />
                   {key.status === "active" ? (
                     <>
                       <Button
@@ -696,7 +705,7 @@ export function SettingsPanelLive() {
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <StatusStamp label={endpoint.status} tone={endpoint.status === "active" ? "done" : "muted"} />
+                  <StatusStamp label={WEBHOOK_STATUS_LABELS[endpoint.status]} tone={endpoint.status === "active" ? "done" : "muted"} />
                   <Button
                     size="sm"
                     variant="outline"
@@ -782,7 +791,7 @@ export function SettingsPanelLive() {
                       </p>
                     </div>
                     <StatusStamp
-                      label={delivery.status}
+                      label={WEBHOOK_DELIVERY_STATUS_LABELS[delivery.status]}
                       tone={deliveryTone(delivery.status)}
                     />
                   </div>

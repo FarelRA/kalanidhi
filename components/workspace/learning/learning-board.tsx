@@ -3,7 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, Clock3 } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -246,27 +246,27 @@ function PreviewLearningBoard() {
 }
 
 function StudentPaths() {
-  const myCerts = certificates.filter((item) => item.student === "Anisa Rahmawati")
-  const active = [
-    {
-      path: paths[0],
-      progress: 82,
-      next: "Tugas 03 · Pewarnaan soga",
-      due: "Batas 12 November",
-      session: "Kamis, 12 Nov · 19.30",
-      completed: 6,
-      modules: 8,
-    },
-    {
-      path: paths[1],
-      progress: 68,
-      next: "Tugas 02 · Susunan acara",
-      due: "Batas 16 November",
-      session: "Sabtu, 14 Nov · 10.00",
-      completed: 4,
-      modules: 6,
-    },
-  ]
+  const { profile } = useViewer()
+  const myCerts = certificates.filter(
+    (item) => item.student === profile.user.name,
+  )
+  const active = enrollments
+    .filter((item) => item.student === profile.user.name)
+    .flatMap((item) => {
+      const path = paths.find((candidate) => candidate.title === item.pathTitle)
+      if (!path) return []
+      return [
+        {
+          path,
+          progress: item.progress,
+          next: item.nextTask,
+          due: "Belum ditetapkan",
+          session: "Belum dijadwalkan",
+          completed: Math.round((item.progress / 100) * path.modules),
+          modules: path.modules,
+        },
+      ]
+    })
 
   return (
     <div className="space-y-4">
@@ -356,7 +356,11 @@ function StudentPaths() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Panel eyebrow="Modul" title="Peta Batik Tulis Soga" className="lg:col-span-2">
+        <Panel
+          eyebrow="Modul"
+          title={`Peta ${active[0]?.path.title ?? "jalur"}`}
+          className="lg:col-span-2"
+        >
           <ol className="divide-y divide-ink/10">
             {[
               ["01", "Alat, bahan, dan keselamatan", "Selesai", "done"],
@@ -419,20 +423,19 @@ function StudentPaths() {
             <dl className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <dt className="text-[11px] text-ink-muted">Hadir</dt>
-                <dd className="text-[11px] font-semibold text-ink">9 sesi</dd>
+                <dd className="text-[11px] font-semibold text-ink">—</dd>
               </div>
               <div className="flex items-center justify-between">
                 <dt className="text-[11px] text-ink-muted">Izin</dt>
-                <dd className="text-[11px] font-semibold text-ink">1 sesi</dd>
+                <dd className="text-[11px] font-semibold text-ink">—</dd>
               </div>
               <div className="flex items-center justify-between">
                 <dt className="text-[11px] text-ink-muted">Terlewat</dt>
-                <dd className="text-[11px] font-semibold text-ink">0 sesi</dd>
+                <dd className="text-[11px] font-semibold text-ink">—</dd>
               </div>
             </dl>
-            <p className="mt-3 flex items-center gap-1.5 border-t border-ink/15 pt-2.5 text-[10px] text-ink-muted">
-              <Clock3 className="size-3" aria-hidden="true" />
-              Rata-rata belajar 4,2 jam per pekan
+            <p className="mt-3 border-t border-ink/15 pt-2.5 text-[10px] text-ink-muted">
+              Rekap kehadiran belum tersedia pada data pratinjau.
             </p>
           </Panel>
         </div>
@@ -564,11 +567,16 @@ function EnrollmentTable({
 }: {
   onSelect: (enrollment: Enrollment) => void
 }) {
-  const currentCapabilities = useViewer().capabilities
-  const canSeeAll = currentCapabilities.includes("operate")
+  const { capabilities, profile } = useViewer()
+  const canSeeAll = capabilities.includes("operate")
+  const myCohortIds = new Set(
+    cohorts
+      .filter((cohort) => cohort.teacher === profile.user.name)
+      .map((cohort) => cohort.id),
+  )
   const rows = canSeeAll
     ? enrollments
-    : enrollments.filter((item) => item.cohortId.startsWith("c-batik"))
+    : enrollments.filter((item) => myCohortIds.has(item.cohortId))
 
   const columns: Column<Enrollment>[] = [
     {

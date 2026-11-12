@@ -29,12 +29,16 @@ import { leads } from "@/lib/workspace/mock-data"
 import type { Lead } from "@/lib/workspace/types"
 import { formatWorkspaceDate } from "@/lib/workspace/format"
 
+const leadOwners = Array.from(
+  new Set(leads.map((lead) => lead.owner).filter(Boolean)),
+)
+
 export function LeadsBoard() {
   const [tab, setTab] = React.useState("new")
   const [selected, setSelected] = React.useState<Lead | null>(null)
   const [note, setNote] = React.useState("")
   const [followUp, setFollowUp] = React.useState("")
-  const [owner, setOwner] = React.useState("Nadia Kusuma")
+  const [owner, setOwner] = React.useState(leadOwners[0] ?? "")
 
   const views: Record<string, (lead: Lead) => boolean> = {
     new: (lead) => lead.status === "new",
@@ -132,10 +136,9 @@ export function LeadsBoard() {
                 label: "Sumber",
                 options: [
                   { value: "all", label: "Semua" },
-                  { value: "Landing", label: "Landing" },
-                  { value: "WhatsApp", label: "WhatsApp" },
-                  { value: "Referral", label: "Referral" },
-                  { value: "Instagram", label: "Instagram" },
+                  ...Array.from(new Set(leads.map((lead) => lead.source))).map(
+                    (source) => ({ value: source, label: source }),
+                  ),
                 ],
               },
               {
@@ -143,8 +146,10 @@ export function LeadsBoard() {
                 label: "Pemilik",
                 options: [
                   { value: "all", label: "Semua" },
-                  { value: "Nadia Kusuma", label: "Nadia" },
-                  { value: "Fajar Nugroho", label: "Fajar" },
+                  ...leadOwners.map((name) => ({
+                    value: name,
+                    label: name.split(" ")[0] ?? name,
+                  })),
                 ],
               },
             ]}

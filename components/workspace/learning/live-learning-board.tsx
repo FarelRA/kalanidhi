@@ -40,6 +40,19 @@ import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import {
+  COHORT_STATUS_LABELS,
+  COHORT_STATUS_TONES,
+  CURRICULUM_STATUS_LABELS,
+  ENROLLMENT_STATUS_LABELS,
+  ENROLLMENT_STATUS_TONES,
+  LESSON_ACCESS_LABELS,
+  LESSON_ACCESS_LEVELS,
+  LESSON_KIND_LABELS,
+  LESSON_KINDS,
+  PATH_STATUS_LABELS,
+  PATH_STATUS_TONES,
+} from "@/lib/learning/options"
 import type { StatusTone } from "@/lib/workspace/types"
 import type {
   CohortOverview,
@@ -62,33 +75,19 @@ function iso(ms: number) {
 }
 
 function cohortTone(status: CohortOverview["status"]): StatusTone {
-  if (status === "active") return "progress"
-  if (status === "completed") return "done"
-  if (status === "cancelled") return "danger"
-  if (status === "enrolling") return "open"
-  return "muted"
+  return COHORT_STATUS_TONES[status]
 }
 
 function cohortLabel(status: CohortOverview["status"]) {
-  if (status === "active") return "Berjalan"
-  if (status === "completed") return "Selesai"
-  if (status === "cancelled") return "Dibatalkan"
-  if (status === "enrolling") return "Pendaftaran"
-  return "Draf"
+  return COHORT_STATUS_LABELS[status]
 }
 
 function enrollmentTone(status: EnrollmentOverview["status"]): StatusTone {
-  if (status === "active") return "progress"
-  if (status === "completed") return "done"
-  if (status === "withdrawn") return "muted"
-  return "wait"
+  return ENROLLMENT_STATUS_TONES[status]
 }
 
 function enrollmentLabel(status: EnrollmentOverview["status"]) {
-  if (status === "active") return "Aktif"
-  if (status === "completed") return "Selesai"
-  if (status === "withdrawn") return "Keluar"
-  return "Menunggu bayar"
+  return ENROLLMENT_STATUS_LABELS[status]
 }
 
 export function LiveLearningBoard() {
@@ -534,17 +533,11 @@ function EnrollmentTable({
 }
 
 function pathStatusLabel(status: PathOverview["status"]) {
-  if (status === "open") return "Terbuka"
-  if (status === "mapping") return "Sedang dipetakan"
-  if (status === "archived") return "Diarsipkan"
-  return "Direncanakan"
+  return PATH_STATUS_LABELS[status]
 }
 
 function pathStatusTone(status: PathOverview["status"]): StatusTone {
-  if (status === "open") return "done"
-  if (status === "mapping") return "progress"
-  if (status === "archived") return "muted"
-  return "muted"
+  return PATH_STATUS_TONES[status]
 }
 
 function PathCatalog({ paths }: { paths: PathOverview[] }) {
@@ -861,26 +854,12 @@ function CohortDrawer({
   )
 }
 
-const LESSON_KIND_LABELS: Record<LessonKind, string> = {
-  text: "Teks",
-  video: "Video",
-  audio: "Audio",
-  file: "Berkas",
-  practice: "Praktik",
-}
-
-const ACCESS_LABELS: Record<LessonAccessLevel, string> = {
-  public: "Publik",
-  enrolled: "Peserta",
-  certified: "Bersertifikat",
-}
-
 function curriculumTone(status: CurriculumStatus): StatusTone {
   return status === "published" ? "done" : "muted"
 }
 
 function curriculumLabel(status: CurriculumStatus) {
-  return status === "published" ? "Terbit" : "Draf"
+  return CURRICULUM_STATUS_LABELS[status]
 }
 
 function CurriculumBoard({ paths }: { paths: PathOverview[] }) {
@@ -1205,7 +1184,7 @@ function CurriculumBoard({ paths }: { paths: PathOverview[] }) {
                                 <span className="mt-0.5 block truncate text-[9.5px] text-ink-muted">
                                   {LESSON_KIND_LABELS[lesson.kind]} ·{" "}
                                   {lesson.estimatedMinutes} menit ·{" "}
-                                  {ACCESS_LABELS[lesson.accessLevel]} ·{" "}
+                                  {LESSON_ACCESS_LABELS[lesson.accessLevel]} ·{" "}
                                   {lesson.media.length > 0
                                     ? lesson.media
                                         .map((asset) => asset.filename)
@@ -1645,9 +1624,9 @@ function LessonDialog({
                 }
                 className="h-11 w-full rounded-[2px] border border-input bg-transparent px-3 text-sm text-ink outline-none focus-visible:border-thread focus-visible:ring-2 focus-visible:ring-thread/15"
               >
-                {Object.entries(LESSON_KIND_LABELS).map(([value, label]) => (
+                {LESSON_KINDS.map((value) => (
                   <option key={value} value={value}>
-                    {label}
+                    {LESSON_KIND_LABELS[value]}
                   </option>
                 ))}
               </select>
@@ -1662,9 +1641,9 @@ function LessonDialog({
                 }
                 className="h-11 w-full rounded-[2px] border border-input bg-transparent px-3 text-sm text-ink outline-none focus-visible:border-thread focus-visible:ring-2 focus-visible:ring-thread/15"
               >
-                {Object.entries(ACCESS_LABELS).map(([value, label]) => (
+                {LESSON_ACCESS_LEVELS.map((value) => (
                   <option key={value} value={value}>
-                    {label}
+                    {LESSON_ACCESS_LABELS[value]}
                   </option>
                 ))}
               </select>
@@ -1841,7 +1820,7 @@ function EnrollmentDrawer({
                             <span className="mt-0.5 block text-[9px] text-ink-muted">
                               {LESSON_KIND_LABELS[lesson.kind]} ·{" "}
                               {lesson.estimatedMinutes} menit ·{" "}
-                              {ACCESS_LABELS[lesson.accessLevel]}
+                              {LESSON_ACCESS_LABELS[lesson.accessLevel]}
                               {lesson.media.length > 0
                                 ? ` · ${lesson.media.length} media`
                                 : ""}

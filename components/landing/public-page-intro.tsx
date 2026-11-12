@@ -6,18 +6,20 @@ export function PublicPageIntro({
   eyebrow,
   title,
   description,
+  homeLabel = "Beranda",
   children,
 }: {
   eyebrow: string
   title: string
   description?: string
+  homeLabel?: string
   children?: React.ReactNode
 }) {
   return (
     <header className="max-w-[62rem]">
       <nav aria-label="Remah roti" className="text-[10px] text-ink-muted">
         <Link href={PUBLIC_ROUTES.home} className="hover:text-copper-dark">
-          Beranda
+          {homeLabel}
         </Link>
         <span aria-hidden="true"> / </span>
         <span>{eyebrow}</span>

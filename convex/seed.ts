@@ -4,6 +4,7 @@ import type {
   ContentDocument,
   FeaturedSelection,
 } from "../lib/content/types"
+import { pathHref, PUBLIC_ROUTES, workHref } from "../lib/content/routes"
 import type { StoredContentValue } from "./content"
 import {
   catalogFieldsSeed,
@@ -214,16 +215,24 @@ async function userByEmail(ctx: MutationCtx, email: string) {
   return user
 }
 
-const PATH_TEACHER_EMAIL: Record<string, string> = {
-  "batik-tulis-soga": "bambang@kalanidhi.site",
-  "pranatacara-jawa": "widagdo@kalanidhi.site",
-  "kriya-ukir-jepara": "joko@kalanidhi.site",
+/** Seed rows are linked by name, so no slug/email map can drift. */
+async function usersByName(ctx: MutationCtx) {
+  const users = await ctx.db.query("users").collect()
+  return new Map(users.map((user) => [user.name, user] as const))
 }
 
-const PATH_STATUS: Record<string, "open" | "mapping" | "planned"> = {
-  "batik-tulis-soga": "open",
-  "pranatacara-jawa": "open",
-  "kriya-ukir-jepara": "planned",
+function teacherForPath(path: { teacher: string; title: string }) {
+  return (
+    teachersSeed.find((teacher) => teacher.name === path.teacher) ??
+    teachersSeed.find((teacher) => teacher.path === path.title)
+  )
+}
+
+function pathForTeacher(teacher: { path: string; name: string }) {
+  return (
+    pathsSeed.find((path) => path.title === teacher.path) ??
+    pathsSeed.find((path) => path.teacher === teacher.name)
+  )
 }
 
 export const seedContent = internalMutation({
@@ -277,31 +286,34 @@ export const seedContent = internalMutation({
       await ctx.db.insert("catalogFields", { order, ...field })
     }
 
+    const users = await usersByName(ctx)
+
     for (const [order, path] of seededPaths.entries()) {
-      const teacher = await userByEmail(
-        ctx,
-        PATH_TEACHER_EMAIL[path.slug] ?? "bambang@kalanidhi.site",
-      )
+      const teacher = teacherForPath(path)
+      const user = teacher ? users.get(teacher.name) : undefined
+      if (!user) {
+        throw new Error(`Seed teacher user missing for path ${path.slug}`)
+      }
       await ctx.db.insert("paths", {
         order,
         ...path,
-        teacherId: teacher._id,
-        status: PATH_STATUS[path.slug] ?? "open",
+        modules: 0,
+        teacherId: user._id,
+        status: path.comingSoon ? "planned" : "open",
         createdAt: ago(120),
       })
     }
 
     for (const [order, teacher] of seededTeachers.entries()) {
-      const user = await userByEmail(
-        ctx,
-        `${teacher.slug.split("-")[0]}@kalanidhi.site`,
-      )
-      const isReview = teacher.slug === "joko-santoso"
+      const user = users.get(teacher.name)
+      if (!user) throw new Error(`Seed user missing: ${teacher.name}`)
+      const isReview = !teacher.verified
+      const path = pathForTeacher(teacher)
       await ctx.db.insert("teachers", {
         order,
         ...teacher,
         userId: user._id,
-        pathIds: [pathSlugForTeacher(teacher.slug)],
+        pathIds: path ? [path.slug] : [],
         status: isReview ? "review" : "active",
         verificationStatus: isReview ? "under_review" : "verified",
         verifiedBy: isReview ? undefined : "seed",
@@ -436,40 +448,27 @@ export const seedContent = internalMutation({
       expiresAt: NOW + 2 * DAY,
     })
 
+    const siteName = siteSeed.metadata.siteName
+    const siteUrl = siteSeed.metadata.siteUrl.replace(/\/+$/, "")
     const seoRoutes = [
       {
-        route: "/",
-        title: "KalaNidhi Digital — Belajar praktik budaya Nusantara",
-        description:
-          "Platform belajar praktik budaya Nusantara dengan penilaian pengajar, sertifikat platform, dan Kartu Karya.",
+        route: PUBLIC_ROUTES.home,
+        title: `${siteName} — Belajar praktik budaya Nusantara`,
+        description: siteSeed.metadata.description,
       },
+      ...seededPaths.map((path) => ({
+        route: pathHref(path.slug),
+        title: `${path.title} — ${siteName}`,
+        description: path.subtitle,
+      })),
+      ...seededWorks.map((work) => ({
+        route: workHref(work.slug),
+        title: `${work.title} — ${siteName}`,
+        description: work.description,
+      })),
       {
-        route: "/karya/batik-soga-anyaman",
-        title: "Kain Batik Soga Anyaman — KalaNidhi Digital",
-        description:
-          "Kain batik tulis soga dari Anisa Rahmawati, lulusan jalur Batik Tulis Soga.",
-      },
-      {
-        route: "/karya/selendang-canting-nitik",
-        title: "Selendang Canting Nitik — KalaNidhi Digital",
-        description:
-          "Selendang primis dengan titik canting rapat dari Dimas Yoga Pratama.",
-      },
-      {
-        route: "/karya/batik-soga-lereng",
-        title: "Batik Tulis Soga Lereng — KalaNidhi Digital",
-        description:
-          "Karya lanjutan dengan 14 tahap pewarnaan soga dari Bambang Purnomo.",
-      },
-      {
-        route: "/karya/pranatacara-siraman",
-        title: "Pembawa Acara Siraman — KalaNidhi Digital",
-        description:
-          "Layanan pembawa acara siraman dan midodareni dari Rani Wikaningsih.",
-      },
-      {
-        route: "/verifikasi",
-        title: "Verifikasi sertifikat — KalaNidhi Digital",
+        route: PUBLIC_ROUTES.verify,
+        title: `Verifikasi sertifikat — ${siteName}`,
         description:
           "Periksa status sertifikat platform dan Kartu Karya KalaNidhi Digital.",
       },
@@ -481,7 +480,7 @@ export const seedContent = internalMutation({
         description: seo.description,
         ogTitle: seo.title,
         ogDescription: seo.description,
-        canonical: `https://kalanidhi.site${seo.route}`,
+        canonical: `${siteUrl}${seo.route === "/" ? "" : seo.route}`,
         keywords: ["KalaNidhi", "budaya Nusantara", "kursus budaya"],
         robots: "index,follow",
         updatedAt: NOW,
@@ -538,14 +537,6 @@ export const seedContent = internalMutation({
     }
   },
 })
-
-function pathSlugForTeacher(slug: string): string {
-  if (slug === "bambang-hardjono" || slug === "sri-sriningsih") {
-    return "batik-tulis-soga"
-  }
-  if (slug === "widagdo-saputra") return "pranatacara-jawa"
-  return "kriya-ukir-jepara"
-}
 
 async function sha256(value: string): Promise<string> {
   const bytes = new TextEncoder().encode(value)

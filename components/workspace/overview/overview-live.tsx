@@ -11,6 +11,10 @@ import { Panel } from "@/components/workspace/data/panel"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import { api } from "@/convex/_generated/api"
+import {
+  INTEGRATION_STATUS_LABELS,
+  INTEGRATION_STATUS_TONES,
+} from "@/lib/settings/options"
 import type { AdminOverview, LogRow } from "@/lib/admin/types"
 import type { ActivityItem } from "@/lib/workspace/types"
 import { useQuery } from "convex/react"
@@ -188,14 +192,8 @@ function AdminLiveOverview({ data }: { data: AdminOverview }) {
                     {item.integration}
                   </span>
                   <StatusStamp
-                    label={item.status}
-                    tone={
-                      item.status === "healthy"
-                        ? "done"
-                        : item.status === "down"
-                          ? "danger"
-                          : "wait"
-                    }
+                    label={INTEGRATION_STATUS_LABELS[item.status]}
+                    tone={INTEGRATION_STATUS_TONES[item.status]}
                   />
                 </li>
               ))}
@@ -330,7 +328,7 @@ function AdminOverviewLive() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow={`${formatJakarta(data.generatedAt)} · Yogyakarta`}
+        eyebrow={`${formatJakarta(data.generatedAt)} · ${profile.user.region}`}
         title="Hari ini di bangku."
         description="Antrean keputusan, kesehatan integrasi, dan aktivitas terakhir dari catatan nyata. Modul yang belum terhubung ditandai eksplisit."
         meta={

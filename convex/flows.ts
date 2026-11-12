@@ -281,7 +281,7 @@ async function loadRecords(
         recordId: lead._id,
         state: lead.status,
         createdAt: lead.createdAt,
-        label: lead.name ?? lead.email,
+        label: lead.name ?? lead.email ?? "Lead tanpa nama",
         ownerId: ownerByLead.get(lead._id) ?? null,
       }))
     }
@@ -818,7 +818,7 @@ async function resolveOverrideTarget(
         entityType: "leads",
         entityId: lead._id,
         from: lead.status,
-        label: lead.name ?? lead.email,
+        label: lead.name ?? lead.email ?? "Lead tanpa nama",
         patch: async (db, toState) => {
           await db.db.patch(lead._id, {
             status: toState as typeof lead.status,

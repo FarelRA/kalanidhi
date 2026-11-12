@@ -30,7 +30,7 @@ export function ParticipantNotes({
 
         {testimonials.length === 0 ? (
           <p className="mt-12 max-w-xl border border-ink/25 bg-paper-2 p-5 text-[12.5px] leading-relaxed text-ink-soft">
-            Belum ada catatan peserta yang terbit di Convex.
+            {copy.emptyState}
           </p>
         ) : (
           <div className="mt-14 grid gap-10 md:grid-cols-3 md:gap-6 lg:gap-8">

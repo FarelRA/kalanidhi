@@ -27,6 +27,7 @@ export default async function VerificationIndexPage() {
     <div className="bg-cream">
       <section className="shell py-12 sm:py-16">
         <PublicPageIntro
+          homeLabel={data.header.homeLabel}
           eyebrow="Registry kredensial"
           title={verify.title}
           description={verify.description}

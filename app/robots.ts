@@ -1,12 +1,20 @@
 import type { MetadataRoute } from "next"
 
-export default function robots(): MetadataRoute.Robots {
+import { getSiteBaseUrl } from "@/lib/content/metadata"
+
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const baseUrl = await getSiteBaseUrl()
+
   return {
     rules: {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://kalanidhi.site/sitemap.xml",
-    host: "https://kalanidhi.site",
+    ...(baseUrl
+      ? {
+          sitemap: `${baseUrl}/sitemap.xml`,
+          host: baseUrl,
+        }
+      : {}),
   }
 }

@@ -7,8 +7,9 @@ import { ArrowLeft } from "lucide-react"
 import { CheckoutForm } from "@/components/commerce/checkout-form"
 import { api } from "@/convex/_generated/api"
 import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
-import { splitAmount } from "@/lib/commerce/money"
+import { SPLIT_PERCENTAGES, splitAmount } from "@/lib/commerce/money"
 import { isCommerceConfigured } from "@/lib/commerce/server"
+import { enrollHref, pathHref, PUBLIC_ROUTES } from "@/lib/content/routes"
 import { getPublicPath } from "@/lib/convex/server"
 import { formatIDR } from "@/lib/format"
 
@@ -51,7 +52,7 @@ export default async function PathCheckoutPage({
             pengelola melalui halaman kontak untuk menyelesaikan pesanan.
           </p>
           <Link
-            href="/"
+            href={PUBLIC_ROUTES.home}
             className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
           >
             Kembali ke beranda
@@ -76,7 +77,7 @@ export default async function PathCheckoutPage({
             pada lingkungan ini. Hubungi pengelola untuk menyelesaikan pesanan.
           </p>
           <Link
-            href={`/jalur/${slug}`}
+            href={pathHref(slug)}
             className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
           >
             Kembali ke jalur
@@ -88,7 +89,9 @@ export default async function PathCheckoutPage({
 
   const auth = getAuthServer()
   if (!(await auth.isAuthenticated())) {
-    redirect(`/masuk?next=${encodeURIComponent(`/pesan/jalur/${slug}`)}`)
+    redirect(
+      `${PUBLIC_ROUTES.signIn}?next=${encodeURIComponent(enrollHref(slug))}`,
+    )
   }
 
   let viewer
@@ -114,7 +117,7 @@ export default async function PathCheckoutPage({
             pengelola untuk menyelesaikan profil akun sebelum membeli.
           </p>
           <Link
-            href={`/jalur/${slug}`}
+            href={pathHref(slug)}
             className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
           >
             Kembali ke jalur
@@ -142,7 +145,7 @@ export default async function PathCheckoutPage({
             Hubungi pengelola untuk informasi ketersediaan.
           </p>
           <Link
-            href={`/jalur/${path.slug}`}
+            href={pathHref(path.slug)}
             className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
           >
             Kembali ke jalur
@@ -158,7 +161,7 @@ export default async function PathCheckoutPage({
     <div className="bg-cream">
       <section aria-labelledby="checkout-title" className="shell py-12 sm:py-16">
         <Link
-          href={`/jalur/${path.slug}`}
+          href={pathHref(path.slug)}
           className="inline-flex items-center gap-2 text-[10.5px] font-semibold text-ink-muted hover:text-copper-dark"
         >
           <ArrowLeft className="size-3.5" aria-hidden="true" />
@@ -215,14 +218,23 @@ export default async function PathCheckoutPage({
 
             <div className="mt-4 border border-ink/20 bg-panel/30 p-3">
               <div className="flex h-4 border border-ink/25" aria-hidden="true">
-                <span className="h-full bg-copper-dark" style={{ width: "70%" }} />
-                <span className="h-full bg-ink" style={{ width: "15%" }} />
-                <span className="h-full bg-moss" style={{ width: "15%" }} />
+                <span
+                  className="h-full bg-copper-dark"
+                  style={{ width: `${SPLIT_PERCENTAGES.teacher}%` }}
+                />
+                <span
+                  className="h-full bg-ink"
+                  style={{ width: `${SPLIT_PERCENTAGES.platform}%` }}
+                />
+                <span
+                  className="h-full bg-moss"
+                  style={{ width: `${SPLIT_PERCENTAGES.community}%` }}
+                />
               </div>
               <dl className="mt-2 grid grid-cols-3 gap-2 text-[9.5px]">
                 <div>
                   <dt className="font-bold uppercase tracking-[0.06em] text-ink-muted">
-                    Pengajar 70%
+                    Pengajar {SPLIT_PERCENTAGES.teacher}%
                   </dt>
                   <dd className="mt-0.5 font-semibold tabular-nums">
                     {formatIDR(split.teacherShare)}
@@ -230,7 +242,7 @@ export default async function PathCheckoutPage({
                 </div>
                 <div>
                   <dt className="font-bold uppercase tracking-[0.06em] text-ink-muted">
-                    Platform 15%
+                    Platform {SPLIT_PERCENTAGES.platform}%
                   </dt>
                   <dd className="mt-0.5 font-semibold tabular-nums">
                     {formatIDR(split.platformShare)}
@@ -238,7 +250,7 @@ export default async function PathCheckoutPage({
                 </div>
                 <div>
                   <dt className="font-bold uppercase tracking-[0.06em] text-ink-muted">
-                    Komunitas 15%
+                    Komunitas {SPLIT_PERCENTAGES.community}%
                   </dt>
                   <dd className="mt-0.5 font-semibold tabular-nums">
                     {formatIDR(split.communityShare)}

@@ -7,6 +7,7 @@ import {
 } from "@/lib/access/policy"
 import type { Capability, WorkspaceRole } from "@/lib/access/capabilities"
 import type { Viewer, ViewerCertificate, ViewerEnrollment } from "@/lib/access/viewer"
+import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
 import type { PreviewKey } from "./types"
 
 /**
@@ -99,7 +100,7 @@ export const previewProfiles: PreviewProfile[] = [
     key: "pengajar",
     label: "Pengajar · Penjual",
     shortLabel: "Pengajar",
-    description: "Kohort, penilaian, kredensial kohort, dan pendapatan 70%.",
+    description: `Kohort, penilaian, kredensial kohort, dan pendapatan ${SPLIT_PERCENTAGES.teacher}%.`,
     user: {
       id: "u-bambang",
       name: "Bambang Hardjono",

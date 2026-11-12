@@ -11,6 +11,7 @@ import {
 
 import { submitLead } from "@/app/actions/lead"
 import { initialLeadState, type LeadState } from "@/lib/forms/lead"
+import { INSTITUTION_TYPES } from "@/lib/leads/options"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -20,6 +21,8 @@ import { cn } from "cn"
 
 type LeadFormProps = {
   variant: LeadVariant
+  /** Entity-derived options supplied by the server page from Convex. */
+  interestOptions: string[]
   interest?: string
   source?: string
   onSuccess?: () => void
@@ -27,25 +30,6 @@ type LeadFormProps = {
   successLabel?: string
   showMessage?: boolean
 }
-
-const institutionTypes = [
-  "Sekolah",
-  "EO & wedding organizer",
-  "Desa wisata & hotel",
-  "Korporat",
-  "Lainnya",
-]
-
-const interestOptions = [
-  "Batik Tulis Soga",
-  "Seni Pembawa Acara Tradisi Jawa",
-  "Kriya Ukir Kayu Jepara",
-  "Etika & hak budaya",
-  "Untuk institusi",
-  "Belum tahu, minta rekomendasi",
-  "Pustaka & kalender mangsa",
-  "Verifikasi sertifikat",
-]
 
 function FieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null
@@ -62,6 +46,7 @@ const selectClassName =
 
 export function LeadForm({
   variant,
+  interestOptions,
   interest,
   source = "landing",
   onSuccess,
@@ -88,7 +73,7 @@ export function LeadForm({
         </div>
         <p className="inline-flex items-center gap-1.5 text-[10.5px] text-ink-muted">
           <ShieldCheck className="size-3.5" aria-hidden="true" />
-          Kami akan menghubungimu lewat email atau WhatsApp.
+          Kami akan menghubungimu lewat WhatsApp, atau email bila diisi.
         </p>
         {onSuccess ? (
           <Button type="button" onClick={onSuccess} className="mt-1" size="lg">
@@ -177,25 +162,7 @@ export function LeadForm({
         </div>
 
         <div className={cn("space-y-2", isInstitution && "sm:col-span-1")}>
-          <Label htmlFor="lead-email">Email</Label>
-          <Input
-            id="lead-email"
-            name="email"
-            type="email"
-            inputMode="email"
-            placeholder="nama@email.com"
-            autoComplete="email"
-            required
-            aria-invalid={Boolean(errors.email)}
-            aria-describedby={errors.email ? "lead-email-error" : undefined}
-          />
-          <FieldError id="lead-email-error" message={errors.email} />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="lead-whatsapp">
-            WhatsApp <span className="text-text-muted">(opsional)</span>
-          </Label>
+          <Label htmlFor="lead-whatsapp">WhatsApp</Label>
           <Input
             id="lead-whatsapp"
             name="whatsapp"
@@ -203,7 +170,30 @@ export function LeadForm({
             inputMode="tel"
             placeholder="08xx xxxx xxxx"
             autoComplete="tel"
+            required
+            aria-invalid={Boolean(errors.whatsapp)}
+            aria-describedby={
+              errors.whatsapp ? "lead-whatsapp-error" : undefined
+            }
           />
+          <FieldError id="lead-whatsapp-error" message={errors.whatsapp} />
+        </div>
+
+        <div className={cn("space-y-2", isInstitution && "sm:col-span-1")}>
+          <Label htmlFor="lead-email">
+            Email <span className="text-text-muted">(opsional)</span>
+          </Label>
+          <Input
+            id="lead-email"
+            name="email"
+            type="email"
+            inputMode="email"
+            placeholder="nama@email.com"
+            autoComplete="email"
+            aria-invalid={Boolean(errors.email)}
+            aria-describedby={errors.email ? "lead-email-error" : undefined}
+          />
+          <FieldError id="lead-email-error" message={errors.email} />
         </div>
 
         {isInstitution ? (
@@ -220,7 +210,7 @@ export function LeadForm({
                   <option value="" disabled>
                     Pilih jenis
                   </option>
-                  {institutionTypes.map((type) => (
+                  {INSTITUTION_TYPES.map((type) => (
                     <option key={type} value={type}>
                       {type}
                     </option>
@@ -309,8 +299,8 @@ export function LeadForm({
             aria-describedby={errors.consent ? "lead-consent-error" : undefined}
           />
           <span>
-            Saya setuju dihubungi lewat email atau WhatsApp untuk menindaklanjuti
-            pendaftaran ini.
+            Saya setuju dihubungi lewat WhatsApp, atau email bila diisi, untuk
+            menindaklanjuti pendaftaran ini.
           </span>
         </label>
         <FieldError id="lead-consent-error" message={errors.consent} />

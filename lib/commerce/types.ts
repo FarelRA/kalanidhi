@@ -92,6 +92,8 @@ export type PublicWorkView = {
   split: MoneySplit
   /** False for curated seed works without a linked seller account. */
   purchasable: boolean
+  /** Source row timestamp, used for sitemap freshness. */
+  updatedAt?: number
 }
 
 export type OrderStatus =

@@ -26,7 +26,7 @@ import { calls } from "@/lib/workspace/mock-data"
 import { cn } from "cn"
 
 export function CallRoomPreview() {
-  const { can } = useViewer()
+  const { can, profile } = useViewer()
   const [micOn, setMicOn] = React.useState(true)
   const [cameraOn, setCameraOn] = React.useState(true)
   const [sharing, setSharing] = React.useState(false)
@@ -67,7 +67,7 @@ export function CallRoomPreview() {
         description="Panggilan 1:1 dengan pengajar selama jam kantor atau sesi yang disepakati. Kamera mati tetap bisa; suara adalah jalur utama."
         meta={
           <div className="flex flex-wrap items-center gap-2">
-            <StatusStamp label="Berlangsung" tone="progress" />
+            <StatusStamp label={call.statusLabel} tone={call.tone} />
             <span className="text-[10px] text-ink-muted">
               {call.with} · {call.role}
             </span>
@@ -88,13 +88,13 @@ export function CallRoomPreview() {
                 {cameraOn && !audioOnly ? (
                   <div className="flex size-full items-center justify-center bg-gradient-to-br from-teak to-deep">
                     <span className="flex size-20 items-center justify-center border border-paper/25 bg-paper/10 font-heading text-3xl text-paper">
-                      BH
+                      {call.initials}
                     </span>
                   </div>
                 ) : (
                   <div className="text-center">
                     <span className="mx-auto flex size-16 items-center justify-center border border-paper/25 bg-paper/10 font-heading text-2xl text-paper">
-                      BH
+                      {call.initials}
                     </span>
                     <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.1em] text-paper/60">
                       Kamera mati · suara aktif
@@ -103,7 +103,7 @@ export function CallRoomPreview() {
                 )}
                 <div className="absolute bottom-2 left-2 flex items-center gap-1.5 border border-paper/20 bg-ink/70 px-2 py-1 text-[9px] text-paper">
                   <Signal className="size-3 text-moss" aria-hidden="true" />
-                  Bambang Hardjono · Pengajar
+                  {call.with} · {call.role}
                 </div>
                 {micOn ? (
                   <span className="absolute top-2 right-2 flex items-center gap-1 border border-paper/20 bg-ink/70 px-1.5 py-1 text-[8px] text-paper">
@@ -116,7 +116,7 @@ export function CallRoomPreview() {
               <div className="relative flex aspect-[4/3] min-h-[180px] items-center justify-center overflow-hidden border border-paper/20 bg-ink">
                 <div className="text-center">
                   <span className="mx-auto flex size-14 items-center justify-center border border-paper/25 bg-paper/10 font-heading text-xl text-paper">
-                    AR
+                    {profile.user.initials}
                   </span>
                   <p className="mt-2 text-[9px] font-bold uppercase tracking-[0.1em] text-brass">
                     Kamu
@@ -219,21 +219,21 @@ export function CallRoomPreview() {
             <ul className="space-y-3">
               <li className="flex items-center gap-2.5">
                 <span className="flex size-8 items-center justify-center border border-ink/20 bg-teak font-heading text-[9px] text-paper">
-                  BH
+                  {call.initials}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[11px] font-semibold">Bambang Hardjono</span>
-                  <span className="block text-[9px] text-ink-muted">Pengajar · Giriloyo</span>
+                  <span className="block text-[11px] font-semibold">{call.with}</span>
+                  <span className="block text-[9px] text-ink-muted">{call.role}</span>
                 </span>
                 <StatusStamp label="Hadir" tone="done" />
               </li>
               <li className="flex items-center gap-2.5">
                 <span className="flex size-8 items-center justify-center border border-ink/20 bg-panel font-heading text-[9px]">
-                  AR
+                  {profile.user.initials}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[11px] font-semibold">Anisa Rahmawati</span>
-                  <span className="block text-[9px] text-ink-muted">Peserta · BTG-06</span>
+                  <span className="block text-[11px] font-semibold">{profile.user.name}</span>
+                  <span className="block text-[9px] text-ink-muted">{profile.user.roleLabel} · {profile.user.region}</span>
                 </span>
                 <StatusStamp label="Hadir" tone="done" />
               </li>

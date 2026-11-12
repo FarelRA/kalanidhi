@@ -16,6 +16,10 @@ import { PageHeader } from "@/components/workspace/data/page-header"
 import { Panel } from "@/components/workspace/data/panel"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { api } from "@/convex/_generated/api"
+import {
+  WORKSPACE_ROLES,
+  WORKSPACE_ROLE_LABELS,
+} from "@/lib/access/capabilities"
 import type { FlowDefinitionView, StuckRecordView } from "@/lib/flows/types"
 import type { StatusTone } from "@/lib/workspace/types"
 import { cn } from "cn"
@@ -24,6 +28,12 @@ type StuckRow = StuckRecordView & { id: string }
 
 function toneForTone(tone: FlowDefinitionView["states"][number]["tone"]): StatusTone {
   return tone
+}
+
+function roleLabel(role: string): string {
+  return WORKSPACE_ROLES.includes(role as (typeof WORKSPACE_ROLES)[number])
+    ? WORKSPACE_ROLE_LABELS[role as (typeof WORKSPACE_ROLES)[number]]
+    : role
 }
 
 export function FlowBoardLive() {
@@ -315,7 +325,9 @@ export function FlowBoardLive() {
                     </p>
                     <p className="mt-1 text-[9.5px] leading-relaxed text-ink-muted">
                       {transition.guard}
-                      {transition.requiresRole ? ` · peran ${transition.requiresRole}` : ""}
+                      {transition.requiresRole
+                        ? ` · peran ${roleLabel(transition.requiresRole)}`
+                        : ""}
                     </p>
                   </li>
                 ))}

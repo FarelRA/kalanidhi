@@ -9,27 +9,19 @@ import type {
   LeadStatus,
   LeadSummary,
 } from "../lib/admin/types"
+import {
+  LEAD_INTENTS,
+  LEAD_STATUSES,
+  LEAD_TRANSITIONS,
+} from "../lib/leads/options"
 import { now, requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
 import type { Doc, Id } from "./_generated/dataModel"
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"
 
-const leadIntent = v.union(
-  v.literal("student"),
-  v.literal("institution"),
-  v.literal("consultation"),
-  v.literal("notify"),
-)
+const leadIntent = v.union(...LEAD_INTENTS.map((intent) => v.literal(intent)))
 
-const leadStatus = v.union(
-  v.literal("new"),
-  v.literal("contacted"),
-  v.literal("qualified"),
-  v.literal("converted"),
-  v.literal("lost"),
-  v.literal("closed"),
-  v.literal("spam"),
-)
+const leadStatus = v.union(...LEAD_STATUSES.map((status) => v.literal(status)))
 
 const leadView = v.union(
   v.literal("all"),
@@ -40,22 +32,17 @@ const leadView = v.union(
   v.literal("spam"),
 )
 
-const ALLOWED_TRANSITIONS: Record<LeadStatus, LeadStatus[]> = {
-  new: ["contacted", "qualified", "lost", "spam"],
-  contacted: ["qualified", "lost", "spam"],
-  qualified: ["converted", "lost", "spam"],
-  converted: [],
-  lost: ["qualified", "spam"],
-  closed: [],
-  spam: ["new"],
-}
+const ALLOWED_TRANSITIONS: Record<LeadStatus, LeadStatus[]> = LEAD_TRANSITIONS as Record<
+  LeadStatus,
+  LeadStatus[]
+>
 
-/** Public landing form. No viewer is required and behaviour is unchanged. */
+/** Public lead form. No viewer is required; WhatsApp is the primary contact. */
 export const create = mutation({
   args: {
     intent: leadIntent,
     name: v.optional(v.string()),
-    email: v.string(),
+    email: v.optional(v.string()),
     whatsapp: v.optional(v.string()),
     institution: v.optional(v.string()),
     institutionType: v.optional(v.string()),
@@ -146,7 +133,7 @@ function toSummary(bundle: LeadBundle): LeadSummary {
     id: lead._id,
     intent: lead.intent as LeadIntent,
     name: lead.name ?? null,
-    email: lead.email,
+    email: lead.email ?? null,
     whatsapp: lead.whatsapp ?? null,
     institution: lead.institution ?? null,
     institutionType: lead.institutionType ?? null,
@@ -182,7 +169,7 @@ function matchesView(summary: LeadSummary, view: string): boolean {
 function matchesQuery(summary: LeadSummary, q?: string): boolean {
   if (!q?.trim()) return true
   const needle = q.trim().toLowerCase()
-  return `${summary.name ?? ""} ${summary.email} ${summary.whatsapp ?? ""} ${summary.institution ?? ""} ${summary.interest ?? ""} ${summary.source ?? ""} ${summary.owner?.name ?? ""}`
+  return `${summary.name ?? ""} ${summary.email ?? ""} ${summary.whatsapp ?? ""} ${summary.institution ?? ""} ${summary.interest ?? ""} ${summary.source ?? ""} ${summary.owner?.name ?? ""}`
     .toLowerCase()
     .includes(needle)
 }
@@ -485,7 +472,9 @@ export const convert = mutation({
     })
 
     return {
-      registrationPath: `/daftar?email=${encodeURIComponent(lead.email)}`,
+      registrationPath: lead.email
+        ? `/daftar?email=${encodeURIComponent(lead.email)}`
+        : "/daftar",
       status: "converted" as const,
     }
   },

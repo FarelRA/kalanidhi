@@ -17,34 +17,36 @@ import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import {
+  SUPPORT_CHANNEL_LABELS,
+  SUPPORT_ESCALATION_LABELS,
+  SUPPORT_PRIORITIES,
+  SUPPORT_PRIORITY_LABELS,
+  SUPPORT_PRIORITY_TONES,
+  SUPPORT_STATUS_LABELS,
+  SUPPORT_STATUS_TONES,
+} from "@/lib/support/options"
 import type {
   SupportPriority,
-  SupportStatus,
   SupportTicketSummary,
 } from "@/lib/support/types"
 import type { StatusTone } from "@/lib/workspace/types"
 import { cn } from "cn"
 
-const priorities: Record<SupportPriority, { label: string; tone: StatusTone }> = {
-  low: { label: "Rendah", tone: "muted" },
-  normal: { label: "Normal", tone: "progress" },
-  high: { label: "Tinggi", tone: "wait" },
-  urgent: { label: "Mendesak", tone: "danger" },
-}
+const priorities: Record<SupportPriority, { label: string; tone: StatusTone }> =
+  SUPPORT_PRIORITIES.reduce(
+    (acc, priority) => {
+      acc[priority] = {
+        label: SUPPORT_PRIORITY_LABELS[priority],
+        tone: SUPPORT_PRIORITY_TONES[priority],
+      }
+      return acc
+    },
+    {} as Record<SupportPriority, { label: string; tone: StatusTone }>,
+  )
 
-const statusTone: Record<SupportStatus, StatusTone> = {
-  open: "open",
-  pending: "wait",
-  resolved: "done",
-  closed: "muted",
-}
-
-const statusLabel: Record<SupportStatus, string> = {
-  open: "Terbuka",
-  pending: "Menunggu",
-  resolved: "Selesai",
-  closed: "Ditutup",
-}
+const statusLabel = SUPPORT_STATUS_LABELS
+const statusTone = SUPPORT_STATUS_TONES
 
 function ageLabel(minutes: number): string {
   if (minutes < 60) return `${minutes} menit`
@@ -297,7 +299,7 @@ export function SupportInboxLive() {
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-1.5">
                   <p className="text-[8.5px] font-bold uppercase tracking-[0.1em] text-copper-dark">
-                    {detail.code} · {detail.channel}
+                    {detail.code} · {SUPPORT_CHANNEL_LABELS[detail.channel]}
                   </p>
                   <StatusStamp
                     label={statusLabel[detail.status]}
@@ -313,7 +315,9 @@ export function SupportInboxLive() {
                 </h2>
                 <p className="mt-1 text-[10px] text-ink-muted">
                   {detail.requesterName} · pemilik {detail.assigneeName ?? "belum ada"}
-                  {detail.escalatedTo ? ` · eskalasi ${detail.escalatedTo}` : ""}
+                  {detail.escalatedTo
+                    ? ` · eskalasi ${SUPPORT_ESCALATION_LABELS[detail.escalatedTo]}`
+                    : ""}
                 </p>
                 <p className="mt-1 text-[10px] text-ink-muted">
                   Ditugaskan oleh {detail.assignedByName ?? "—"} · Diselesaikan oleh{" "}

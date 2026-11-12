@@ -5,7 +5,11 @@
  * raw database documents, no auth identifiers, and no provider secrets.
  */
 
+import type { WorkspaceRole } from "../access/capabilities"
 import type { ContentDocument } from "../content/types"
+import type { LeadIntent, LeadStatus } from "../leads/options"
+import type { LogKind } from "./log"
+import type { LogSeverity } from "./log"
 
 export type ContentRevisionStatus =
   | "draft"
@@ -84,16 +88,7 @@ export type MediaUsage = {
   references: { label: string; source: "published" | "draft" | "entity" }[]
 }
 
-export type LeadStatus =
-  | "new"
-  | "contacted"
-  | "qualified"
-  | "converted"
-  | "lost"
-  | "closed"
-  | "spam"
-
-export type LeadIntent = "student" | "institution" | "consultation" | "notify"
+export type { LeadIntent, LeadStatus } from "../leads/options"
 
 export type LeadOwner = {
   id: string
@@ -105,7 +100,7 @@ export type LeadSummary = {
   id: string
   intent: LeadIntent
   name: string | null
-  email: string
+  email: string | null
   whatsapp: string | null
   institution: string | null
   institutionType: string | null
@@ -153,7 +148,7 @@ export type PersonSummary = {
   email: string
   initials: string
   region: string
-  roles: ("student" | "teacher" | "admin")[]
+  roles: WorkspaceRole[]
   roleLabel: string
   status: "active" | "suspended" | "invited" | "deleted"
   teacherStatus: "review" | "active" | "suspended" | null
@@ -223,7 +218,7 @@ export type PersonAuthLogView = {
 
 export type PersonRoleAssignmentView = {
   id: string
-  role: "student" | "teacher" | "admin"
+  role: WorkspaceRole
   action: "grant" | "revoke"
   actorId: string
   reason: string
@@ -244,7 +239,7 @@ export type PersonDetail = {
     initials: string
     region: string
     status: "active" | "suspended" | "invited" | "deleted"
-    roles: ("student" | "teacher" | "admin")[]
+    roles: WorkspaceRole[]
     roleLabel: string
     capabilities: string[]
     entitlements: {
@@ -272,16 +267,7 @@ export type PersonDetail = {
   roleAssignments: PersonRoleAssignmentView[]
 }
 
-export type LogKind =
-  | "audit"
-  | "auth"
-  | "payments"
-  | "notifications"
-  | "calls"
-  | "moderation"
-  | "content"
-  | "api"
-  | "errors"
+export type { LogKind } from "./log"
 
 export type LogRow = {
   id: string
@@ -291,7 +277,7 @@ export type LogRow = {
   action: string
   entity: string
   entityId: string | null
-  severity: "info" | "warning" | "error" | "critical"
+  severity: LogSeverity
   requestId: string | null
   detail: string
   createdAt: number

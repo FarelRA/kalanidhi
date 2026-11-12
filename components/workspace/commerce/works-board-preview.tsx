@@ -29,13 +29,21 @@ import { Panel } from "@/components/workspace/data/panel"
 import { SegmentedTabs } from "@/components/workspace/data/segmented-tabs"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
+import {
+  SPLIT_PERCENTAGES,
+  splitAmount,
+} from "@/lib/commerce/money"
+import {
+  WORK_STATUSES,
+  WORK_STATUS_LABELS,
+} from "@/lib/commerce/options"
 import { works } from "@/lib/workspace/mock-data"
 import type { WorkItem } from "@/lib/workspace/types"
 import { formatIDR } from "@/lib/format"
 import { formatWorkspaceDate } from "@/lib/workspace/format"
 
 export function WorksPreview() {
-  const { can } = useViewer()
+  const { can, profile } = useViewer()
   const [tab, setTab] = React.useState(can("works.moderate") ? "review" : "mine")
   const [selected, setSelected] = React.useState<WorkItem | null>(null)
   const [pauseTarget, setPauseTarget] = React.useState<WorkItem | null>(null)
@@ -59,7 +67,9 @@ export function WorksPreview() {
   ].filter(Boolean) as { id: string; label: string; count?: number }[]
 
   const active = tabs.some((item) => item.id === tab) ? tab : tabs[0]?.id
-  const myWorks = works.filter((item) => item.maker === "Anisa Rahmawati")
+  const myWorks = works.filter(
+    (item) => item.maker === profile.user.name,
+  )
 
   return (
     <div className="space-y-6">
@@ -150,20 +160,33 @@ export function WorksPreview() {
                   ))}
                 </ul>
               </Panel>
-              <Panel eyebrow="Bagi hasil" title="70 / 15 / 15" className="bg-panel/25">
+              <Panel eyebrow="Bagi hasil" title={`${SPLIT_PERCENTAGES.teacher} / ${SPLIT_PERCENTAGES.platform} / ${SPLIT_PERCENTAGES.community}`} className="bg-panel/25">
                 <p className="text-[11.5px] leading-relaxed text-ink-soft">
-                  Dari Rp1.450.000, pengrajin menerima Rp1.015.000. Platform dan
-                  komunitas masing-masing 15% sebelum biaya gerbang.
+                  Dari {formatIDR(works[0]?.price ?? 0)}, pengrajin menerima{" "}
+                  {formatIDR(
+                    works[0] ? splitAmount(works[0].price).teacherShare : 0,
+                  )}
+                  . Platform dan komunitas masing-masing{" "}
+                  {SPLIT_PERCENTAGES.platform}% sebelum biaya gerbang.
                 </p>
                 <div className="mt-3 flex h-5 border border-ink/25" aria-hidden="true">
-                  <span className="h-full bg-copper-dark" style={{ width: "70%" }} />
-                  <span className="h-full bg-ink" style={{ width: "15%" }} />
-                  <span className="h-full bg-moss" style={{ width: "15%" }} />
+                  <span
+                    className="h-full bg-copper-dark"
+                    style={{ width: `${SPLIT_PERCENTAGES.teacher}%` }}
+                  />
+                  <span
+                    className="h-full bg-ink"
+                    style={{ width: `${SPLIT_PERCENTAGES.platform}%` }}
+                  />
+                  <span
+                    className="h-full bg-moss"
+                    style={{ width: `${SPLIT_PERCENTAGES.community}%` }}
+                  />
                 </div>
                 <div className="mt-2 flex justify-between text-[8px] font-bold uppercase tracking-[0.05em] text-ink-muted">
-                  <span>Pengrajin 70%</span>
-                  <span>Platform 15%</span>
-                  <span>Komunitas 15%</span>
+                  <span>Pengrajin {SPLIT_PERCENTAGES.teacher}%</span>
+                  <span>Platform {SPLIT_PERCENTAGES.platform}%</span>
+                  <span>Komunitas {SPLIT_PERCENTAGES.community}%</span>
                 </div>
               </Panel>
             </div>
@@ -287,9 +310,10 @@ export function WorksPreview() {
                 label: "Status",
                 options: [
                   { value: "all", label: "Semua", count: works.length },
-                  { value: "published", label: "Tayang", count: 4 },
-                  { value: "review", label: "Tinjauan" },
-                  { value: "paused", label: "Dijeda" },
+                  ...WORK_STATUSES.map((status) => ({
+                    value: status,
+                    label: WORK_STATUS_LABELS[status],
+                  })),
                 ],
               },
               {
@@ -378,9 +402,18 @@ export function WorksPreview() {
             </DrawerSection>
             <DrawerSection title="Pratinjau bagi hasil">
               <div className="flex h-6 border border-ink/25" aria-hidden="true">
-                <span className="h-full bg-copper-dark" style={{ width: "70%" }} />
-                <span className="h-full bg-ink" style={{ width: "15%" }} />
-                <span className="h-full bg-moss" style={{ width: "15%" }} />
+                <span
+                    className="h-full bg-copper-dark"
+                    style={{ width: `${SPLIT_PERCENTAGES.teacher}%` }}
+                  />
+                <span
+                    className="h-full bg-ink"
+                    style={{ width: `${SPLIT_PERCENTAGES.platform}%` }}
+                  />
+                <span
+                    className="h-full bg-moss"
+                    style={{ width: `${SPLIT_PERCENTAGES.community}%` }}
+                  />
               </div>
               <div className="mt-2 grid grid-cols-3 gap-2 text-[9.5px]">
                 <p>

@@ -1,5 +1,18 @@
-export type Metric = {
-  value: string
+/** Public counts computed from Convex tables, never editorial numbers. */
+export const TRACTION_METRICS = [
+  "fields",
+  "teachers",
+  "participants",
+  "submissions",
+  "works",
+] as const
+
+export type TractionMetricKey = (typeof TRACTION_METRICS)[number]
+
+export type PublicStats = Record<TractionMetricKey, number>
+
+export type TractionFigure = {
+  metric: TractionMetricKey
   label: string
 }
 
@@ -23,10 +36,14 @@ export type LearningPath = {
   code: string
   title: string
   subtitle: string
+  /** Linked teacher name, or `UNLINKED_TEACHER_LABEL` when none is linked. */
   teacher: string
+  /** Linked teacher specialty. Empty when no teacher row is linked. */
   teacherRole: string
   /** Linked teacher account, when the path is assigned to one. */
   teacherId?: string
+  /** Source row timestamp, used for sitemap freshness. */
+  updatedAt?: number
   region: string
   level: string
   modules: number
@@ -54,6 +71,8 @@ export type Teacher = {
   community: string
   image: string
   verified: boolean
+  /** Source row timestamp, used for sitemap freshness. */
+  updatedAt?: number
 }
 
 export type Work = {
@@ -185,7 +204,14 @@ export type HeroWorkCard = {
 export type TractionContent = {
   label: string
   note: string
-  figures: Metric[]
+  figures: TractionFigure[]
+}
+
+/** Editorial traction copy with values resolved from Convex counts. */
+export type TractionView = {
+  label: string
+  note: string
+  figures: (TractionFigure & { value: string })[]
 }
 
 export type LoopContent = {
@@ -194,6 +220,8 @@ export type LoopContent = {
   description: string
   returnLabel: string
   returnNote: string
+  /** Honest caveat under the return step, editable by the admin. */
+  returnCaveat: string
   stages: LoopStage[]
   diagram: {
     title: string
@@ -228,6 +256,23 @@ export type MangsaContent = {
   provenance: string
 }
 
+/**
+ * A cultural permission record as shown on public pages. Reads the real
+ * `culturalSources` table; no seed attribution strings are rendered.
+ */
+export type PublicCulturalSource = {
+  community: string
+  sourceName: string
+  pathSlug: string | null
+  workSlug: string | null
+  permissionReference: string
+  permissionDate: number
+  permissionStatus: "pending" | "granted" | "withdrawn"
+  accessLevel: "public" | "community" | "restricted"
+  attribution: string
+  notes: string | null
+}
+
 export type EthicsContent = {
   label: string
   title: string
@@ -252,16 +297,8 @@ export type EthicsContent = {
     sourceTitle: string
     permissionLabel: string
     referenceLabel: string
-  }
-  attribution: {
-    permission: string
-    access: string
-    reference: string
-    sources: {
-      initials: string
-      name: string
-      field: string
-    }[]
+    /** Honest state when `culturalSources` has no public rows. */
+    emptyState: string
   }
 }
 
@@ -340,6 +377,10 @@ export type SectionCopy = {
     contentLabel: string
     includesLabel: string
     curriculumPending: string
+    teacherLabel: string
+    regionLabel: string
+    levelLabel: string
+    emptyState: string
   }
   teachers: {
     label: string
@@ -348,6 +389,7 @@ export type SectionCopy = {
     profileCta: string
     dialogLabel: string
     askCta: string
+    emptyState: string
   }
   works: {
     label: string
@@ -357,11 +399,19 @@ export type SectionCopy = {
     serviceLabel: string
     priceLabel: string
     askCta: string
+    openCta: string
+    cardLabel: string
+    makerLabel: string
+    teacherLabel: string
+    techniqueLabel: string
+    regionLabel: string
+    emptyState: string
   }
   notes: {
     label: string
     title: string
     description: string
+    emptyState: string
   }
   faq: {
     label: string
@@ -369,6 +419,8 @@ export type SectionCopy = {
     description: string
     policyCta: string
     askCta: string
+    askInterest: string
+    emptyState: string
   }
   closing: {
     label: string
@@ -394,6 +446,8 @@ export type HeaderCopy = {
   sheetTitle: string
   sheetDescription: string
   region: string
+  /** Breadcrumb label for the home route. */
+  homeLabel: string
 }
 
 export type SearchPage = {
@@ -541,7 +595,9 @@ export type ContentDocument = SiteCopy & {
 }
 
 /** The resolved public landing payload. Entities are read from their tables. */
-export type SiteData = SiteCopy & {
+export type SiteData = Omit<SiteCopy, "traction"> & {
+  /** Editorial labels with values computed from Convex counts. */
+  traction: TractionView
   catalog: CatalogContent & {
     fields: CatalogField[]
   }
@@ -551,4 +607,5 @@ export type SiteData = SiteCopy & {
   works: Work[]
   testimonials: Testimonial[]
   faqs: Faq[]
+  culturalSources: PublicCulturalSource[]
 }

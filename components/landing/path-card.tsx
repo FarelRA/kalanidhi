@@ -76,7 +76,7 @@ export function PathCard({
           <dl className="mt-5 grid grid-cols-2 gap-3 border-y border-ink/15 py-3 text-[11.5px] sm:grid-cols-4">
             <div>
               <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                Pengajar
+                {copy.teacherLabel}
               </dt>
               <dd className="mt-1 font-semibold leading-snug">
                 {path.teacher}
@@ -84,19 +84,19 @@ export function PathCard({
             </div>
             <div>
               <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                Daerah
+                {copy.regionLabel}
               </dt>
               <dd className="mt-1 font-semibold leading-snug">{path.region}</dd>
             </div>
             <div>
               <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                Level
+                {copy.levelLabel}
               </dt>
               <dd className="mt-1 font-semibold leading-snug">{path.level}</dd>
             </div>
             <div>
               <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                Isi
+                {copy.contentLabel}
               </dt>
               <dd className="mt-1 font-semibold leading-snug">
                 {path.comingSoon

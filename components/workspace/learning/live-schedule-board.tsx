@@ -14,6 +14,12 @@ import { SegmentedTabs } from "@/components/workspace/data/segmented-tabs"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import { api } from "@/convex/_generated/api"
+import {
+  SESSION_KINDS,
+  SESSION_KIND_LABELS,
+  SESSION_STATUS_LABELS,
+  SESSION_STATUS_TONES,
+} from "@/lib/learning/options"
 import type { SessionOverview } from "@/lib/workspace/phase2-types"
 import type { StatusTone } from "@/lib/workspace/types"
 import {
@@ -26,24 +32,15 @@ function iso(ms: number) {
 }
 
 function kindLabel(kind: SessionOverview["kind"]) {
-  if (kind === "session") return "Kelas kohort"
-  if (kind === "office_hours") return "Jam kantor"
-  if (kind === "call") return "Panggilan"
-  return "Penilaian"
+  return SESSION_KIND_LABELS[kind]
 }
 
 function toneFor(status: SessionOverview["status"]): StatusTone {
-  if (status === "live") return "progress"
-  if (status === "ended") return "done"
-  if (status === "cancelled") return "danger"
-  return "open"
+  return SESSION_STATUS_TONES[status]
 }
 
 function statusLabel(status: SessionOverview["status"]) {
-  if (status === "live") return "Berlangsung"
-  if (status === "ended") return "Selesai"
-  if (status === "cancelled") return "Dibatalkan"
-  return "Terjadwal"
+  return SESSION_STATUS_LABELS[status]
 }
 
 export function LiveScheduleBoard() {
@@ -153,26 +150,11 @@ export function LiveScheduleBoard() {
       <SegmentedTabs
         tabs={[
           { id: "all", label: "Semua", count: sessions.length },
-          {
-            id: "session",
-            label: "Kelas kohort",
-            count: sessions.filter((item) => item.kind === "session").length,
-          },
-          {
-            id: "office_hours",
-            label: "Jam kantor",
-            count: sessions.filter((item) => item.kind === "office_hours").length,
-          },
-          {
-            id: "call",
-            label: "Panggilan",
-            count: sessions.filter((item) => item.kind === "call").length,
-          },
-          {
-            id: "assessment",
-            label: "Penilaian",
-            count: sessions.filter((item) => item.kind === "assessment").length,
-          },
+          ...SESSION_KINDS.map((kind) => ({
+            id: kind,
+            label: SESSION_KIND_LABELS[kind],
+            count: sessions.filter((item) => item.kind === kind).length,
+          })),
         ]}
         value={tab}
         onChange={setTab}

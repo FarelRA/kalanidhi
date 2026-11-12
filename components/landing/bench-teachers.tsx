@@ -30,8 +30,7 @@ export function BenchTeachers({
 
         {teachers.length === 0 ? (
           <p className="mt-12 max-w-xl border border-ink/25 bg-paper-2 p-5 text-[12.5px] leading-relaxed text-ink-soft">
-            Belum ada pengajar terbit di Convex. Profil akan muncul di sini
-            setelah pengajar menyelesaikan verifikasi dan publikasi.
+            {copy.emptyState}
           </p>
         ) : (
           <div className="mt-12 grid gap-12 md:grid-cols-3 md:items-start md:gap-7 lg:mt-16 lg:gap-8">

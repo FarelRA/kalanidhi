@@ -6,6 +6,7 @@ import { PublicPageIntro } from "@/components/landing/public-page-intro"
 import { getPublicWorks } from "@/lib/commerce/server"
 import { buildPageMetadata } from "@/lib/content/metadata"
 import {
+  buyHref,
   interestHref,
   PUBLIC_ROUTES,
   workHref,
@@ -35,6 +36,7 @@ export default async function WorksPage() {
     <div className="bg-cream">
       <section className="shell py-12 sm:py-16">
         <PublicPageIntro
+          homeLabel={data.header.homeLabel}
           eyebrow={copy.label}
           title={copy.title}
           description={copy.description}
@@ -100,7 +102,7 @@ export default async function WorksPage() {
                     </Link>
                     {work.purchasable ? (
                       <Link
-                        href={`/pesan/${work.slug}`}
+                        href={buyHref(work.slug)}
                         className="inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[10.5px] font-bold uppercase tracking-[0.06em] text-paper transition-colors hover:bg-ink-2"
                       >
                         Pesan

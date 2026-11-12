@@ -42,7 +42,7 @@ export function QuestionsSection({
             <Link
               href={interestHref({
                 intent: "consultation",
-                interest: "Pertanyaan umum",
+                interest: copy.askInterest,
               })}
               className="inline-flex min-h-11 items-center px-3 text-[12px] font-medium text-ink/70 transition-colors hover:text-ink"
             >
@@ -54,7 +54,7 @@ export function QuestionsSection({
         <div className="lg:col-span-7">
           {faqs.length === 0 ? (
             <p className="border border-ink/20 bg-paper-2 px-4 py-3 text-[12px] leading-relaxed text-ink-muted">
-              Belum ada pertanyaan umum yang terbit di Convex.
+              {copy.emptyState}
             </p>
           ) : (
             <Accordion

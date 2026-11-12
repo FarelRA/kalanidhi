@@ -310,9 +310,7 @@ export function BenchLoop({ loop }: { loop: LoopContent }) {
             <div className="mt-5 flex items-start gap-3 border-t-2 border-ink/20 pt-5">
               <Undo2 className="mt-0.5 size-4 shrink-0 text-copper-dark" aria-hidden="true" />
               <p className="text-[12.5px] leading-relaxed text-ink/70">
-                Jalur kembali tidak menjanjikan semua lulusan mengajar. Pintu
-                ini disiapkan untuk pengajar pendamping, penilai tugas, atau
-                pemasok bahan. Setiap pintu yang terisi membuka jalur baru.
+                {loop.returnCaveat}
               </p>
             </div>
           </div>

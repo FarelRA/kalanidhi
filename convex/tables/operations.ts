@@ -12,7 +12,8 @@ export const operationsTables = {
       v.literal("notify"),
     ),
     name: v.optional(v.string()),
-    email: v.string(),
+    /** WhatsApp is the primary identity; email is an optional secondary channel. */
+    email: v.optional(v.string()),
     whatsapp: v.optional(v.string()),
     institution: v.optional(v.string()),
     institutionType: v.optional(v.string()),

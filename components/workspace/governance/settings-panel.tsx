@@ -13,28 +13,41 @@ import { Panel } from "@/components/workspace/data/panel"
 import { SegmentedTabs } from "@/components/workspace/data/segmented-tabs"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
-import { people } from "@/lib/workspace/mock-data"
+import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
+import {
+  INTEGRATION_KEYS,
+  INTEGRATION_LABELS,
+  type IntegrationKey,
+} from "@/lib/settings/options"
+import {
+  people,
+  previewFeatureFlags,
+  previewPayoutAccount,
+  previewSessions,
+} from "@/lib/workspace/mock-data"
 import { cn } from "cn"
 
-const integrations = [
-  { id: "gateway", name: "Gerbang pembayaran", detail: "GoPay + QRIS · merchantid", status: "Terhubung", tone: "done" as const },
-  { id: "email", name: "Email transaksional", detail: "Resend · domain terverifikasi", status: "Terhubung", tone: "done" as const },
-  { id: "whatsapp", name: "WhatsApp", detail: "Waha · nomor secretariat", status: "Terhubung", tone: "done" as const },
-  { id: "livekit", name: "LiveKit", detail: "Cloud · wilayah Singapura", status: "Terhubung", tone: "done" as const },
-  { id: "storage", name: "Penyimpanan media", detail: "Convex storage · 18,4 GB", status: "Sehat", tone: "done" as const },
-]
+const integrationDetails: Record<IntegrationKey, string> = {
+  payment_gateway: "GoPay + QRIS · merchantid",
+  email: "Resend · domain terverifikasi",
+  whatsapp: "Waha · nomor secretariat",
+  livekit: "Cloud · wilayah Singapura",
+  storage: "Convex storage · 18,4 GB",
+}
+
+const integrations = INTEGRATION_KEYS.map((id) => ({
+  id,
+  name: INTEGRATION_LABELS[id],
+  detail: integrationDetails[id],
+  status: "Terhubung",
+  tone: "done" as const,
+}))
 
 export function SettingsPanel() {
   const { can, profile } = useViewer()
   const admin = can("settings.platform")
   const [tab, setTab] = React.useState("profile")
-  const [flags, setFlags] = React.useState({
-    seller: true,
-    calls: true,
-    recordings: false,
-    newCatalog: false,
-    maintenance: false,
-  })
+  const [flags, setFlags] = React.useState(previewFeatureFlags)
 
   const tabs = [
     { id: "profile", label: "Profil" },
@@ -58,7 +71,7 @@ export function SettingsPanel() {
         title={admin ? "Ruang, tim, dan integrasi." : "Profil dan preferensi."}
         description={
           admin
-            ? "Profil pengelola, undangan tim, integrasi, flag rilis, ambang SLA, dan kunci API. Bagian 70/15/15 hanya ditampilkan, bukan diatur di sini."
+            ? `Profil pengelola, undangan tim, integrasi, flag rilis, ambang SLA, dan kunci API. Bagian ${SPLIT_PERCENTAGES.teacher}/${SPLIT_PERCENTAGES.platform}/${SPLIT_PERCENTAGES.community} hanya ditampilkan, bukan diatur di sini.`
             : "Nama, kontak, preferensi pemberitahuan, sesi perangkat, dan permintaan data. Rekening payout hanya jika kamu penjual."
         }
         actions={
@@ -106,7 +119,7 @@ export function SettingsPanel() {
                 <Label htmlFor="profile-bio">Tentang</Label>
                 <Textarea
                   id="profile-bio"
-                  defaultValue="Pengrajin batik tulis di Giriloyo. Sedang mendalami pewarnaan soga dan menyiapkan karya untuk Kartu Karya."
+                  defaultValue={`Pengrajin di ${profile.user.region}. Sedang mendalami karya dan menyiapkan Kartu Karya.`}
                   className="mt-1.5 min-h-24"
                 />
               </div>
@@ -118,7 +131,8 @@ export function SettingsPanel() {
                 </p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <span className="border border-ink/20 bg-panel/30 px-2.5 py-1.5 text-[11px]">
-                    BCA · 8820 1144 27 · Anisa Rahmawati
+                    {previewPayoutAccount.bank} · {previewPayoutAccount.number} ·{" "}
+                    {profile.user.name}
                   </span>
                   <StatusStamp label="Terverifikasi" tone="done" />
                 </div>
@@ -214,22 +228,32 @@ export function SettingsPanel() {
       {tab === "sessions" ? (
         <Panel eyebrow="Perangkat" title="Sesi aktif">
           <ul className="divide-y divide-ink/10">
-            {[
-              ["Chrome · Android", "Yogyakarta · sekarang", "Aktif"],
-              ["Safari · iPhone", "Yogyakarta · 2 hari lalu", "Aktif"],
-              ["Chrome · Linux", "Yogyakarta · 9 hari lalu", "Kedaluwarsa"],
-            ].map(([device, location, status]) => (
-              <li key={String(device)} className="flex flex-wrap items-center justify-between gap-2 py-3">
+            {previewSessions.map((session) => (
+              <li
+                key={session.device}
+                className="flex flex-wrap items-center justify-between gap-2 py-3"
+              >
                 <div>
-                  <p className="text-[11.5px] font-semibold text-ink">{device}</p>
-                  <p className="mt-0.5 text-[10px] text-ink-muted">{location}</p>
+                  <p className="text-[11.5px] font-semibold text-ink">
+                    {session.device}
+                  </p>
+                  <p className="mt-0.5 text-[10px] text-ink-muted">
+                    {session.location}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <StatusStamp label={String(status)} tone={status === "Aktif" ? "done" : "muted"} />
+                  <StatusStamp
+                    label={session.status}
+                    tone={session.status === "Aktif" ? "done" : "muted"}
+                  />
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => toast("Sesi dicabut", { description: String(device) })}
+                    onClick={() =>
+                      toast("Sesi dicabut", {
+                        description: session.device,
+                      })
+                    }
                   >
                     Cabut
                   </Button>
@@ -377,16 +401,25 @@ export function SettingsPanel() {
               </Button>
             </div>
           </Panel>
-          <Panel eyebrow="Bagi hasil" title="70 / 15 / 15">
+          <Panel eyebrow="Bagi hasil" title={`${SPLIT_PERCENTAGES.teacher} / ${SPLIT_PERCENTAGES.platform} / ${SPLIT_PERCENTAGES.community}`}>
             <div className="flex h-7 border border-ink/25" aria-hidden="true">
-              <span className="h-full bg-copper-dark" style={{ width: "70%" }} />
-              <span className="h-full bg-ink" style={{ width: "15%" }} />
-              <span className="h-full bg-moss" style={{ width: "15%" }} />
+              <span
+                className="h-full bg-copper-dark"
+                style={{ width: `${SPLIT_PERCENTAGES.teacher}%` }}
+              />
+              <span
+                className="h-full bg-ink"
+                style={{ width: `${SPLIT_PERCENTAGES.platform}%` }}
+              />
+              <span
+                className="h-full bg-moss"
+                style={{ width: `${SPLIT_PERCENTAGES.community}%` }}
+              />
             </div>
             <div className="mt-2 grid grid-cols-3 text-center text-[9px] font-bold uppercase tracking-[0.05em] text-ink-muted">
-              <span>Pengajar 70%</span>
-              <span>Platform 15%</span>
-              <span>Komunitas 15%</span>
+              <span>Pengajar {SPLIT_PERCENTAGES.teacher}%</span>
+              <span>Platform {SPLIT_PERCENTAGES.platform}%</span>
+              <span>Komunitas {SPLIT_PERCENTAGES.community}%</span>
             </div>
             <p className="mt-3 border-t border-ink/15 pt-2.5 text-[10px] leading-relaxed text-ink-muted">
               Dihitung sistem dari bruto. Tidak ada editor per transaksi. Biaya

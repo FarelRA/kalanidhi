@@ -2,14 +2,14 @@ import Link from "next/link"
 
 import { BrandMark } from "@/components/brand/brand-mark"
 import { Button } from "@/components/ui/button"
-import type { SectionCopy, TractionContent } from "@/lib/content/types"
+import type { SectionCopy, TractionView } from "@/lib/content/types"
 import { interestHref, PUBLIC_ROUTES } from "@/lib/content/routes"
 
 export function ClosingBench({
   traction,
   copy,
 }: {
-  traction: TractionContent
+  traction: TractionView
   copy: SectionCopy["closing"]
 }) {
   return (
@@ -47,18 +47,24 @@ export function ClosingBench({
             </Button>
           </div>
 
-          <dl className="mt-10 grid max-w-xl grid-cols-2 gap-x-6 gap-y-5 border-t border-paper/20 pt-5 sm:grid-cols-5">
-            {traction.figures.map((figure) => (
-              <div key={figure.label}>
-                <dt className="font-heading text-[1.55rem] leading-none text-brass">
-                  {figure.value}
-                </dt>
-                <dd className="mt-1.5 text-[9px] font-bold uppercase leading-tight tracking-[0.07em] text-paper/65">
-                  {figure.label}
-                </dd>
-              </div>
-            ))}
-          </dl>
+          {traction.figures.length > 0 ? (
+            <dl className="mt-10 grid max-w-xl grid-cols-2 gap-x-6 gap-y-5 border-t border-paper/20 pt-5 sm:grid-cols-5">
+              {traction.figures.map((figure) => (
+                <div key={figure.label}>
+                  <dt className="font-heading text-[1.55rem] leading-none text-brass">
+                    {figure.value}
+                  </dt>
+                  <dd className="mt-1.5 text-[9px] font-bold uppercase leading-tight tracking-[0.07em] text-paper/65">
+                    {figure.label}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            <p className="mt-10 max-w-xl border-t border-paper/20 pt-5 text-[11px] leading-relaxed text-paper/65">
+              Belum ada capaian yang bisa dihitung dari Convex.
+            </p>
+          )}
 
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-paper/20 pt-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-paper/65">

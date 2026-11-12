@@ -30,8 +30,7 @@ export function WorksShelf({
           </h2>
           <p className="body-copy mt-5 max-w-[34rem]">{copy.description}</p>
           <p className="mt-8 max-w-xl border border-ink/25 bg-paper-2 p-5 text-[12.5px] leading-relaxed text-ink-soft">
-            Belum ada karya terbit di Convex. Karya akan muncul di sini setelah
-            Kartu Karya dan sertifikat platformnya terbit.
+            {copy.emptyState}
           </p>
         </div>
       </section>
@@ -73,7 +72,7 @@ export function WorksShelf({
             <figcaption className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[10px] text-ink-muted">
               <span>{featured.unit}</span>
               <span className="stamp stamp-soft border-ink/35 text-ink-soft">
-                Kartu Karya {featured.workCard}
+                {copy.cardLabel} {featured.workCard}
               </span>
             </figcaption>
           </figure>
@@ -91,10 +90,13 @@ export function WorksShelf({
 
             <dl className="mt-5 grid grid-cols-2 gap-3 border-y border-ink/15 py-3 text-[11.5px]">
               {[
-                ["Pembuat", featured.maker],
-                ["Pengajar", featured.teacher],
-                ["Teknik", `${featured.technique} / ${featured.techniqueNote}`],
-                ["Daerah", featured.region],
+                [copy.makerLabel, featured.maker],
+                [copy.teacherLabel, featured.teacher],
+                [
+                  copy.techniqueLabel,
+                  `${featured.technique} / ${featured.techniqueNote}`,
+                ],
+                [copy.regionLabel, featured.region],
               ].map(([label, value]) => (
                 <div key={label}>
                   <dt className="text-[9px] font-bold uppercase tracking-[0.07em] text-ink-muted">
@@ -121,7 +123,7 @@ export function WorksShelf({
                   href={workHref(featured.slug)}
                   className="inline-flex min-h-11 items-center border border-ink/35 px-4 text-[11px] font-bold uppercase tracking-[0.06em] text-ink transition-colors hover:border-copper-dark hover:text-copper-dark"
                 >
-                  Buka karya
+                  {copy.openCta}
                 </Link>
                 <Link
                   href={interestHref({
@@ -169,7 +171,9 @@ export function WorksShelf({
                   {work.maker}, {work.makerRole.toLowerCase()}
                 </p>
                 <p className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-ink-muted">
-                  <span>Pengajar {work.teacher}</span>
+                  <span>
+                    {copy.teacherLabel} {work.teacher}
+                  </span>
                   <span>
                     {work.technique} / {work.techniqueNote}
                   </span>
@@ -182,7 +186,7 @@ export function WorksShelf({
                     href={workHref(work.slug)}
                     className="inline-flex min-h-9 items-center text-[10.5px] font-bold uppercase tracking-[0.06em] text-ink hover:text-copper-dark"
                   >
-                    Buka karya
+                    {copy.openCta}
                   </Link>
                   <Link
                     href={interestHref({

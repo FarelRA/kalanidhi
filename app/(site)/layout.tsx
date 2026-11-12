@@ -14,7 +14,7 @@ export default async function SiteLayout({
   const prices = data.paths
     .map((path) => path.price)
     .filter((price): price is number => typeof price === "number")
-  const startingPrice = prices.length ? Math.min(...prices) : 0
+  const startingPrice = prices.length ? Math.min(...prices) : null
 
   return (
     <div className="flex min-h-svh flex-col">
@@ -33,7 +33,7 @@ export default async function SiteLayout({
       <main id="konten" tabIndex={-1} className="flex-1">
         {children}
       </main>
-      <SiteFooter footer={data.footer} ethics={data.ethics} />
+      <SiteFooter footer={data.footer} sources={data.culturalSources} />
       <MobileCtaDock startingPrice={startingPrice} copy={data.mobileCta} />
     </div>
   )

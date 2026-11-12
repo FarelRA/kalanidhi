@@ -4,6 +4,7 @@ import { fetchQuery } from "convex/nextjs"
 
 import { api } from "@/convex/_generated/api"
 import type { SeoOverride } from "@/lib/content/types"
+import { getSiteData } from "@/lib/convex/server"
 
 const convexUrl =
   process.env.CONVEX_URL ?? process.env.NEXT_PUBLIC_CONVEX_URL
@@ -86,14 +87,18 @@ export async function buildPageMetadata(
   return applySeoOverride(defaults, override)
 }
 
-export function pathRoute(slug: string): string {
-  return `/jalur/${slug}`
-}
-
-export function teacherRoute(slug: string): string {
-  return `/pengajar/${slug}`
-}
-
-export function workRoute(slug: string): string {
-  return `/karya/${slug}`
+/**
+ * The public origin for absolute URLs such as the sitemap and robots file.
+ * Convex site metadata is the source of truth; NEXT_PUBLIC_SITE_URL is only a
+ * deployment fallback when Convex cannot be reached.
+ */
+export async function getSiteBaseUrl(): Promise<string | null> {
+  try {
+    const data = await getSiteData()
+    return data.metadata.siteUrl.replace(/\/+$/, "")
+  } catch (error) {
+    console.error("[convex] Could not load site metadata for base URL.", error)
+    const fallback = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+    return fallback ? fallback.replace(/\/+$/, "") : null
+  }
 }

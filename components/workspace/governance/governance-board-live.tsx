@@ -25,29 +25,34 @@ import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import {
+  ACCESS_LEVELS,
+  ACCESS_LEVEL_LABELS,
+  BREAK_GLASS_ENTITY_LABELS,
+  BREAK_GLASS_ENTITY_TYPES,
+  PRIVACY_REQUEST_KIND_LABELS,
+  PRIVACY_REQUEST_KINDS,
+  PRIVACY_STATUS_LABELS,
+  PRIVACY_STATUS_TONES,
+  TAKEDOWN_STATUS_LABELS,
+  TAKEDOWN_STATUS_TONES,
+  TAKEDOWN_TARGET_LABELS,
+} from "@/lib/governance/options"
 import type {
+  AccessLevel,
   BreakGlassView,
   CulturalSourceView,
   ImpersonationView,
   PrivacyRequestView,
   TakedownView,
 } from "@/lib/governance/types"
-import type { StatusTone } from "@/lib/workspace/types"
 
-const takedownTone: Record<string, StatusTone> = {
-  requested: "open",
-  reviewing: "progress",
-  approved: "wait",
-  rejected: "muted",
-  completed: "done",
-  reversed: "muted",
-}
-
-const privacyTone: Record<string, StatusTone> = {
-  open: "open",
-  reviewing: "progress",
-  completed: "done",
-  rejected: "danger",
+function breakGlassEntityLabel(entityType: string): string {
+  return (
+    BREAK_GLASS_ENTITY_LABELS[
+      entityType as keyof typeof BREAK_GLASS_ENTITY_LABELS
+    ] ?? entityType
+  )
 }
 
 export function GovernanceBoardLive() {
@@ -59,6 +64,8 @@ export function GovernanceBoardLive() {
   const [sourceName, setSourceName] = React.useState("")
   const [permissionRef, setPermissionRef] = React.useState("")
   const [attribution, setAttribution] = React.useState("")
+  const [sourceAccessLevel, setSourceAccessLevel] =
+    React.useState<AccessLevel>("community")
   const [takedownTarget, setTakedownTarget] = React.useState("")
   const [takedownName, setTakedownName] = React.useState("")
   const [takedownContact, setTakedownContact] = React.useState("")
@@ -150,7 +157,18 @@ export function GovernanceBoardLive() {
     {
       id: "access",
       header: "Akses",
-      cell: (row) => <StatusStamp label={row.accessLevel} tone={row.accessLevel === "public" ? "done" : row.accessLevel === "community" ? "wait" : "danger"} />,
+      cell: (row) => (
+        <StatusStamp
+          label={ACCESS_LEVEL_LABELS[row.accessLevel]}
+          tone={
+            row.accessLevel === "public"
+              ? "done"
+              : row.accessLevel === "community"
+                ? "wait"
+                : "danger"
+          }
+        />
+      ),
     },
     {
       id: "status",
@@ -206,7 +224,9 @@ export function GovernanceBoardLive() {
       cell: (row) => (
         <div>
           <p className="font-semibold text-ink">{row.targetLabel}</p>
-          <p className="mt-0.5 text-[10px] text-ink-muted">{row.code} · {row.targetType}</p>
+          <p className="mt-0.5 text-[10px] text-ink-muted">
+            {row.code} · {TAKEDOWN_TARGET_LABELS[row.targetType]}
+          </p>
         </div>
       ),
     },
@@ -220,7 +240,12 @@ export function GovernanceBoardLive() {
     {
       id: "status",
       header: "Status",
-      cell: (row) => <StatusStamp label={row.status} tone={takedownTone[row.status] ?? "wait"} />,
+      cell: (row) => (
+        <StatusStamp
+          label={TAKEDOWN_STATUS_LABELS[row.status]}
+          tone={TAKEDOWN_STATUS_TONES[row.status]}
+        />
+      ),
     },
     {
       id: "action",
@@ -260,14 +285,21 @@ export function GovernanceBoardLive() {
       cell: (row) => (
         <div>
           <p className="font-semibold text-ink">{row.subjectName ?? row.requesterEmail}</p>
-          <p className="mt-0.5 text-[10px] text-ink-muted">{row.kind} · {row.requesterEmail}</p>
+          <p className="mt-0.5 text-[10px] text-ink-muted">
+            {PRIVACY_REQUEST_KIND_LABELS[row.kind]} · {row.requesterEmail}
+          </p>
         </div>
       ),
     },
     {
       id: "status",
       header: "Status",
-      cell: (row) => <StatusStamp label={row.status} tone={privacyTone[row.status] ?? "wait"} />,
+      cell: (row) => (
+        <StatusStamp
+          label={PRIVACY_STATUS_LABELS[row.status]}
+          tone={PRIVACY_STATUS_TONES[row.status]}
+        />
+      ),
     },
     {
       id: "action",
@@ -332,7 +364,9 @@ export function GovernanceBoardLive() {
       header: "Catatan",
       cell: (row) => (
         <div>
-          <p className="font-semibold text-ink">{row.entityType}</p>
+          <p className="font-semibold text-ink">
+            {breakGlassEntityLabel(row.entityType)}
+          </p>
           <p className="mt-0.5 break-all text-[10px] text-ink-muted">{row.entityId}</p>
         </div>
       ),
@@ -404,7 +438,7 @@ export function GovernanceBoardLive() {
       {tab === "sources" ? (
         <div className="space-y-4">
           <Panel eyebrow="Sumber baru" title="Catat izin komunitas">
-            <div className="grid gap-3 md:grid-cols-4">
+            <div className="grid gap-3 md:grid-cols-5">
               <div>
                 <Label htmlFor="source-community">Komunitas</Label>
                 <Input id="source-community" value={community} onChange={(event) => setCommunity(event.target.value)} className="mt-1.5" />
@@ -421,6 +455,21 @@ export function GovernanceBoardLive() {
                 <Label htmlFor="source-attribution">Atribusi</Label>
                 <Input id="source-attribution" value={attribution} onChange={(event) => setAttribution(event.target.value)} className="mt-1.5" />
               </div>
+              <div>
+                <Label htmlFor="source-access">Akses</Label>
+                <select
+                  id="source-access"
+                  value={sourceAccessLevel}
+                  onChange={(event) => setSourceAccessLevel(event.target.value as AccessLevel)}
+                  className="mt-1.5 flex h-9 w-full border border-ink/20 bg-paper-2 px-2 text-[12px]"
+                >
+                  {ACCESS_LEVELS.map((level) => (
+                    <option key={level} value={level}>
+                      {ACCESS_LEVEL_LABELS[level]}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             <Button
               size="sm"
@@ -433,7 +482,7 @@ export function GovernanceBoardLive() {
                     sourceName,
                     permissionDocumentRef: permissionRef,
                     permissionDate: Date.now(),
-                    accessLevel: "community",
+                    accessLevel: sourceAccessLevel,
                     attribution,
                   })
                   setCommunity("")
@@ -528,10 +577,11 @@ export function GovernanceBoardLive() {
               <div>
                 <Label htmlFor="privacy-kind">Jenis</Label>
                 <select id="privacy-kind" value={privacyKind} onChange={(event) => setPrivacyKind(event.target.value)} className="mt-1.5 flex h-9 border border-ink/20 bg-paper-2 px-2 text-[12px]">
-                  <option value="access">Akses</option>
-                  <option value="correction">Koreksi</option>
-                  <option value="deletion">Penghapusan</option>
-                  <option value="hold">Retensi</option>
+                  {PRIVACY_REQUEST_KINDS.map((kind) => (
+                    <option key={kind} value={kind}>
+                      {PRIVACY_REQUEST_KIND_LABELS[kind]}
+                    </option>
+                  ))}
                 </select>
               </div>
               <Button
@@ -541,7 +591,7 @@ export function GovernanceBoardLive() {
                   void run(
                     () =>
                       createPrivacy({
-                        kind: privacyKind as "access" | "correction" | "deletion" | "hold",
+                        kind: privacyKind as (typeof PRIVACY_REQUEST_KINDS)[number],
                         reason,
                         correction:
                           privacyKind === "correction"
@@ -641,10 +691,11 @@ export function GovernanceBoardLive() {
               <div>
                 <Label htmlFor="break-entity">Jenis catatan</Label>
                 <select id="break-entity" value={breakEntity} onChange={(event) => setBreakEntity(event.target.value)} className="mt-1.5 flex h-9 border border-ink/20 bg-paper-2 px-2 text-[12px]">
-                  <option value="call_recording">Rekaman panggilan</option>
-                  <option value="identity_document">Dokumen identitas</option>
-                  <option value="submission_asset">Aset tugas</option>
-                  <option value="message_asset">Aset pesan</option>
+                  {BREAK_GLASS_ENTITY_TYPES.map((entity) => (
+                    <option key={entity} value={entity}>
+                      {BREAK_GLASS_ENTITY_LABELS[entity]}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="min-w-56">
@@ -658,7 +709,7 @@ export function GovernanceBoardLive() {
                   void run(
                     () =>
                       grantBreakGlass({
-                        entityType: breakEntity as "call_recording" | "identity_document" | "submission_asset" | "message_asset",
+                        entityType: breakEntity as (typeof BREAK_GLASS_ENTITY_TYPES)[number],
                         entityId: breakId,
                         reason,
                         minutes: 10,
@@ -676,7 +727,7 @@ export function GovernanceBoardLive() {
                 onClick={async () => {
                   try {
                     const result = await logBreakGlass({
-                      entityType: breakEntity as "call_recording" | "identity_document" | "submission_asset" | "message_asset",
+                      entityType: breakEntity as (typeof BREAK_GLASS_ENTITY_TYPES)[number],
                       entityId: breakId,
                     })
                     toast(
