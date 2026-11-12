@@ -15,6 +15,7 @@ Dokumen produk:
 
 - [Rencana workspace lengkap](./docs/workspace-plan.md) — semua peran, konten, statistik, log, chat, dan panggilan.
 - [Arsitektur pembayaran](./docs/payments-gateway.md) — gateway QRIS GoPay dan integrasi Convex.
+- [Arsitektur self-host](./docs/self-hosting.md) — Convex, LiveKit, Redis, gateway, dan batas layanan eksternal.
 
 ## Stack
 
