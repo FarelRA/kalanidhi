@@ -43,13 +43,13 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: metadata.siteName,
       title: metadata.ogTitle,
       description: metadata.ogDescription,
-      images: [metadata.image],
+      images: metadata.image.url ? [metadata.image] : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title: metadata.twitterTitle,
       description: metadata.twitterDescription,
-      images: [metadata.image.url],
+      images: metadata.image.url ? [metadata.image.url] : undefined,
     },
     robots: {
       index: true,

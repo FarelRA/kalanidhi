@@ -8,6 +8,25 @@ import { components, internal } from "./_generated/api"
 import type { DataModel } from "./_generated/dataModel"
 import authConfig from "./auth.config"
 import { initialsFor } from "../lib/access/viewer"
+import { normalizeIndonesianPhone } from "../lib/phone"
+import { findProvince } from "../lib/regions/provinces"
+
+type AuthUserExtras = {
+  phone?: string
+  phoneNumber?: string
+  province?: string
+  whatsappVerified?: boolean
+}
+
+function phoneFromAuthDoc(doc: AuthUserExtras): string {
+  const raw = doc.phone ?? doc.phoneNumber
+  if (!raw) return ""
+  try {
+    return normalizeIndonesianPhone(raw)
+  } catch {
+    return ""
+  }
+}
 
 const authFunctions: AuthFunctions = (
   internal as unknown as { auth: AuthFunctions }
@@ -27,22 +46,29 @@ export const authComponent: ReturnType<typeof createClient<DataModel>> =
           .collect()
         const invite = invites.find(
           (item) =>
-            item.status === "pending" &&
-            item.expiresAt > timestamp &&
-            Boolean(doc.emailVerified),
+            item.status === "pending" && item.expiresAt > timestamp,
         )
         const roles = invite?.roles.length
           ? Array.from(new Set(invite.roles))
           : (["student"] as const)
+
+        const extras = doc as typeof doc & AuthUserExtras
+        const phone = phoneFromAuthDoc(extras)
+        const province = extras.province
+          ? (findProvince(extras.province)?.name ?? "")
+          : ""
 
         const userId = await ctx.db.insert("users", {
           authUserId: doc._id,
           name: doc.name || email.split("@")[0],
           email,
           emailVerified: Boolean(doc.emailVerified),
+          phone,
+          province,
+          whatsappVerified: Boolean(extras.whatsappVerified),
           image: doc.image ?? undefined,
           initials: initialsFor(doc.name || email),
-          region: "",
+          region: province,
           roles: [...roles],
           status: "active",
           createdAt: timestamp,

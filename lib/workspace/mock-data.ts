@@ -278,7 +278,7 @@ export const paths: PathSummary[] = [
     activeCohorts: 2,
     completion: 72,
     students: 25,
-    image: "/images/path-batik.jpg",
+    image: "",
   },
   {
     id: "pranatacara-jawa",
@@ -296,7 +296,7 @@ export const paths: PathSummary[] = [
     activeCohorts: 1,
     completion: 64,
     students: 16,
-    image: "/images/path-pranatacara.jpg",
+    image: "",
   },
   {
     id: "kriya-ukir-jepara",
@@ -314,7 +314,7 @@ export const paths: PathSummary[] = [
     activeCohorts: 0,
     completion: 0,
     students: 0,
-    image: "/images/path-ukir.jpg",
+    image: "",
   },
 ]
 
@@ -848,7 +848,7 @@ export const works: WorkItem[] = [
     region: "Yogyakarta",
     workCard: "KN-8821",
     permission: "Izin sumber budaya tercatat",
-    image: "/images/work-soga.jpg",
+    image: "",
     note: "12 foto proses bertanggal, pewarna soga dari tingi dan jambal.",
   },
   {
@@ -870,7 +870,7 @@ export const works: WorkItem[] = [
     region: "Surakarta",
     workCard: "KN-9014",
     permission: "Izin sumber budaya tercatat",
-    image: "/images/work-nitik.jpg",
+    image: "",
     note: "Panduan perawatan dan kartu bahan disertakan.",
   },
   {
@@ -892,7 +892,7 @@ export const works: WorkItem[] = [
     region: "Yogyakarta",
     workCard: "KN-9147",
     permission: "Izin sumber budaya tercatat",
-    image: "/images/work-sutra.jpg",
+    image: "",
   },
   {
     id: "w-04",
@@ -913,7 +913,7 @@ export const works: WorkItem[] = [
     region: "Yogyakarta dan sekitarnya",
     workCard: "KN-JS-014",
     permission: "Izin sumber budaya tercatat",
-    image: "/images/work-pranatacara.jpg",
+    image: "",
   },
   {
     id: "w-05",
@@ -934,7 +934,7 @@ export const works: WorkItem[] = [
     region: "Yogyakarta",
     workCard: "KN-9218",
     permission: "Menunggu konfirmasi pengajar",
-    image: "/images/work-soga.jpg",
+    image: "",
     note: "Karya baru. Kartu Karya belum lengkap: foto proses 7 dari 10.",
   },
   {
@@ -956,7 +956,7 @@ export const works: WorkItem[] = [
     region: "Lasem",
     workCard: "KN-9188",
     permission: "Izin sumber budaya perlu diperbarui",
-    image: "/images/work-nitik.jpg",
+    image: "",
     note: "Dijeda sampai dokumen izin sumber budaya diperbarui.",
   },
   {
@@ -2775,7 +2775,7 @@ export const teachers = [
     focus: "Batik tulis dan pewarnaan soga",
     path: "Batik Tulis Soga",
     community: "Sanggar Soga Giriloyo",
-    image: "/images/teacher-hardjono.jpg",
+    image: "",
     verified: true,
   },
   {
@@ -2790,7 +2790,7 @@ export const teachers = [
     focus: "Pewarna alami dan ekstraksi nila",
     path: "Batik Tulis Soga",
     community: "Rumah Warna Lasem",
-    image: "/images/teacher-sriningsih.jpg",
+    image: "",
     verified: true,
   },
   {
@@ -2805,7 +2805,7 @@ export const teachers = [
     focus: "Pembawa acara adat dan protokol",
     path: "Seni Pembawa Acara Tradisi Jawa",
     community: "Sanggar Wicara Surakarta",
-    image: "/images/teacher-sudarsono.jpg",
+    image: "",
     verified: true,
   },
 ]

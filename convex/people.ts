@@ -568,7 +568,7 @@ export const createTeacherProfile = mutation({
     focus: v.string(),
     community: v.string(),
     pathIds: v.array(v.string()),
-    image: v.optional(v.string()),
+    imageAssetId: v.optional(v.id("mediaAssets")),
     reason: v.string(),
   },
   handler: async (ctx, args) => {
@@ -632,7 +632,7 @@ export const createTeacherProfile = mutation({
       focus: args.focus.trim(),
       path: paths.find((path) => path.slug === pathIds[0])?.title ?? pathIds[0],
       community: args.community.trim(),
-      image: args.image?.trim() || "/images/teacher-sudarsono.jpg",
+      imageAssetId: args.imageAssetId,
       verified: false,
       userId: user._id,
       pathIds,

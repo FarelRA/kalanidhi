@@ -12,11 +12,26 @@ import {
 import { seedAccount, type TestDb } from "../helpers/convex"
 
 export const NOW = 1_760_000_000_000
+export const FIXTURE_IMAGE = "https://storage.example.test/seed.jpg"
 
 /** Deterministic, schema-valid content document built from the shipped copy. */
 export function contentFixture(): SiteData {
   return {
     ...structuredClone(siteSeed),
+    hero: {
+      ...structuredClone(siteSeed.hero),
+      plate: {
+        ...structuredClone(siteSeed.hero.plate),
+        image: FIXTURE_IMAGE,
+      },
+    },
+    metadata: {
+      ...structuredClone(siteSeed.metadata),
+      image: {
+        ...structuredClone(siteSeed.metadata.image),
+        url: FIXTURE_IMAGE,
+      },
+    },
     catalog: {
       ...structuredClone(siteSeed.catalog),
       fields: catalogFieldsSeed.map((field, index) => ({
@@ -24,18 +39,18 @@ export function contentFixture(): SiteData {
         order: index,
       })),
     },
-    paths: pathsSeed.map((path, index) => ({
-      ...structuredClone(path),
-      order: index,
-    })),
-    teachers: teachersSeed.map((teacher, index) => ({
-      ...structuredClone(teacher),
-      order: index,
-    })),
-    works: worksSeed.map((work, index) => ({
-      ...structuredClone(work),
-      order: index,
-    })),
+    paths: pathsSeed.map(({ imageFile, ...path }, index) => {
+      void imageFile
+      return { ...structuredClone(path), image: FIXTURE_IMAGE, order: index }
+    }),
+    teachers: teachersSeed.map(({ imageFile, ...teacher }, index) => {
+      void imageFile
+      return { ...structuredClone(teacher), image: FIXTURE_IMAGE, order: index }
+    }),
+    works: worksSeed.map(({ imageFile, ...work }, index) => {
+      void imageFile
+      return { ...structuredClone(work), image: FIXTURE_IMAGE, order: index }
+    }),
     testimonials: testimonialsSeed.map((testimonial, index) => ({
       ...structuredClone(testimonial),
       order: index,
@@ -50,68 +65,105 @@ export function contentFixture(): SiteData {
 export async function seedContent(t: TestDb): Promise<void> {
   const data = contentFixture()
   await t.run(async (ctx) => {
+    const imageAssetId = await ctx.db.insert("mediaAssets", {
+      kind: "image",
+      externalUrl: FIXTURE_IMAGE,
+      filename: "seed.jpg",
+      mimeType: "image/jpeg",
+      size: 10,
+      alt: "Gambar uji",
+      status: "active",
+      uploadedBy: "system",
+      createdAt: NOW,
+    })
+
+    const {
+      hero,
+      metadata,
+      catalog,
+      paths,
+      teachers,
+      works,
+      testimonials,
+      faqs,
+      ...copy
+    } = data
+
     await ctx.db.insert("siteContent", {
       key: "site",
       value: {
-        hero: data.hero,
-        traction: data.traction,
-        loop: data.loop,
-        catalog: {
-          label: data.catalog.label,
-          title: data.catalog.title,
-          description: data.catalog.description,
-          cta: data.catalog.cta,
-          groups: data.catalog.groups,
+        ...copy,
+        hero: {
+          ...hero,
+          plate: {
+            alt: hero.plate.alt,
+            caption: hero.plate.caption,
+            note: hero.plate.note,
+            imageAssetId,
+          },
         },
-        mangsa: data.mangsa,
-        ethics: data.ethics,
-        institution: data.institution,
-        sections: data.sections,
-        footer: data.footer,
-        navigation: data.navigation,
-        overlays: data.overlays,
-        header: data.header,
-        search: data.search,
-        mobileCta: data.mobileCta,
-        leadDialogs: data.leadDialogs,
-        metadata: data.metadata,
+        metadata: {
+          ...metadata,
+          image: {
+            width: metadata.image.width,
+            height: metadata.image.height,
+            alt: metadata.image.alt,
+            imageAssetId,
+          },
+        },
+        catalog: {
+          label: catalog.label,
+          title: catalog.title,
+          description: catalog.description,
+          cta: catalog.cta,
+          groups: catalog.groups,
+        },
       },
       updatedAt: NOW,
     })
 
-    for (const [index, field] of data.catalog.fields.entries()) {
+    for (const [index, field] of catalog.fields.entries()) {
       await ctx.db.insert("catalogFields", { order: index, ...field })
     }
-    for (const [index, path] of data.paths.entries()) {
+    for (const [index, path] of paths.entries()) {
+      const { image, ...rest } = path
+      void image
       await ctx.db.insert("paths", {
-        ...path,
+        ...rest,
         order: index,
         status: "open",
         createdAt: NOW,
+        imageAssetId,
       })
     }
-    for (const [index, teacher] of data.teachers.entries()) {
+    for (const [index, teacher] of teachers.entries()) {
+      const { image, ...rest } = teacher
+      void image
       await ctx.db.insert("teachers", {
-        ...teacher,
+        ...rest,
         order: index,
         status: "active",
         published: true,
         verificationStatus: "verified",
         verifiedAt: NOW,
+        imageAssetId,
       })
     }
-    for (const [index, work] of data.works.entries()) {
+    for (const [index, work] of works.entries()) {
+      const { image, ...rest } = work
+      void image
       await ctx.db.insert("works", {
-        ...work,
+        ...rest,
         order: index,
         status: "published",
         createdAt: NOW,
+        imageAssetId,
       })
     }
-    for (const [index, testimonial] of data.testimonials.entries()) {
+    for (const [index, testimonial] of testimonials.entries()) {
       await ctx.db.insert("testimonials", { order: index, ...testimonial })
     }
-    for (const [index, faq] of data.faqs.entries()) {
+    for (const [index, faq] of faqs.entries()) {
       await ctx.db.insert("faqs", { order: index, ...faq })
     }
   })

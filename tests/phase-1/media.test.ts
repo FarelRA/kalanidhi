@@ -60,7 +60,7 @@ describe("media library", () => {
       const value = site.value as Record<string, unknown>
       const hero = value.hero as Record<string, unknown>
       const plate = hero.plate as Record<string, unknown>
-      plate.image = assetInput.externalUrl
+      plate.imageAssetId = id
       await ctx.db.patch(site._id, { value })
     })
 
@@ -73,6 +73,11 @@ describe("media library", () => {
     const t = await adminDb()
     const identity = t.withIdentity({ subject: "auth-admin" })
     const id = await identity.mutation(api.media.saveAsset, assetInput)
+    const replacementId = await identity.mutation(api.media.saveAsset, {
+      ...assetInput,
+      externalUrl: "https://cdn.example.test/replacement.png",
+      filename: "replacement.png",
+    })
     await seedContent(t)
     await t.run(async (ctx) => {
       const site = await ctx.db
@@ -83,7 +88,7 @@ describe("media library", () => {
       const value = site.value as Record<string, unknown>
       const hero = value.hero as Record<string, unknown>
       const plate = hero.plate as Record<string, unknown>
-      plate.image = assetInput.externalUrl
+      plate.imageAssetId = id
       await ctx.db.patch(site._id, { value })
     })
 
@@ -101,7 +106,7 @@ describe("media library", () => {
       const value = site.value as Record<string, unknown>
       const hero = value.hero as Record<string, unknown>
       const plate = hero.plate as Record<string, unknown>
-      plate.image = "/images/hero-canting.jpg"
+      plate.imageAssetId = replacementId
       await ctx.db.patch(site._id, { value })
     })
     await identity.mutation(api.media.removeAsset, { id, reason: "Tidak dipakai" })
@@ -171,6 +176,9 @@ describe("media library", () => {
         name: "Siswa",
         email: "siswa@example.test",
         emailVerified: true,
+        phone: "6280000000000",
+        province: "DI Yogyakarta",
+        whatsappVerified: true,
         initials: "SI",
         region: "Yogyakarta",
         roles: ["student"],

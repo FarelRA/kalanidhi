@@ -28,7 +28,7 @@ export async function generateMetadata({
     openGraph: {
       title: work.title,
       description: work.description.slice(0, 160),
-      images: [work.image],
+      ...(work.image ? { images: [work.image] } : {}),
     },
   }
 }

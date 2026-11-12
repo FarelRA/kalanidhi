@@ -46,14 +46,16 @@ export function BenchHero({ hero }: { hero: HeroContent }) {
           <figure className="relative mx-auto max-w-[560px]">
             <div className="hero-photo paper-frame border-[10px] border-[#e7d5b8] bg-[#e7d5b8] [--photo-rot:-1.4deg]">
               <div className="relative aspect-[4/3] overflow-hidden bg-teak">
-                <Image
-                  src={hero.plate.image}
-                  alt={hero.plate.alt}
-                  fill
-                  priority
-                  sizes="(min-width: 1024px) 560px, 92vw"
-                  className="object-cover"
-                />
+                {hero.plate.image ? (
+                  <Image
+                    src={hero.plate.image}
+                    alt={hero.plate.alt}
+                    fill
+                    priority
+                    sizes="(min-width: 1024px) 560px, 92vw"
+                    className="object-cover"
+                  />
+                ) : null}
                 <div className="absolute inset-0 bg-gradient-to-t from-deep/90 via-deep/25 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-2 p-3.5">
                   <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-cream-2">

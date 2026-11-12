@@ -277,13 +277,15 @@ function StudentPaths() {
             className="group border border-ink/20 bg-paper-2 shadow-[3px_3px_0_rgba(32,19,13,0.06)]"
           >
             <div className="relative h-36 overflow-hidden border-b border-ink/20 bg-panel">
-              <Image
-                src={item.path.image}
-                alt={item.path.title}
-                fill
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-              />
+              {item.path.image ? (
+                <Image
+                  src={item.path.image}
+                  alt={item.path.title}
+                  fill
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                />
+              ) : null}
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-ink/85 p-3">
                 <div>
                   <p className="text-[8px] font-bold uppercase tracking-[0.12em] text-brass">

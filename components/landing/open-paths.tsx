@@ -53,16 +53,18 @@ export function OpenPaths({
             >
               <div className="grid gap-0 lg:grid-cols-12">
                 <div className="relative min-h-[220px] overflow-hidden border-b border-ink/15 lg:col-span-4 lg:min-h-[300px] lg:border-b-0 lg:border-r">
-                  <Image
-                    src={path.image}
-                    alt={`Jalur ${path.title}`}
-                    fill
-                    sizes="(min-width: 1024px) 400px, 92vw"
-                    className={cn(
-                      "object-cover",
-                      path.comingSoon && "saturate-[0.55]",
-                    )}
-                  />
+                  {path.image ? (
+                    <Image
+                      src={path.image}
+                      alt={`Jalur ${path.title}`}
+                      fill
+                      sizes="(min-width: 1024px) 400px, 92vw"
+                      className={cn(
+                        "object-cover",
+                        path.comingSoon && "saturate-[0.55]",
+                      )}
+                    />
+                  ) : null}
                   <span className="stamp absolute left-3 top-3 bg-paper-2 text-ink">
                     {path.code}
                   </span>

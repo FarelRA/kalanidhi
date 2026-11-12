@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import Image from "next/image"
 import Link from "next/link"
 import {
   Camera,
@@ -87,13 +86,11 @@ export function CallRoomPreview() {
             <div className="grid gap-2.5 sm:grid-cols-2">
               <div className="relative flex aspect-[4/3] min-h-[220px] items-center justify-center overflow-hidden border border-paper/20 bg-teak">
                 {cameraOn && !audioOnly ? (
-                  <Image
-                    src="/images/teacher-hardjono.jpg"
-                    alt="Bambang Hardjono dalam panggilan video"
-                    fill
-                    sizes="(min-width: 640px) 40vw, 100vw"
-                    className="object-cover"
-                  />
+                  <div className="flex size-full items-center justify-center bg-gradient-to-br from-teak to-deep">
+                    <span className="flex size-20 items-center justify-center border border-paper/25 bg-paper/10 font-heading text-3xl text-paper">
+                      BH
+                    </span>
+                  </div>
                 ) : (
                   <div className="text-center">
                     <span className="mx-auto flex size-16 items-center justify-center border border-paper/25 bg-paper/10 font-heading text-2xl text-paper">

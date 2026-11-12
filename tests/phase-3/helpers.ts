@@ -27,6 +27,9 @@ export async function seedAccount(
     roles?: ("student" | "teacher" | "admin")[]
     status?: "active" | "suspended" | "invited" | "deleted"
     emailVerified?: boolean
+    phone?: string
+    province?: string
+    whatsappVerified?: boolean
   },
 ): Promise<Id<"users">> {
   return await t.run(async (ctx) => {
@@ -36,6 +39,9 @@ export async function seedAccount(
       name: input.name ?? input.authUserId,
       email: input.email ?? `${input.authUserId}@example.test`,
       emailVerified: input.emailVerified ?? true,
+      phone: input.phone ?? "6280000000000",
+      province: input.province ?? "DI Yogyakarta",
+      whatsappVerified: input.whatsappVerified ?? true,
       initials: "TA",
       region: "Yogyakarta",
       roles,
@@ -57,6 +63,28 @@ export async function seedAccount(
   })
 }
 
+export async function seedImageAsset(
+  t: TestDb,
+  filename = "work.jpg",
+): Promise<Id<"mediaAssets">> {
+  return await t.run(async (ctx) => {
+    const storageId = await ctx.storage.store(
+      new Blob(["seed-image"], { type: "image/jpeg" }),
+    )
+    return await ctx.db.insert("mediaAssets", {
+      kind: "image",
+      storageId,
+      filename,
+      mimeType: "image/jpeg",
+      size: 10,
+      alt: "Foto uji",
+      status: "active",
+      uploadedBy: "system",
+      createdAt: NOW,
+    })
+  })
+}
+
 export async function seedSeller(
   t: TestDb,
   input: {
@@ -72,6 +100,7 @@ export async function seedSeller(
   userId: Id<"users">
   certificateId: Id<"certificates"> | null
   sellerProfileId: Id<"sellerProfiles">
+  imageAssetId: Id<"mediaAssets">
 }> {
   const pathId = input.pathId ?? "batik-tulis-soga"
   const roles: ("student" | "teacher")[] = input.teacherProfile
@@ -91,6 +120,8 @@ export async function seedSeller(
     roles: ["teacher"],
   })
 
+  const imageAssetId = await seedImageAsset(t, `work-${input.authUserId}.jpg`)
+
   if (input.teacherProfile) {
     await t.run(async (ctx) => {
       await ctx.db.insert("teachers", {
@@ -105,7 +136,6 @@ export async function seedSeller(
         focus: "Soga",
         path: "Batik",
         community: "Giriloyo",
-        image: "/images/teacher.jpg",
         verified: true,
         userId,
         pathIds: [pathId],
@@ -202,7 +232,7 @@ export async function seedSeller(
     }),
   )
 
-  return { userId, certificateId, sellerProfileId }
+  return { userId, certificateId, sellerProfileId, imageAssetId }
 }
 
 export async function seedSellerPayoutAccount(
@@ -241,6 +271,20 @@ export async function seedPublishedWork(
   const pathId = input.pathId ?? "batik-tulis-soga"
   const title = input.title ?? "Kain Soga Anyaman"
   return await t.run(async (ctx) => {
+    const storageId = await ctx.storage.store(
+      new Blob(["seed-image"], { type: "image/jpeg" }),
+    )
+    const imageAssetId = await ctx.db.insert("mediaAssets", {
+      kind: "image",
+      storageId,
+      filename: `work-${Date.now()}.jpg`,
+      mimeType: "image/jpeg",
+      size: 10,
+      alt: "Foto uji",
+      status: "active",
+      uploadedBy: "system",
+      createdAt: NOW,
+    })
     const slug = `kain-${input.makerId}-${Date.now()}-${Math.random().toString(16).slice(2)}`
     const workId = await ctx.db.insert("works", {
       order: 90,
@@ -258,7 +302,7 @@ export async function seedPublishedWork(
       techniqueNote: "Soga",
       workCard: `KK-${slug}`,
       description: "Kain soga dengan provenans lengkap.",
-      image: "/images/works/batik.jpg",
+      imageAssetId,
       makerId: input.makerId,
       pathId,
       certificateId: input.certificateId ?? undefined,

@@ -588,12 +588,12 @@ export function WorksLive() {
               />
             </div>
             <div>
-              <Label htmlFor="work-image">Path foto karya</Label>
+              <Label htmlFor="work-image">URL foto karya</Label>
               <Input
                 id="work-image"
                 name="image"
                 className="mt-1.5"
-                placeholder="/images/works/batik.jpg"
+                placeholder="URL foto dari Convex storage"
               />
             </div>
             <div className="grid gap-3 sm:grid-cols-3">

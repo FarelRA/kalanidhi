@@ -8,7 +8,26 @@ import type {
   Work,
 } from "../lib/content/types"
 
-export const siteSeed: SiteCopy = {
+/**
+ * Seed data never stores `/images/...` paths. Each image carries a bare
+ * filename that the seed mutation resolves against the `mediaAssets` registry.
+ */
+type WithImageFile<T> = Omit<T, "image"> & { imageFile: string }
+
+export type SeedLearningPath = WithImageFile<LearningPath>
+export type SeedTeacher = WithImageFile<Teacher>
+export type SeedWork = WithImageFile<Work>
+
+export type SeedSiteCopy = Omit<SiteCopy, "hero" | "metadata"> & {
+  hero: Omit<SiteCopy["hero"], "plate"> & {
+    plate: WithImageFile<SiteCopy["hero"]["plate"]>
+  }
+  metadata: Omit<SiteCopy["metadata"], "image"> & {
+    image: Omit<SiteCopy["metadata"]["image"], "url"> & { imageFile: string }
+  }
+}
+
+export const siteSeed: SeedSiteCopy = {
   metadata: {
     siteName: "KalaNidhi Digital",
     siteUrl: "https://kalanidhi.site",
@@ -39,7 +58,7 @@ export const siteSeed: SiteCopy = {
     ],
     category: "education",
     image: {
-      url: "/images/hero-canting.jpg",
+      imageFile: "hero-canting.jpg",
       width: 1408,
       height: 768,
       alt: "Proses membatik dengan canting",
@@ -68,7 +87,7 @@ export const siteSeed: SiteCopy = {
     primaryCta: "Pilih jalur yang terbuka",
     secondaryCta: "Lihat lingkarannya",
     plate: {
-      image: "/images/hero-canting.jpg",
+      imageFile: "hero-canting.jpg",
       alt: "Tangan membatik dengan canting di atas kain",
       caption: "Proses canting, Giriloyo",
       note: "Lopati, 2026",
@@ -664,7 +683,7 @@ export const catalogFieldsSeed: CatalogField[] = [
   },
 ]
 
-export const pathsSeed: LearningPath[] = [
+export const pathsSeed: SeedLearningPath[] = [
   {
     slug: "batik-tulis-soga",
     code: "Jalur 01",
@@ -678,7 +697,7 @@ export const pathsSeed: LearningPath[] = [
     weeks: 6,
     tasks: 3,
     price: 1_450_000,
-    image: "/images/path-batik.jpg",
+    imageFile: "path-batik.jpg",
     tags: ["Dengan paket bahan", "Sertifikat platform"],
     outcome:
       "Sepotong kain batik tulis dengan motif geometris, lengkap dengan catatan proses untuk Kartu Karya.",
@@ -702,7 +721,7 @@ export const pathsSeed: LearningPath[] = [
     weeks: 4,
     tasks: 3,
     price: 980_000,
-    image: "/images/path-pranatacara.jpg",
+    imageFile: "path-pranatacara.jpg",
     tags: ["Kelas live", "Sertifikat platform"],
     outcome:
       "Rekaman praktik dengan susunan acara lengkap, catatan pengajar, dan sertifikat platform.",
@@ -727,7 +746,7 @@ export const pathsSeed: LearningPath[] = [
     tasks: 0,
     price: null,
     priceLabel: "Sedang disusun",
-    image: "/images/path-ukir.jpg",
+    imageFile: "path-ukir.jpg",
     tags: ["Sedang disusun"],
     outcome:
       "Pengantar prinsip ukir kayu, perawatan alat, dan perancangan ornamen sulur. Kurikulum sedang disusun bersama pengrajin Jepara.",
@@ -740,7 +759,7 @@ export const pathsSeed: LearningPath[] = [
   },
 ]
 
-export const teachersSeed: Teacher[] = [
+export const teachersSeed: SeedTeacher[] = [
   {
     slug: "bambang-hardjono",
     name: "Bambang Hardjono",
@@ -753,7 +772,7 @@ export const teachersSeed: Teacher[] = [
     focus: "Batik tulis dan pewarnaan soga",
     path: "Batik Tulis Soga",
     community: "Sanggar Soga Giriloyo",
-    image: "/images/teacher-hardjono.jpg",
+    imageFile: "teacher-hardjono.jpg",
     verified: true,
   },
   {
@@ -768,7 +787,7 @@ export const teachersSeed: Teacher[] = [
     focus: "Pewarna alami dan ekstraksi nila",
     path: "Batik Tulis Soga",
     community: "Rumah Warna Lasem",
-    image: "/images/teacher-sriningsih.jpg",
+    imageFile: "teacher-sriningsih.jpg",
     verified: true,
   },
   {
@@ -783,12 +802,12 @@ export const teachersSeed: Teacher[] = [
     focus: "Pembawa acara adat dan protokol",
     path: "Seni Pembawa Acara Tradisi Jawa",
     community: "Sanggar Wicara Surakarta",
-    image: "/images/teacher-sudarsono.jpg",
+    imageFile: "teacher-sudarsono.jpg",
     verified: true,
   },
 ]
 
-export const worksSeed: Work[] = [
+export const worksSeed: SeedWork[] = [
   {
     slug: "batik-soga-anyaman",
     title: "Kain Batik Soga Anyaman",
@@ -805,7 +824,7 @@ export const worksSeed: Work[] = [
     workCard: "KN-8821",
     description:
       "Pewarna soga dari kulit tingi dan jambal, dengan motif geometris yang disusun ulang dari pola klasik Giriloyo. Proses pembuatan tercatat dalam 12 foto bertanggal.",
-    image: "/images/work-soga.jpg",
+    imageFile: "work-soga.jpg",
   },
   {
     slug: "selendang-canting-nitik",
@@ -823,7 +842,7 @@ export const worksSeed: Work[] = [
     workCard: "KN-9014",
     description:
       "Selendang primis dengan titik canting rapat. Panduan perawatan dan kartu bahan disertakan.",
-    image: "/images/work-nitik.jpg",
+    imageFile: "work-nitik.jpg",
   },
   {
     slug: "batik-soga-lereng",
@@ -841,7 +860,7 @@ export const worksSeed: Work[] = [
     workCard: "KN-9147",
     description:
       "Karya lanjutan dengan 14 tahap pewarnaan soga. Motif lereng klasik, bukan motif sakral.",
-    image: "/images/work-sutra.jpg",
+    imageFile: "work-sutra.jpg",
   },
   {
     slug: "pranatacara-siraman",
@@ -860,7 +879,7 @@ export const worksSeed: Work[] = [
     workCard: "KN-JS-014",
     description:
       "Permintaan booking untuk rangkaian siraman dan midodareni. Susunan acara dikonfirmasi bersama praktisi.",
-    image: "/images/work-pranatacara.jpg",
+    imageFile: "work-pranatacara.jpg",
   },
 ]
 

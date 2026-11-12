@@ -4,6 +4,7 @@ import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
 import { WorkspaceShell } from "@/components/workspace/shell/workspace-shell"
+import { WhatsappGate } from "@/components/workspace/verification/whatsapp-gate"
 import { api } from "@/convex/_generated/api"
 import {
   isPreviewAllowed,
@@ -105,6 +106,10 @@ export default async function WorkspaceLayout({
         action="Kembali ke situs publik"
       />
     )
+  }
+
+  if (viewer && !viewer.whatsappVerified) {
+    return <WhatsappGate viewer={viewer} />
   }
 
   return (

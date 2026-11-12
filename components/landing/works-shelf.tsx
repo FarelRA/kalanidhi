@@ -37,13 +37,15 @@ export function WorksShelf({
         <article className="mt-12 grid gap-8 border-2 border-ink bg-paper-2 p-4 shadow-[5px_5px_0_var(--teak)] sm:p-6 lg:mt-16 lg:grid-cols-12 lg:gap-10 lg:p-8">
           <figure className="relative lg:col-span-7">
             <div className="relative aspect-[4/3] overflow-hidden border border-ink/20 bg-cream">
-              <Image
-                src={featured.image}
-                alt={featured.title}
-                fill
-                sizes="(min-width: 1024px) 640px, 92vw"
-                className="object-cover"
-              />
+              {featured.image ? (
+                <Image
+                  src={featured.image}
+                  alt={featured.title}
+                  fill
+                  sizes="(min-width: 1024px) 640px, 92vw"
+                  className="object-cover"
+                />
+              ) : null}
             </div>
             <figcaption className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[10px] text-ink-muted">
               <span>{featured.unit}</span>
@@ -110,13 +112,15 @@ export function WorksShelf({
               className="flex gap-4 border-b border-ink/20 py-5 sm:gap-5"
             >
               <div className="relative size-[76px] shrink-0 overflow-hidden border border-ink/20 bg-cream sm:size-24">
-                <Image
-                  src={work.image}
-                  alt={work.title}
-                  fill
-                  sizes="96px"
-                  className="object-cover"
-                />
+                {work.image ? (
+                  <Image
+                    src={work.image}
+                    alt={work.title}
+                    fill
+                    sizes="96px"
+                    className="object-cover"
+                  />
+                ) : null}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">

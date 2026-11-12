@@ -290,14 +290,16 @@ export function ContentCms() {
                   </span>
                 </div>
                 <div className="absolute right-3 bottom-3 hidden w-24 rotate-2 border border-paper/30 bg-paper p-1 sm:block">
-                  <div className="relative h-12 overflow-hidden">
-                    <Image
-                      src="/images/hero-canting.jpg"
-                      alt=""
-                      fill
-                      sizes="96px"
-                      className="object-cover"
-                    />
+                  <div className="relative h-12 overflow-hidden bg-teak/30">
+                    {valueOf("hero", "hero.plate.image") ? (
+                      <Image
+                        src={valueOf("hero", "hero.plate.image")}
+                        alt=""
+                        fill
+                        sizes="96px"
+                        className="object-cover"
+                      />
+                    ) : null}
                   </div>
                   <p className="mt-1 text-[5px] font-bold uppercase tracking-[0.08em] text-ink">
                     {valueOf("hero", "hero.card.serial")} · Kartu Karya

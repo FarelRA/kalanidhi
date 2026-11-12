@@ -44,13 +44,19 @@ export function BenchTeachers({
               className={cn(index === 1 && "md:mt-14")}
             >
               <div className="relative aspect-[4/5] overflow-hidden border-[6px] border-paper-2 bg-panel shadow-plate">
-                <Image
-                  src={teacher.image}
-                  alt={`Foto ${teacher.name}, ${teacher.specialty}`}
-                  fill
-                  sizes="(min-width: 768px) 33vw, 92vw"
-                  className="object-cover"
-                />
+                {teacher.image ? (
+                  <Image
+                    src={teacher.image}
+                    alt={`Foto ${teacher.name}, ${teacher.specialty}`}
+                    fill
+                    sizes="(min-width: 768px) 33vw, 92vw"
+                    className="object-cover"
+                  />
+                ) : (
+                  <span className="flex size-full items-center justify-center font-heading text-4xl text-ink-muted">
+                    {teacher.initials}
+                  </span>
+                )}
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep/85 via-deep/25 to-transparent p-3.5 pt-12">
                   <span className="stamp border-cream-2/50 text-cream-2">
                     {teacher.experience}

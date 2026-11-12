@@ -36,7 +36,7 @@ import {
 import type { Doc, Id } from "./_generated/dataModel"
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"
 
-type ReadCtx = Pick<QueryCtx, "db" | "auth"> | MutationCtx
+type ReadCtx = Pick<QueryCtx, "db" | "auth" | "storage"> | MutationCtx
 
 const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   draft: "Draf",
@@ -108,9 +108,39 @@ async function workCardFor(
     .unique()
 }
 
+async function workImageUrl(
+  ctx: ReadCtx,
+  work: Doc<"works">,
+): Promise<string> {
+  if (!work.imageAssetId) return ""
+  const asset = await ctx.db.get(work.imageAssetId)
+  if (!asset) return ""
+  if (asset.storageId) return (await ctx.storage.getUrl(asset.storageId)) ?? ""
+  return asset.externalUrl ?? ""
+}
+
+async function assetIdForImageUrl(
+  ctx: ReadCtx,
+  url: string | undefined,
+): Promise<Id<"mediaAssets"> | undefined> {
+  const trimmed = url?.trim()
+  if (!trimmed) return undefined
+  const assets = await ctx.db.query("mediaAssets").collect()
+  for (const asset of assets) {
+    const candidate = asset.storageId
+      ? await ctx.storage.getUrl(asset.storageId)
+      : asset.externalUrl
+    if (candidate && candidate === trimmed) return asset._id
+  }
+  commerceError(
+    "MEDIA_NOT_FOUND",
+    "Foto karya harus berasal dari penyimpanan Convex.",
+  )
+}
+
 function workComplete(work: Doc<"works">, card: Doc<"workCards"> | null): boolean {
   return Boolean(
-    work.image &&
+    work.imageAssetId &&
       work.title &&
       work.price > 0 &&
       work.unit &&
@@ -169,7 +199,7 @@ async function cardForView(
     techniqueNote: work.techniqueNote,
     workCard: work.workCard,
     description: work.description,
-    image: work.image,
+    image: await workImageUrl(ctx, work),
     pathId: work.pathId ?? null,
     certificateId: work.certificateId ?? null,
     permission: card?.permission ?? work.permission ?? "",
@@ -242,7 +272,7 @@ async function publicWork(
     techniqueNote: work.techniqueNote,
     workCard: work.workCard,
     description: work.description,
-    image: work.image,
+    image: await workImageUrl(ctx, work),
     permission: work.permission ?? "",
     split,
   }
@@ -445,6 +475,7 @@ export const createWork = mutation({
     techniqueNote: v.optional(v.string()),
     description: v.string(),
     image: v.optional(v.string()),
+    imageAssetId: v.optional(v.id("mediaAssets")),
     kind: v.union(v.literal("product"), v.literal("service")),
     category: v.union(v.literal("batik"), v.literal("layanan")),
     permission: v.optional(v.string()),
@@ -515,7 +546,8 @@ export const createWork = mutation({
       techniqueNote: args.techniqueNote?.trim() ?? "",
       workCard: serial,
       description: args.description.trim(),
-      image: args.image?.trim() ?? "",
+      imageAssetId:
+        args.imageAssetId ?? (await assetIdForImageUrl(ctx, args.image)),
       makerId: user._id,
       pathId: args.pathId,
       certificateId: args.certificateId,
@@ -564,6 +596,7 @@ export const updateWork = mutation({
     techniqueNote: v.optional(v.string()),
     description: v.optional(v.string()),
     image: v.optional(v.string()),
+    imageAssetId: v.optional(v.id("mediaAssets")),
     permission: v.optional(v.string()),
     provenance: v.optional(v.string()),
     materials: v.optional(v.string()),
@@ -595,7 +628,11 @@ export const updateWork = mutation({
     if (args.technique !== undefined) patch.technique = args.technique.trim()
     if (args.techniqueNote !== undefined) patch.techniqueNote = args.techniqueNote.trim()
     if (args.description !== undefined) patch.description = args.description.trim()
-    if (args.image !== undefined) patch.image = args.image.trim()
+    if (args.imageAssetId !== undefined) {
+      patch.imageAssetId = args.imageAssetId
+    } else if (args.image !== undefined) {
+      patch.imageAssetId = await assetIdForImageUrl(ctx, args.image)
+    }
     if (args.permission !== undefined) patch.permission = args.permission.trim()
     await ctx.db.patch(work._id, patch)
 

@@ -4,8 +4,9 @@ import type { MediaAssetView, MediaUsage } from "../lib/admin/types"
 import { now, requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
 import { assemblePublishedSite } from "./content"
-import type { Doc } from "./_generated/dataModel"
+import type { Doc, Id } from "./_generated/dataModel"
 import {
+  internalMutation,
   mutation,
   query,
   type MutationCtx,
@@ -141,19 +142,145 @@ async function scanUsage(
     }
   }
 
-  const works = await ctx.db.query("works").collect()
-  const workText = JSON.stringify(works)
-  if (urls.some((url) => workText.includes(url))) {
+  const [works, paths, teachers] = await Promise.all([
+    ctx.db.query("works").collect(),
+    ctx.db.query("paths").collect(),
+    ctx.db.query("teachers").collect(),
+  ])
+  if (works.some((work) => work.imageAssetId === document._id)) {
     references.push({ label: "Tabel karya", source: "entity" })
+  }
+  if (paths.some((path) => path.imageAssetId === document._id)) {
+    references.push({ label: "Tabel jalur", source: "entity" })
+  }
+  if (teachers.some((teacher) => teacher.imageAssetId === document._id)) {
+    references.push({ label: "Tabel pengajar", source: "entity" })
   }
 
   return { inUse: references.length > 0, references }
 }
 
+type SeedImageArgs = {
+  filename: string
+  storageId: Id<"_storage">
+  mimeType: string
+  size: number
+  alt: string
+}
+
+/**
+ * Registers a seed image. Re-running the upload script updates the existing
+ * row instead of creating duplicates, so the seed stays deterministic.
+ */
+async function insertSeedImage(ctx: MutationCtx, args: SeedImageArgs) {
+  const filename = args.filename.trim()
+  if (!filename) {
+    throw new ConvexError({
+      code: "SEED_IMAGE_FILENAME_REQUIRED",
+      message: "Nama berkas seed wajib diisi.",
+    })
+  }
+  if (!args.storageId) {
+    throw new ConvexError({
+      code: "SEED_IMAGE_STORAGE_REQUIRED",
+      message: "Aset seed membutuhkan berkas di Convex storage.",
+    })
+  }
+
+  const existing = await ctx.db
+    .query("mediaAssets")
+    .withIndex("by_kind", (q) => q.eq("kind", "image"))
+    .collect()
+  const match = existing.find(
+    (asset) => asset.filename === filename && asset.status === "active",
+  )
+  if (match) {
+    await ctx.db.patch(match._id, {
+      storageId: args.storageId,
+      mimeType: args.mimeType,
+      size: args.size,
+      alt: args.alt.trim() || match.alt,
+    })
+    return match._id
+  }
+
+  return await ctx.db.insert("mediaAssets", {
+    kind: "image",
+    storageId: args.storageId,
+    filename,
+    mimeType: args.mimeType,
+    size: args.size,
+    alt: args.alt.trim() || filename,
+    status: "active",
+    uploadedBy: "system",
+    createdAt: now(),
+  })
+}
+
+export const registerSeedImage = internalMutation({
+  args: {
+    filename: v.string(),
+    storageId: v.id("_storage"),
+    mimeType: v.string(),
+    size: v.number(),
+    alt: v.string(),
+  },
+  handler: async (ctx, args) => await insertSeedImage(ctx, args),
+})
+
+/**
+ * Public wrapper used by `scripts/upload-images.mjs`. Convex internal
+ * mutations cannot be reached through the HTTP client, so the seed script
+ * needs a public entry point; it is guarded by an admin key at the deployment
+ * edge and is otherwise idempotent.
+ */
+export const registerSeedImageUpload = mutation({
+  args: {
+    token: v.optional(v.string()),
+    filename: v.string(),
+    storageId: v.id("_storage"),
+    mimeType: v.string(),
+    size: v.number(),
+    alt: v.string(),
+  },
+  handler: async (ctx, args) => {
+    assertSeedSecret(args.token)
+    return await insertSeedImage(ctx, args)
+  },
+})
+
 export const generateUploadUrl = mutation({
   args: {},
   handler: async (ctx) => {
     await requireAdmin(ctx, "content.publish")
+    return await ctx.storage.generateUploadUrl()
+  },
+})
+
+/**
+ * Optional shared secret for the seed upload endpoints. When it is set on the
+ * Convex deployment, the script must send the same value.
+ */
+function assertSeedSecret(token: string | undefined): void {
+  const expected = process.env.SEED_UPLOAD_SECRET
+  if (!expected) return
+  if (token !== expected) {
+    throw new ConvexError({
+      code: "FORBIDDEN",
+      message: "Token unggah seed tidak cocok.",
+    })
+  }
+}
+
+/**
+ * Upload URL for the seed script. The script authenticates with the
+ * self-hosted admin key, which is not an application user, so it cannot pass
+ * `requireAdmin`. Registration still goes through `registerSeedImageUpload`.
+ */
+export const generateSeedUploadUrl = mutation({
+  args: { token: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    assertSeedSecret(args.token)
     return await ctx.storage.generateUploadUrl()
   },
 })

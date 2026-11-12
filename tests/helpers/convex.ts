@@ -22,6 +22,9 @@ export async function seedAccount(
     roles?: ("student" | "teacher" | "admin")[]
     status?: "active" | "suspended" | "invited" | "deleted"
     emailVerified?: boolean
+    phone?: string
+    province?: string
+    whatsappVerified?: boolean
   },
 ): Promise<Id<"users">> {
   return await t.run(async (ctx) => {
@@ -31,6 +34,9 @@ export async function seedAccount(
       name: input.name ?? input.authUserId,
       email: input.email ?? `${input.authUserId}@example.test`,
       emailVerified: input.emailVerified ?? true,
+      phone: input.phone ?? "6280000000000",
+      province: input.province ?? "DI Yogyakarta",
+      whatsappVerified: input.whatsappVerified ?? true,
       initials: "TA",
       region: "Yogyakarta",
       roles,

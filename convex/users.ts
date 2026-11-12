@@ -5,12 +5,18 @@ import type { WorkspaceRole } from "../lib/access/capabilities"
 import { initialsFor } from "../lib/access/viewer"
 import type { Viewer } from "../lib/access/viewer"
 import {
+  normalizeIndonesianPhone,
+  whatsappVerificationUrl,
+} from "../lib/phone"
+import { findProvince } from "../lib/regions/provinces"
+import {
   requireCapability,
   viewerForUser,
 } from "./access"
 import type { Doc, Id } from "./_generated/dataModel"
 import {
   internalMutation,
+  internalQuery,
   mutation,
   query,
   type MutationCtx,
@@ -19,6 +25,7 @@ import {
 import { roleValidator } from "./tables/common"
 
 const DAY_MS = 86_400_000
+const VERIFICATION_TTL_MS = 15 * 60_000
 
 function now(): number {
   return Date.now()
@@ -37,6 +44,71 @@ function randomToken(): string {
   return Array.from(bytes)
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("")
+}
+
+function phoneOrThrow(value: string): string {
+  try {
+    return normalizeIndonesianPhone(value)
+  } catch (error) {
+    throw new ConvexError({
+      code: "INVALID_PHONE",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Nomor WhatsApp tidak sah.",
+    })
+  }
+}
+
+function provinceOrThrow(value: string): string {
+  const province = findProvince(value)
+  if (!province) {
+    throw new ConvexError({
+      code: "INVALID_PROVINCE",
+      message: "Provinsi tidak dikenal.",
+    })
+  }
+  return province.name
+}
+
+async function expirePendingVerifications(
+  ctx: MutationCtx,
+  userId: Id<"users">,
+): Promise<void> {
+  const pending = await ctx.db
+    .query("whatsappVerifications")
+    .withIndex("by_userId", (q) => q.eq("userId", userId))
+    .collect()
+
+  for (const row of pending) {
+    if (row.status === "pending") {
+      await ctx.db.patch(row._id, { status: "expired" })
+    }
+  }
+}
+
+async function issueVerification(
+  ctx: MutationCtx,
+  userId: Id<"users">,
+  phone: string,
+): Promise<{ waUrl: string; expiresAt: number }> {
+  await expirePendingVerifications(ctx, userId)
+
+  const issuedAt = now()
+  const token = randomToken()
+  const tokenHash = await sha256Hex(token)
+  const expiresAt = issuedAt + VERIFICATION_TTL_MS
+
+  await ctx.db.insert("whatsappVerifications", {
+    userId,
+    phone,
+    tokenHash,
+    status: "pending",
+    expiresAt,
+    createdAt: issuedAt,
+  })
+
+  return { waUrl: whatsappVerificationUrl(token), expiresAt }
 }
 
 async function currentUser(
@@ -116,6 +188,113 @@ export const current = query({
   handler: async (ctx): Promise<Viewer | null> => {
     const currentAccount = await currentUser(ctx)
     return currentAccount?.viewer ?? null
+  },
+})
+
+/**
+ * Completes the primary identity: WhatsApp number and province. The number is
+ * the login key, so it must be unique across accounts.
+ */
+export const completeProfile = mutation({
+  args: {
+    phone: v.string(),
+    province: v.string(),
+  },
+  handler: async (
+    ctx,
+    args,
+  ): Promise<{ waUrl: string; expiresAt: number }> => {
+    const currentAccount = await currentUser(ctx)
+    if (!currentAccount) {
+      throw new ConvexError({
+        code: "UNAUTHENTICATED",
+        message: "Masuk diperlukan.",
+      })
+    }
+
+    const phone = phoneOrThrow(args.phone)
+    const province = provinceOrThrow(args.province)
+
+    const duplicates = await ctx.db
+      .query("users")
+      .withIndex("by_phone", (q) => q.eq("phone", phone))
+      .collect()
+    if (duplicates.some((user) => user._id !== currentAccount.user._id)) {
+      throw new ConvexError({
+        code: "PHONE_TAKEN",
+        message: "Nomor WhatsApp ini sudah dipakai akun lain.",
+      })
+    }
+
+    const timestamp = now()
+    await ctx.db.patch(currentAccount.user._id, {
+      phone,
+      province,
+      region: province,
+      whatsappVerified: false,
+      whatsappVerifiedAt: undefined,
+      updatedAt: timestamp,
+    })
+
+    return await issueVerification(ctx, currentAccount.user._id, phone)
+  },
+})
+
+/** Issues a fresh one-time token, invalidating any pending challenge. */
+export const resendVerification = mutation({
+  args: {},
+  handler: async (
+    ctx,
+  ): Promise<{ waUrl: string; expiresAt: number }> => {
+    const currentAccount = await currentUser(ctx)
+    if (!currentAccount) {
+      throw new ConvexError({
+        code: "UNAUTHENTICATED",
+        message: "Masuk diperlukan.",
+      })
+    }
+
+    const phone = currentAccount.user.phone
+    if (!phone) {
+      throw new ConvexError({
+        code: "PROFILE_INCOMPLETE",
+        message: "Lengkapi nomor WhatsApp terlebih dahulu.",
+      })
+    }
+
+    return await issueVerification(ctx, currentAccount.user._id, phone)
+  },
+})
+
+/** Verification state for the workspace gate. Never exposes the raw token. */
+export const verificationState = query({
+  args: {},
+  handler: async (
+    ctx,
+  ): Promise<{
+    phone: string
+    province: string
+    whatsappVerified: boolean
+    pendingExpiresAt: number | null
+  } | null> => {
+    const currentAccount = await currentUser(ctx)
+    if (!currentAccount) return null
+
+    const timestamp = now()
+    const pending = await ctx.db
+      .query("whatsappVerifications")
+      .withIndex("by_userId", (q) => q.eq("userId", currentAccount.user._id))
+      .collect()
+    const active = pending
+      .filter((row) => row.status === "pending" && row.expiresAt > timestamp)
+      .sort((a, b) => b.expiresAt - a.expiresAt)[0]
+
+    return {
+      phone: currentAccount.user.phone,
+      province: currentAccount.user.province,
+      whatsappVerified: currentAccount.user.whatsappVerified,
+      pendingExpiresAt: active?.expiresAt ?? null,
+    }
   },
 })
 
@@ -420,6 +599,102 @@ export const suspend = mutation({
   },
 })
 
+export type WhatsappVerificationResult = {
+  status:
+    | "verified"
+    | "already_verified"
+    | "expired"
+    | "phone_mismatch"
+    | "invalid_phone"
+    | "not_found"
+}
+
+/**
+ * Consumes a one-time WhatsApp challenge. Internal only: the webhook calls it
+ * after verifying the provider secret. Repeating a consumed token is safe.
+ */
+export const verifyWhatsappToken = internalMutation({
+  args: {
+    token: v.string(),
+    phone: v.string(),
+    messageId: v.optional(v.string()),
+  },
+  handler: async (ctx, args): Promise<WhatsappVerificationResult> => {
+    let phone: string
+    try {
+      phone = normalizeIndonesianPhone(args.phone)
+    } catch {
+      return { status: "invalid_phone" }
+    }
+
+    const tokenHash = await sha256Hex(args.token.trim())
+    const row = await ctx.db
+      .query("whatsappVerifications")
+      .withIndex("by_tokenHash", (q) => q.eq("tokenHash", tokenHash))
+      .unique()
+
+    if (!row) return { status: "not_found" }
+    if (row.phone !== phone) return { status: "phone_mismatch" }
+
+    const timestamp = now()
+    if (row.status === "verified") {
+      return { status: "already_verified" }
+    }
+    if (row.status === "expired" || row.expiresAt <= timestamp) {
+      if (row.status !== "expired") {
+        await ctx.db.patch(row._id, { status: "expired" })
+      }
+      return { status: "expired" }
+    }
+
+    const user = await ctx.db.get(row.userId)
+    if (!user) return { status: "not_found" }
+
+    await ctx.db.patch(row._id, {
+      status: "verified",
+      verifiedAt: timestamp,
+      messageId: args.messageId,
+    })
+    await ctx.db.patch(user._id, {
+      whatsappVerified: true,
+      whatsappVerifiedAt: timestamp,
+      updatedAt: timestamp,
+    })
+    await writeAudit(ctx, {
+      actorId: user._id,
+      actorRole: "system",
+      action: "users.whatsappVerified",
+      entityType: "users",
+      entityId: user._id,
+      reason: "WhatsApp verification token consumed",
+      before: { whatsappVerified: false },
+      after: { whatsappVerified: true, messageId: args.messageId },
+    })
+
+    return { status: "verified" }
+  },
+})
+
+/** Resolves the login email for a verified-format WhatsApp number. */
+export const emailForPhone = internalQuery({
+  args: { phone: v.string() },
+  handler: async (ctx, args): Promise<string | null> => {
+    let phone: string
+    try {
+      phone = normalizeIndonesianPhone(args.phone)
+    } catch {
+      return null
+    }
+
+    const users = await ctx.db
+      .query("users")
+      .withIndex("by_phone", (q) => q.eq("phone", phone))
+      .collect()
+
+    return users[0]?.email ?? null
+  },
+})
+
 /**
  * Creates the first admin. This is an internal mutation, callable only from
  * the Convex CLI or another internal function. There is no public elevation
@@ -431,6 +706,8 @@ export const bootstrapAdmin = internalMutation({
     email: v.string(),
     name: v.string(),
     region: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    province: v.optional(v.string()),
   },
   handler: async (ctx, args): Promise<Id<"users">> => {
     const users = await ctx.db.query("users").collect()
@@ -443,6 +720,10 @@ export const bootstrapAdmin = internalMutation({
 
     const timestamp = now()
     const email = args.email.trim().toLowerCase()
+    const phone = args.phone ? phoneOrThrow(args.phone) : ""
+    const province = args.province
+      ? provinceOrThrow(args.province)
+      : (args.region ?? "")
     const existing = args.authUserId
       ? await ctx.db
           .query("users")
@@ -463,12 +744,28 @@ export const bootstrapAdmin = internalMutation({
       })
     }
 
+    if (phone) {
+      const duplicates = await ctx.db
+        .query("users")
+        .withIndex("by_phone", (q) => q.eq("phone", phone))
+        .collect()
+      if (duplicates.some((user) => user._id !== existing?._id)) {
+        throw new ConvexError({
+          code: "PHONE_TAKEN",
+          message: "Nomor WhatsApp ini sudah dipakai akun lain.",
+        })
+      }
+    }
+
     let userId: Id<"users">
     if (existing) {
       userId = existing._id
       await ctx.db.patch(userId, {
         roles: ["admin"],
         status: "active",
+        ...(phone ? { phone } : {}),
+        ...(province ? { province, region: province } : {}),
+        whatsappVerified: true,
         updatedAt: timestamp,
       })
     } else {
@@ -477,8 +774,11 @@ export const bootstrapAdmin = internalMutation({
         name: args.name,
         email,
         emailVerified: true,
+        phone,
+        province,
+        whatsappVerified: true,
         initials: initialsFor(args.name),
-        region: args.region ?? "",
+        region: province,
         roles: ["admin"],
         status: "active",
         createdAt: timestamp,

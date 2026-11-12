@@ -3,13 +3,29 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ArrowRight, KeyRound } from "lucide-react"
+import { useMutation } from "convex/react"
+import { ArrowRight, KeyRound, MessageCircle } from "lucide-react"
 
 import { BrandLockup } from "@/components/brand/brand-mark"
 import { Button } from "@/components/ui/button"
+import { api } from "@/convex/_generated/api"
 import { authClient } from "@/lib/auth-client"
+import { PROVINCES } from "@/lib/regions/provinces"
 
 type Mode = "signin" | "signup"
+
+function errorMessage(caught: unknown, fallback: string): string {
+  if (caught && typeof caught === "object" && "data" in caught) {
+    const data = (caught as { data?: { message?: string } }).data
+    if (data?.message) return data.message
+  }
+  return caught instanceof Error ? caught.message : fallback
+}
+
+type CompleteProfile = (args: {
+  phone: string
+  province: string
+}) => Promise<{ waUrl: string; expiresAt: number }>
 
 export function SignInForm({
   nextPath,
@@ -18,13 +34,48 @@ export function SignInForm({
   nextPath: string
   configured: boolean
 }) {
+  if (!configured) {
+    return (
+      <SignInFormView
+        nextPath={nextPath}
+        configured={false}
+        completeProfile={null}
+      />
+    )
+  }
+  return <ConfiguredSignInForm nextPath={nextPath} />
+}
+
+function ConfiguredSignInForm({ nextPath }: { nextPath: string }) {
+  const completeProfile = useMutation(api.users.completeProfile)
+  return (
+    <SignInFormView
+      nextPath={nextPath}
+      configured
+      completeProfile={completeProfile}
+    />
+  )
+}
+
+function SignInFormView({
+  nextPath,
+  configured,
+  completeProfile,
+}: {
+  nextPath: string
+  configured: boolean
+  completeProfile: CompleteProfile | null
+}) {
   const router = useRouter()
   const [mode, setMode] = React.useState<Mode>("signin")
   const [name, setName] = React.useState("")
+  const [phone, setPhone] = React.useState("")
+  const [province, setProvince] = React.useState("")
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const [error, setError] = React.useState<string | null>(null)
   const [pending, setPending] = React.useState(false)
+  const [waUrl, setWaUrl] = React.useState<string | null>(null)
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -37,34 +88,65 @@ export function SignInForm({
       setError("Kata sandi minimal 8 karakter.")
       return
     }
+    if (!phone.trim()) {
+      setError("Nomor WhatsApp wajib diisi.")
+      return
+    }
+    if (mode === "signup" && !province) {
+      setError("Pilih provinsi asal.")
+      return
+    }
 
     setPending(true)
     try {
-      const result =
-        mode === "signup"
-          ? await authClient.signUp.email({
-              name: name.trim() || email.split("@")[0],
-              email: email.trim(),
-              password,
-            })
-          : await authClient.signIn.email({
-              email: email.trim(),
-              password,
-            })
+      if (mode === "signup") {
+        const result = await authClient.signUp.email({
+          name: name.trim() || email.split("@")[0],
+          email: email.trim(),
+          password,
+        })
 
-      if (result.error) {
-        setError(result.error.message ?? "Tidak dapat masuk. Periksa data akun.")
+        if (result.error) {
+          setError(
+            result.error.message ?? "Tidak dapat mendaftar. Periksa data akun.",
+          )
+          return
+        }
+
+        if (!completeProfile) {
+          setError("Profil WhatsApp belum dapat disimpan.")
+          return
+        }
+
+        const profile = await completeProfile({
+          phone: phone.trim(),
+          province,
+        })
+        setWaUrl(profile.waUrl)
+        return
+      }
+
+      const response = await fetch("/api/auth/phone-signin", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ phone: phone.trim(), password }),
+      })
+
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as {
+          message?: string
+        } | null
+        setError(
+          payload?.message ??
+            "Nomor WhatsApp atau kata sandi tidak cocok.",
+        )
         return
       }
 
       router.replace(nextPath)
       router.refresh()
     } catch (caught) {
-      setError(
-        caught instanceof Error
-          ? caught.message
-          : "Tidak dapat masuk. Coba lagi.",
-      )
+      setError(errorMessage(caught, "Tidak dapat masuk. Coba lagi."))
     } finally {
       setPending(false)
     }
@@ -128,8 +210,8 @@ export function SignInForm({
             </h2>
             <p className="mt-2 text-[11.5px] leading-relaxed text-ink-muted">
               {mode === "signin"
-                ? "Gunakan email dan kata sandi akun KalaNidhi."
-                : "Akun peserta dibuat dengan email. Peran pengajar dan pengelola hanya melalui undangan."}
+                ? "Gunakan nomor WhatsApp dan kata sandi akun KalaNidhi. Email hanya untuk pemulihan."
+                : "WhatsApp adalah identitas utama. Email tetap wajib untuk pemulihan dan pemberitahuan. Peran pengajar dan pengelola hanya melalui undangan."}
             </p>
 
             {!configured ? (
@@ -140,97 +222,173 @@ export function SignInForm({
               </div>
             ) : null}
 
-            <form onSubmit={onSubmit} className="mt-5 space-y-3.5">
-              {mode === "signup" ? (
-                <label className="block">
-                  <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-ink-muted">
-                    Nama
-                  </span>
-                  <input
-                    name="name"
-                    autoComplete="name"
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    className="mt-1 flex min-h-11 w-full border border-ink/30 bg-cream px-3 text-[13px] text-ink outline-none focus:border-copper-dark"
-                    placeholder="Nama lengkap"
-                  />
-                </label>
-              ) : null}
-
-              <label className="block">
-                <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-ink-muted">
-                  Email
-                </span>
-                <input
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  className="mt-1 flex min-h-11 w-full border border-ink/30 bg-cream px-3 text-[13px] text-ink outline-none focus:border-copper-dark"
-                  placeholder="nama@email.com"
-                />
-              </label>
-
-              <label className="block">
-                <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-ink-muted">
-                  Kata sandi
-                </span>
-                <input
-                  name="password"
-                  type="password"
-                  required
-                  minLength={8}
-                  autoComplete={
-                    mode === "signin" ? "current-password" : "new-password"
-                  }
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  className="mt-1 flex min-h-11 w-full border border-ink/30 bg-cream px-3 text-[13px] text-ink outline-none focus:border-copper-dark"
-                  placeholder="Minimal 8 karakter"
-                />
-              </label>
-
-              {error ? (
-                <p
-                  role="alert"
-                  className="border border-destructive/40 bg-destructive/10 px-3 py-2 text-[11px] leading-relaxed text-destructive"
-                >
-                  {error}
+            {waUrl ? (
+              <div className="mt-5 space-y-3 border border-copper-dark/35 bg-copper/10 p-4">
+                <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-copper-dark">
+                  Verifikasi WhatsApp
                 </p>
-              ) : null}
+                <p className="text-[11.5px] leading-relaxed text-ink-soft">
+                  Kirim pesan itu dari WhatsApp nomor ini. Tautan berlaku 15
+                  menit. Setelah terverifikasi, ruang kerja akan terbuka.
+                </p>
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-11 items-center gap-2 border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper transition-colors hover:bg-ink-2"
+                >
+                  <MessageCircle className="size-3.5" aria-hidden="true" />
+                  Buka WhatsApp
+                </a>
+                <p className="break-all border border-ink/15 bg-cream px-2 py-1.5 text-[9.5px] leading-relaxed text-ink-muted">
+                  {waUrl}
+                </p>
+                <Link
+                  href={nextPath}
+                  className="inline-flex min-h-11 items-center text-[10px] font-bold uppercase tracking-[0.08em] text-copper-dark underline decoration-copper-dark/40 underline-offset-4 hover:text-ink"
+                >
+                  Saya sudah mengirim pesan
+                </Link>
+              </div>
+            ) : (
+              <>
+                <form onSubmit={onSubmit} className="mt-5 space-y-3.5">
+                  {mode === "signup" ? (
+                    <label className="block">
+                      <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-ink-muted">
+                        Nama lengkap
+                      </span>
+                      <input
+                        name="name"
+                        autoComplete="name"
+                        value={name}
+                        onChange={(event) => setName(event.target.value)}
+                        className="mt-1 flex min-h-11 w-full border border-ink/30 bg-cream px-3 text-[13px] text-ink outline-none focus:border-copper-dark"
+                        placeholder="Nama lengkap"
+                      />
+                    </label>
+                  ) : null}
 
-              <Button
-                type="submit"
-                size="lg"
-                disabled={pending || !configured}
-                className="w-full"
-              >
-                {pending
-                  ? "Memproses…"
-                  : mode === "signin"
-                    ? "Masuk"
-                    : "Buat akun peserta"}
-                <ArrowRight className="size-4" aria-hidden="true" />
-              </Button>
-            </form>
+                  <label className="block">
+                    <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-ink-muted">
+                      Nomor WhatsApp
+                    </span>
+                    <input
+                      name="phone"
+                      type="tel"
+                      required
+                      inputMode="tel"
+                      autoComplete="tel"
+                      value={phone}
+                      onChange={(event) => setPhone(event.target.value)}
+                      className="mt-1 flex min-h-11 w-full border border-ink/30 bg-cream px-3 text-[13px] text-ink outline-none focus:border-copper-dark"
+                      placeholder="08xx xxxx xxxx"
+                    />
+                  </label>
 
-            <div className="mt-5 border-t border-ink/15 pt-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setMode(mode === "signin" ? "signup" : "signin")
-                  setError(null)
-                }}
-                className="inline-flex min-h-11 items-center gap-2 text-[11px] font-semibold text-copper-dark underline decoration-copper-dark/40 underline-offset-4 hover:text-ink"
-              >
-                <KeyRound className="size-3.5" aria-hidden="true" />
-                {mode === "signin"
-                  ? "Belum punya akun? Daftar sebagai peserta"
-                  : "Sudah punya akun? Masuk"}
-              </button>
-            </div>
+                  {mode === "signup" ? (
+                    <label className="block">
+                      <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-ink-muted">
+                        Provinsi
+                      </span>
+                      <select
+                        name="province"
+                        required
+                        value={province}
+                        onChange={(event) => setProvince(event.target.value)}
+                        className="mt-1 flex min-h-11 w-full border border-ink/30 bg-cream px-3 text-[13px] text-ink outline-none focus:border-copper-dark"
+                      >
+                        <option value="">Pilih provinsi</option>
+                        {PROVINCES.map((item) => (
+                          <option key={item.code} value={item.name}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  ) : null}
+
+                  {mode === "signup" ? (
+                    <label className="block">
+                      <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-ink-muted">
+                        Email
+                      </span>
+                      <input
+                        name="email"
+                        type="email"
+                        required
+                        autoComplete="email"
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                        className="mt-1 flex min-h-11 w-full border border-ink/30 bg-cream px-3 text-[13px] text-ink outline-none focus:border-copper-dark"
+                        placeholder="nama@email.com"
+                      />
+                      <span className="mt-1 block text-[9.5px] leading-relaxed text-ink-muted">
+                        Sekunder: untuk pemulihan akun dan pemberitahuan.
+                      </span>
+                    </label>
+                  ) : null}
+
+                  <label className="block">
+                    <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-ink-muted">
+                      Kata sandi
+                    </span>
+                    <input
+                      name="password"
+                      type="password"
+                      required
+                      minLength={8}
+                      autoComplete={
+                        mode === "signin" ? "current-password" : "new-password"
+                      }
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      className="mt-1 flex min-h-11 w-full border border-ink/30 bg-cream px-3 text-[13px] text-ink outline-none focus:border-copper-dark"
+                      placeholder="Minimal 8 karakter"
+                    />
+                  </label>
+
+                  {error ? (
+                    <p
+                      role="alert"
+                      className="border border-destructive/40 bg-destructive/10 px-3 py-2 text-[11px] leading-relaxed text-destructive"
+                    >
+                      {error}
+                    </p>
+                  ) : null}
+
+                  <Button
+                    type="submit"
+                    size="lg"
+                    disabled={pending || !configured}
+                    className="w-full"
+                  >
+                    {pending
+                      ? "Memproses…"
+                      : mode === "signin"
+                        ? "Masuk"
+                        : "Buat akun peserta"}
+                    <ArrowRight className="size-4" aria-hidden="true" />
+                  </Button>
+                </form>
+
+                <div className="mt-5 border-t border-ink/15 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode(mode === "signin" ? "signup" : "signin")
+                      setError(null)
+                    }}
+                    className="inline-flex min-h-11 items-center gap-2 text-[11px] font-semibold text-copper-dark underline decoration-copper-dark/40 underline-offset-4 hover:text-ink"
+                  >
+                    <KeyRound className="size-3.5" aria-hidden="true" />
+                    {mode === "signin"
+                      ? "Belum punya akun? Daftar sebagai peserta"
+                      : "Sudah punya akun? Masuk"}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
 
           <p className="mt-5 text-[10px] leading-relaxed text-ink-muted">

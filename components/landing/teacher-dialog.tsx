@@ -56,13 +56,19 @@ export function TeacherDialog({
 
         <div className="grid gap-5 sm:grid-cols-[170px_1fr]">
           <div className="relative aspect-[4/5] overflow-hidden border-2 border-ink bg-panel">
-            <Image
-              src={teacher.image}
-              alt={`Foto ${teacher.name}`}
-              fill
-              sizes="(min-width: 640px) 170px, 92vw"
-              className="object-cover"
-            />
+            {teacher.image ? (
+              <Image
+                src={teacher.image}
+                alt={`Foto ${teacher.name}`}
+                fill
+                sizes="(min-width: 640px) 170px, 92vw"
+                className="object-cover"
+              />
+            ) : (
+              <span className="flex size-full items-center justify-center font-heading text-3xl text-ink-muted">
+                {teacher.initials}
+              </span>
+            )}
           </div>
           <div className="space-y-4">
             <blockquote className="border-l-2 border-copper pl-4 font-heading text-[1.25rem] italic leading-snug text-ink">

@@ -9,6 +9,12 @@ export const identityTables = {
     name: v.string(),
     email: v.string(),
     emailVerified: v.boolean(),
+    /** Primary identity. E.164 without the leading plus, e.g. 6287784454555. */
+    phone: v.string(),
+    /** Indonesian province selected at signup. */
+    province: v.string(),
+    whatsappVerified: v.boolean(),
+    whatsappVerifiedAt: v.optional(v.number()),
     image: v.optional(v.string()),
     initials: v.string(),
     region: v.string(),
@@ -22,9 +28,33 @@ export const identityTables = {
   })
     .index("by_authUserId", ["authUserId"])
     .index("by_email", ["email"])
+    .index("by_phone", ["phone"])
     .index("by_status", ["status"])
     .index("by_createdAt", ["createdAt"])
     .searchIndex("search_name", { searchField: "name" }),
+
+  /**
+   * One-time WhatsApp verification challenges. The raw token is shown once in
+   * the wa.me link; only its hash is stored.
+   */
+  whatsappVerifications: defineTable({
+    userId: v.id("users"),
+    phone: v.string(),
+    tokenHash: v.string(),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("verified"),
+      v.literal("expired"),
+    ),
+    expiresAt: v.number(),
+    createdAt: v.number(),
+    verifiedAt: v.optional(v.number()),
+    messageId: v.optional(v.string()),
+  })
+    .index("by_tokenHash", ["tokenHash"])
+    .index("by_userId", ["userId"])
+    .index("by_phone", ["phone"])
+    .index("by_status", ["status"]),
 
   /** Append-only: grants and revocations are events, never rewritten. */
   roleAssignments: defineTable({

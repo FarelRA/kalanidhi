@@ -57,13 +57,15 @@ export function PathDialog({
         </DialogHeader>
 
         <div className="relative aspect-[16/9] overflow-hidden border border-ink/20 bg-panel">
-          <Image
-            src={path.image}
-            alt={`Suasana jalur ${path.title}`}
-            fill
-            sizes="(min-width: 640px) 640px, 92vw"
-            className="object-cover"
-          />
+          {path.image ? (
+            <Image
+              src={path.image}
+              alt={`Suasana jalur ${path.title}`}
+              fill
+              sizes="(min-width: 640px) 640px, 92vw"
+              className="object-cover"
+            />
+          ) : null}
           {path.comingSoon ? (
             <span className="stamp absolute left-3 top-3 bg-paper-2 text-ink">
               {path.priceLabel}

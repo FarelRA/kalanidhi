@@ -50,6 +50,9 @@ export type Viewer = {
   authUserId: string
   name: string
   email: string
+  phone: string
+  province: string
+  whatsappVerified: boolean
   whatsapp?: string
   initials: string
   region: string
@@ -73,6 +76,9 @@ export type ViewerSeed = {
   authUserId?: string
   name: string
   email: string
+  phone?: string
+  province?: string
+  whatsappVerified?: boolean
   whatsapp?: string
   initials?: string
   region?: string

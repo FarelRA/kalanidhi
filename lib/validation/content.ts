@@ -34,11 +34,15 @@ const imageSource = z
   .trim()
   .min(1)
   .refine(
-    (value) =>
-      value.startsWith("/") ||
-      value.startsWith("https://") ||
-      value.startsWith("http://"),
-    { message: "Sumber gambar harus path lokal atau URL http(s)." },
+    (value) => {
+      try {
+        const parsed = new URL(value)
+        return parsed.protocol === "http:" || parsed.protocol === "https:"
+      } catch {
+        return false
+      }
+    },
+    { message: "Sumber gambar harus URL Convex storage http(s)." },
   )
 
 const href = z.string().trim().min(1).max(600).refine(

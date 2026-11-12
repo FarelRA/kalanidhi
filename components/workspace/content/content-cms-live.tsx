@@ -112,7 +112,7 @@ function templateFor(path: string[]): unknown {
       weeks: 1,
       tasks: 1,
       price: null,
-      image: "/images/hero-canting.jpg",
+      image: "",
       tags: [],
       outcome: "",
       includes: [],
@@ -128,7 +128,7 @@ function templateFor(path: string[]): unknown {
       focus: "",
       path: "",
       community: "",
-      image: "/images/teacher-hardjono.jpg",
+      image: "",
       verified: false,
     },
     works: {
@@ -146,7 +146,7 @@ function templateFor(path: string[]): unknown {
       techniqueNote: "",
       workCard: "",
       description: "",
-      image: "/images/work-soga.jpg",
+      image: "",
     },
     testimonials: {
       quote: "",

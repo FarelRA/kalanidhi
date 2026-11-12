@@ -22,7 +22,6 @@ async function seedTeacherDossier(
       focus: "Batik tulis",
       path: "Batik Tulis Soga",
       community: "Sanggar Soga Giriloyo",
-      image: "/images/teacher-hardjono.jpg",
       verified: false,
       userId,
       pathIds: ["batik-tulis-soga"],

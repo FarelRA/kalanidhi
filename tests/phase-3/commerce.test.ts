@@ -25,7 +25,11 @@ async function admin(t: ReturnType<typeof createTestDb>) {
   })
 }
 
-function workInput(pathId = PATH, certificateId?: Id<"certificates">) {
+function workInput(
+  pathId = PATH,
+  certificateId?: Id<"certificates">,
+  imageAssetId?: Id<"mediaAssets">,
+) {
   return {
     title: "Kain Soga Anyaman",
     pathId,
@@ -35,7 +39,7 @@ function workInput(pathId = PATH, certificateId?: Id<"certificates">) {
     technique: "Batik tulis",
     techniqueNote: "Soga alam",
     description: "Kain soga dengan provenans lengkap.",
-    image: "/images/works/batik.jpg",
+    imageAssetId,
     kind: "product" as const,
     category: "batik" as const,
     permission: "Izin komunitas Giriloyo",
@@ -51,7 +55,7 @@ describe("works / scope and moderation", () => {
 
     const result = await t
       .withIdentity({ subject: "auth-seller" })
-      .mutation(api.commerce.createWork, workInput(PATH, seller.certificateId ?? undefined))
+      .mutation(api.commerce.createWork, workInput(PATH, seller.certificateId ?? undefined, seller.imageAssetId))
 
     const card = await t.run(async (ctx) =>
       ctx.db
@@ -106,13 +110,13 @@ describe("works / scope and moderation", () => {
 
     await expect(
       identity.mutation(api.commerce.createWork, {
-        ...workInput(PATH, seller.certificateId ?? undefined),
+        ...workInput(PATH, seller.certificateId ?? undefined, seller.imageAssetId),
         price: 0,
       }),
     ).rejects.toThrow()
     await expect(
       identity.mutation(api.commerce.createWork, {
-        ...workInput(PATH, seller.certificateId ?? undefined),
+        ...workInput(PATH, seller.certificateId ?? undefined, seller.imageAssetId),
         unit: "",
       }),
     ).rejects.toThrow()
@@ -124,8 +128,9 @@ describe("works / scope and moderation", () => {
     const created = await t
       .withIdentity({ subject: "auth-incomplete" })
       .mutation(api.commerce.createWork, {
-        ...workInput(PATH, seller.certificateId ?? undefined),
+        ...workInput(PATH, seller.certificateId ?? undefined, seller.imageAssetId),
         image: "",
+        imageAssetId: undefined,
         permission: "",
         provenance: "",
         materials: "",
@@ -149,7 +154,7 @@ describe("works / scope and moderation", () => {
 
     const created = await t
       .withIdentity({ subject: "auth-flow" })
-      .mutation(api.commerce.createWork, workInput(PATH, seller.certificateId ?? undefined))
+      .mutation(api.commerce.createWork, workInput(PATH, seller.certificateId ?? undefined, seller.imageAssetId))
     const cardStatus = async () =>
       await t.run(async (ctx) => {
         const card = await ctx.db
@@ -197,7 +202,7 @@ describe("works / scope and moderation", () => {
 
     const created = await t
       .withIdentity({ subject: "auth-wrong-teacher" })
-      .mutation(api.commerce.createWork, workInput(PATH, seller.certificateId ?? undefined))
+      .mutation(api.commerce.createWork, workInput(PATH, seller.certificateId ?? undefined, seller.imageAssetId))
     await t
       .withIdentity({ subject: "auth-wrong-teacher" })
       .mutation(api.commerce.submitWork, { workId: created.workId })
@@ -448,6 +453,9 @@ describe("guest checkout and claim", () => {
       authUserId: "auth-buyer-claim",
       email: "claim@example.test",
       emailVerified: true,
+      phone: "6280000000000",
+      province: "DI Yogyakarta",
+      whatsappVerified: true,
     })
 
     const result = await t

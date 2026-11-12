@@ -7,7 +7,16 @@ import type {
   ContentRevisionStatus,
   ContentRevisionSummary,
 } from "../lib/admin/types"
-import type { SiteCopy, SiteData } from "../lib/content/types"
+import type {
+  CatalogField,
+  Faq,
+  LearningPath,
+  SiteCopy,
+  SiteData,
+  Teacher,
+  Testimonial,
+  Work,
+} from "../lib/content/types"
 import { siteDataSchema, validateSiteData } from "../lib/validation/content"
 import { now, requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
@@ -33,7 +42,39 @@ function withoutSystemFields<T extends { _id: unknown; _creationTime: number }>(
   return rest
 }
 
-function toCopy(data: SiteData): SiteCopy {
+type StoredLearningPath = Omit<LearningPath, "image"> & {
+  imageAssetId: Id<"mediaAssets">
+}
+type StoredTeacher = Omit<Teacher, "image"> & {
+  imageAssetId: Id<"mediaAssets">
+}
+type StoredWork = Omit<Work, "image"> & {
+  imageAssetId: Id<"mediaAssets">
+}
+
+type StoredSiteCopy = Omit<SiteCopy, "hero" | "metadata"> & {
+  hero: Omit<SiteCopy["hero"], "plate"> & {
+    plate: Omit<SiteCopy["hero"]["plate"], "image"> & {
+      imageAssetId: Id<"mediaAssets">
+    }
+  }
+  metadata: Omit<SiteCopy["metadata"], "image"> & {
+    image: Omit<SiteCopy["metadata"]["image"], "url"> & {
+      imageAssetId: Id<"mediaAssets">
+    }
+  }
+}
+
+export type StoredSiteData = StoredSiteCopy & {
+  catalog: SiteCopy["catalog"] & { fields: CatalogField[] }
+  paths: StoredLearningPath[]
+  teachers: StoredTeacher[]
+  works: StoredWork[]
+  testimonials: Testimonial[]
+  faqs: Faq[]
+}
+
+export function toStoredCopy(data: StoredSiteData): StoredSiteCopy {
   return {
     hero: data.hero,
     traction: data.traction,
@@ -62,6 +103,140 @@ function toCopy(data: SiteData): SiteCopy {
 
 type AnyCtx = QueryCtx | MutationCtx
 
+type AssetUrlCache = Map<string, string | null>
+
+async function assetUrl(
+  ctx: AnyCtx,
+  id: Id<"mediaAssets">,
+  cache: AssetUrlCache,
+): Promise<string> {
+  const key = id as string
+  if (cache.has(key)) {
+    const cached = cache.get(key)
+    if (!cached) {
+      throw new ConvexError({
+        code: "MEDIA_MISSING",
+        message: `Aset gambar ${id} tidak ditemukan di penyimpanan.`,
+      })
+    }
+    return cached
+  }
+  const asset = await ctx.db.get(id)
+  const url = asset
+    ? asset.storageId
+      ? await ctx.storage.getUrl(asset.storageId)
+      : (asset.externalUrl ?? null)
+    : null
+  cache.set(key, url)
+  if (!url) {
+    throw new ConvexError({
+      code: "MEDIA_MISSING",
+      message: `Aset gambar ${id} tidak ditemukan di penyimpanan.`,
+    })
+  }
+  return url
+}
+
+async function resolveStoredCopy(
+  ctx: AnyCtx,
+  stored: StoredSiteCopy,
+  cache: AssetUrlCache,
+): Promise<SiteCopy> {
+  const { imageAssetId: heroImageId, ...plate } = stored.hero.plate
+  const { imageAssetId: metadataImageId, ...metadataImage } = stored.metadata.image
+  return {
+    ...stored,
+    hero: {
+      ...stored.hero,
+      plate: { ...plate, image: await assetUrl(ctx, heroImageId, cache) },
+    },
+    metadata: {
+      ...stored.metadata,
+      image: {
+        ...metadataImage,
+        url: await assetUrl(ctx, metadataImageId, cache),
+      },
+    },
+  }
+}
+
+async function assetIdForUrl(
+  ctx: AnyCtx,
+  url: string,
+  cache: Map<string, Id<"mediaAssets">>,
+): Promise<Id<"mediaAssets">> {
+  const trimmed = url.trim()
+  if (!trimmed) {
+    throw new ConvexError({
+      code: "MEDIA_REQUIRED",
+      message: "Setiap gambar wajib merujuk aset media.",
+    })
+  }
+  const cached = cache.get(trimmed)
+  if (cached) return cached
+
+  const assets = await ctx.db.query("mediaAssets").collect()
+  for (const asset of assets) {
+    const candidate = asset.storageId
+      ? await ctx.storage.getUrl(asset.storageId)
+      : asset.externalUrl
+    if (candidate && candidate === trimmed) {
+      cache.set(trimmed, asset._id)
+      return asset._id
+    }
+  }
+  throw new ConvexError({
+    code: "MEDIA_NOT_FOUND",
+    message: `Gambar ${trimmed} tidak ada di penyimpanan Convex.`,
+  })
+}
+
+async function toStoredSiteData(
+  ctx: AnyCtx,
+  data: SiteData,
+): Promise<StoredSiteData> {
+  const cache = new Map<string, Id<"mediaAssets">>()
+  return {
+    ...data,
+    hero: {
+      ...data.hero,
+      plate: {
+        alt: data.hero.plate.alt,
+        caption: data.hero.plate.caption,
+        note: data.hero.plate.note,
+        imageAssetId: await assetIdForUrl(ctx, data.hero.plate.image, cache),
+      },
+    },
+    metadata: {
+      ...data.metadata,
+      image: {
+        width: data.metadata.image.width,
+        height: data.metadata.image.height,
+        alt: data.metadata.image.alt,
+        imageAssetId: await assetIdForUrl(ctx, data.metadata.image.url, cache),
+      },
+    },
+    paths: await Promise.all(
+      data.paths.map(async ({ image, ...rest }) => ({
+        ...rest,
+        imageAssetId: await assetIdForUrl(ctx, image, cache),
+      })),
+    ),
+    teachers: await Promise.all(
+      data.teachers.map(async ({ image, ...rest }) => ({
+        ...rest,
+        imageAssetId: await assetIdForUrl(ctx, image, cache),
+      })),
+    ),
+    works: await Promise.all(
+      data.works.map(async ({ image, ...rest }) => ({
+        ...rest,
+        imageAssetId: await assetIdForUrl(ctx, image, cache),
+      })),
+    ),
+  }
+}
+
 /** Reads the currently published content from the public tables. */
 export async function assemblePublishedSite(
   ctx: AnyCtx,
@@ -82,30 +257,58 @@ export async function assemblePublishedSite(
       ctx.db.query("faqs").withIndex("by_order").collect(),
     ])
 
-  const copy = site.value as SiteCopy
+  const cache: AssetUrlCache = new Map()
+  const copy = await resolveStoredCopy(
+    ctx,
+    site.value as StoredSiteCopy,
+    cache,
+  )
+
+  const resolveEntity = async <
+    T extends {
+      _id: unknown
+      _creationTime: number
+      imageAssetId?: Id<"mediaAssets">
+    },
+  >(
+    document: T,
+  ) => {
+    const { imageAssetId, ...rest } = withoutSystemFields(document)
+    return {
+      ...rest,
+      image: imageAssetId ? await assetUrl(ctx, imageAssetId, cache) : "",
+    }
+  }
+
   return {
     ...copy,
     catalog: {
       ...copy.catalog,
       fields: catalogFields.map(withoutSystemFields),
     },
-    paths: paths
-      .filter((path) => path.status !== "archived")
-      .map(withoutSystemFields),
-    teachers: teachers
-      .filter(
-        (teacher) =>
-          teacher.published !== false &&
-          teacher.status !== "review" &&
-          teacher.status !== "suspended",
-      )
-      .map(withoutSystemFields),
-    works: works
-      .filter(
-        (work) =>
-          work.status === undefined || work.status === "published",
-      )
-      .map(withoutSystemFields),
+    paths: await Promise.all(
+      paths
+        .filter((path) => path.status !== "archived")
+        .map((path) => resolveEntity(path)),
+    ),
+    teachers: await Promise.all(
+      teachers
+        .filter(
+          (teacher) =>
+            teacher.published !== false &&
+            teacher.status !== "review" &&
+            teacher.status !== "suspended",
+        )
+        .map((teacher) => resolveEntity(teacher)),
+    ),
+    works: await Promise.all(
+      works
+        .filter(
+          (work) =>
+            work.status === undefined || work.status === "published",
+        )
+        .map((work) => resolveEntity(work)),
+    ),
     testimonials: testimonials.map(withoutSystemFields),
     faqs: faqs.map(withoutSystemFields),
   } as SiteData
@@ -401,6 +604,7 @@ async function applySiteData(
   ctx: MutationCtx,
   data: SiteData,
 ): Promise<void> {
+  const stored = await toStoredSiteData(ctx, data)
   const timestamp = now()
   const site = await ctx.db
     .query("siteContent")
@@ -409,13 +613,13 @@ async function applySiteData(
 
   if (site) {
     await ctx.db.patch(site._id, {
-      value: toCopy(data),
+      value: toStoredCopy(stored),
       updatedAt: timestamp,
     })
   } else {
     await ctx.db.insert("siteContent", {
       key: CONTENT_KEY,
-      value: toCopy(data),
+      value: toStoredCopy(stored),
       updatedAt: timestamp,
     })
   }
@@ -454,7 +658,7 @@ async function applySiteData(
       tasks: path.tasks,
       price: path.price,
       priceLabel: path.priceLabel,
-      image: path.image,
+      imageAssetId: stored.paths[index].imageAssetId,
       tags: path.tags,
       outcome: path.outcome,
       includes: path.includes,
@@ -495,7 +699,7 @@ async function applySiteData(
       focus: teacher.focus,
       path: teacher.path,
       community: teacher.community,
-      image: teacher.image,
+      imageAssetId: stored.teachers[index].imageAssetId,
     }
     if (existing) {
       await ctx.db.patch(existing._id, {
@@ -543,7 +747,7 @@ async function applySiteData(
       techniqueNote: work.techniqueNote,
       workCard: work.workCard,
       description: work.description,
-      image: work.image,
+      imageAssetId: stored.works[index].imageAssetId,
     }
     if (existing) {
       await ctx.db.patch(existing._id, record)

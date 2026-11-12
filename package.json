@@ -15,7 +15,8 @@
     "convex:deploy": "convex deploy",
     "convex:codegen": "convex codegen",
     "convex:seed": "convex run seed:run",
-    "convex:seed:if-empty": "convex run seed:runIfEmpty"
+    "convex:seed:if-empty": "convex run seed:runIfEmpty",
+    "images:upload": "node scripts/upload-images.mjs"
   },
   "dependencies": {
     "@convex-dev/better-auth": "^0.13.0",
