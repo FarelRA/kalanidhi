@@ -60,6 +60,36 @@ npx convex run users:bootstrapAdmin '{"email":"admin@example.com","name":"Nama A
 Detail kontrak, matriks kemampuan, dan handoff ada di
 [docs/phase-0-foundation.md](./docs/phase-0-foundation.md).
 
+### Convex self-hosted
+
+Produksi memakai Convex self-hosted di Nodus. Untuk menghubungkan repo ke
+deployment itu:
+
+```bash
+export CONVEX_SELF_HOSTED_URL=https://convex.kalanidhi.site
+export CONVEX_SELF_HOSTED_ADMIN_KEY="$(cat /home/podman/services/data/kalanidhi/convex-admin-key)"
+npx convex deploy
+```
+
+App memakai:
+
+```sh
+CONVEX_URL=https://convex.kalanidhi.site
+NEXT_PUBLIC_CONVEX_URL=https://convex.kalanidhi.site
+NEXT_PUBLIC_CONVEX_SITE_URL=https://convex-site.kalanidhi.site
+```
+
+Secret fungsi diset pada deployment self-hosted:
+
+```bash
+npx convex env set BETTER_AUTH_SECRET "$(openssl rand -base64 32)"
+npx convex env set SITE_URL https://kalanidhi.site
+npx convex env set PAYMENTS_INTERNAL_KEY "<same as app>"
+```
+
+Langkah lengkap, DNS, firewall, LiveKit, dan payment gateway ada di
+[docs/self-hosting.md](./docs/self-hosting.md).
+
 Di terminal lain, isi database dengan konten awal:
 
 ```bash
