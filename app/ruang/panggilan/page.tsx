@@ -6,6 +6,16 @@ export const metadata: Metadata = {
   title: "Panggilan",
 }
 
-export default function Page() {
-  return <CallRoom />
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ call?: string; percakapan?: string }>
+}) {
+  const params = await searchParams
+  return (
+    <CallRoom
+      initialCallId={params.call}
+      initialConversationId={params.percakapan}
+    />
+  )
 }

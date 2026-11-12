@@ -61,6 +61,16 @@ import type {
   ReceiptView,
 } from "../../lib/messaging/types"
 import type {
+  CallAcceptResult,
+  CallDeclineResult,
+  CallDetail,
+  CallEndResult,
+  CallOverview,
+  CallRecordingConsentResult,
+  CallStartResult,
+  CallSummary,
+} from "../../lib/calls/types"
+import type {
   DisputeView,
   GatewayHealthView,
   GuestOrderView,
@@ -2115,6 +2125,112 @@ export type PublicApiType = {
         reason: string
       },
       null
+    >
+  }
+  calls: {
+    startCall: FunctionReference<
+      "mutation",
+      "public",
+      {
+        conversationId?: Id<"conversations">
+        cohortSessionId?: Id<"cohortSessions">
+        kind: "audio" | "video"
+      },
+      CallStartResult
+    >
+    scheduleCall: FunctionReference<
+      "mutation",
+      "public",
+      {
+        conversationId?: Id<"conversations">
+        cohortSessionId?: Id<"cohortSessions">
+        kind: "audio" | "video"
+        startsAt?: number
+        endsAt?: number
+      },
+      CallStartResult
+    >
+    cancelCall: FunctionReference<
+      "mutation",
+      "public",
+      { callId: Id<"callSessions">; reason?: string },
+      { status: "cancelled" }
+    >
+    ring: FunctionReference<
+      "mutation",
+      "public",
+      { callId: Id<"callSessions"> },
+      { status: "ringing" }
+    >
+    accept: FunctionReference<
+      "mutation",
+      "public",
+      { callId: Id<"callSessions"> },
+      CallAcceptResult
+    >
+    decline: FunctionReference<
+      "mutation",
+      "public",
+      { callId: Id<"callSessions">; reason?: string },
+      CallDeclineResult
+    >
+    end: FunctionReference<
+      "mutation",
+      "public",
+      { callId: Id<"callSessions">; reason?: string },
+      CallEndResult
+    >
+    markMissed: FunctionReference<
+      "mutation",
+      "public",
+      { callId: Id<"callSessions">; reason?: string },
+      { status: "missed" }
+    >
+    recordParticipant: FunctionReference<
+      "mutation",
+      "public",
+      {
+        callId: Id<"callSessions">
+        event: "join" | "leave" | "quality"
+        quality?: string
+      },
+      null
+    >
+    setRecordingConsent: FunctionReference<
+      "mutation",
+      "public",
+      { callId: Id<"callSessions">; consent: boolean },
+      CallRecordingConsentResult
+    >
+    reportCall: FunctionReference<
+      "mutation",
+      "public",
+      { callId: Id<"callSessions">; reason: string },
+      null
+    >
+    getCall: FunctionReference<
+      "query",
+      "public",
+      { callId: Id<"callSessions"> },
+      CallDetail
+    >
+    listUpcoming: FunctionReference<
+      "query",
+      "public",
+      { limit?: number },
+      CallSummary[]
+    >
+    listHistory: FunctionReference<
+      "query",
+      "public",
+      { limit?: number },
+      CallSummary[]
+    >
+    callOverview: FunctionReference<
+      "query",
+      "public",
+      Record<string, never>,
+      CallOverview
     >
   }
 }
