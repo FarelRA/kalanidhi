@@ -38,7 +38,14 @@ import { certificates, works } from "@/lib/workspace/mock-data"
 import type { Certificate } from "@/lib/workspace/types"
 import { formatWorkspaceDate } from "@/lib/workspace/format"
 
+import { LiveCredentialBoard } from "./live-credential-board"
+
 export function CredentialBoard() {
+  const { isPreview } = useViewer()
+  return isPreview ? <PreviewCredentialBoard /> : <LiveCredentialBoard />
+}
+
+function PreviewCredentialBoard() {
   const { can } = useViewer()
   const [tab, setTab] = React.useState("mine")
   const [selected, setSelected] = React.useState<Certificate | null>(null)

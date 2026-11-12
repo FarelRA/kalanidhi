@@ -17,9 +17,16 @@ import { scheduleSessions } from "@/lib/workspace/mock-data"
 import { formatWorkspaceDate } from "@/lib/workspace/format"
 import { cn } from "cn"
 
+import { LiveScheduleBoard } from "./live-schedule-board"
+
 const dayOrder = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"] as const
 
 export function ScheduleBoard() {
+  const { isPreview } = useViewer()
+  return isPreview ? <PreviewScheduleBoard /> : <LiveScheduleBoard />
+}
+
+function PreviewScheduleBoard() {
   const { can } = useViewer()
   const [tab, setTab] = React.useState("all")
   const [availability, setAvailability] = React.useState<Record<string, boolean>>({

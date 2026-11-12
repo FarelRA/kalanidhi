@@ -28,7 +28,14 @@ import type { Cohort, Enrollment } from "@/lib/workspace/types"
 import { formatIDR } from "@/lib/format"
 import { formatWorkspaceDate } from "@/lib/workspace/format"
 
+import { LiveLearningBoard } from "./live-learning-board"
+
 export function LearningBoard() {
+  const { isPreview } = useViewer()
+  return isPreview ? <PreviewLearningBoard /> : <LiveLearningBoard />
+}
+
+function PreviewLearningBoard() {
   const { can } = useViewer()
   const [tab, setTab] = React.useState("jalur")
   const [cohort, setCohort] = React.useState<Cohort | null>(null)

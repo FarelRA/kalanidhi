@@ -33,7 +33,14 @@ import { submissions } from "@/lib/workspace/mock-data"
 import type { Submission } from "@/lib/workspace/types"
 import { formatWorkspaceDateTime } from "@/lib/workspace/format"
 
+import { LiveTaskBoard } from "./live-task-board"
+
 export function TaskBoard() {
+  const { isPreview } = useViewer()
+  return isPreview ? <PreviewTaskBoard /> : <LiveTaskBoard />
+}
+
+function PreviewTaskBoard() {
   const { can } = useViewer()
   const [tab, setTab] = React.useState(
     can("submissions.grade") ? "queue" : "mine",
