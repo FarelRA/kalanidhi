@@ -17,6 +17,7 @@ export const credentialTables = {
     issuedAt: v.number(),
     revokedAt: v.optional(v.number()),
     revokeReason: v.optional(v.string()),
+    revokedBy: v.optional(v.string()),
     replacedBy: v.optional(v.id("certificates")),
     snapshot: v.object({
       studentName: v.string(),
@@ -33,6 +34,7 @@ export const credentialTables = {
     .index("by_studentId", ["studentId"])
     .index("by_pathId", ["pathId"])
     .index("by_teacherId", ["teacherId"])
+    .index("by_assessmentId", ["assessmentId"])
     .index("by_status", ["status"]),
 
   certificateEvents: defineTable({

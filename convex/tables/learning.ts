@@ -84,6 +84,9 @@ export const learningTables = {
     withdrawnAt: v.optional(v.number()),
     withdrawReason: v.optional(v.string()),
     certificateId: v.optional(v.id("certificates")),
+    /** Phase 2 extension: per-enrollment due date managed by admins. */
+    deadlineAt: v.optional(v.number()),
+    lastActivityAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -91,7 +94,9 @@ export const learningTables = {
     .index("by_cohortId", ["cohortId"])
     .index("by_pathId", ["pathId"])
     .index("by_status", ["status"])
-    .index("by_student_cohort", ["studentId", "cohortId"]),
+    .index("by_student_cohort", ["studentId", "cohortId"])
+    .index("by_cohort_status", ["cohortId", "status"])
+    .index("by_path_status", ["pathId", "status"]),
 
   lessonProgress: defineTable({
     userId: v.id("users"),
@@ -124,6 +129,10 @@ export const learningTables = {
     evidenceText: v.optional(v.string()),
     assetIds: v.array(v.id("submissionAssets")),
     revisionCount: v.number(),
+    /** Phase 2 extension: admin escalation metadata; never a grade. */
+    escalatedAt: v.optional(v.number()),
+    escalatedBy: v.optional(v.string()),
+    escalationReason: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -132,7 +141,9 @@ export const learningTables = {
     .index("by_cohortId", ["cohortId"])
     .index("by_pathId", ["pathId"])
     .index("by_status", ["status"])
-    .index("by_submittedAt", ["submittedAt"]),
+    .index("by_submittedAt", ["submittedAt"])
+    .index("by_cohort_status", ["cohortId", "status"])
+    .index("by_student_status", ["studentId", "status"]),
 
   submissionAssets: defineTable({
     submissionId: v.id("submissions"),
@@ -164,6 +175,9 @@ export const learningTables = {
     score: v.optional(v.number()),
     feedback: v.optional(v.string()),
     assessedAt: v.optional(v.number()),
+    /** Phase 2 extension: audited override metadata. */
+    overrideReason: v.optional(v.string()),
+    secondReviewerId: v.optional(v.id("users")),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
