@@ -238,6 +238,44 @@ async function toStoredSiteData(
 }
 
 /** Reads the currently published content from the public tables. */
+type FeaturedSelection = {
+  pathSlugs: string[]
+  teacherSlugs: string[]
+  workSlugs: string[]
+  testimonialIds: string[]
+}
+
+function featuredSelection(value: unknown): FeaturedSelection | null {
+  if (!value || typeof value !== "object") return null
+  const raw = (value as { featured?: unknown }).featured
+  if (!raw || typeof raw !== "object") return null
+  const record = raw as Record<string, unknown>
+  const list = (key: string): string[] =>
+    Array.isArray(record[key])
+      ? (record[key] as unknown[]).filter(
+          (item): item is string => typeof item === "string",
+        )
+      : []
+  return {
+    pathSlugs: list("pathSlugs"),
+    teacherSlugs: list("teacherSlugs"),
+    workSlugs: list("workSlugs"),
+    testimonialIds: list("testimonialIds"),
+  }
+}
+
+function orderByKeys<T>(
+  items: T[],
+  keys: string[] | undefined,
+  keyOf: (item: T) => string,
+): T[] {
+  if (!keys) return items
+  const byKey = new Map(items.map((item) => [keyOf(item), item] as const))
+  return keys
+    .map((key) => byKey.get(key))
+    .filter((item): item is T => item !== undefined)
+}
+
 export async function assemblePublishedSite(
   ctx: AnyCtx,
 ): Promise<SiteData | null> {
@@ -257,6 +295,7 @@ export async function assemblePublishedSite(
       ctx.db.query("faqs").withIndex("by_order").collect(),
     ])
 
+  const featured = featuredSelection(site.value)
   const cache: AssetUrlCache = new Map()
   const copy = await resolveStoredCopy(
     ctx,
@@ -287,29 +326,39 @@ export async function assemblePublishedSite(
       fields: catalogFields.map(withoutSystemFields),
     },
     paths: await Promise.all(
-      paths
-        .filter((path) => path.status !== "archived")
-        .map((path) => resolveEntity(path)),
+      orderByKeys(
+        paths.filter((path) => path.status !== "archived"),
+        featured?.pathSlugs,
+        (path) => path.slug,
+      ).map((path) => resolveEntity(path)),
     ),
     teachers: await Promise.all(
-      teachers
-        .filter(
+      orderByKeys(
+        teachers.filter(
           (teacher) =>
             teacher.published !== false &&
             teacher.status !== "review" &&
             teacher.status !== "suspended",
-        )
-        .map((teacher) => resolveEntity(teacher)),
+        ),
+        featured?.teacherSlugs,
+        (teacher) => teacher.slug,
+      ).map((teacher) => resolveEntity(teacher)),
     ),
     works: await Promise.all(
-      works
-        .filter(
+      orderByKeys(
+        works.filter(
           (work) =>
             work.status === undefined || work.status === "published",
-        )
-        .map((work) => resolveEntity(work)),
+        ),
+        featured?.workSlugs,
+        (work) => work.slug,
+      ).map((work) => resolveEntity(work)),
     ),
-    testimonials: testimonials.map(withoutSystemFields),
+    testimonials: orderByKeys(
+      testimonials,
+      featured?.testimonialIds,
+      (testimonial) => testimonial._id,
+    ).map(withoutSystemFields),
     faqs: faqs.map(withoutSystemFields),
   } as SiteData
 }
@@ -1209,5 +1258,158 @@ export const validateDraft = query({
       issues: result.issues,
       parsed: result.data ? siteDataSchema.safeParse(result.data).success : false,
     }
+  },
+})
+
+/** Published entities the admin can choose from for the landing page. */
+export const getFeaturedOptions = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx, "content.publish")
+    const [site, paths, teachers, works, testimonials] = await Promise.all([
+      ctx.db
+        .query("siteContent")
+        .withIndex("by_key", (q) => q.eq("key", CONTENT_KEY))
+        .unique(),
+      ctx.db.query("paths").withIndex("by_order").collect(),
+      ctx.db.query("teachers").withIndex("by_order").collect(),
+      ctx.db.query("works").withIndex("by_order").collect(),
+      ctx.db.query("testimonials").withIndex("by_order").collect(),
+    ])
+
+    return {
+      paths: paths
+        .filter((path) => path.status !== "archived")
+        .map((path) => ({ slug: path.slug, title: path.title })),
+      teachers: teachers
+        .filter(
+          (teacher) =>
+            teacher.published !== false &&
+            teacher.status !== "review" &&
+            teacher.status !== "suspended",
+        )
+        .map((teacher) => ({ slug: teacher.slug, name: teacher.name })),
+      works: works
+        .filter(
+          (work) =>
+            work.status === undefined || work.status === "published",
+        )
+        .map((work) => ({ slug: work.slug, title: work.title })),
+      testimonials: testimonials.map((testimonial) => ({
+        id: testimonial._id,
+        quote: testimonial.quote,
+        name: testimonial.name,
+      })),
+      featured: featuredSelection(site?.value),
+    }
+  },
+})
+
+/**
+ * Stores the landing selection. The admin chooses existing published records;
+ * no catalog, teacher, work, or testimonial copy is typed here.
+ */
+export const setFeatured = mutation({
+  args: {
+    pathSlugs: v.array(v.string()),
+    teacherSlugs: v.array(v.string()),
+    workSlugs: v.array(v.string()),
+    testimonialIds: v.array(v.string()),
+    reason: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { viewer } = await requireAdmin(ctx, "content.publish")
+    const reason = requireReason(args.reason)
+    const site = await ctx.db
+      .query("siteContent")
+      .withIndex("by_key", (q) => q.eq("key", CONTENT_KEY))
+      .unique()
+    if (!site) {
+      throw new ConvexError({
+        code: "NOT_FOUND",
+        message: "Konten landing belum tersedia.",
+      })
+    }
+
+    const [paths, teachers, works, testimonials] = await Promise.all([
+      ctx.db.query("paths").withIndex("by_order").collect(),
+      ctx.db.query("teachers").withIndex("by_order").collect(),
+      ctx.db.query("works").withIndex("by_order").collect(),
+      ctx.db.query("testimonials").withIndex("by_order").collect(),
+    ])
+
+    const unique = (values: string[]) => Array.from(new Set(values))
+    const pathSlugs = unique(args.pathSlugs)
+    const teacherSlugs = unique(args.teacherSlugs)
+    const workSlugs = unique(args.workSlugs)
+    const testimonialIds = unique(args.testimonialIds)
+
+    const validPaths = new Set(
+      paths
+        .filter((path) => path.status !== "archived")
+        .map((path) => path.slug),
+    )
+    const validTeachers = new Set(
+      teachers
+        .filter(
+          (teacher) =>
+            teacher.published !== false &&
+            teacher.status !== "review" &&
+            teacher.status !== "suspended",
+        )
+        .map((teacher) => teacher.slug),
+    )
+    const validWorks = new Set(
+      works
+        .filter(
+          (work) =>
+            work.status === undefined || work.status === "published",
+        )
+        .map((work) => work.slug),
+    )
+    const validTestimonials = new Set(
+      testimonials.map((testimonial) => testimonial._id as string),
+    )
+
+    if (pathSlugs.some((slug) => !validPaths.has(slug))) {
+      throw new ConvexError({
+        code: "INVALID_PATH",
+        message: "Ada jalur yang tidak tersedia untuk landing.",
+      })
+    }
+    if (teacherSlugs.some((slug) => !validTeachers.has(slug))) {
+      throw new ConvexError({
+        code: "INVALID_TEACHER",
+        message: "Ada pengajar yang tidak tersedia untuk landing.",
+      })
+    }
+    if (workSlugs.some((slug) => !validWorks.has(slug))) {
+      throw new ConvexError({
+        code: "INVALID_WORK",
+        message: "Ada karya yang tidak tersedia untuk landing.",
+      })
+    }
+    if (testimonialIds.some((id) => !validTestimonials.has(id))) {
+      throw new ConvexError({
+        code: "INVALID_TESTIMONIAL",
+        message: "Ada testimoni yang tidak tersedia untuk landing.",
+      })
+    }
+
+    const value = {
+      ...(site.value as Record<string, unknown>),
+      featured: { pathSlugs, teacherSlugs, workSlugs, testimonialIds },
+    }
+    await ctx.db.patch(site._id, { value, updatedAt: now() })
+    await appendAudit(ctx, {
+      actorId: viewer.userId,
+      actorRole: viewer.roleLabel,
+      action: "content.featured.update",
+      entityType: "siteContent",
+      entityId: site._id,
+      reason,
+      after: { pathSlugs, teacherSlugs, workSlugs, testimonialIds },
+    })
+    return null
   },
 })
