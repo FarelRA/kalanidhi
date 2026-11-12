@@ -54,12 +54,26 @@ export const commerceTables = {
     createdAt: v.number(),
     updatedAt: v.number(),
     paidAt: v.optional(v.number()),
+    // Phase 3 additive fields. Guest checkout is scoped by an unguessable
+    // token hash, never by a client-supplied role or email.
+    tokenHash: v.optional(v.string()),
+    idempotencyKey: v.optional(v.string()),
+    consentVersion: v.optional(v.string()),
+    consentAt: v.optional(v.number()),
+    claimedAt: v.optional(v.number()),
+    deliveredAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+    cancelledAt: v.optional(v.number()),
+    cancelReason: v.optional(v.string()),
   })
     .index("by_code", ["code"])
     .index("by_buyerUserId", ["buyerUserId"])
     .index("by_sellerId", ["sellerId"])
     .index("by_status", ["status"])
-    .index("by_createdAt", ["createdAt"]),
+    .index("by_createdAt", ["createdAt"])
+    .index("by_tokenHash", ["tokenHash"])
+    .index("by_idempotencyKey", ["idempotencyKey"])
+    .index("by_workId", ["workId"]),
 
   orderItems: defineTable({
     orderId: v.id("orders"),
@@ -95,6 +109,21 @@ export const commerceTables = {
     lastReconciledAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
+    // Phase 3 additive fields. Base amount, unique amount, and gateway fee are
+    // recorded separately: the offset covers reconciliation only, never revenue.
+    gatewayFee: v.optional(v.number()),
+    qrString: v.optional(v.string()),
+    qrImageUrl: v.optional(v.string()),
+    reconciliationState: v.optional(
+      v.union(
+        v.literal("none"),
+        v.literal("late"),
+        v.literal("unmatched"),
+        v.literal("duplicate"),
+      ),
+    ),
+    reconciliationReason: v.optional(v.string()),
+    settledEventId: v.optional(v.string()),
   })
     .index("by_orderId", ["orderId"])
     .index("by_status", ["status"])
@@ -142,10 +171,23 @@ export const commerceTables = {
     reason: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
+    // Phase 3 additive fields: one allocation row per settled order, plus
+    // compensating rows for refunds after release. Negative rows are new
+    // entries; a paid row is never rewritten.
+    orderId: v.optional(v.id("orders")),
+    paymentId: v.optional(v.id("payments")),
+    dueAt: v.optional(v.number()),
+    kind: v.optional(v.union(v.literal("sale"), v.literal("reversal"))),
+    reversalOf: v.optional(v.id("payouts")),
+    holdReason: v.optional(v.string()),
+    paidAmount: v.optional(v.number()),
+    reference: v.optional(v.string()),
   })
     .index("by_teacherId", ["teacherId"])
     .index("by_status", ["status"])
-    .index("by_periodStart", ["periodStart"]),
+    .index("by_periodStart", ["periodStart"])
+    .index("by_orderId", ["orderId"])
+    .index("by_teacherId_status", ["teacherId", "status"]),
 
   refunds: defineTable({
     orderId: v.id("orders"),
@@ -165,9 +207,13 @@ export const commerceTables = {
     createdAt: v.number(),
     updatedAt: v.number(),
     paidAt: v.optional(v.number()),
+    // Phase 3 additive fields.
+    evidence: v.optional(v.string()),
+    reviewedAt: v.optional(v.number()),
   })
     .index("by_orderId", ["orderId"])
-    .index("by_status", ["status"]),
+    .index("by_status", ["status"])
+    .index("by_createdAt", ["createdAt"]),
 
   /** Append-only. Corrections are reversal entries, never edits. */
   ledgerEntries: defineTable({
@@ -175,6 +221,7 @@ export const commerceTables = {
     paymentId: v.optional(v.id("payments")),
     payoutId: v.optional(v.id("payouts")),
     refundId: v.optional(v.id("refunds")),
+    teacherId: v.optional(v.id("users")),
     account: v.union(
       v.literal("teacher"),
       v.literal("platform"),
@@ -201,5 +248,6 @@ export const commerceTables = {
     .index("by_payoutId", ["payoutId"])
     .index("by_refundId", ["refundId"])
     .index("by_account", ["account"])
+    .index("by_teacherId", ["teacherId"])
     .index("by_createdAt", ["createdAt"]),
 }
