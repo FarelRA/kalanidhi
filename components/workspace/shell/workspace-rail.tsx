@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ArrowUpRight } from "lucide-react"
 
 import { BrandLockup } from "@/components/brand/brand-mark"
 import {
@@ -16,7 +15,7 @@ import { cn } from "cn"
 
 export function WorkspaceRail() {
   const pathname = usePathname()
-  const { capabilities, profile } = useViewer()
+  const { capabilities } = useViewer()
   const items = visibleNav(capabilities)
   const current = activeNav(pathname)
 
@@ -33,19 +32,6 @@ export function WorkspaceRail() {
         >
           <BrandLockup markSize={36} tone="paper" />
         </Link>
-        <div className="mt-4 flex items-center gap-2 border border-paper/20 px-2 py-1.5">
-          <span className="flex size-6 items-center justify-center border border-brass/40 bg-brass/10 font-heading text-[9px] font-semibold text-brass">
-            {profile.user.initials}
-          </span>
-          <span className="min-w-0">
-            <span className="block truncate text-[10px] font-semibold leading-tight text-paper">
-              {profile.user.name}
-            </span>
-            <span className="block truncate text-[8px] font-bold uppercase tracking-[0.06em] text-paper/55">
-              {profile.user.roleLabel}
-            </span>
-          </span>
-        </div>
       </div>
 
       <nav className="min-h-0 flex-1 overflow-y-auto px-2.5 py-4">
@@ -93,19 +79,6 @@ export function WorkspaceRail() {
           )
         })}
       </nav>
-
-      <div className="border-t border-paper/15 px-4 py-4">
-        <Link
-          href="/"
-          className="flex min-h-10 items-center justify-between gap-2 border border-paper/20 px-2.5 py-2 text-[10px] font-bold uppercase tracking-[0.07em] text-paper/65 transition-colors hover:border-brass/50 hover:text-paper"
-        >
-          Lihat situs publik
-          <ArrowUpRight className="size-3.5" aria-hidden="true" />
-        </Link>
-        <p className="mt-3 text-[8px] leading-relaxed text-paper/40">
-          KalaNidhi Digital · ruang kerja
-        </p>
-      </div>
     </aside>
   )
 }
