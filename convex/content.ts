@@ -285,6 +285,7 @@ function normalizeTraction(value: unknown): TractionContent {
 /** Legacy footer labels that used to resolve to the wrong anchor. */
 function legacyFooterHref(label: string, href: string): string {
   if (label === "Tentang KalaNidhi Digital") return PUBLIC_ROUTES.about
+  if (label === "Rak bahan") return PUBLIC_ROUTES.fields
   return publicHref(href)
 }
 
@@ -296,6 +297,7 @@ function normalizeFooter(footer: ContentDocument["footer"]) {
       ...column,
       links: column.links.map((link) => ({
         ...link,
+        label: link.label === "Rak bahan" ? "Bidang" : link.label,
         href: legacyFooterHref(link.label, link.href),
       })),
     })),
@@ -306,8 +308,27 @@ function normalizeNavigation(navigation: ContentDocument["navigation"]) {
   if (!navigation) return navigation
   return navigation.map((item) => ({
     ...item,
-    href: publicHref(item.href),
+    label: item.label === "Rak bahan" ? "Bidang" : item.label,
+    href:
+      item.label === "Rak bahan" ? PUBLIC_ROUTES.fields : publicHref(item.href),
   }))
+}
+
+/** Legacy catalog copy used the "rak bahan" metaphor. */
+function normalizeCatalog(catalog: ContentDocument["catalog"]) {
+  if (!catalog) return catalog
+  return {
+    ...catalog,
+    label: catalog.label === "Rak bahan" ? "Peta bidang" : catalog.label,
+    title:
+      catalog.title === "Rak ini tumbuh satu per satu, bersama pengajarnya."
+        ? "Bidang ini tumbuh satu per satu, bersama pengajarnya."
+        : catalog.title,
+    description: catalog.description.replace(
+      "Rak di bawah menunjukkan",
+      "Peta di bawah menunjukkan",
+    ),
+  }
 }
 
 function normalizeContentDocument(value: unknown): ContentDocument {
@@ -324,15 +345,7 @@ function normalizeContentDocument(value: unknown): ContentDocument {
           returnCaveat: raw.loop.returnCaveat ?? fallback.loop.returnCaveat,
         }
       : raw.loop,
-    catalog: raw.catalog
-      ? {
-          label: raw.catalog.label,
-          title: raw.catalog.title,
-          description: raw.catalog.description,
-          cta: raw.catalog.cta,
-          groups: raw.catalog.groups,
-        }
-      : raw.catalog,
+    catalog: normalizeCatalog(raw.catalog),
     mangsa: raw.mangsa,
     ethics: raw.ethics
       ? {

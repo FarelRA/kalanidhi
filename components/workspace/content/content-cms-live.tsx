@@ -37,7 +37,7 @@ const GROUPS: { id: string; label: string; path: string[] }[] = [
   { id: "hero", label: "Hero", path: ["hero"] },
   { id: "traction", label: "Capaian", path: ["traction"] },
   { id: "loop", label: "Lingkaran", path: ["loop"] },
-  { id: "catalog", label: "Rak bahan", path: ["catalog"] },
+  { id: "catalog", label: "Peta bidang", path: ["catalog"] },
   { id: "mangsa", label: "Musim", path: ["mangsa"] },
   { id: "ethics", label: "Etika dan bagi hasil", path: ["ethics"] },
   { id: "institution", label: "Institusi", path: ["institution"] },

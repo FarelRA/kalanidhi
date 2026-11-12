@@ -5,6 +5,7 @@
  */
 export const PUBLIC_ROUTES = {
   home: "/",
+  fields: "/bidang",
   paths: "/jalur",
   teachers: "/pengajar",
   works: "/karya",
@@ -27,6 +28,7 @@ export const PUBLIC_ROUTES = {
 /** Static pages that must exist for header, footer, and policy links. */
 export const PUBLIC_STATIC_ROUTES = [
   PUBLIC_ROUTES.home,
+  PUBLIC_ROUTES.fields,
   PUBLIC_ROUTES.paths,
   PUBLIC_ROUTES.teachers,
   PUBLIC_ROUTES.works,

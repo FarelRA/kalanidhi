@@ -113,7 +113,13 @@ export function MaterialShelf({ catalog }: { catalog: SiteData["catalog"] }) {
           })}
         </div>
 
-        <div className="mt-12 border-t border-ink/20 pt-6 text-right">
+        <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-ink/20 pt-6">
+          <Link
+            href={PUBLIC_ROUTES.fields}
+            className="inline-flex min-h-11 items-center text-[10.5px] font-bold uppercase tracking-[0.06em] text-copper-dark hover:text-ink"
+          >
+            Buka peta bidang
+          </Link>
           <Button asChild className="bg-ink text-paper hover:bg-ink-2">
             <Link href={PUBLIC_ROUTES.paths}>{catalog.cta}</Link>
           </Button>

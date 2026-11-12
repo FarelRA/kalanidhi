@@ -164,10 +164,10 @@ export const siteSeed: SeedSiteCopy = {
     ],
   },
   catalog: {
-    label: "Rak bahan",
-    title: "Rak ini tumbuh satu per satu, bersama pengajarnya.",
+    label: "Peta bidang",
+    title: "Bidang ini tumbuh satu per satu, bersama pengajarnya.",
     description:
-      "Katalog tumbuh dari pengajar yang masuk. Rak di bawah menunjukkan mana yang sudah bisa dikerjakan sekarang, mana yang sedang disiapkan, dan mana yang masih menunggu pengajar.",
+      "Katalog tumbuh dari pengajar yang masuk. Peta di bawah menunjukkan mana yang sudah bisa dikerjakan sekarang, mana yang sedang disiapkan, dan mana yang masih menunggu pengajar.",
     cta: "Lihat jalur yang terbuka",
     groups: [
       {
@@ -380,7 +380,7 @@ export const siteSeed: SeedSiteCopy = {
         title: "Isi bangku",
         links: [
           { label: "Lingkaran", href: ABOUT_LOOP_HREF },
-          { label: "Rak bahan", href: `${PUBLIC_ROUTES.home}#indeks` },
+          { label: "Bidang", href: PUBLIC_ROUTES.fields },
           { label: "Jalur belajar", href: PUBLIC_ROUTES.paths },
           { label: "Pengajar", href: PUBLIC_ROUTES.teachers },
           { label: "Karya dan jasa", href: PUBLIC_ROUTES.works },
@@ -429,7 +429,7 @@ export const siteSeed: SeedSiteCopy = {
   },
   navigation: [
     { label: "Lingkaran", href: ABOUT_LOOP_HREF },
-    { label: "Rak bahan", href: `${PUBLIC_ROUTES.home}#indeks` },
+    { label: "Bidang", href: PUBLIC_ROUTES.fields },
     { label: "Jalur", href: PUBLIC_ROUTES.paths },
     { label: "Pengajar", href: PUBLIC_ROUTES.teachers },
     { label: "Karya", href: PUBLIC_ROUTES.works },

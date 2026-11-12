@@ -2644,15 +2644,15 @@ export const cmsSections: CmsSection[] = [
   },
   {
     id: "catalog",
-    label: "Rak bahan",
-    description: "Kelompok kesiapan bidang dan deskripsi rak.",
+    label: "Peta bidang",
+    description: "Kelompok kesiapan bidang dan deskripsi peta.",
     fields: [
-      { id: "catalog.label", label: "Label", value: "Rak bahan" },
-      { id: "catalog.title", label: "Judul", value: "Rak ini tumbuh satu per satu, bersama pengajarnya." },
+      { id: "catalog.label", label: "Label", value: "Peta bidang" },
+      { id: "catalog.title", label: "Judul", value: "Bidang ini tumbuh satu per satu, bersama pengajarnya." },
       {
         id: "catalog.description",
         label: "Deskripsi",
-        value: "Katalog tumbuh dari pengajar yang masuk. Rak menunjukkan mana yang siap, sedang disiapkan, dan menunggu pengajar.",
+        value: "Katalog tumbuh dari pengajar yang masuk. Peta menunjukkan mana yang siap, sedang disiapkan, dan menunggu pengajar.",
         multiline: true,
       },
       { id: "catalog.cta", label: "Tombol", value: "Lihat jalur yang terbuka" },

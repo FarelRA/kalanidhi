@@ -343,7 +343,7 @@ export function SettingsPanel() {
               ["seller", "Ruang penjual", "Karya, pesanan, payout untuk pemegang sertifikat."],
               ["calls", "Panggilan suara dan video", "LiveKit, konsen, dan antrean panggilan."],
               ["recordings", "Rekaman sengketa", "Rekaman 30 hari dengan persetujuan dua pihak."],
-              ["newCatalog", "Rak bahan baru", "Bagian katalog eksperimental di landing."],
+              ["newCatalog", "Peta bidang baru", "Bagian katalog eksperimental di landing."],
               ["maintenance", "Mode pemeliharaan", "Landing menampilkan banner, ruang tetap terbuka."],
             ] as const
           ).map(([key, label, note]) => (
