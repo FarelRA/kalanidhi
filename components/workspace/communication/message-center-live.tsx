@@ -23,10 +23,12 @@ import {
   Send,
   ShieldAlert,
   Trash2,
+  Video,
   X,
 } from "lucide-react"
 import { useMutation, usePaginatedQuery, useQuery } from "convex/react"
 import type { GenericId } from "convex/values"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -74,6 +76,8 @@ type ModerationAction =
   | "close_conversation"
   | "remove_message"
 
+type JoinMode = "audio" | "video"
+
 type PendingVoice = {
   blob: Blob
   durationMs: number
@@ -84,6 +88,7 @@ type PendingVoice = {
 
 export function MessageCenterLive() {
   const { viewer, can } = useViewer()
+  const router = useRouter()
   const viewerId = viewer?.userId ?? ""
   const moderator = can("messages.moderate")
 
@@ -131,6 +136,7 @@ export function MessageCenterLive() {
   const [flagResolution, setFlagResolution] = React.useState("")
   const [flagRemoveMessage, setFlagRemoveMessage] = React.useState(false)
   const [uploading, setUploading] = React.useState(false)
+  const [callStarting, setCallStarting] = React.useState<JoinMode | null>(null)
 
   const recorderRef = React.useRef<MediaRecorder | null>(null)
   const chunksRef = React.useRef<Blob[]>([])
@@ -193,6 +199,7 @@ export function MessageCenterLive() {
 
   const startDirect = useMutation(api.messaging.startDirect)
   const startSupport = useMutation(api.messaging.startSupport)
+  const startCall = useMutation(api.calls.startCall)
   const joinSupport = useMutation(api.messaging.joinSupport)
   const muteConversation = useMutation(api.messaging.muteConversation)
   const unmuteConversation = useMutation(api.messaging.unmuteConversation)
@@ -323,6 +330,22 @@ export function MessageCenterLive() {
       toast("Percakapan langsung siap")
     } catch (error) {
       toast.error(errorMessage(error))
+    }
+  }
+
+  async function handleStartCall(kind: JoinMode) {
+    if (!activeId || callStarting) return
+    setCallStarting(kind)
+    try {
+      const result = await startCall({
+        conversationId: activeId as Id<"conversations">,
+        kind,
+      })
+      router.push(`/ruang/panggilan?call=${result.callId}`)
+    } catch (error) {
+      toast.error(errorMessage(error))
+    } finally {
+      setCallStarting(null)
     }
   }
 
@@ -876,11 +899,42 @@ export function MessageCenterLive() {
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-1">
-                <Button asChild size="icon-sm" variant="ghost">
-                  <Link href="/ruang/panggilan" aria-label="Panggilan suara">
-                    <Phone aria-hidden="true" />
-                  </Link>
-                </Button>
+                {can("calls.start") ? (
+                  <>
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      aria-label="Mulai panggilan suara"
+                      disabled={callStarting !== null}
+                      onClick={() => void handleStartCall("audio")}
+                    >
+                      {callStarting === "audio" ? (
+                        <Loader2 className="animate-spin" aria-hidden="true" />
+                      ) : (
+                        <Phone aria-hidden="true" />
+                      )}
+                    </Button>
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      aria-label="Mulai panggilan video"
+                      disabled={callStarting !== null}
+                      onClick={() => void handleStartCall("video")}
+                    >
+                      {callStarting === "video" ? (
+                        <Loader2 className="animate-spin" aria-hidden="true" />
+                      ) : (
+                        <Video aria-hidden="true" />
+                      )}
+                    </Button>
+                  </>
+                ) : (
+                  <Button asChild size="icon-sm" variant="ghost">
+                    <Link href="/ruang/panggilan" aria-label="Buka panggilan">
+                      <Phone aria-hidden="true" />
+                    </Link>
+                  </Button>
+                )}
                 <Button
                   size="icon-sm"
                   variant="ghost"

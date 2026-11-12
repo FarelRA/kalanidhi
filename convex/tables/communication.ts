@@ -196,8 +196,13 @@ export const communicationTables = {
     roomName: v.string(),
     kind: v.union(v.literal("voice"), v.literal("video"), v.literal("cohort")),
     initiatorId: v.id("users"),
+    /** Host for the waiting room: direct initiator or cohort teacher. */
+    hostId: v.optional(v.id("users")),
     cohortId: v.optional(v.id("cohorts")),
     conversationId: v.optional(v.id("conversations")),
+    /** Phase 5 extension: scheduled cohort session origin. */
+    cohortSessionId: v.optional(v.id("cohortSessions")),
+    title: v.optional(v.string()),
     status: v.union(
       v.literal("scheduled"),
       v.literal("ringing"),
@@ -205,19 +210,32 @@ export const communicationTables = {
       v.literal("ended"),
       v.literal("missed"),
       v.literal("declined"),
+      v.literal("cancelled"),
     ),
     scheduledAt: v.optional(v.number()),
+    scheduledEndsAt: v.optional(v.number()),
     startedAt: v.optional(v.number()),
     endedAt: v.optional(v.number()),
+    endedBy: v.optional(v.id("users")),
+    endReason: v.optional(v.string()),
+    durationMs: v.optional(v.number()),
+    qualitySummary: v.optional(v.string()),
+    cancelledAt: v.optional(v.number()),
     recordingConsent: v.union(
       v.literal("both"),
       v.literal("pending"),
       v.literal("declined"),
     ),
+    /** Phase 5 extension: metadata-only consent; no egress starts in this phase. */
+    recordingConsentUserIds: v.optional(v.array(v.id("users"))),
+    recordingDeclinedBy: v.optional(v.array(v.id("users"))),
+    recordingEnabled: v.optional(v.boolean()),
     createdAt: v.number(),
   })
     .index("by_roomName", ["roomName"])
     .index("by_initiatorId", ["initiatorId"])
+    .index("by_conversationId", ["conversationId"])
+    .index("by_cohortSessionId", ["cohortSessionId"])
     .index("by_status", ["status"])
     .index("by_scheduledAt", ["scheduledAt"]),
 
@@ -229,19 +247,36 @@ export const communicationTables = {
       v.literal("guest"),
       v.literal("support"),
     ),
+    /** Phase 5 extension: waiting-room and leave state. */
+    status: v.optional(
+      v.union(
+        v.literal("invited"),
+        v.literal("joined"),
+        v.literal("left"),
+        v.literal("declined"),
+      ),
+    ),
+    invitedAt: v.optional(v.number()),
     joinedAt: v.optional(v.number()),
     leftAt: v.optional(v.number()),
     quality: v.optional(v.string()),
   })
     .index("by_callId", ["callId"])
+    .index("by_call_user", ["callId", "userId"])
     .index("by_userId", ["userId"]),
 
   callEvents: defineTable({
     callId: v.id("callSessions"),
     kind: v.union(
+      v.literal("scheduled"),
       v.literal("ringing"),
       v.literal("accepted"),
+      v.literal("joined"),
+      v.literal("left"),
       v.literal("ended"),
+      v.literal("missed"),
+      v.literal("declined"),
+      v.literal("cancelled"),
       v.literal("quality"),
       v.literal("recording"),
     ),
