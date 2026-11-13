@@ -11,6 +11,8 @@ import type { MutationCtx } from "./_generated/server"
  * pile up on a single day.
  */
 export const DAY = 86_400_000
+/** Owner tag for media rows the seed itself creates, so reseeds can clear them. */
+export const SEED_ASSET_OWNER = "KalaNidhi"
 export const HOUR = 3_600_000
 export const SEED_NOW = Date.now()
 

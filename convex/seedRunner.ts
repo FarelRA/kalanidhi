@@ -1,10 +1,18 @@
 import { internal } from "./_generated/api"
 import { internalAction } from "./_generated/server"
+import { DAY, SEED_START } from "./seedIdentities"
+import { jakartaDayStart } from "./seedOperations"
 
 export const run = internalAction({
   args: {},
   handler: async (ctx): Promise<Record<string, unknown>> => {
-    await ctx.runMutation(internal.seed.clearAll)
+    // Convex caps a mutation at one second, so the workspace is cleared in
+    // budget-sized slices instead of one large transaction.
+    let cleared = false
+    while (!cleared) {
+      const result = await ctx.runMutation(internal.seed.clearBatch)
+      cleared = result.done
+    }
     await ctx.runMutation(internal.seedWorkspace.seedPeople)
     const content = await ctx.runMutation(internal.seed.seedContent)
     const curriculum = await ctx.runMutation(
@@ -27,9 +35,21 @@ export const run = internalAction({
     const governance = await ctx.runMutation(
       internal.seedOperations.seedGovernance,
     )
-    const metrics = await ctx.runMutation(
-      internal.seedOperations.seedMetrics,
-    )
+    await ctx.runMutation(internal.seedOperations.seedMetricDefinitions)
+    const now = Date.now()
+    let metricStart = jakartaDayStart(SEED_START)
+    let metricDays = 0
+    while (metricStart <= now) {
+      const metricEnd = Math.min(metricStart + 30 * DAY, now + 1)
+      const slice = await ctx.runMutation(
+        internal.seedOperations.seedMetrics,
+        { start: metricStart, end: metricEnd },
+      )
+      metricDays += slice.days
+      if (metricEnd > now) break
+      metricStart = metricEnd
+    }
+    const metrics = { days: metricDays }
     const audit = await ctx.runMutation(internal.seedOperations.seedAudit)
 
     return {

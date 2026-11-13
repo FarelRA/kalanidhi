@@ -23,6 +23,7 @@ import {
 } from "./_generated/server"
 import {
   DAY,
+  SEED_ASSET_OWNER,
   SEED_NOW as NOW,
   seedAdmin,
   seedAgo as ago,
@@ -111,47 +112,51 @@ const CLEAR_TABLES = [
   "breakGlassGrants",
 ] as const
 
-async function clearTable(ctx: MutationCtx, table: string) {
-  // The table list is a closed union of every domain table. Convex's typed
-  // query builder cannot infer a single table from a runtime string, so the
-  // seed uses the documented escape hatch here only.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const documents = await ctx.db.query(table as any).collect()
-  for (const document of documents) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await ctx.db.delete(table as any, document._id)
-  }
-}
-
-export const clearAll = internalMutation({
+export const clearBatch = internalMutation({
   args: {},
   handler: async (ctx) => {
+    let budget = 500
+
     for (const table of CLEAR_TABLES) {
-      await clearTable(ctx, table)
+      while (budget > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const documents = await ctx.db.query(table as any).take(100)
+        if (documents.length === 0) break
+        for (const document of documents) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await ctx.db.delete(table as any, document._id)
+          budget -= 1
+          if (budget <= 0) return { done: false }
+        }
+      }
     }
 
-    const users = await ctx.db.query("users").collect()
+    const users = await ctx.db.query("users").take(100)
     for (const user of users) {
       if (user.roles.includes("admin")) continue
       await ctx.db.delete(user._id)
+      budget -= 1
+      if (budget <= 0) return { done: false }
     }
 
-    const sessions = await ctx.db.query("sessions").collect()
+    const sessions = await ctx.db.query("sessions").take(100)
     for (const session of sessions) {
       const user = await ctx.db.get(session.userId)
-      if (!user || !user.roles.includes("admin")) {
-        await ctx.db.delete(session._id)
-      }
+      if (user && user.roles.includes("admin")) continue
+      await ctx.db.delete(session._id)
+      budget -= 1
+      if (budget <= 0) return { done: false }
     }
 
-    const assets = await ctx.db.query("mediaAssets").collect()
+    const assets = await ctx.db.query("mediaAssets").take(100)
     for (const asset of assets) {
-      if (asset.uploadedBy === "seed") {
-        await ctx.db.delete(asset._id)
-      }
+      if (asset.uploadedBy !== SEED_ASSET_OWNER) continue
+      await ctx.db.delete(asset._id)
+      budget -= 1
+      if (budget <= 0) return { done: false }
     }
 
-    return { cleared: true }
+    return { done: true }
   },
 })
 
@@ -516,7 +521,7 @@ export const seedContent = internalMutation({
       credit: "KalaNidhi Digital",
       permission: "Izin internal platform",
       status: "active",
-      uploadedBy: "Pengelola",
+      uploadedBy: SEED_ASSET_OWNER,
       createdAt: ago(60),
     })
     await ctx.db.insert("mediaAssets", {
@@ -531,7 +536,7 @@ export const seedContent = internalMutation({
       credit: "KalaNidhi Digital",
       permission: "Izin internal platform",
       status: "active",
-      uploadedBy: "Pengelola",
+      uploadedBy: SEED_ASSET_OWNER,
       createdAt: ago(60),
     })
 

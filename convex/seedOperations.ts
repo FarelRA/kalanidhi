@@ -1,3 +1,5 @@
+import { v } from "convex/values"
+
 import { FLOW_SPECS } from "../lib/flows/definitions"
 import type { Doc, Id } from "./_generated/dataModel"
 import { internalMutation, type MutationCtx } from "./_generated/server"
@@ -2498,7 +2500,7 @@ function jakartaDate(timestamp: number): string {
 }
 
 /** Jakarta midnight for a timestamp, used to bucket daily metrics. */
-function jakartaDayStart(timestamp: number): number {
+export function jakartaDayStart(timestamp: number): number {
   return Math.floor((timestamp + 7 * HOUR) / DAY) * DAY - 7 * HOUR
 }
 
@@ -2517,7 +2519,7 @@ function ratio(numerator: number, denominator: number): number {
   return numerator / denominator
 }
 
-export const seedMetrics = internalMutation({
+export const seedMetricDefinitions = internalMutation({
   args: {},
   handler: async (ctx) => {
     for (const definition of METRIC_DEFINITIONS) {
@@ -2532,7 +2534,18 @@ export const seedMetrics = internalMutation({
         updatedAt: NOW,
       })
     }
+    return { definitions: METRIC_DEFINITIONS.length }
+  },
+})
 
+/**
+ * Writes one slice of the daily metric history. Splitting the range keeps each
+ * mutation inside Convex's execution budget while still backfilling the whole
+ * January–November window from real events.
+ */
+export const seedMetrics = internalMutation({
+  args: { start: v.number(), end: v.number() },
+  handler: async (ctx, args) => {
     const [
       leads,
       enrollments,
@@ -2582,8 +2595,8 @@ export const seedMetrics = internalMutation({
 
     const days: number[] = []
     for (
-      let dayStart = jakartaDayStart(SEED_START);
-      dayStart <= NOW;
+      let dayStart = jakartaDayStart(Math.max(SEED_START, args.start));
+      dayStart < args.end && dayStart <= NOW;
       dayStart += DAY
     ) {
       days.push(dayStart)
@@ -2763,7 +2776,7 @@ export const seedMetrics = internalMutation({
       }
     }
 
-    return { definitions: METRIC_DEFINITIONS.length, days: days.length }
+    return { days: days.length }
   },
 })
 
