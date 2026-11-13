@@ -3,7 +3,7 @@ import { cacheLife } from "next/cache"
 import { fetchQuery } from "convex/nextjs"
 
 import { api } from "@/convex/_generated/api"
-import type { SeoOverride } from "@/lib/content/types"
+import type { SeoOverride, SiteData } from "@/lib/content/types"
 import { getSiteData } from "@/lib/convex/server"
 
 const convexUrl =
@@ -78,13 +78,36 @@ export function applySeoOverride(
   }
 }
 
+/**
+ * A page-level `openGraph` object replaces the root layout's object during
+ * Next's metadata merge, which would drop the site share image. Carry it
+ * forward unless the page supplied its own image or has no Open Graph object
+ * (in which case the layout value is inherited untouched).
+ */
+export function applyShareImage(
+  metadata: Metadata,
+  image: SiteData["metadata"]["image"] | null | undefined,
+): Metadata {
+  if (!metadata.openGraph || metadata.openGraph.images || !image?.url) {
+    return metadata
+  }
+  return {
+    ...metadata,
+    openGraph: { ...metadata.openGraph, images: [image] },
+  }
+}
+
 /** Builds page metadata with the route override taking precedence. */
 export async function buildPageMetadata(
   route: string,
   defaults: Metadata,
 ): Promise<Metadata> {
   const override = await getSeoOverride(route)
-  return applySeoOverride(defaults, override)
+  const merged = applySeoOverride(defaults, override)
+  if (!merged.openGraph || merged.openGraph.images) return merged
+
+  const data = await getSiteData().catch(() => null)
+  return applyShareImage(merged, data?.metadata.image)
 }
 
 /**

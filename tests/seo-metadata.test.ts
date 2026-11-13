@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { describe, expect, it } from "vitest"
 
-import { applySeoOverride } from "@/lib/content/metadata"
+import { applySeoOverride, applyShareImage } from "@/lib/content/metadata"
 import type { SeoOverride } from "@/lib/content/types"
 
 const defaults: Metadata = {
@@ -77,5 +77,43 @@ describe("SEO metadata overrides", () => {
     )
 
     expect(result.robots).toEqual({ index: false, follow: false })
+  })
+})
+
+describe("share image inheritance", () => {
+  const shareImage = {
+    url: "https://convex.example/api/storage/share",
+    width: 1408,
+    height: 768,
+    alt: "Proses membatik dengan canting",
+  }
+
+  it("carries the site image into a page-level Open Graph object", () => {
+    const result = applyShareImage(defaults, shareImage)
+
+    expect(result.openGraph?.images).toEqual([shareImage])
+    expect(result.openGraph?.title).toBe("OG bawaan")
+  })
+
+  it("keeps an image chosen by the page", () => {
+    const own = { url: "https://convex.example/api/storage/work" }
+    const result = applyShareImage(
+      { ...defaults, openGraph: { ...defaults.openGraph, images: [own] } },
+      shareImage,
+    )
+
+    expect(result.openGraph?.images).toEqual([own])
+  })
+
+  it("leaves metadata without Open Graph untouched so the layout is inherited", () => {
+    const pageMetadata: Metadata = { title: "Tanpa OG" }
+
+    expect(applyShareImage(pageMetadata, shareImage)).toBe(pageMetadata)
+  })
+
+  it("ignores an image without a URL", () => {
+    expect(
+      applyShareImage(defaults, { url: "", width: 0, height: 0, alt: "" }),
+    ).toBe(defaults)
   })
 })

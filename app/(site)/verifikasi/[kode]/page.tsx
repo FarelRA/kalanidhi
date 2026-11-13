@@ -4,6 +4,7 @@ import { connection } from "next/server"
 import { fetchQuery } from "convex/nextjs"
 import { BadgeCheck, ShieldCheck } from "lucide-react"
 
+import { BrandLockup } from "@/components/brand/brand-mark"
 import { api } from "@/convex/_generated/api"
 import { PUBLIC_ROUTES, verifyHref } from "@/lib/content/routes"
 import { getSiteData } from "@/lib/convex/server"
@@ -181,9 +182,10 @@ async function VerificationShell({ children }: { children: React.ReactNode }) {
         <div className="mb-6 flex items-center justify-between gap-3">
           <Link
             href={PUBLIC_ROUTES.home}
-            className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-soft hover:text-ink"
+            aria-label={siteName ?? "Beranda"}
+            className="inline-flex"
           >
-            {siteName ?? "Beranda"}
+            <BrandLockup markSize={26} />
           </Link>
           <Link
             href={PUBLIC_ROUTES.verify}
