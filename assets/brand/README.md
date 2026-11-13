@@ -7,8 +7,10 @@ Everything the app serves is derived from it:
 
 | File | Purpose |
 | --- | --- |
-| `public/brand/kalanidhi-mark-ink.webp` | Transparent mark for light surfaces (header, workspace, 404). |
-| `public/brand/kalanidhi-mark-paper.webp` | Transparent mark for dark wood surfaces (footer, workspace rail, auth panel, landing watermark). |
+| `public/brand/kalanidhi-mark-ink-256.webp` | Transparent mark for light surfaces at UI sizes. |
+| `public/brand/kalanidhi-mark-ink.webp` | 1024 px transparent mark for light surfaces at large sizes. |
+| `public/brand/kalanidhi-mark-paper-256.webp` | Transparent mark for dark wood surfaces at UI sizes. |
+| `public/brand/kalanidhi-mark-paper.webp` | 1024 px transparent mark for dark wood surfaces at large sizes. |
 | `public/brand/kalanidhi-icon-192.png`, `-512.png` | PWA / manifest icons using the original tile. |
 | `public/brand/kalanidhi-icon-maskable-512.png` | Maskable PWA icon with the mark inside the safe zone. |
 | `app/icon.png`, `app/apple-icon.png` | Next.js file-convention icons. |

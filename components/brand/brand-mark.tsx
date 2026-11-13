@@ -2,21 +2,23 @@ import Image from "next/image"
 
 import { cn } from "cn"
 
+const MARK_WIDTH = 774
+const MARK_HEIGHT = 1024
+
 /**
  * Brand assets derived from the KalaNidhi mark. The source artwork is a cream
  * "K" on a dark wood tile; the app needs the mark on both light and dark
  * surfaces, so both tones ship as transparent, tightly cropped renditions.
+ * Small sizes use a 256 px export; the 300 px watermark uses the 1024 px one.
  */
 const MARK = {
   ink: {
-    src: "/brand/kalanidhi-mark-ink.webp",
-    width: 774,
-    height: 1024,
+    small: "/brand/kalanidhi-mark-ink-256.webp",
+    large: "/brand/kalanidhi-mark-ink.webp",
   },
   paper: {
-    src: "/brand/kalanidhi-mark-paper.webp",
-    width: 774,
-    height: 1024,
+    small: "/brand/kalanidhi-mark-paper-256.webp",
+    large: "/brand/kalanidhi-mark-paper.webp",
   },
 } as const
 
@@ -42,13 +44,14 @@ export function BrandMark({
   alt,
 }: BrandMarkProps) {
   const asset = MARK[tone]
+  const src = size > 160 ? asset.large : asset.small
 
   return (
     <Image
-      src={asset.src}
+      src={src}
       alt={alt ?? ""}
-      width={asset.width}
-      height={asset.height}
+      width={MARK_WIDTH}
+      height={MARK_HEIGHT}
       loading={loading}
       aria-hidden={alt ? undefined : true}
       className={cn("shrink-0 select-none", className)}
