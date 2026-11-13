@@ -118,8 +118,21 @@ export async function seedContent(t: TestDb): Promise<void> {
     }
 
     for (const [index, teacher] of teachersSeed.entries()) {
-      const { imageFile, ...rest } = teacher
+      const {
+        imageFile,
+        key,
+        pathIds,
+        status,
+        verificationStatus,
+        published,
+        ...rest
+      } = teacher
       void imageFile
+      void key
+      void pathIds
+      void status
+      void verificationStatus
+      void published
       await ctx.db.insert("teachers", {
         ...rest,
         order: index,
@@ -152,8 +165,11 @@ export async function seedContent(t: TestDb): Promise<void> {
 
     const workIds: Id<"works">[] = []
     for (const [index, work] of worksSeed.entries()) {
-      const { imageFile, ...rest } = work
+      const { imageFile, makerKey, pathSlug, certificateKey, ...rest } = work
       void imageFile
+      void makerKey
+      void pathSlug
+      void certificateKey
       const workId = await ctx.db.insert("works", {
         ...rest,
         order: index,

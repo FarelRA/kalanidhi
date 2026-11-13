@@ -1,6 +1,7 @@
 import type { Doc, Id } from "./_generated/dataModel"
 import { internalMutation, type MutationCtx } from "./_generated/server"
 
+import { teachersSeed as SEED_TEACHERS, worksSeed as WORKS } from "./seedData"
 import {
   DAY,
   HOUR,
@@ -21,85 +22,6 @@ const USER_AGENTS = [
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15",
   "Mozilla/5.0 (Linux; Android 13; Redmi Note 12) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36",
   "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1",
-]
-
-const SEED_TEACHERS = [
-  {
-    key: "bambang",
-    slug: "bambang-hardjono",
-    name: "Bambang Hardjono",
-    initials: "BH",
-    specialty: "Pengajar batik halus",
-    region: "Giriloyo, D.I. Yogyakarta",
-    experience: "38 tahun membatik",
-    quote:
-      "Canting yang stabil lebih penting daripada motif yang rumit. Saya minta murid berhenti sebentar sebelum meneteskan lilin.",
-    focus: "Batik tulis dan pewarnaan soga",
-    path: "Batik Tulis Soga",
-    community: "Sanggar Soga Giriloyo",
-    imageFile: "teacher-hardjono.jpg",
-    pathIds: ["batik-tulis-soga"],
-    status: "active" as const,
-    verificationStatus: "verified" as const,
-    published: true,
-  },
-  {
-    key: "sri",
-    slug: "sri-sriningsih",
-    name: "Sri Sriningsih",
-    initials: "SS",
-    specialty: "Ahli pewarnaan alami",
-    region: "Pleret, Bantul, D.I. Yogyakarta",
-    experience: "32 tahun pewarnaan alami",
-    quote:
-      "Warna alami tidak bisa dipaksa. Kalau bahan dan musimnya tepat, hasilnya justru lebih tenang.",
-    focus: "Pewarna alami dan ekstraksi nila",
-    path: "Batik Tulis Soga",
-    community: "Rumah Warna Pleret",
-    imageFile: "teacher-sriningsih.jpg",
-    pathIds: ["batik-tulis-soga"],
-    status: "active" as const,
-    verificationStatus: "verified" as const,
-    published: true,
-  },
-  {
-    key: "widagdo",
-    slug: "widagdo-saputra",
-    name: "Widagdo Saputra",
-    initials: "WS",
-    specialty: "Instruktur tata upacara",
-    region: "Kota Yogyakarta, D.I. Yogyakarta",
-    experience: "30 tahun tata upacara",
-    quote:
-      "Pembawa acara yang baik mengatur napas acara. Kalimatnya jelas, urutannya tidak membuat tamu menunggu.",
-    focus: "Pembawa acara adat dan protokol",
-    path: "Seni Pembawa Acara Tradisi Jawa",
-    community: "Sanggar Wicara Ngayogyakarta",
-    imageFile: "teacher-sudarsono.jpg",
-    pathIds: ["pranatacara-jawa"],
-    status: "active" as const,
-    verificationStatus: "verified" as const,
-    published: true,
-  },
-  {
-    key: "joko",
-    slug: "joko-santoso",
-    name: "Joko Santoso",
-    initials: "JS",
-    specialty: "Pengrajin ukir kayu",
-    region: "Sewon, Bantul, D.I. Yogyakarta",
-    experience: "27 tahun mengukir",
-    quote:
-      "Ukiran yang baik lahir dari arah pahat yang sabar. Saya ajarkan urutan, bukan hanya bentuk akhir.",
-    focus: "Ukir relief dan ornamen sulur",
-    path: "Kriya Ukir Kayu Bantul",
-    community: "Sanggar Ukir Bantul",
-    imageFile: "teacher-joko.jpg",
-    pathIds: ["kriya-ukir-bantul"],
-    status: "review" as const,
-    verificationStatus: "under_review" as const,
-    published: false,
-  },
 ]
 
 type SeedModule = {
@@ -881,98 +803,6 @@ const SUBMISSIONS: SeedSubmission[] = [
   },
 ]
 
-const WORKS = [
-  {
-    slug: "batik-soga-anyaman",
-    makerKey: "anisa",
-    pathSlug: "batik-tulis-soga",
-    certificateKey: "anisa",
-    title: "Kain Batik Soga Anyaman",
-    category: "batik" as const,
-    kind: "product" as const,
-    maker: "Anisa Rahmawati",
-    makerRole: "Lulusan jalur Batik Tulis",
-    teacher: "Bambang Hardjono",
-    region: "Giriloyo, Bantul",
-    price: 1_450_000,
-    unit: "Kain panjang, 2,5 x 1,05 m",
-    technique: "Tulis",
-    techniqueNote: "Canting tangan",
-    workCard: "KN-8821",
-    description:
-      "Pewarna soga dari kulit tingi dan jambal, dengan motif geometris yang disusun ulang dari pola klasik Giriloyo. Proses pembuatan tercatat dalam 12 foto bertanggal.",
-    imageFile: "work-soga.jpg",
-    permission: "Izin berbagi motif tercatat 3 Februari 2026",
-  },
-  {
-    slug: "selendang-canting-nitik",
-    makerKey: "dimas",
-    pathSlug: "batik-tulis-soga",
-    certificateKey: "dimas",
-    title: "Selendang Canting Nitik",
-    category: "batik" as const,
-    kind: "product" as const,
-    maker: "Dimas Yoga Pratama",
-    makerRole: "Lulusan jalur Batik Tulis",
-    teacher: "Sri Sriningsih",
-    region: "Kasihan, Bantul",
-    price: 850_000,
-    unit: "Selendang primis, 2 x 0,55 m",
-    technique: "Tulis",
-    techniqueNote: "Titik canting halus",
-    workCard: "KN-9014",
-    description:
-      "Selendang primis dengan titik canting rapat. Panduan perawatan dan kartu bahan disertakan.",
-    imageFile: "work-nitik.jpg",
-    permission: "Izin berbagi motif tercatat 24 Maret 2026",
-  },
-  {
-    slug: "batik-soga-lereng",
-    makerKey: "purnomo",
-    pathSlug: "batik-tulis-soga",
-    certificateKey: "purnomo",
-    title: "Batik Tulis Soga Lereng",
-    category: "batik" as const,
-    kind: "product" as const,
-    maker: "Bambang Purnomo",
-    makerRole: "Lulusan jalur lanjutan",
-    teacher: "Bambang Hardjono",
-    region: "Mlati, Sleman",
-    price: 2_900_000,
-    unit: "Kain halus, sutra ATBM",
-    technique: "Tulis",
-    techniqueNote: "14 tahap pewarnaan",
-    workCard: "KN-9147",
-    description:
-      "Karya lanjutan dengan 14 tahap pewarnaan soga. Motif lereng klasik, bukan motif sakral.",
-    imageFile: "work-sutra.jpg",
-    permission: "Izin berbagi motif tercatat 26 Mei 2026",
-  },
-  {
-    slug: "pranatacara-siraman",
-    makerKey: "rani",
-    pathSlug: "pranatacara-jawa",
-    certificateKey: "rani",
-    title: "Pembawa Acara Siraman dan Midodareni",
-    category: "layanan" as const,
-    kind: "service" as const,
-    maker: "Rani Wikaningsih",
-    makerRole: "Praktisi tersertifikasi platform",
-    teacher: "Widagdo Saputra",
-    region: "Kota Yogyakarta dan sekitarnya",
-    price: 2_500_000,
-    priceLabel: "Mulai dari",
-    unit: "Layanan acara, 1 hari",
-    technique: "Layanan",
-    techniqueNote: "Pembawa acara adat",
-    workCard: "KN-JS-014",
-    description:
-      "Permintaan booking untuk rangkaian siraman dan midodareni. Susunan acara dikonfirmasi bersama praktisi.",
-    imageFile: "work-pranatacara.jpg",
-    permission: "Izin tampil dan publikasi portofolio tercatat 28 Mei 2026",
-  },
-]
-
 async function sha256(value: string): Promise<string> {
   const bytes = new TextEncoder().encode(value)
   const digest = await crypto.subtle.digest("SHA-256", bytes)
@@ -1699,7 +1529,7 @@ export const seedLearning = internalMutation({
         score: seed.score,
         feedback: seed.feedback,
         assessedAt,
-        createdAt: submittedAt ?? ago(6),
+        createdAt: assessedAt ?? submittedAt ?? ago(6),
         updatedAt: NOW,
       })
       assessmentIds.set(seed.key, assessmentId)

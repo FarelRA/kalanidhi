@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs"
+import path from "node:path"
+
 import { describe, expect, it } from "vitest"
 
 import { internal } from "../convex/_generated/api"
@@ -57,6 +60,18 @@ function timestampRange(values: Array<number | undefined>) {
 }
 
 describe("seed realism", () => {
+  it("keeps one canonical teacher and work definition", () => {
+    const root = path.resolve(__dirname, "..")
+    const source = readFileSync(
+      path.join(root, "convex/seedWorkspace.ts"),
+      "utf8",
+    )
+    expect(source).toContain("teachersSeed as SEED_TEACHERS")
+    expect(source).toContain("worksSeed as WORKS")
+    expect(source).not.toContain("const SEED_TEACHERS = [")
+    expect(source).not.toContain("const WORKS = [")
+  })
+
   it("uses plausible Gmail, WhatsApp, and DIY identities", async () => {
     const t = createTestDb()
     await seedWorkspace(t)
@@ -264,6 +279,60 @@ describe("seed realism", () => {
         row.payoutPaidAt as number,
         "payout after payment",
       ).toBeGreaterThanOrEqual(row.paymentPaidAt as number)
+    }
+  })
+
+  it("derives daily metrics from seeded events", async () => {
+    const t = createTestDb()
+    await seedWorkspace(t)
+
+    const data = await t.run(async (ctx) => {
+      const metrics = await ctx.db.query("dailyMetrics").collect()
+      const orders = await ctx.db.query("orders").collect()
+      const definitions = await ctx.db.query("metricDefinitions").collect()
+      return { metrics, orders, definitions }
+    })
+
+    const dates = new Set(data.metrics.map((row) => row.date))
+    expect(dates.size).toBeGreaterThan(300)
+
+    const gmvTotal = data.metrics
+      .filter((row) => row.metricKey === "gmv")
+      .reduce((total, row) => total + row.value, 0)
+    const orderTotal = data.orders
+      .filter((order) => order.paidAt !== undefined)
+      .reduce((total, order) => total + order.baseAmount, 0)
+    expect(gmvTotal).toBeCloseTo(orderTotal, 0)
+
+    const gmvSeries = data.metrics.filter((row) => row.metricKey === "gmv")
+    expect(gmvSeries.some((row) => row.value > 0)).toBe(true)
+    expect(gmvSeries.some((row) => row.value === 0)).toBe(true)
+
+    const sla = data.metrics.filter(
+      (row) => row.metricKey === "assessment_sla_p50" && row.value > 0,
+    )
+    expect(sla.length).toBeGreaterThan(0)
+
+    for (const row of data.metrics) {
+      if (
+        row.metricKey === "gmv" ||
+        row.metricKey === "net_revenue" ||
+        row.metricKey === "payout_due" ||
+        row.metricKey === "assessment_sla_p50" ||
+        row.metricKey === "assessment_sla_p90" ||
+        row.metricKey === "support_first_response_p50" ||
+        row.metricKey === "support_first_response_p90" ||
+        row.metricKey === "content_freshness"
+      ) {
+        continue
+      }
+      expect(row.value, row.metricKey).toBeGreaterThanOrEqual(0)
+      expect(row.value, row.metricKey).toBeLessThanOrEqual(1)
+    }
+
+    const keys = new Set(data.metrics.map((row) => row.metricKey))
+    for (const definition of data.definitions) {
+      expect(keys.has(definition.key), definition.key).toBe(true)
     }
   })
 

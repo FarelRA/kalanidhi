@@ -266,14 +266,32 @@ export const seedContent = internalMutation({
       ...rest,
       imageAssetId: requireImage(assets, imageFile, `jalur ${rest.slug}`),
     }))
-    const seededTeachers = teachersSeed.map(({ imageFile, ...rest }) => ({
-      ...rest,
-      imageAssetId: requireImage(assets, imageFile, `pengajar ${rest.slug}`),
-    }))
-    const seededWorks = worksSeed.map(({ imageFile, ...rest }) => ({
-      ...rest,
-      imageAssetId: requireImage(assets, imageFile, `karya ${rest.slug}`),
-    }))
+    // Identity fields power the workspace seed; the public table stores only
+    // the published teacher record.
+    const seededTeachers = teachersSeed.map(
+      ({ imageFile, key, pathIds, status, verificationStatus, published, ...rest }) => {
+        void key
+        void pathIds
+        void status
+        void verificationStatus
+        void published
+        return {
+          ...rest,
+          imageAssetId: requireImage(assets, imageFile, `pengajar ${rest.slug}`),
+        }
+      },
+    )
+    const seededWorks = worksSeed.map(
+      ({ imageFile, makerKey, pathSlug, certificateKey, ...rest }) => {
+        void makerKey
+        void pathSlug
+        void certificateKey
+        return {
+          ...rest,
+          imageAssetId: requireImage(assets, imageFile, `karya ${rest.slug}`),
+        }
+      },
+    )
 
     for (const [order, field] of catalogFieldsSeed.entries()) {
       await ctx.db.insert("catalogFields", { order, ...field })

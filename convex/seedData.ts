@@ -22,8 +22,21 @@ type WithImageFile<T> = Omit<T, "image"> & { imageFile: string }
 
 /** `modules` is derived from `pathModules`, never stored as seed copy. */
 export type SeedLearningPath = WithImageFile<Omit<LearningPath, "modules">>
-export type SeedTeacher = WithImageFile<Teacher>
-export type SeedWork = WithImageFile<Work>
+export type SeedTeacher = WithImageFile<Teacher> & {
+  /** Stable identity key shared with the workspace seed. */
+  key: string
+  pathIds: string[]
+  status: "active" | "review"
+  verificationStatus: "verified" | "under_review"
+  published: boolean
+}
+export type SeedWork = WithImageFile<Work> & {
+  /** Stable identity keys shared with the workspace seed. */
+  makerKey: string
+  pathSlug: string
+  certificateKey: string
+  permission: string
+}
 
 export type SeedSiteCopy = Omit<SiteCopy, "hero" | "metadata"> & {
   hero: Omit<SiteCopy["hero"], "plate"> & {
@@ -767,6 +780,11 @@ export const pathsSeed: SeedLearningPath[] = [
 export const teachersSeed: SeedTeacher[] = [
   {
     slug: "bambang-hardjono",
+    key: "bambang",
+    pathIds: ["batik-tulis-soga"],
+    status: "active" as const,
+    verificationStatus: "verified" as const,
+    published: true,
     name: "Bambang Hardjono",
     initials: "BH",
     specialty: "Pengajar batik halus",
@@ -782,6 +800,11 @@ export const teachersSeed: SeedTeacher[] = [
   },
   {
     slug: "sri-sriningsih",
+    key: "sri",
+    pathIds: ["batik-tulis-soga"],
+    status: "active" as const,
+    verificationStatus: "verified" as const,
+    published: true,
     name: "Sri Sriningsih",
     initials: "SS",
     specialty: "Ahli pewarnaan alami",
@@ -797,6 +820,11 @@ export const teachersSeed: SeedTeacher[] = [
   },
   {
     slug: "widagdo-saputra",
+    key: "widagdo",
+    pathIds: ["pranatacara-jawa"],
+    status: "active" as const,
+    verificationStatus: "verified" as const,
+    published: true,
     name: "Widagdo Saputra",
     initials: "WS",
     specialty: "Instruktur tata upacara",
@@ -812,6 +840,11 @@ export const teachersSeed: SeedTeacher[] = [
   },
   {
     slug: "joko-santoso",
+    key: "joko",
+    pathIds: ["kriya-ukir-bantul"],
+    status: "review" as const,
+    verificationStatus: "under_review" as const,
+    published: false,
     name: "Joko Santoso",
     initials: "JS",
     specialty: "Pengrajin ukir kayu",
@@ -830,6 +863,10 @@ export const teachersSeed: SeedTeacher[] = [
 export const worksSeed: SeedWork[] = [
   {
     slug: "batik-soga-anyaman",
+    makerKey: "anisa",
+    pathSlug: "batik-tulis-soga",
+    certificateKey: "anisa",
+    permission: "Izin berbagi motif tercatat 3 Februari 2026",
     title: "Kain Batik Soga Anyaman",
     category: "batik",
     kind: "product",
@@ -848,6 +885,10 @@ export const worksSeed: SeedWork[] = [
   },
   {
     slug: "selendang-canting-nitik",
+    makerKey: "dimas",
+    pathSlug: "batik-tulis-soga",
+    certificateKey: "dimas",
+    permission: "Izin berbagi motif tercatat 24 Maret 2026",
     title: "Selendang Canting Nitik",
     category: "batik",
     kind: "product",
@@ -866,6 +907,10 @@ export const worksSeed: SeedWork[] = [
   },
   {
     slug: "batik-soga-lereng",
+    makerKey: "purnomo",
+    pathSlug: "batik-tulis-soga",
+    certificateKey: "purnomo",
+    permission: "Izin berbagi motif tercatat 26 Mei 2026",
     title: "Batik Tulis Soga Lereng",
     category: "batik",
     kind: "product",
@@ -884,6 +929,10 @@ export const worksSeed: SeedWork[] = [
   },
   {
     slug: "pranatacara-siraman",
+    makerKey: "rani",
+    pathSlug: "pranatacara-jawa",
+    certificateKey: "rani",
+    permission: "Izin tampil dan publikasi portofolio tercatat 28 Mei 2026",
     title: "Pembawa Acara Siraman dan Midodareni",
     category: "layanan",
     kind: "service",

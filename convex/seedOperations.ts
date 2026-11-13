@@ -2,8 +2,10 @@ import { FLOW_SPECS } from "../lib/flows/definitions"
 import type { Doc, Id } from "./_generated/dataModel"
 import { internalMutation, type MutationCtx } from "./_generated/server"
 import {
+  DAY,
   HOUR,
   SEED_NOW as NOW,
+  SEED_START,
   seedAdmin,
   seedAgo as ago,
   seedAhead as ahead,
@@ -2495,6 +2497,26 @@ function jakartaDate(timestamp: number): string {
   return shifted.toISOString().slice(0, 10)
 }
 
+/** Jakarta midnight for a timestamp, used to bucket daily metrics. */
+function jakartaDayStart(timestamp: number): number {
+  return Math.floor((timestamp + 7 * HOUR) / DAY) * DAY - 7 * HOUR
+}
+
+function quantile(values: number[], fraction: number): number {
+  if (values.length === 0) return 0
+  const sorted = [...values].sort((a, b) => a - b)
+  const index = Math.min(
+    sorted.length - 1,
+    Math.max(0, Math.ceil(fraction * sorted.length) - 1),
+  )
+  return sorted[index]
+}
+
+function ratio(numerator: number, denominator: number): number {
+  if (denominator <= 0) return 0
+  return numerator / denominator
+}
+
 export const seedMetrics = internalMutation({
   args: {},
   handler: async (ctx) => {
@@ -2511,34 +2533,237 @@ export const seedMetrics = internalMutation({
       })
     }
 
-    for (let day = 89; day >= 0; day -= 1) {
-      const timestamp = ago(day)
-      const date = jakartaDate(timestamp)
-      for (const [index, definition] of METRIC_DEFINITIONS.entries()) {
-        const ratio = 0.42 + ((day + index) % 6) * 0.07
-        const hours = 16 + ((day + index) % 5) * 5
-        const rupiah = 1_200_000 + (89 - day) * 34_000 + index * 25_000
-        const value =
-          definition.key === "gmv" ||
-          definition.key === "net_revenue" ||
-          definition.key === "payout_due"
-            ? rupiah
-            : definition.key.includes("sla") ||
-                definition.key.includes("response")
-              ? hours
-              : definition.key === "content_freshness"
-                ? 1 + ((day + index) % 3)
-                : ratio
+    const [
+      leads,
+      enrollments,
+      submissions,
+      assessments,
+      certificates,
+      works,
+      orders,
+      payments,
+      payouts,
+      tickets,
+      cohorts,
+      teacherRows,
+      contentRows,
+    ] = await Promise.all([
+      ctx.db.query("leads").collect(),
+      ctx.db.query("enrollments").collect(),
+      ctx.db.query("submissions").collect(),
+      ctx.db.query("assessments").collect(),
+      ctx.db.query("certificates").collect(),
+      ctx.db.query("works").collect(),
+      ctx.db.query("orders").collect(),
+      ctx.db.query("payments").collect(),
+      ctx.db.query("payouts").collect(),
+      ctx.db.query("supportTickets").collect(),
+      ctx.db.query("cohorts").collect(),
+      ctx.db.query("teachers").collect(),
+      ctx.db.query("siteContent").collect(),
+    ])
+
+    const submissionById = new Map(
+      submissions.map((submission) => [submission._id as string, submission]),
+    )
+    const siteUpdatedAt = contentRows.reduce(
+      (latest, row) => Math.max(latest, row.updatedAt),
+      SEED_START,
+    )
+    const teacherCount = Math.max(1, teacherRows.length)
+    const activeEnrollmentStatuses = new Set(["active", "completed"])
+    const settledPaymentStatuses = new Set(["paid", "refunded"])
+    const unpaidPayoutStatuses = new Set([
+      "pending",
+      "approved",
+      "held",
+      "processing",
+    ])
+
+    const days: number[] = []
+    for (
+      let dayStart = jakartaDayStart(SEED_START);
+      dayStart <= NOW;
+      dayStart += DAY
+    ) {
+      days.push(dayStart)
+    }
+
+    for (const dayStart of days) {
+      const dayEnd = dayStart + DAY
+      const ref = Math.min(NOW, dayEnd)
+      const inDay = (timestamp?: number) =>
+        timestamp !== undefined && timestamp >= dayStart && timestamp < dayEnd
+      const trailing = (timestamp: number | undefined, windowDays = 30) =>
+        timestamp !== undefined &&
+        timestamp > ref - windowDays * DAY &&
+        timestamp <= ref
+
+      const leads30 = leads.filter((lead) => trailing(lead.createdAt))
+      const enrollments30 = enrollments.filter((row) =>
+        trailing(row.createdAt),
+      )
+      const enrollments90 = enrollments.filter((row) =>
+        trailing(row.createdAt, 90),
+      )
+      const activeEnrollments = enrollments.filter(
+        (row) => row.status === "active",
+      )
+      const submissions30 = submissions.filter(
+        (row) => row.submittedAt && trailing(row.submittedAt),
+      )
+      const graded30 = assessments.filter(
+        (row) => row.status === "completed" && trailing(row.createdAt),
+      )
+      const certificates30 = certificates.filter((row) =>
+        trailing(row.issuedAt),
+      )
+      const certificates90 = certificates.filter((row) =>
+        trailing(row.issuedAt, 90),
+      )
+      const graded90 = assessments.filter(
+        (row) => row.status === "completed" && trailing(row.createdAt, 90),
+      )
+      const payments30 = payments.filter((row) => trailing(row.createdAt))
+      const tickets30 = tickets.filter(
+        (row) => trailing(row.createdAt) && row.firstResponseAt,
+      )
+
+      const slaHours = graded30
+        .map((assessment) => {
+          const submission = submissionById.get(
+            assessment.submissionId as string,
+          )
+          if (!submission?.submittedAt) return undefined
+          return (assessment.createdAt - submission.submittedAt) / HOUR
+        })
+        .filter((value): value is number => value !== undefined)
+
+      const responseMinutes = tickets30
+        .map((ticket) =>
+          ticket.firstResponseAt
+            ? (ticket.firstResponseAt - ticket.createdAt) / 60_000
+            : undefined,
+        )
+        .filter((value): value is number => value !== undefined)
+
+      const gmvToday = orders
+        .filter((order) => inDay(order.paidAt))
+        .reduce((total, order) => total + order.baseAmount, 0)
+      const netRevenueToday = Math.round(gmvToday * 0.15)
+
+      const payoutDue = payouts
+        .filter(
+          (payout) =>
+            payout.status !== "paid" &&
+            unpaidPayoutStatuses.has(payout.status) &&
+            payout.dueAt !== undefined &&
+            payout.dueAt <= ref &&
+            payout.createdAt <= ref,
+        )
+        .reduce((total, payout) => total + payout.teacherShare, 0)
+
+      const liveCohorts = cohorts.filter(
+        (cohort) => cohort.startDate <= ref && cohort.endDate >= ref,
+      )
+      const cohortCapacity = liveCohorts.reduce(
+        (total, cohort) => total + cohort.capacity,
+        0,
+      )
+      const cohortEnrollments = enrollments.filter(
+        (row) =>
+          activeEnrollmentStatuses.has(row.status) &&
+          liveCohorts.some((cohort) => cohort._id === row.cohortId),
+      )
+
+      const approvedAssessments90 = graded90.filter(
+        (assessment) => (assessment.score ?? 0) >= 75,
+      )
+      const certificatesWithWork = certificates30.filter((certificate) =>
+        works.some(
+          (work) =>
+            work.certificateId === certificate._id &&
+            work.createdAt !== undefined &&
+            work.createdAt >= certificate.issuedAt &&
+            work.createdAt <= certificate.issuedAt + 30 * DAY &&
+            work.createdAt <= ref,
+        ),
+      )
+
+      const values: Record<string, number> = {
+        lead_conversion: ratio(
+          leads30.filter((lead) => lead.status === "converted").length,
+          leads30.filter((lead) =>
+            ["qualified", "converted"].includes(lead.status),
+          ).length,
+        ),
+        enrollment_activation: ratio(
+          enrollments30.filter((row) => activeEnrollmentStatuses.has(row.status))
+            .length,
+          enrollments30.length,
+        ),
+        completion: ratio(
+          enrollments90.filter(
+            (row) => row.completedAt && trailing(row.completedAt),
+          ).length,
+          enrollments90.length,
+        ),
+        submission_rate: Math.min(
+          1,
+          ratio(submissions30.length, Math.max(1, activeEnrollments.length)),
+        ),
+        assessment_sla_p50: quantile(slaHours, 0.5),
+        assessment_sla_p90: quantile(slaHours, 0.9),
+        pass_rate: ratio(
+          graded30.filter(
+            (assessment) =>
+              (assessment.score ?? 0) >= 75 ||
+              submissionById.get(assessment.submissionId as string)
+                ?.status === "approved",
+          ).length,
+          graded30.length,
+        ),
+        certificate_issuance: Math.min(
+          1,
+          ratio(
+            certificates90.length,
+            Math.max(1, approvedAssessments90.length),
+          ),
+        ),
+        seller_activation: ratio(
+          certificatesWithWork.length,
+          Math.max(1, certificates30.length),
+        ),
+        gmv: gmvToday,
+        net_revenue: netRevenueToday,
+        payout_due: payoutDue,
+        teacher_load: ratio(liveCohorts.length, teacherCount),
+        cohort_fill: ratio(cohortEnrollments.length, cohortCapacity),
+        support_first_response_p50: quantile(responseMinutes, 0.5),
+        support_first_response_p90: quantile(responseMinutes, 0.9),
+        gateway_success: ratio(
+          payments30.filter((payment) =>
+            settledPaymentStatuses.has(payment.status),
+          ).length,
+          Math.max(1, payments30.length),
+        ),
+        content_freshness: Math.max(
+          0,
+          Math.floor((ref - siteUpdatedAt) / DAY),
+        ),
+      }
+
+      for (const definition of METRIC_DEFINITIONS) {
         await ctx.db.insert("dailyMetrics", {
-          date,
+          date: jakartaDate(dayStart),
           metricKey: definition.key,
-          value: Math.round(value * 100) / 100,
-          computedAt: timestamp,
+          value: Math.round((values[definition.key] ?? 0) * 100) / 100,
+          computedAt: Math.min(NOW, dayEnd - 1),
         })
       }
     }
 
-    return { definitions: METRIC_DEFINITIONS.length, days: 90 }
+    return { definitions: METRIC_DEFINITIONS.length, days: days.length }
   },
 })
 
