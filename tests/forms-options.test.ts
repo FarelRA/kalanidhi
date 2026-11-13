@@ -200,10 +200,12 @@ describe("forms read their option lists from shared modules", () => {
     expect(source).not.toContain('(["student", "teacher", "admin"] as const)')
   })
 
-  it("preview canned replies live in mock data, not the component", () => {
-    const source = read("components/workspace/governance/support-inbox.tsx")
+  it("support canned replies come from Convex, not the component", () => {
+    const source = read(
+      "components/workspace/governance/support-inbox-live.tsx",
+    )
     expect(source).not.toContain('<option value="Terima kasih')
-    expect(source).toContain("supportCannedReplies")
+    expect(source).toContain("api.support.listCannedReplies")
   })
 
   it("convex validators consume the same shared enums", () => {

@@ -2,40 +2,20 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Check, ChevronDown, LogOut, Settings, UserRound } from "lucide-react"
+import { ChevronDown, LogOut, Settings, UserRound } from "lucide-react"
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui"
-import { toast } from "sonner"
 
 import { authClient } from "@/lib/auth-client"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
-import { cn } from "cn"
-import type { PreviewKey } from "@/lib/workspace/types"
 
 export function AccountMenu() {
   const router = useRouter()
-  const { profile, preview, setPreview, profiles, isPreview } = useViewer()
-
-  function changePreview(value: string) {
-    setPreview(value as PreviewKey)
-    const next = profiles.find((item) => item.key === value)
-    toast("Pratinjau peran diubah", {
-      description: next
-        ? `Sekarang melihat ruang sebagai ${next.label}.`
-        : undefined,
-    })
-  }
+  const { profile } = useViewer()
 
   async function signOut() {
-    if (!isPreview) {
-      await authClient.signOut()
-      router.push("/masuk")
-      router.refresh()
-      return
-    }
-    toast("Sesi ditutup", {
-      description:
-        "Perangkat ini keluar dari ruang kerja. Sesi lain tetap aktif.",
-    })
+    await authClient.signOut()
+    router.push("/masuk")
+    router.refresh()
   }
 
   return (
@@ -79,49 +59,6 @@ export function AccountMenu() {
               {profile.user.roleLabel}
             </p>
           </div>
-
-          {isPreview ? (
-            <>
-              <DropdownMenuPrimitive.Label className="px-2.5 pt-3 pb-1.5 text-[8.5px] font-bold uppercase tracking-[0.13em] text-ink-muted">
-                Pratinjau peran
-              </DropdownMenuPrimitive.Label>
-              <DropdownMenuPrimitive.RadioGroup
-                value={preview ?? "pengelola"}
-                onValueChange={changePreview}
-              >
-                {profiles.map((item) => (
-                  <DropdownMenuPrimitive.RadioItem
-                    key={item.key}
-                    value={item.key}
-                    className="flex min-h-11 cursor-pointer items-center gap-2.5 px-2.5 py-2 text-[11.5px] outline-none data-highlighted:bg-panel/70"
-                  >
-                    <span
-                      className={cn(
-                        "flex size-4 shrink-0 items-center justify-center border",
-                        preview === item.key
-                          ? "border-ink bg-ink text-paper"
-                          : "border-ink/25",
-                      )}
-                    >
-                      {preview === item.key ? (
-                        <Check className="size-2.5" aria-hidden="true" />
-                      ) : null}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block font-semibold leading-tight">
-                        {item.label}
-                      </span>
-                      <span className="mt-0.5 block text-[9.5px] leading-snug text-ink-muted">
-                        {item.description}
-                      </span>
-                    </span>
-                  </DropdownMenuPrimitive.RadioItem>
-                ))}
-              </DropdownMenuPrimitive.RadioGroup>
-
-              <DropdownMenuPrimitive.Separator className="my-1.5 h-px bg-ink/15" />
-            </>
-          ) : null}
 
           <DropdownMenuPrimitive.Item asChild>
             <Link

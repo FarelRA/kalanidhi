@@ -1,11 +1,11 @@
 import type { Metadata } from "next"
 
-import { LogExplorerGate } from "@/components/workspace/governance/log-explorer-gate"
+import { LogLive } from "@/components/workspace/governance/log-live"
 
 export const metadata: Metadata = {
   title: "Log",
 }
 
 export default function Page() {
-  return <LogExplorerGate />
+  return <LogLive />
 }

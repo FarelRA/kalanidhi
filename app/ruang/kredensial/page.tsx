@@ -1,11 +1,11 @@
 import type { Metadata } from "next"
 
-import { CredentialBoard } from "@/components/workspace/credentials/credential-board"
+import { LiveCredentialBoard } from "@/components/workspace/credentials/live-credential-board"
 
 export const metadata: Metadata = {
   title: "Kredensial",
 }
 
 export default function Page() {
-  return <CredentialBoard />
+  return <LiveCredentialBoard />
 }

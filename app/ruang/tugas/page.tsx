@@ -1,11 +1,11 @@
 import type { Metadata } from "next"
 
-import { TaskBoard } from "@/components/workspace/learning/task-board"
+import { LiveTaskBoard } from "@/components/workspace/learning/live-task-board"
 
 export const metadata: Metadata = {
   title: "Tugas & penilaian",
 }
 
 export default function Page() {
-  return <TaskBoard />
+  return <LiveTaskBoard />
 }

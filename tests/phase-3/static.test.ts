@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs"
+import { existsSync, readFileSync } from "node:fs"
 import path from "node:path"
 
 import { describe, expect, it } from "vitest"
@@ -16,13 +16,6 @@ const LIVE_COMPONENTS = [
   "components/workspace/commerce/payout-ledger-live.tsx",
 ]
 
-const PREVIEW_COMPONENTS = [
-  "components/workspace/commerce/works-board-preview.tsx",
-  "components/workspace/commerce/orders-board-preview.tsx",
-  "components/workspace/commerce/payment-console-preview.tsx",
-  "components/workspace/commerce/payout-ledger-preview.tsx",
-]
-
 describe("live data boundary", () => {
   it("[P3-STAT-01] live commerce surfaces never import local mock data", () => {
     for (const file of LIVE_COMPONENTS) {
@@ -34,13 +27,21 @@ describe("live data boundary", () => {
     }
   })
 
-  it("[P3-STAT-02] preview mode remains the only place that renders local records", () => {
-    for (const file of PREVIEW_COMPONENTS) {
-      expect(read(file)).toContain("lib/workspace/mock-data")
+  it("[P3-STAT-02] no commerce preview component or mock fixture remains", () => {
+    for (const file of [
+      "components/workspace/commerce/works-board-preview.tsx",
+      "components/workspace/commerce/orders-board-preview.tsx",
+      "components/workspace/commerce/payment-console-preview.tsx",
+      "components/workspace/commerce/payout-ledger-preview.tsx",
+      "lib/workspace/mock-data.ts",
+    ]) {
+      expect(existsSync(path.join(root, file)), `${file} must be deleted`).toBe(
+        false,
+      )
     }
   })
 
-  it("[P3-STAT-03] page wrappers choose live data outside preview mode", () => {
+  it("[P3-STAT-03] page wrappers render live data only", () => {
     const wrappers = [
       ["components/workspace/commerce/works-board.tsx", "WorksLive"],
       ["components/workspace/commerce/orders-board.tsx", "OrdersLive"],
@@ -49,8 +50,9 @@ describe("live data boundary", () => {
     ] as const
     for (const [file, live] of wrappers) {
       const source = read(file)
-      expect(source).toContain("isPreview")
       expect(source).toContain(live)
+      expect(source).not.toContain("isPreview")
+      expect(source).not.toContain("Preview")
     }
   })
 })

@@ -26,19 +26,19 @@ describe("learning / live surface", () => {
     }
   })
 
-  it("[P2-LRN-19] feature boards switch on preview mode before rendering local data", () => {
-    const boards = [
-      "components/workspace/learning/learning-board.tsx",
-      "components/workspace/learning/task-board.tsx",
-      "components/workspace/learning/schedule-board.tsx",
-      "components/workspace/credentials/credential-board.tsx",
-    ]
+  it("[P2-LRN-19] learning routes render the live boards directly", () => {
+    const routes = {
+      "app/ruang/belajar/page.tsx": "LiveLearningBoard",
+      "app/ruang/tugas/page.tsx": "LiveTaskBoard",
+      "app/ruang/jadwal/page.tsx": "LiveScheduleBoard",
+      "app/ruang/kredensial/page.tsx": "LiveCredentialBoard",
+    }
 
-    for (const file of boards) {
+    for (const [file, component] of Object.entries(routes)) {
       const source = read(file)
-      expect(source).toContain("isPreview")
-      expect(source).toContain("Preview")
-      expect(source).toContain("Live")
+      expect(source, `${file} must render ${component}`).toContain(component)
+      expect(source).not.toContain("isPreview")
+      expect(source).not.toContain("mock-data")
     }
   })
 

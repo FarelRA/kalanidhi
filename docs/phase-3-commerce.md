@@ -35,8 +35,8 @@ the source of truth.
   `integrationHealth`.
 - Public routes: `/karya/[slug]`, `/pesan/[slug]`, `/pesanan/[token]`.
 - Live workspace surfaces: `/ruang/karya`, `/ruang/pesanan`,
-  `/ruang/pesanan/pembayaran`, `/ruang/pesanan/payout`. Preview mode keeps the
-  approved local prototype; live sessions render Convex records only.
+  `/ruang/pesanan/pembayaran`, `/ruang/pesanan/payout`. Every session renders
+  Convex records only.
 
 ## Environment
 

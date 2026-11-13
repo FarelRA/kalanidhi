@@ -12,12 +12,10 @@ import type { Viewer } from "@/lib/access/viewer"
 
 export function WorkspaceShell({
   children,
-  viewer = null,
-  preview = false,
+  viewer,
 }: {
   children: React.ReactNode
-  viewer?: Viewer | null
-  preview?: boolean
+  viewer: Viewer
 }) {
   const [searchOpen, setSearchOpen] = React.useState(false)
 
@@ -34,7 +32,7 @@ export function WorkspaceShell({
   }, [])
 
   return (
-    <ViewerProvider viewer={viewer} preview={preview}>
+    <ViewerProvider viewer={viewer}>
       <div className="min-h-svh bg-cream">
         <a
           href="#konten-ruang"
@@ -50,7 +48,6 @@ export function WorkspaceShell({
             tabIndex={-1}
             className="mx-auto w-full max-w-[1500px] min-w-0 px-3 py-5 pb-24 sm:px-5 lg:px-7 lg:py-7 lg:pb-12"
           >
-            {preview ? <PreviewBanner /> : null}
             <CapabilityGate>{children}</CapabilityGate>
           </main>
         </div>
@@ -58,19 +55,5 @@ export function WorkspaceShell({
         <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} />
       </div>
     </ViewerProvider>
-  )
-}
-
-function PreviewBanner() {
-  return (
-    <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 border border-copper-dark/35 bg-panel/70 px-3 py-2">
-      <span className="border border-copper-dark/40 bg-copper/10 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.12em] text-copper-dark">
-        Pratinjau pengembangan
-      </span>
-      <span className="text-[10px] leading-relaxed text-ink-soft">
-        Data lokal untuk pengembangan. Tidak tersambung ke Convex dan bukan
-        data produksi.
-      </span>
-    </div>
   )
 }

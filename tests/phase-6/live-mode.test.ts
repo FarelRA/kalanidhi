@@ -14,7 +14,7 @@ const LIVE_COMPONENTS = [
   "components/workspace/governance/governance-board-live.tsx",
 ]
 
-describe("phase 6 / live versus preview data", () => {
+describe("phase 6 / live data only", () => {
   it("[P6-SHL-01] live governance components read Convex and never import mock data", async () => {
     for (const file of LIVE_COMPONENTS) {
       const code = await source(file)
@@ -26,43 +26,31 @@ describe("phase 6 / live versus preview data", () => {
     }
   })
 
-  it("[P6-SHL-02] preview boards stay isolated behind the explicit preview switch", async () => {
-    const gates = [
+  it("[P6-SHL-02] no governance preview board or gate remains", async () => {
+    for (const file of [
+      "components/workspace/governance/flow-board.tsx",
+      "components/workspace/governance/support-inbox.tsx",
+      "components/workspace/governance/settings-panel.tsx",
       "components/workspace/governance/flow-board-gate.tsx",
       "components/workspace/governance/support-inbox-gate.tsx",
       "components/workspace/governance/settings-panel-gate.tsx",
       "components/workspace/governance/governance-board-gate.tsx",
-    ]
-    for (const file of gates) {
-      const code = await source(file)
-      expect(code, file).toContain("useViewer")
-      expect(code, file).toContain("isPreview")
+    ]) {
+      await expect(source(file)).rejects.toThrow()
     }
-
-    const previewSupport = await source(
-      "components/workspace/governance/support-inbox.tsx",
-    )
-    expect(previewSupport).toContain("lib/workspace/mock-data")
-    const previewFlows = await source(
-      "components/workspace/governance/flow-board.tsx",
-    )
-    expect(previewFlows).toContain("lib/workspace/mock-data")
-    const previewSettings = await source(
-      "components/workspace/governance/settings-panel.tsx",
-    )
-    expect(previewSettings).toContain("lib/workspace/mock-data")
   })
 
-  it("[P6-SHL-03] workspace routes render the shared gates, not role dashboards", async () => {
+  it("[P6-SHL-03] workspace routes render the live governance boards, not role dashboards", async () => {
     const routes = {
-      "app/ruang/alur/page.tsx": "FlowBoardGate",
-      "app/ruang/dukungan/page.tsx": "SupportInboxGate",
-      "app/ruang/pengaturan/page.tsx": "SettingsPanelGate",
-      "app/ruang/tata-kelola/page.tsx": "GovernanceBoardGate",
+      "app/ruang/alur/page.tsx": "FlowBoardLive",
+      "app/ruang/dukungan/page.tsx": "SupportInboxLive",
+      "app/ruang/pengaturan/page.tsx": "SettingsPanelLive",
+      "app/ruang/tata-kelola/page.tsx": "GovernanceBoardLive",
     }
-    for (const [file, gate] of Object.entries(routes)) {
+    for (const [file, component] of Object.entries(routes)) {
       const code = await source(file)
-      expect(code, file).toContain(gate)
+      expect(code, file).toContain(component)
+      expect(code, file).not.toContain("isPreview")
       expect(code, file).not.toContain("mock-data")
       expect(code, file).not.toContain("/admin")
     }

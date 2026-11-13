@@ -15,7 +15,7 @@ This brief is mandatory for every implementation subagent. Read it in full, then
 
 Do not skim. Do not rely on a summary. If this brief and the plan conflict, the plan wins; stop and report the conflict.
 
-**Phase 0 is merged.** The shell renders feature pages for real sessions. Preview data is only allowed when the shell is in explicit preview mode. In a live session, never render `lib/workspace/mock-data.ts` or any local fixture as production data. If a module is not wired yet, render an explicit empty state.
+**Phase 0 is merged.** The shell renders feature pages for real sessions. Never render a local fixture as production data. If a module is not wired yet, render an explicit empty state.
 
 ---
 
@@ -188,9 +188,9 @@ Include indexes needed by the plan. Additive changes only after Phase 0. Do not 
 - `app/ruang/layout.tsx` becomes a server guard.
 - If session exists, load viewer and pass it to `WorkspaceShell`.
 - If no session, redirect to `/masuk?next=...`.
-- Preserve build without `CONVEX_URL`: the landing page must still build and run. In that case `/ruang` may render the existing preview shell behind an explicit development flag, but production must never expose mock data as real.
+- Preserve build without `CONVEX_URL`: the landing page must still build and run. In that case `/ruang` renders a configuration notice, never local mock data.
 - `/ruang` stays `noindex`.
-- The preview role switcher is development-only. Production uses the real viewer.
+- The shell always uses the real viewer; there is no persona switcher or preview mode.
 - Keep `components/workspace/shell` visually unchanged except for real viewer wiring.
 
 ### 7.6 Admin bootstrap

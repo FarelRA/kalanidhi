@@ -1,13 +1,11 @@
 export type WorkspaceGuardInput = {
   convexConfigured: boolean
-  previewAllowed: boolean
   authenticated: boolean
   viewerResolved: boolean
   nextPath: string
 }
 
 export type WorkspaceGuardResult =
-  | { kind: "preview" }
   | { kind: "live" }
   | { kind: "redirect"; to: string }
   | { kind: "unavailable"; reason: "convex" }
@@ -15,15 +13,13 @@ export type WorkspaceGuardResult =
 
 /**
  * Pure workspace guard decision, testable without Next.js request context.
- * Production never falls back to the preview shell.
+ * The workspace renders only real Convex data, never a local fallback shell.
  */
 export function resolveWorkspaceGuard(
   input: WorkspaceGuardInput,
 ): WorkspaceGuardResult {
   if (!input.convexConfigured) {
-    return input.previewAllowed
-      ? { kind: "preview" }
-      : { kind: "unavailable", reason: "convex" }
+    return { kind: "unavailable", reason: "convex" }
   }
 
   if (!input.authenticated) {
@@ -39,13 +35,6 @@ export function resolveWorkspaceGuard(
   }
 
   return { kind: "live" }
-}
-
-export function isPreviewAllowed(
-  nodeEnv: string | undefined,
-  explicitFlag: string | undefined,
-): boolean {
-  return nodeEnv !== "production" || explicitFlag === "1"
 }
 
 /** Prevents an open redirect through the `next` query parameter. */

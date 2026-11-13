@@ -14,7 +14,7 @@ const LIVE_COMPONENTS = [
   "components/workspace/governance/log-live.tsx",
 ]
 
-describe("workspace / real versus preview data", () => {
+describe("workspace / live data only", () => {
   it("[P0-SHL-04] live admin components never import local mock data", () => {
     for (const file of LIVE_COMPONENTS) {
       const source = readFileSync(path.join(ROOT, file), "utf8")
@@ -28,6 +28,23 @@ describe("workspace / real versus preview data", () => {
     for (const file of LIVE_COMPONENTS) {
       const source = readFileSync(path.join(ROOT, file), "utf8")
       expect(source, `${file} should use Convex`).toContain("useQuery")
+    }
+  })
+
+  it("[P0-SHL-04] every admin route renders the live component directly", () => {
+    const routes: [string, string][] = [
+      ["app/ruang/page.tsx", "OverviewLive"],
+      ["app/ruang/orang/page.tsx", "PeopleLive"],
+      ["app/ruang/prospek/page.tsx", "LeadsLive"],
+      ["app/ruang/statistik/page.tsx", "StatsLive"],
+      ["app/ruang/log/page.tsx", "LogLive"],
+    ]
+    for (const [file, component] of routes) {
+      const source = readFileSync(path.join(ROOT, file), "utf8")
+      expect(source, `${file} must render ${component}`).toContain(component)
+      expect(source, `${file} must not import mock data`).not.toContain(
+        "mock-data",
+      )
     }
   })
 

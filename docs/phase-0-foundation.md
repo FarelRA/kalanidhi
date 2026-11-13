@@ -10,18 +10,15 @@ Phase 0 implementation.
 - Better Auth + Convex Better Auth wiring, email/password student sign-up, and
   invite-only teacher/admin roles.
 - One capability registry and one viewer contract.
-- `/ruang` server guard, real viewer wiring, and a development-only preview
-  fallback when Convex is absent.
+- `/ruang` server guard and real viewer wiring. Every screen renders Convex
+  data only.
 - `/masuk` sign-in and student sign-up page.
 - Vitest + `convex-test` harness.
 
-Feature pages under `/ruang/*` still contain the approved visual prototype.
-Those prototypes render only in the development preview. With a real session,
-the shell renders the feature pages directly; each phase replaces its pages
-with real Convex queries and must never present local records as production
-data. The shared `LiveFoundation` gate was removed before Phase 1 so feature
-agents can test real sessions. Any module not yet wired must render an explicit
-empty state, not preview data.
+Feature pages under `/ruang/*` render Convex queries through the shared shell.
+There is no preview mode, persona switcher, or local fixture fallback: local
+records are never presented as production data. Any module not yet wired must
+render an explicit empty state.
 
 ## Environment
 
@@ -47,12 +44,8 @@ npx convex env set SITE_URL http://localhost:3000
 machine without a deployment; do not treat it as a substitute for codegen.
 
 Without Convex, `npm run build` and the landing page still work from
-`lib/content/fallback.ts`. In development, `/ruang` renders the preview shell
-with a visible development banner. In production, `/ruang` renders a
-configuration notice and never presents preview records as real data.
-
-`NEXT_PUBLIC_WORKSPACE_PREVIEW=1` is an explicit staged-verification escape
-hatch. Do not set it in production.
+`lib/content/fallback.ts`. `/ruang` renders a configuration notice and never
+presents local records as real data.
 
 ## First admin
 

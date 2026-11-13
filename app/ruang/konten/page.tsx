@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
-import { ContentCmsGate } from "@/components/workspace/content/content-cms-gate"
+import { ContentCmsLive } from "@/components/workspace/content/content-cms-live"
 
 export const metadata: Metadata = {
   title: "Konten",
@@ -24,7 +24,7 @@ export default function Page() {
           Kelola FAQ
         </Link>
       </div>
-      <ContentCmsGate />
+      <ContentCmsLive />
     </div>
   )
 }

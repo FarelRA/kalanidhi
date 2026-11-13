@@ -20,19 +20,14 @@ describe("messaging / live mode data source", () => {
     expect(live).not.toContain("lib/workspace/mock")
   })
 
-  it("[P4-MSG-51] preview data is isolated behind the explicit preview switch", async () => {
+  it("[P4-MSG-51] the message centre renders live Convex data with no preview branch", async () => {
     const wrapper = await source(
       "components/workspace/communication/message-center.tsx",
     )
-    expect(wrapper).toContain("useViewer")
-    expect(wrapper).toContain("isPreview")
-    expect(wrapper).toContain("MessageCenterPreview")
     expect(wrapper).toContain("MessageCenterLive")
-
-    const preview = await source(
-      "components/workspace/communication/message-center-preview.tsx",
-    )
-    expect(preview).toContain("lib/workspace/mock-data")
+    expect(wrapper).not.toContain("isPreview")
+    expect(wrapper).not.toContain("Preview")
+    expect(wrapper).not.toContain("mock-data")
   })
 
   it("[P4-MSG-52] the route renders the shared message centre, not a role dashboard", async () => {

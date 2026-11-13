@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import Link from "next/link"
 import { Bell, CheckCheck } from "lucide-react"
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui"
@@ -10,15 +9,17 @@ import { cn } from "cn"
 
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
-import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import type { NotificationView } from "@/lib/messaging/types"
 import { formatWorkspaceDateTime } from "@/lib/workspace/format"
-import {
-  previewNotifications,
-  type PreviewNotification,
-} from "@/lib/workspace/mock-data"
 
-type NotificationItem = PreviewNotification
+type NotificationItem = {
+  id: string
+  title: string
+  body: string
+  time: string
+  href: string
+  unread: boolean
+}
 
 function hrefFor(notification: NotificationView): string {
   if (notification.conversationId) return "/ruang/pesan"
@@ -58,37 +59,15 @@ function itemFromLive(notification: NotificationView): NotificationItem {
 }
 
 export function NotificationsMenu() {
-  const { isPreview } = useViewer()
-  const liveNotifications = useQuery(
-    api.notifications.list,
-    isPreview ? "skip" : { limit: 8 },
-  )
-  const liveUnread = useQuery(
-    api.notifications.unreadCount,
-    isPreview ? "skip" : {},
-  )
+  const liveNotifications = useQuery(api.notifications.list, { limit: 8 })
+  const liveUnread = useQuery(api.notifications.unreadCount, {})
   const markRead = useMutation(api.notifications.markRead)
   const markAllRead = useMutation(api.notifications.markAllRead)
-  const [previewReadIds, setPreviewReadIds] = React.useState<string[]>([])
 
-  const items = React.useMemo<NotificationItem[]>(() => {
-    if (isPreview) return previewNotifications
-    return (liveNotifications ?? []).map(itemFromLive)
-  }, [isPreview, liveNotifications])
-
-  const unreadCount = isPreview
-    ? items.filter(
-        (item) => item.unread && !previewReadIds.includes(item.id),
-      ).length
-    : (liveUnread ?? 0)
+  const items = (liveNotifications ?? []).map(itemFromLive)
+  const unreadCount = liveUnread ?? 0
 
   function openItem(item: NotificationItem) {
-    if (isPreview) {
-      setPreviewReadIds((current) =>
-        current.includes(item.id) ? current : [...current, item.id],
-      )
-      return
-    }
     if (!item.unread) return
     void markRead({
       notificationId: item.id as Id<"notificationOutbox">,
@@ -98,11 +77,6 @@ export function NotificationsMenu() {
   }
 
   function markAll() {
-    if (isPreview) {
-      setPreviewReadIds(previewNotifications.map((item) => item.id))
-      toast("Semua pemberitahuan ditandai dibaca")
-      return
-    }
     void markAllRead({})
       .then(() => toast("Semua pemberitahuan ditandai dibaca"))
       .catch(() => toast.error("Pemberitahuan belum bisa ditandai dibaca."))
@@ -150,9 +124,6 @@ export function NotificationsMenu() {
           ) : (
             <ul className="max-h-[60vh] divide-y divide-ink/10 overflow-y-auto">
               {items.map((item) => {
-                const unread = isPreview
-                  ? item.unread && !previewReadIds.includes(item.id)
-                  : item.unread
                 return (
                   <li key={item.id}>
                     <DropdownMenuPrimitive.Item asChild>
@@ -165,7 +136,7 @@ export function NotificationsMenu() {
                           aria-hidden="true"
                           className={cn(
                             "mt-1.5 size-1.5 shrink-0 border border-ink/30",
-                            unread ? "bg-copper-dark" : "bg-transparent",
+                            item.unread ? "bg-copper-dark" : "bg-transparent",
                           )}
                         />
                         <span className="min-w-0">

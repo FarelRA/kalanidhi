@@ -14,7 +14,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { labelForItem, navItems, visibleNav } from "@/components/workspace/shell/nav-config"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
-import { workspaceSearch } from "@/lib/workspace/mock-data"
 
 export function CommandPalette({
   open,
@@ -24,7 +23,7 @@ export function CommandPalette({
   onOpenChange: (open: boolean) => void
 }) {
   const router = useRouter()
-  const { capabilities, isPreview } = useViewer()
+  const { capabilities } = useViewer()
   const [query, setQuery] = React.useState("")
 
   const routes = React.useMemo(
@@ -42,24 +41,15 @@ export function CommandPalette({
 
   const results = React.useMemo(() => {
     const needle = query.trim().toLowerCase()
-    const all = [
-      ...routes,
-      ...(isPreview
-        ? workspaceSearch.map((item) => ({
-            ...item,
-            icon: null as null | typeof Search,
-          }))
-        : []),
-    ]
-    if (!needle) return all.slice(0, 9)
-    return all
+    if (!needle) return routes.slice(0, 9)
+    return routes
       .filter((item) =>
         `${item.label} ${item.meta} ${item.type}`
           .toLowerCase()
           .includes(needle),
       )
       .slice(0, 12)
-  }, [query, routes, isPreview])
+  }, [query, routes])
 
   function choose(href: string) {
     onOpenChange(false)
@@ -91,11 +81,7 @@ export function CommandPalette({
             autoFocus
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder={
-              isPreview
-                ? "Cari rute, akun, pesanan, sertifikat…"
-                : "Cari rute ruang kerja…"
-            }
+            placeholder="Cari rute ruang kerja…"
             aria-label="Cari di ruang kerja"
             className="h-11 border-0 bg-transparent px-0 text-[14px] focus-visible:ring-0"
           />
@@ -106,10 +92,7 @@ export function CommandPalette({
         <div className="max-h-[56vh] overflow-y-auto p-1.5">
           {results.length === 0 ? (
             <p className="px-4 py-8 text-center text-[12px] text-ink-muted">
-              Tidak ada hasil untuk “{query}”.{" "}
-              {isPreview
-                ? "Coba nama akun, kode pesanan, atau nomor sertifikat."
-                : "Coba nama rute ruang kerja."}
+              Tidak ada hasil untuk “{query}”. Coba nama rute ruang kerja.
             </p>
           ) : (
             <ul>

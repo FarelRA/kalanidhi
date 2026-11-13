@@ -6,11 +6,7 @@ import { redirect } from "next/navigation"
 import { WorkspaceShell } from "@/components/workspace/shell/workspace-shell"
 import { WhatsappGate } from "@/components/workspace/verification/whatsapp-gate"
 import { api } from "@/convex/_generated/api"
-import {
-  isPreviewAllowed,
-  resolveWorkspaceGuard,
-  safeNextPath,
-} from "@/lib/access/guard"
+import { resolveWorkspaceGuard, safeNextPath } from "@/lib/access/guard"
 import type { Viewer } from "@/lib/access/viewer"
 import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
 import { isConvexConfigured } from "@/lib/convex/server"
@@ -39,10 +35,6 @@ export default async function WorkspaceLayout({
   const pathname = safeNextPath(requestHeaders.get("x-pathname") ?? "/ruang")
   const convexConfigured = isConvexConfigured()
   const authConfigured = isAuthConfigured()
-  const previewAllowed = isPreviewAllowed(
-    process.env.NODE_ENV,
-    process.env.NEXT_PUBLIC_WORKSPACE_PREVIEW,
-  )
 
   let authenticated = false
   let viewer: Viewer | null = null
@@ -62,7 +54,6 @@ export default async function WorkspaceLayout({
 
   const decision = resolveWorkspaceGuard({
     convexConfigured: convexConfigured && authConfigured,
-    previewAllowed,
     authenticated,
     viewerResolved: Boolean(viewer),
     nextPath: pathname,
@@ -112,11 +103,19 @@ export default async function WorkspaceLayout({
     return <WhatsappGate viewer={viewer} />
   }
 
-  return (
-    <WorkspaceShell viewer={viewer} preview={decision.kind === "preview"}>
-      {children}
-    </WorkspaceShell>
-  )
+  if (!viewer) {
+    return (
+      <WorkspaceNotice
+        eyebrow="Akun"
+        title="Akun ini belum memiliki profil ruang kerja."
+        body="Sesi autentikasi ada, tetapi profil peran belum terbentuk. Hubungi pengelola untuk menyelesaikan undangan atau profil akun."
+        href="/"
+        action="Kembali ke situs publik"
+      />
+    )
+  }
+
+  return <WorkspaceShell viewer={viewer}>{children}</WorkspaceShell>
 }
 
 function WorkspaceNotice({

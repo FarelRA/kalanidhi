@@ -74,14 +74,25 @@ function read(relative: string): string {
   return readFileSync(path.join(ROOT, relative), "utf8")
 }
 
-function workspaceFiles(directory = "components/workspace"): string[] {
+function workspaceFiles(
+  directory = "components/workspace",
+  extensions = [".tsx"],
+): string[] {
   return readdirSync(path.join(ROOT, directory), { withFileTypes: true })
     .flatMap((entry) => {
       const relative = path.join(directory, entry.name)
-      if (entry.isDirectory()) return workspaceFiles(relative)
-      return entry.isFile() && entry.name.endsWith(".tsx") ? [relative] : []
+      if (entry.isDirectory()) return workspaceFiles(relative, extensions)
+      return entry.isFile() &&
+        extensions.some((extension) => entry.name.endsWith(extension))
+        ? [relative]
+        : []
     })
 }
+
+const WORKSPACE_FILES = [
+  ...workspaceFiles("components/workspace"),
+  ...workspaceFiles("lib/workspace", [".ts", ".tsx"]),
+]
 
 
 describe("workspace data sources", () => {
@@ -248,8 +259,8 @@ describe("workspace data sources", () => {
     }
   })
 
-  it("workspace components never carry the split percentages as literals", () => {
-    for (const file of workspaceFiles()) {
+  it("workspace files never carry the split percentages as literals", () => {
+    for (const file of WORKSPACE_FILES) {
       const source = read(file)
       expect(source, `${file} must not hardcode 70 / 15 / 15`).not.toContain(
         "70 / 15 / 15",
@@ -273,7 +284,7 @@ describe("workspace data sources", () => {
         /\b15%/,
       )
     }
-    for (const file of ["lib/workspace/access.ts", "lib/workspace/mock-data.ts"]) {
+    for (const file of ["lib/workspace/access.ts", "lib/workspace/types.ts"]) {
       const source = read(file)
       expect(source).not.toContain("70/15")
       expect(source).not.toMatch(/\b70%/)
@@ -281,7 +292,7 @@ describe("workspace data sources", () => {
     }
   })
 
-  it("workspace components never carry preview entity names", () => {
+  it("workspace files never hardcode fixture entity names", () => {
     const forbidden = [
       "Anisa Rahmawati",
       "Bambang Hardjono",
@@ -292,7 +303,7 @@ describe("workspace data sources", () => {
       "Lasem",
       "Batik Tulis Soga",
     ]
-    for (const file of workspaceFiles()) {
+    for (const file of WORKSPACE_FILES) {
       const source = read(file)
       for (const name of forbidden) {
         expect(source, `${file} must not hardcode ${name}`).not.toContain(name)
@@ -304,14 +315,5 @@ describe("workspace data sources", () => {
     expect(read("convex/audit.ts")).toContain("LOG_KINDS")
     expect(read("convex/commerce.ts")).toContain("WORK_READINESS_LABELS")
     expect(read("convex/governance.ts")).toContain("BREAK_GLASS_ENTITY_TYPES")
-  })
-
-  it("preview fixtures stay in the mock-data module", () => {
-    expect(read("lib/workspace/mock-data.ts")).toContain(
-      "export const previewNotifications",
-    )
-    expect(
-      read("components/workspace/shell/notifications-menu.tsx"),
-    ).not.toMatch(/const\s+previewNotifications\s*:\s*NotificationItem\[\]\s*=\s*\[/)
   })
 })

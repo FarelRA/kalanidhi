@@ -1,11 +1,11 @@
 import type { Metadata } from "next"
 
-import { GovernanceBoardGate } from "@/components/workspace/governance/governance-board-gate"
+import { GovernanceBoardLive } from "@/components/workspace/governance/governance-board-live"
 
 export const metadata: Metadata = {
   title: "Tata kelola",
 }
 
 export default function Page() {
-  return <GovernanceBoardGate />
+  return <GovernanceBoardLive />
 }

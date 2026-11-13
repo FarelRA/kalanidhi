@@ -25,17 +25,13 @@ describe("calls / live mode and mock isolation", () => {
     expect(live).not.toContain("@livekit/components-styles")
   })
 
-  it("[P5-CALL-31] preview mode keeps the approved mock room behind the wrapper", async () => {
+  it("[P5-CALL-31] the call route renders the live LiveKit room with no preview branch", async () => {
     const wrapper = await source("components/workspace/communication/call-room.tsx")
-    expect(wrapper).toContain("useViewer")
-    expect(wrapper).toContain("isPreview")
-    expect(wrapper).toContain("CallRoomPreview")
     expect(wrapper).toContain("call-room-live")
-
-    const preview = await source(
-      "components/workspace/communication/call-room-preview.tsx",
-    )
-    expect(preview).toContain("lib/workspace/mock-data")
+    expect(wrapper).toContain("CallRoomLive")
+    expect(wrapper).not.toContain("isPreview")
+    expect(wrapper).not.toContain("Preview")
+    expect(wrapper).not.toContain("mock-data")
   })
 
   it("[P5-CALL-32] the route renders the shared call room and stays noindex by layout", async () => {

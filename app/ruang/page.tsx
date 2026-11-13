@@ -1,11 +1,11 @@
 import type { Metadata } from "next"
 
-import { OverviewBoardGate } from "@/components/workspace/overview/overview-board-gate"
+import { OverviewLive } from "@/components/workspace/overview/overview-live"
 
 export const metadata: Metadata = {
   title: "Ringkasan",
 }
 
 export default function Page() {
-  return <OverviewBoardGate />
+  return <OverviewLive />
 }

@@ -268,7 +268,7 @@ Required properties:
 - `seedBase` refuses to run when `NODE_ENV === "production"`.
 - E2E seeding refuses unless the deployment name contains `e2e` and `E2E_SEED_ALLOWED === "1"`.
 - No test-only mutation is reachable from the public API. If an E2E reset needs a mutation, it is an internal mutation plus a deployment guard, never a public one.
-- The `/ruang` preview role switcher is development-only. A production build test asserts it is absent and that `/ruang` redirects to `/masuk` without a session.
+- `/ruang` has no preview mode, persona switcher, or local mock fixtures. A regression test asserts every workspace screen renders Convex data and that `/ruang` redirects to `/masuk` without a session.
 - Fallback landing content is a legitimate runtime fallback, not test data. No fixture string may appear in `lib/content/fallback.ts` or `convex/seedData.ts`.
 - CI runs a boundary check: no import of `convex/test/*` or `tests/*` from runtime code.
 
@@ -377,7 +377,7 @@ Rules:
 | P0-SHL-01 | No session on `/ruang` redirects to `/masuk?next=/ruang`. |
 | P0-SHL-02 | An authenticated viewer loads the one shell; the role tag is a derived label, not a theme. |
 | P0-SHL-03 | Navigation is generated from capabilities; no `/admin`, `/pengajar`, or `/siswa` prefix exists. |
-| P0-SHL-04 | The development preview switcher is absent in a production build; preview data is never presented as real. |
+| P0-SHL-04 | No preview mode or mock fixtures exist in `/ruang`; every screen renders Convex data. |
 | P0-SHL-05 | A build without `CONVEX_URL` renders the landing page and keeps `/ruang` guarded. |
 | P0-SHL-06 | `/ruang` and every workspace route remain noindex. |
 
@@ -1222,9 +1222,9 @@ A phase is not done when the code compiles. It is done when the listed tests exi
 - [ ] Admin cannot grade, submit, or sell.
 - [ ] Suspended account, self-dealing, and IDOR baseline.
 - [ ] Viewer resolution and forged-argument rejection.
-- [ ] `/ruang` guard redirects without a session; preview switcher is development-only.
+- [ ] `/ruang` guard redirects without a session; no persona switcher exists.
 - [ ] Production build without `CONVEX_URL` renders the landing page.
-- [ ] No-preview-in-production test.
+- [ ] No-mock-data-in-workspace test.
 - [ ] `typecheck`, `lint`, `test`, `build` pass.
 
 ### Phase 1 — Admin core
@@ -1341,7 +1341,7 @@ A phase is not done when the code compiles. It is done when the listed tests exi
 | Minor accesses a 1:1 call without consent | Safeguarding failure | P5-CALL-18..20 | Age gate; guardian consent; cohort preference; report review | Phase 5 |
 | Admin break-glass misuse | Privacy breach | P0-ACC-60..66; P6-GOV-20..23 | Reason, scope, expiry, audit, review queue | Phase 0/6 |
 | Audit log tampering | Trust and compliance failure | P1-LOG-06..07; P6-GOV-20..23 | Append-only API; no delete; tamper alert | Phase 1/6 |
-| Test fixture or preview data reaches production | Fake data presented as real | P0-SHL preview test; fixture boundary check | Dev-only flag; separate directories; CI import check | Phase 0 |
+| Test fixture or preview data reaches production | Fake data presented as real | P0-SHL live-data test; fixture boundary check | Deleted mock module; separate directories; CI import check | Phase 0 |
 | E2E flakiness hides regressions | False confidence | Retry report; quarantine list | Deterministic fixtures; no sleeps; one retry with report | Phase 7 |
 | CSV export formula injection | Operator workstation compromise | P1-EXP-04 | Escape leading formula characters; quote fields | Phase 1/6 |
 | Secret in log or commit | Credential leak | P7-SEC-40..42, 49 | Redaction; secret scan; least-privilege keys | All |

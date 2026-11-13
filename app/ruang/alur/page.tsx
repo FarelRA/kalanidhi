@@ -1,11 +1,11 @@
 import type { Metadata } from "next"
 
-import { FlowBoardGate } from "@/components/workspace/governance/flow-board-gate"
+import { FlowBoardLive } from "@/components/workspace/governance/flow-board-live"
 
 export const metadata: Metadata = {
   title: "Alur",
 }
 
 export default function Page() {
-  return <FlowBoardGate />
+  return <FlowBoardLive />
 }

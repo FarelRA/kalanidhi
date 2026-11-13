@@ -1,12 +1,5 @@
 export type { Capability, WorkspaceRole } from "@/lib/access/capabilities"
 
-export type PreviewKey =
-  | "peserta"
-  | "peserta-penjual"
-  | "pengajar"
-  | "pengajar-peserta"
-  | "pengelola"
-
 export type DisplayRole = "peserta" | "pengajar" | "pengelola"
 
 export type StatusTone =
