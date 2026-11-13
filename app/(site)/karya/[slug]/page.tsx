@@ -2,8 +2,11 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { connection } from "next/server"
+import { Suspense } from "react"
 import { ArrowRight, ShieldCheck } from "lucide-react"
 
+import type { PublicWorkView } from "@/lib/commerce/types"
 import { formatIDR } from "@/lib/format"
 import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
 import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
@@ -58,12 +61,8 @@ export default async function WorkDetailPage({
   params: Promise<Params>
 }) {
   const { slug } = await params
-  const [work, signedIn] = await Promise.all([getPublicWork(slug), isSignedIn()])
+  const work = await getPublicWork(slug)
   if (!work) notFound()
-
-  const checkoutHref = signedIn
-    ? buyHref(work.slug)
-    : `${PUBLIC_ROUTES.signIn}?next=${encodeURIComponent(buyHref(work.slug))}`
 
   return (
     <div className="bg-cream">
@@ -138,42 +137,11 @@ export default async function WorkDetailPage({
               {work.permission}
             </p>
 
-            <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
-              <div>
-                {work.priceLabel ? (
-                  <p className="text-[9.5px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                    {work.priceLabel}
-                  </p>
-                ) : null}
-                <p className="mt-1 font-heading text-[1.9rem] leading-none">
-                  {formatIDR(work.price)}
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <Link
-                  href={interestHref({
-                    work: work.slug,
-                    intent: "consultation",
-                  })}
-                  className="inline-flex min-h-12 items-center gap-2 border border-ink/35 px-5 text-[11px] font-bold uppercase tracking-[0.08em] text-ink transition-colors hover:border-copper-dark hover:text-copper-dark"
-                >
-                  Tanya karya ini
-                </Link>
-                {work.purchasable ? (
-                  <Link
-                    href={checkoutHref}
-                    className="inline-flex min-h-12 items-center gap-2 border border-ink bg-ink px-5 text-[11px] font-bold uppercase tracking-[0.08em] text-paper transition-colors hover:bg-ink-2"
-                  >
-                    {signedIn ? "Beli karya ini" : "Masuk untuk membeli"}
-                    <ArrowRight aria-hidden="true" className="size-4" />
-                  </Link>
-                ) : (
-                  <p className="max-w-56 border border-ink/20 bg-panel/40 px-3 py-2 text-[10px] leading-relaxed text-ink-muted">
-                    Karya kurasi platform. Hubungi pengelola untuk pembelian.
-                  </p>
-                )}
-              </div>
-            </div>
+            <Suspense
+              fallback={<WorkPurchaseView work={work} signedIn={false} />}
+            >
+              <WorkPurchase work={work} />
+            </Suspense>
           </div>
         </div>
 
@@ -223,6 +191,65 @@ export default async function WorkDetailPage({
           </p>
         </section>
       </section>
+    </div>
+  )
+}
+
+async function WorkPurchase({ work }: { work: PublicWorkView }) {
+  // Reading the session during prerender makes the auth fetch reject once the
+  // static shell is done, so resolve it only when a request arrives.
+  await connection()
+  const signedIn = await isSignedIn()
+  return <WorkPurchaseView work={work} signedIn={signedIn} />
+}
+
+function WorkPurchaseView({
+  work,
+  signedIn,
+}: {
+  work: PublicWorkView
+  signedIn: boolean
+}) {
+  const checkoutHref = signedIn
+    ? buyHref(work.slug)
+    : `${PUBLIC_ROUTES.signIn}?next=${encodeURIComponent(buyHref(work.slug))}`
+
+  return (
+    <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        {work.priceLabel ? (
+          <p className="text-[9.5px] font-bold uppercase tracking-[0.08em] text-ink-muted">
+            {work.priceLabel}
+          </p>
+        ) : null}
+        <p className="mt-1 font-heading text-[1.9rem] leading-none">
+          {formatIDR(work.price)}
+        </p>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Link
+          href={interestHref({
+            work: work.slug,
+            intent: "consultation",
+          })}
+          className="inline-flex min-h-12 items-center gap-2 border border-ink/35 px-5 text-[11px] font-bold uppercase tracking-[0.08em] text-ink transition-colors hover:border-copper-dark hover:text-copper-dark"
+        >
+          Tanya karya ini
+        </Link>
+        {work.purchasable ? (
+          <Link
+            href={checkoutHref}
+            className="inline-flex min-h-12 items-center gap-2 border border-ink bg-ink px-5 text-[11px] font-bold uppercase tracking-[0.08em] text-paper transition-colors hover:bg-ink-2"
+          >
+            {signedIn ? "Beli karya ini" : "Masuk untuk membeli"}
+            <ArrowRight aria-hidden="true" className="size-4" />
+          </Link>
+        ) : (
+          <p className="max-w-56 border border-ink/20 bg-panel/40 px-3 py-2 text-[10px] leading-relaxed text-ink-muted">
+            Karya kurasi platform. Hubungi pengelola untuk pembelian.
+          </p>
+        )}
+      </div>
     </div>
   )
 }
