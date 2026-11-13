@@ -410,7 +410,7 @@ export function SettingsPanelLive() {
                 type="email"
                 value={inviteEmail}
                 onChange={(event) => setInviteEmail(event.target.value)}
-                placeholder="nama@kalanidhi.site"
+                placeholder="nama@email.com"
                 className="mt-1.5"
               />
               <Button

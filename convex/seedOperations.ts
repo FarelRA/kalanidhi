@@ -992,11 +992,9 @@ export const seedMessaging = internalMutation({
     })
 
     return {
-      conversations: 9,
-      // Direct 7 + cohort 3 + support 4 + rani 4 + dimas 4 + order 6 +
-      // mentor 6 + flagged 1 + system 2 = 37.
-      messages: 37,
-      calls: 4,
+      conversations: (await ctx.db.query("conversations").collect()).length,
+      messages: (await ctx.db.query("messages").collect()).length,
+      calls: (await ctx.db.query("callSessions").collect()).length,
     }
   },
 })
@@ -1006,6 +1004,9 @@ export const seedOps = internalMutation({
   handler: async (ctx) => {
     const admin = await seedAdmin(ctx)
     const sari = await userByEmail(ctx, seedEmail("sari"))
+    const bambang = await userByEmail(ctx, seedEmail("bambang"))
+    const dewi = await userByEmail(ctx, seedEmail("dewi"))
+    const arif = await userByEmail(ctx, seedEmail("arif"))
     const dwi = await userByEmail(ctx, seedEmail("dwi"))
     const anisa = await userByEmail(ctx, seedEmail("anisa"))
     const rani = await userByEmail(ctx, seedEmail("rani"))
@@ -1438,7 +1439,7 @@ export const seedOps = internalMutation({
         category: "trust_safety" as const,
       },
     ]
-    for (const reply of cannedReplies) {
+    for (const [replyIndex, reply] of cannedReplies.entries()) {
       await ctx.db.insert("supportCannedReplies", {
         key: reply.key,
         title: reply.title,
@@ -1446,7 +1447,7 @@ export const seedOps = internalMutation({
         category: reply.category,
         active: true,
         createdBy: admin._id,
-        createdAt: ago(30),
+        createdAt: ago(300 - replyIndex * 21),
         updatedAt: NOW,
       })
     }
@@ -1528,6 +1529,94 @@ export const seedOps = internalMutation({
         entityId: missedCall?._id ?? "Panggilan tak terjawab",
         readAt: undefined,
         daysAgo: 4,
+      },
+      {
+        recipient: sari,
+        channel: "email" as const,
+        template: "enrollment.welcome",
+        title: "Selamat datang di angkatan perintis",
+        body: "Akses ruang belajar sudah dibuka. Sesi pertama dimulai pekan depan di sanggar Giriloyo.",
+        entityType: "cohorts",
+        entityId: "BTS-2026-00",
+        readAt: ago(358),
+        daysAgo: 360,
+      },
+      {
+        recipient: anisa,
+        channel: "email" as const,
+        template: "certificate.issued",
+        title: "Sertifikat sudah terbit",
+        body: "Sertifikat KN-ANISA-2026 sudah terbit dan dapat diverifikasi publik.",
+        entityType: "certificates",
+        entityId: certificate._id,
+        readAt: ago(230),
+        daysAgo: 232,
+      },
+      {
+        recipient: anisa,
+        channel: "in_app" as const,
+        template: "work.published",
+        title: "Kartu Karya terbit",
+        body: "Kain Batik Soga Anyaman sudah tampil di halaman karya dengan Kartu Karya KN-8821.",
+        entityType: "works",
+        entityId: work._id,
+        readAt: ago(226),
+        daysAgo: 228,
+      },
+      {
+        recipient: bambang,
+        channel: "email" as const,
+        template: "cohort.session_reminder",
+        title: "Pengingat sesi live",
+        body: "Sesi 3 angkatan BTS-2026-00 berlangsung Sabtu pukul 09.00 WIB. Tautan ruang sudah tersedia.",
+        entityType: "cohorts",
+        entityId: "BTS-2026-00",
+        readAt: ago(150),
+        daysAgo: 152,
+      },
+      {
+        recipient: rani,
+        channel: "in_app" as const,
+        template: "order.paid",
+        title: "Pesanan dibayar",
+        body: "Pesanan KN-2026-000109 sudah dibayar. Mohon siapkan gladi resik sehari sebelum acara.",
+        entityType: "orders",
+        entityId: "KN-2026-000109",
+        readAt: ago(238),
+        daysAgo: 240,
+      },
+      {
+        recipient: admin,
+        channel: "email" as const,
+        template: "payout.failed",
+        title: "Payout gagal dikirim",
+        body: "Transfer payout untuk pesanan KN-2026-000104 ditolak bank. Periksa nama rekening penerima.",
+        entityType: "payouts",
+        entityId: "KN-2026-000104",
+        readAt: ago(70),
+        daysAgo: 72,
+      },
+      {
+        recipient: dewi,
+        channel: "in_app" as const,
+        template: "work.published",
+        title: "Karya tampil di halaman publik",
+        body: "Batik Soga Anyaman sudah tayang. Anda dapat membagikan tautannya.",
+        entityType: "works",
+        entityId: work._id,
+        readAt: ago(44),
+        daysAgo: 46,
+      },
+      {
+        recipient: arif,
+        channel: "whatsapp" as const,
+        template: "enrollment.deadline",
+        title: "Tenggat tugas akhir",
+        body: "Tugas akhir angkatan BTS-2026-01 jatuh tempo 10 hari lagi. Unggah dokumentasi proses bila sudah selesai.",
+        entityType: "enrollments",
+        entityId: "BTS-2026-01",
+        readAt: undefined,
+        daysAgo: 12,
       },
     ]
     for (const notification of notifications) {
@@ -1620,6 +1709,36 @@ export const seedOps = internalMutation({
         responseStatus: 500,
         error: "Batas percobaan habis.",
         daysAgo: 12,
+      },
+      {
+        endpointId: gatewayEndpoint?._id,
+        eventId: "seed-delivery-6",
+        event: "order.paid",
+        url: gatewayEndpoint?.url ?? "https://payments.kalanidhi.site/webhooks/kalanidhi",
+        status: "delivered" as const,
+        attempts: 1,
+        responseStatus: 200,
+        daysAgo: 214,
+      },
+      {
+        endpointId: gatewayEndpoint?._id,
+        eventId: "seed-delivery-7",
+        event: "payment.settled",
+        url: gatewayEndpoint?.url ?? "https://payments.kalanidhi.site/webhooks/kalanidhi",
+        status: "delivered" as const,
+        attempts: 1,
+        responseStatus: 200,
+        daysAgo: 158,
+      },
+      {
+        endpointId: opsEndpoint?._id,
+        eventId: "seed-delivery-8",
+        event: "work.published",
+        url: opsEndpoint?.url ?? "https://ops.kalanidhi.site/hooks/kalanidhi",
+        status: "delivered" as const,
+        attempts: 1,
+        responseStatus: 200,
+        daysAgo: 96,
       },
     ]
     for (const delivery of deliveries) {
@@ -2057,7 +2176,7 @@ export const seedGovernance = internalMutation({
       {
         community: "Sanggar Ukir Bantul",
         sourceName: "Draf pengantar ukir relief Bantul",
-        pathId: "kriya-ukir-jepara",
+        pathId: "kriya-ukir-bantul",
         workId: undefined,
         permissionDocumentRef: "IZIN-SUJ-2026-11",
         permissionDate: ago(20),
@@ -2106,7 +2225,7 @@ export const seedGovernance = internalMutation({
       targetLabel: workNitik.title,
       culturalSourceId: sourceIds[1],
       requesterName: "Perwakilan Rumah Warna Pleret",
-      requesterContact: "izin@rumahwarnalasem.example",
+      requesterContact: "izin.rumahwarna@gmail.com",
       reason:
         "Sebagian catatan takaran pewarna belum boleh dipublikasikan.",
       evidence: "Surat permintaan peninjauan akses, 2 halaman.",
@@ -2392,13 +2511,13 @@ export const seedMetrics = internalMutation({
       })
     }
 
-    for (let day = 44; day >= 0; day -= 1) {
+    for (let day = 89; day >= 0; day -= 1) {
       const timestamp = ago(day)
       const date = jakartaDate(timestamp)
       for (const [index, definition] of METRIC_DEFINITIONS.entries()) {
         const ratio = 0.42 + ((day + index) % 6) * 0.07
         const hours = 16 + ((day + index) % 5) * 5
-        const rupiah = 1_200_000 + (44 - day) * 60_000 + index * 25_000
+        const rupiah = 1_200_000 + (89 - day) * 34_000 + index * 25_000
         const value =
           definition.key === "gmv" ||
           definition.key === "net_revenue" ||
@@ -2419,7 +2538,7 @@ export const seedMetrics = internalMutation({
       }
     }
 
-    return { definitions: METRIC_DEFINITIONS.length, days: 45 }
+    return { definitions: METRIC_DEFINITIONS.length, days: 90 }
   },
 })
 
@@ -2476,7 +2595,7 @@ export const seedAudit = internalMutation({
         entityId: sari._id,
         reason: "Pendaftaran peserta melalui landing.",
         severity: "info" as const,
-        daysAgo: 120,
+        daysAgo: 180,
       },
       {
         actorId: admin._id,
@@ -2486,7 +2605,7 @@ export const seedAudit = internalMutation({
         entityId: bambang._id,
         reason: "Verifikasi pengajar batik Giriloyo.",
         severity: "info" as const,
-        daysAgo: 110,
+        daysAgo: 395,
         before: { roles: ["student"] },
         after: { roles: ["teacher"] },
       },

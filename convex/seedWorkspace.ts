@@ -95,7 +95,7 @@ const SEED_TEACHERS = [
     path: "Kriya Ukir Kayu Bantul",
     community: "Sanggar Ukir Bantul",
     imageFile: "teacher-joko.jpg",
-    pathIds: ["kriya-ukir-jepara"],
+    pathIds: ["kriya-ukir-bantul"],
     status: "review" as const,
     verificationStatus: "under_review" as const,
     published: false,
@@ -463,7 +463,7 @@ const MODULES: Record<string, SeedModule[]> = {
       ],
     },
   ],
-  "kriya-ukir-jepara": [
+  "kriya-ukir-bantul": [
     {
       title: "Pengantar ukir Bantul",
       summary: "Alat, kayu, dan prinsip relief.",
@@ -1033,6 +1033,13 @@ async function evidenceStorageId(
   )
 }
 
+/** Stable four-digit tail so seeded payout accounts look like real ones. */
+function accountSuffix(name: string): string {
+  let hash = 7
+  for (const char of name) hash = (hash * 33 + char.charCodeAt(0)) % 8999
+  return String(1000 + hash)
+}
+
 export const seedPeople = internalMutation({
   args: {},
   handler: async (ctx) => {
@@ -1230,7 +1237,7 @@ export const seedPeople = internalMutation({
       })
     }
 
-    for (const seed of SEED_TEACHERS) {
+    for (const [teacherIndex, seed] of SEED_TEACHERS.entries()) {
       const user = byKey.get(seed.key)
       if (!user) continue
       await ctx.db.insert("sellerProfiles", {
@@ -1243,8 +1250,9 @@ export const seedPeople = internalMutation({
           firstWorkCard: seed.status === "active",
           taxDetails: seed.status === "active",
         },
-        activatedAt: seed.status === "active" ? ago(100) : undefined,
-        createdAt: ago(110),
+        activatedAt:
+          seed.status === "active" ? ago(120 - teacherIndex * 9) : undefined,
+        createdAt: ago(126 - teacherIndex * 9),
         updatedAt: NOW,
       })
       if (seed.status === "active") {
@@ -1253,12 +1261,12 @@ export const seedPeople = internalMutation({
           provider: "bank",
           bankCode: seed.key === "sri" ? "BRI" : "BCA",
           accountName: seed.name,
-          accountNumberMasked: `****${1000 + seed.name.length}`,
+          accountNumberMasked: `****${accountSuffix(seed.name)}`,
           accountRef: `vault:seed:${seed.key}`,
           status: "verified",
           verifiedBy: admin._id,
-          verifiedAt: ago(95),
-          createdAt: ago(100),
+          verifiedAt: ago(122 - teacherIndex * 9),
+          createdAt: ago(124 - teacherIndex * 9),
           updatedAt: NOW,
         })
       }
@@ -1277,8 +1285,8 @@ export const seedPeople = internalMutation({
           firstWorkCard: true,
           taxDetails: true,
         },
-        activatedAt: ago(300),
-        createdAt: ago(320),
+        activatedAt: ago(300 + (key === "rani" ? 18 : 0)),
+        createdAt: ago(320 + (key === "rani" ? 18 : 0)),
         updatedAt: NOW,
       })
       await ctx.db.insert("payoutAccounts", {
@@ -1286,12 +1294,12 @@ export const seedPeople = internalMutation({
         provider: "bank",
         bankCode: key === "rani" ? "BRI" : "BCA",
         accountName: user.name,
-        accountNumberMasked: `****${2000 + user.name.length}`,
+        accountNumberMasked: `****${accountSuffix(user.name)}`,
         accountRef: `vault:seed:${key}`,
         status: "verified",
         verifiedBy: admin._id,
-        verifiedAt: ago(310),
-        createdAt: ago(315),
+        verifiedAt: ago(310 + (key === "rani" ? 18 : 0)),
+        createdAt: ago(315 + (key === "rani" ? 18 : 0)),
         updatedAt: NOW,
       })
     }
@@ -1362,7 +1370,7 @@ export const seedCurriculum = internalMutation({
     const pathOrder = Object.keys(MODULES)
     for (const [pathSlug, modules] of Object.entries(MODULES)) {
       const path = await pathBySlug(ctx, pathSlug)
-      const isDraft = pathSlug === "kriya-ukir-jepara"
+      const isDraft = pathSlug === "kriya-ukir-bantul"
       const curriculumOrder = pathOrder.indexOf(pathSlug)
       let publishedModules = 0
       for (const [moduleIndex, module] of modules.entries()) {

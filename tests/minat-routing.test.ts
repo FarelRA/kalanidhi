@@ -173,7 +173,7 @@ describe("/minat smart routing", () => {
   it("renders a chooser when a teacher has multiple paths", () => {
     const result = resolveMinat({
       params: { teacher: "bambang-hardjono" },
-      paths: [path(), path({ slug: "kriya-ukir-jepara" })],
+      paths: [path(), path({ slug: "kriya-ukir-bantul" })],
       works: [],
       teacher: teacher({
         paths: [
@@ -187,11 +187,11 @@ describe("/minat smart routing", () => {
             comingSoon: false,
           },
           {
-            slug: "kriya-ukir-jepara",
+            slug: "kriya-ukir-bantul",
             code: "JLR-02",
-            title: "Kriya Ukir Jepara",
+            title: "Kriya Ukir Bantul",
             level: "Dasar",
-            region: "Jepara",
+            region: "Bantul",
             price: 900_000,
             comingSoon: false,
           },

@@ -11,7 +11,7 @@ describe("public entity queries", () => {
 
     const paths = await t.query(api.content.listPublicPaths, {})
     expect(paths.map((path) => path.slug)).toContain("batik-tulis-soga")
-    expect(paths.map((path) => path.slug)).toContain("kriya-ukir-jepara")
+    expect(paths.map((path) => path.slug)).toContain("kriya-ukir-bantul")
     expect(paths.every((path) => path.image.length > 0)).toBe(true)
   })
 

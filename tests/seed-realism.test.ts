@@ -90,6 +90,25 @@ describe("seed realism", () => {
     expect(phones.size).toBe(users.length - 1)
   })
 
+  it("masks payout accounts like real bank records", async () => {
+    const t = createTestDb()
+    await seedWorkspace(t)
+
+    const accounts = await t.run(async (ctx) => {
+      return await ctx.db.query("payoutAccounts").collect()
+    })
+
+    expect(accounts.length).toBeGreaterThan(0)
+    const suffixes = new Set<string>()
+    for (const account of accounts) {
+      expect(account.accountNumberMasked).toMatch(/^\*{4}\d{4}$/)
+      expect(account.accountName.trim().length).toBeGreaterThan(3)
+      expect(["BCA", "BRI", "BNI", "Mandiri"]).toContain(account.bankCode)
+      suffixes.add(account.accountNumberMasked)
+    }
+    expect(suffixes.size).toBe(accounts.length)
+  })
+
   it("spreads domain activity from January 2026 to the present", async () => {
     const t = createTestDb()
     await seedWorkspace(t)

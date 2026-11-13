@@ -292,7 +292,7 @@ export function SettingsPanel() {
           <div className="space-y-4 lg:col-span-4">
             <Panel eyebrow="Undangan" title="Tambah pengelola">
               <Label htmlFor="invite-email">Email</Label>
-              <Input id="invite-email" type="email" placeholder="nama@kalanidhi.site" className="mt-1.5" />
+              <Input id="invite-email" type="email" placeholder="nama@email.com" className="mt-1.5" />
               <p className="mt-1.5 text-[9.5px] leading-relaxed text-ink-muted">
                 Undangan berlaku 48 jam. Pengelola baru wajib mengaktifkan MFA.
               </p>

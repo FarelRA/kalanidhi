@@ -739,7 +739,7 @@ export const pathsSeed: SeedLearningPath[] = [
     ],
   },
   {
-    slug: "kriya-ukir-jepara",
+    slug: "kriya-ukir-bantul",
     code: "Jalur 03",
     title: "Kriya Ukir Kayu Bantul",
     subtitle: "Prinsip ukir, alat, dan ornamen sulur",
