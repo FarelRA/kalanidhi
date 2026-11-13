@@ -374,7 +374,7 @@ export const seedMessaging = internalMutation({
       {
         senderId: sari._id,
         kind: "text" as const,
-        body: "Saya sudah transfer untuk pesanan KN-2026-000101, tetapi statusnya belum berubah.",
+        body: "Saya sudah transfer untuk pesanan KN-2026-000108, tetapi statusnya belum berubah.",
         createdAt: ago(2),
       },
       {
@@ -1011,7 +1011,7 @@ export const seedOps = internalMutation({
     const anisa = await userByEmail(ctx, seedEmail("anisa"))
     const rani = await userByEmail(ctx, seedEmail("rani"))
     const purnomo = await userByEmail(ctx, seedEmail("purnomo"))
-    const order1 = await orderByCode(ctx, "KN-2026-000101")
+    const order1 = await orderByCode(ctx, "KN-2026-000108")
     const payoutForOrder1 = (
       await ctx.db
         .query("payouts")
@@ -1202,7 +1202,7 @@ export const seedOps = internalMutation({
 
     const tickets = [
       {
-        code: "SUP-2026-0001",
+        code: "SUP-2026-0005",
         requester: sari,
         subject: "Pembayaran belum masuk",
         priority: "high" as const,
@@ -1220,7 +1220,7 @@ export const seedOps = internalMutation({
           {
             authorId: sari._id,
             kind: "user" as const,
-            body: "Saya sudah transfer untuk pesanan KN-2026-000101, tetapi statusnya belum berubah.",
+            body: "Saya sudah transfer untuk pesanan KN-2026-000108, tetapi statusnya belum berubah.",
             daysAgo: 2,
           },
           {
@@ -1233,7 +1233,7 @@ export const seedOps = internalMutation({
         daysAgo: 2,
       },
       {
-        code: "SUP-2026-0002",
+        code: "SUP-2026-0004",
         requester: dwi,
         subject: "Tugas ditolak tanpa catatan lengkap",
         priority: "normal" as const,
@@ -1293,7 +1293,7 @@ export const seedOps = internalMutation({
         daysAgo: 6,
       },
       {
-        code: "SUP-2026-0004",
+        code: "SUP-2026-0002",
         requester: rani,
         subject: "Akses rekaman sesi",
         priority: "low" as const,
@@ -1323,7 +1323,7 @@ export const seedOps = internalMutation({
         daysAgo: 10,
       },
       {
-        code: "SUP-2026-0005",
+        code: "SUP-2026-0001",
         requester: anisa,
         subject: "Kartu Karya belum muncul di halaman karya",
         priority: "normal" as const,
@@ -1460,7 +1460,7 @@ export const seedOps = internalMutation({
         title: "Tiket dukungan baru",
         body: "Sari Wulandari membuka tiket pembayaran belum masuk.",
         entityType: "supportTickets",
-        entityId: "SUP-2026-0001",
+        entityId: "SUP-2026-0005",
         readAt: undefined,
         daysAgo: 2,
       },
@@ -1469,7 +1469,7 @@ export const seedOps = internalMutation({
         channel: "in_app" as const,
         template: "order.paid",
         title: "Pesanan diterima",
-        body: "Pesanan KN-2026-000101 sudah dibayar dan sedang disiapkan.",
+        body: "Pesanan KN-2026-000108 sudah dibayar dan sedang disiapkan.",
         entityType: "orders",
         entityId: order1._id,
         readAt: ago(20),
@@ -1480,7 +1480,7 @@ export const seedOps = internalMutation({
         channel: "in_app" as const,
         template: "payout.released",
         title: "Payout disetujui",
-        body: "Payout untuk pesanan KN-2026-000101 sudah disetujui.",
+        body: "Payout untuk pesanan KN-2026-000108 sudah disetujui.",
         entityType: "payouts",
         entityId: payoutForOrder1?._id,
         readAt: ago(5),
@@ -1513,7 +1513,7 @@ export const seedOps = internalMutation({
         channel: "whatsapp" as const,
         template: "order.paid",
         title: "Pesanan diterima",
-        body: "Pesanan KN-2026-000101 sudah dibayar.",
+        body: "Pesanan KN-2026-000108 sudah dibayar.",
         entityType: "orders",
         entityId: order1._id,
         readAt: undefined,
@@ -1579,9 +1579,9 @@ export const seedOps = internalMutation({
         channel: "in_app" as const,
         template: "order.paid",
         title: "Pesanan dibayar",
-        body: "Pesanan KN-2026-000109 sudah dibayar. Mohon siapkan gladi resik sehari sebelum acara.",
+        body: "Pesanan KN-2026-000103 sudah dibayar. Mohon siapkan gladi resik sehari sebelum acara.",
         entityType: "orders",
-        entityId: "KN-2026-000109",
+        entityId: "KN-2026-000103",
         readAt: ago(238),
         daysAgo: 240,
       },
@@ -1590,9 +1590,9 @@ export const seedOps = internalMutation({
         channel: "email" as const,
         template: "payout.failed",
         title: "Payout gagal dikirim",
-        body: "Transfer payout untuk pesanan KN-2026-000104 ditolak bank. Periksa nama rekening penerima.",
+        body: "Transfer payout untuk pesanan KN-2026-000106 ditolak bank. Periksa nama rekening penerima.",
         entityType: "payouts",
-        entityId: "KN-2026-000104",
+        entityId: "KN-2026-000106",
         readAt: ago(70),
         daysAgo: 72,
       },
@@ -2549,7 +2549,7 @@ export const seedAudit = internalMutation({
     const bambang = await userByEmail(ctx, seedEmail("bambang"))
     const sari = await userByEmail(ctx, seedEmail("sari"))
     const anisa = await userByEmail(ctx, seedEmail("anisa"))
-    const order1 = await orderByCode(ctx, "KN-2026-000101")
+    const order1 = await orderByCode(ctx, "KN-2026-000108")
     const work = await workBySlug(ctx, "batik-soga-anyaman")
     const certificate = await certificateByCode(ctx, "KN-ANISA-2026")
     const submission = await submissionByCode(ctx, "TUG-SARI-BTS-1")

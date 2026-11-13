@@ -109,6 +109,22 @@ describe("seed realism", () => {
     expect(suffixes.size).toBe(accounts.length)
   })
 
+  it("keeps order codes in chronological order", async () => {
+    const t = createTestDb()
+    await seedWorkspace(t)
+
+    const orders = await t.run(async (ctx) => {
+      return await ctx.db.query("orders").collect()
+    })
+    const sorted = [...orders].sort((a, b) => a.code.localeCompare(b.code))
+    for (let index = 1; index < sorted.length; index += 1) {
+      expect(
+        sorted[index].createdAt,
+        `${sorted[index].code} should be newer than ${sorted[index - 1].code}`,
+      ).toBeGreaterThanOrEqual(sorted[index - 1].createdAt)
+    }
+  })
+
   it("spreads domain activity from January 2026 to the present", async () => {
     const t = createTestDb()
     await seedWorkspace(t)

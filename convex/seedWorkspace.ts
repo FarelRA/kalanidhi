@@ -1960,7 +1960,7 @@ export const seedCommerce = internalMutation({
     const orders = [
       {
         key: "order-1",
-        code: "KN-2026-000101",
+        code: "KN-2026-000108",
         buyerKey: "sari",
         sellerKey: "anisa",
         workSlug: "batik-soga-anyaman",
@@ -1975,7 +1975,7 @@ export const seedCommerce = internalMutation({
       },
       {
         key: "order-2",
-        code: "KN-2026-000102",
+        code: "KN-2026-000109",
         buyerKey: "dwi",
         sellerKey: "dimas",
         workSlug: "selendang-canting-nitik",
@@ -1990,7 +1990,7 @@ export const seedCommerce = internalMutation({
       },
       {
         key: "order-3",
-        code: "KN-2026-000103",
+        code: "KN-2026-000111",
         buyerKey: "bayu",
         sellerKey: "purnomo",
         workSlug: "batik-soga-lereng",
@@ -2005,7 +2005,7 @@ export const seedCommerce = internalMutation({
       },
       {
         key: "order-4",
-        code: "KN-2026-000104",
+        code: "KN-2026-000112",
         buyerKey: "nanda",
         sellerKey: "rani",
         workSlug: "pranatacara-siraman",
@@ -2020,7 +2020,7 @@ export const seedCommerce = internalMutation({
       },
       {
         key: "order-5",
-        code: "KN-2026-000105",
+        code: "KN-2026-000107",
         buyerKey: "ratih",
         sellerKey: "anisa",
         workSlug: "batik-soga-anyaman",
@@ -2035,7 +2035,7 @@ export const seedCommerce = internalMutation({
       },
       {
         key: "order-6",
-        code: "KN-2026-000106",
+        code: "KN-2026-000110",
         buyerKey: "yusuf",
         sellerKey: "dimas",
         workSlug: "selendang-canting-nitik",
@@ -2050,7 +2050,7 @@ export const seedCommerce = internalMutation({
       },
       {
         key: "order-7",
-        code: "KN-2026-000107",
+        code: "KN-2026-000101",
         buyerKey: "dewi",
         sellerKey: "anisa",
         workSlug: "batik-soga-anyaman",
@@ -2065,7 +2065,7 @@ export const seedCommerce = internalMutation({
       },
       {
         key: "order-8",
-        code: "KN-2026-000108",
+        code: "KN-2026-000102",
         buyerKey: "arif",
         sellerKey: "purnomo",
         workSlug: "batik-soga-lereng",
@@ -2080,7 +2080,7 @@ export const seedCommerce = internalMutation({
       },
       {
         key: "order-9",
-        code: "KN-2026-000109",
+        code: "KN-2026-000103",
         buyerKey: "melati",
         sellerKey: "rani",
         workSlug: "pranatacara-siraman",
@@ -2095,7 +2095,7 @@ export const seedCommerce = internalMutation({
       },
       {
         key: "order-10",
-        code: "KN-2026-000110",
+        code: "KN-2026-000104",
         buyerKey: "fajar",
         sellerKey: "dimas",
         workSlug: "selendang-canting-nitik",
@@ -2110,7 +2110,7 @@ export const seedCommerce = internalMutation({
       },
       {
         key: "order-11",
-        code: "KN-2026-000111",
+        code: "KN-2026-000105",
         buyerKey: "ratih",
         sellerKey: "anisa",
         workSlug: "batik-soga-anyaman",
@@ -2125,7 +2125,7 @@ export const seedCommerce = internalMutation({
       },
       {
         key: "order-12",
-        code: "KN-2026-000112",
+        code: "KN-2026-000106",
         buyerKey: "nanda",
         sellerKey: "dimas",
         workSlug: "selendang-canting-nitik",
