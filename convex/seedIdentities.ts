@@ -115,7 +115,7 @@ export const SEED_USERS: SeedUser[] = [
     region: "Sewon, Bantul, DI Yogyakarta",
     initials: "JS",
     roles: ["teacher"],
-    joinedDaysAgo: 120,
+    joinedDaysAgo: 380,
     lastActiveDaysAgo: 5,
   },
   {
@@ -247,7 +247,7 @@ export const SEED_USERS: SeedUser[] = [
     region: "Playen, Gunungkidul, DI Yogyakarta",
     initials: "MA",
     roles: ["student"],
-    joinedDaysAgo: 140,
+    joinedDaysAgo: 300,
     lastActiveDaysAgo: 6,
   },
   {
@@ -259,7 +259,7 @@ export const SEED_USERS: SeedUser[] = [
     region: "Kotagede, Kota Yogyakarta, DI Yogyakarta",
     initials: "AS",
     roles: ["student"],
-    joinedDaysAgo: 132,
+    joinedDaysAgo: 330,
     lastActiveDaysAgo: 1,
   },
   {
@@ -271,7 +271,7 @@ export const SEED_USERS: SeedUser[] = [
     region: "Berbah, Sleman, DI Yogyakarta",
     initials: "DK",
     roles: ["student"],
-    joinedDaysAgo: 110,
+    joinedDaysAgo: 330,
     lastActiveDaysAgo: 2,
   },
   {
@@ -283,7 +283,7 @@ export const SEED_USERS: SeedUser[] = [
     region: "Piyungan, Bantul, DI Yogyakarta",
     initials: "FN",
     roles: ["student"],
-    joinedDaysAgo: 96,
+    joinedDaysAgo: 300,
     lastActiveDaysAgo: 5,
   },
 ]

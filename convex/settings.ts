@@ -509,7 +509,7 @@ export const adminState = query({
     }
     const regionValue = Array.isArray(regions?.value)
       ? (regions?.value as string[])
-      : ["Yogyakarta", "Jawa Tengah"]
+      : ["DI Yogyakarta"]
 
     return {
       settings: settingViews(settings, names),

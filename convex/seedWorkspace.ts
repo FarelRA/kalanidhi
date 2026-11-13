@@ -506,8 +506,8 @@ const COHORTS = [
     pathSlug: "batik-tulis-soga",
     teacherKey: "bambang",
     title: "Batik Tulis Soga — Angkatan Perintis",
-    start: ago(400),
-    end: ago(340),
+    start: ago(392),
+    end: ago(330),
     capacity: 12,
     status: "completed" as const,
   },
@@ -539,10 +539,10 @@ const COHORTS = [
     pathSlug: "batik-tulis-soga",
     teacherKey: "sri",
     title: "Pewarnaan Alami — Kelas Pendamping",
-    start: ahead(10),
-    end: ahead(70),
+    start: ago(24),
+    end: ahead(46),
     capacity: 8,
-    status: "enrolling" as const,
+    status: "active" as const,
   },
   {
     key: "pra-2025-01",
@@ -1170,7 +1170,7 @@ export const seedPeople = internalMutation({
           role,
           action: "grant",
           actorId: admin._id,
-          reason: "Seed account provisioning",
+          reason: "Penyiapan akun melalui undangan pengelola.",
           createdAt: ago(seed.joinedDaysAgo),
         })
       }
@@ -1390,11 +1390,18 @@ export const seedCurriculum = internalMutation({
         if (!isDraft) publishedModules += 1
         for (const [lessonIndex, lesson] of module.lessons.entries()) {
           const mediaAssetIds: Id<"mediaAssets">[] = []
-          if (pathSlug === "batik-tulis-soga" && moduleIndex === 0 && lessonIndex === 0 && audio) {
-            mediaAssetIds.push(audio._id)
-          }
-          if (pathSlug === "pranatacara-jawa" && moduleIndex === 0 && lessonIndex === 0 && video) {
+          // Attach media by lesson kind: videos play in video lessons and the
+          // practice demo stays on a practice step.
+          if (lesson.kind === "video" && video) {
             mediaAssetIds.push(video._id)
+          } else if (
+            lesson.kind === "practice" &&
+            pathSlug === "batik-tulis-soga" &&
+            moduleIndex === 1 &&
+            lessonIndex === 0 &&
+            audio
+          ) {
+            mediaAssetIds.push(audio._id)
           }
           await ctx.db.insert("lessons", {
             order: lessonIndex + 1,
@@ -1488,10 +1495,16 @@ export const seedLearning = internalMutation({
       if (!cohortId) continue
       const cohort = await ctx.db.get(cohortId)
       if (!cohort) continue
-      const enrolledAt =
+      const enrolledAt = Math.min(
+        NOW - HOUR,
         seed.status === "pending_payment"
           ? ago(3)
-          : Math.max(SEED_START, cohort.startDate - 10 * DAY)
+          : Math.max(
+              SEED_START,
+              student.createdAt + 2 * HOUR,
+              cohort.startDate - 10 * DAY,
+            ),
+      )
       const enrollmentId = await ctx.db.insert("enrollments", {
         studentId: student._id,
         pathId: cohort.pathId,
@@ -1508,7 +1521,12 @@ export const seedLearning = internalMutation({
           seed.status === "withdrawn"
             ? "Jadwal kerja berubah; peserta menunda ke angkatan berikutnya."
             : undefined,
-        lastActivityAt: ago(1),
+        lastActivityAt:
+          seed.status === "completed"
+            ? cohort.endDate
+            : seed.status === "withdrawn"
+              ? Math.min(NOW, cohort.startDate + 21 * DAY)
+              : NOW - HOUR,
         deadlineAt: cohort.endDate,
         createdAt: enrolledAt,
         updatedAt: NOW,
@@ -1632,10 +1650,9 @@ export const seedLearning = internalMutation({
 
       if (seed.status === "draft") continue
 
-      const assessor = await userByEmail(
-        ctx,
-        seedEmail(seed.cohortKey.startsWith("pra") ? "widagdo" : "bambang"),
-      )
+      const pondokTeacher = await ctx.db.get(cohort.teacherId)
+      if (!pondokTeacher) continue
+      const assessor = pondokTeacher
       const assessedAt =
         seed.assessedDaysAgo !== undefined
           ? ago(seed.assessedDaysAgo)
@@ -1757,6 +1774,7 @@ export const seedCredentials = internalMutation({
         pathSlug: "batik-tulis-soga",
         teacherEmail: seedEmail("bambang"),
         score: 92,
+        issuedDaysAgo: 327,
       },
       {
         key: "dimas",
@@ -1764,6 +1782,7 @@ export const seedCredentials = internalMutation({
         pathSlug: "batik-tulis-soga",
         teacherEmail: seedEmail("sri"),
         score: 89,
+        issuedDaysAgo: 326,
       },
       {
         key: "purnomo",
@@ -1771,6 +1790,7 @@ export const seedCredentials = internalMutation({
         pathSlug: "batik-tulis-soga",
         teacherEmail: seedEmail("bambang"),
         score: 95,
+        issuedDaysAgo: 325,
       },
       {
         key: "rani",
@@ -1778,12 +1798,12 @@ export const seedCredentials = internalMutation({
         pathSlug: "pranatacara-jawa",
         teacherEmail: seedEmail("widagdo"),
         score: 90,
+        issuedDaysAgo: 318,
       },
     ]
 
     for (const [index, final] of finals.entries()) {
       const student = await userByEmail(ctx, seedEmail(final.key))
-      const teacher = await userByEmail(ctx, final.teacherEmail)
       const path = await pathBySlug(ctx, final.pathSlug)
       const submission = await ctx.db
         .query("submissions")
@@ -1800,7 +1820,21 @@ export const seedCredentials = internalMutation({
         .unique()
       if (!assessment) continue
 
-      const issuedAt = ago(330 - index * 2)
+      const enrollment = await ctx.db
+        .query("enrollments")
+        .withIndex("by_studentId", (q) => q.eq("studentId", student._id))
+        .collect()
+      const completed = enrollment.find(
+        (item) => item.pathId === path.slug && item.status === "completed",
+      )
+      const cohort = completed?.cohortId
+        ? await ctx.db.get(completed.cohortId)
+        : null
+      const teacher =
+        (cohort ? await ctx.db.get(cohort.teacherId) : null) ??
+        (await userByEmail(ctx, final.teacherEmail))
+
+      const issuedAt = ago(final.issuedDaysAgo)
       const certificateId = await ctx.db.insert("certificates", {
         serial: `KN-2026-${String(index + 1).padStart(4, "0")}`,
         publicCode: `KN-${final.key.toUpperCase()}-2026`,
@@ -1830,13 +1864,6 @@ export const seedCredentials = internalMutation({
         createdAt: issuedAt,
       })
 
-      const enrollment = await ctx.db
-        .query("enrollments")
-        .withIndex("by_studentId", (q) => q.eq("studentId", student._id))
-        .collect()
-      const completed = enrollment.find(
-        (item) => item.pathId === path.slug && item.status === "completed",
-      )
       if (completed) {
         await ctx.db.patch(completed._id, { certificateId })
       }
@@ -1881,7 +1908,7 @@ export const seedCredentials = internalMutation({
             studentName: dwi.name,
             pathTitle: path.title,
             teacherName: teacher.name,
-            assessmentScore: 88,
+            assessmentScore: dwiAssessment.score ?? 88,
             issuedAt,
           },
           createdAt: issuedAt,
@@ -1916,7 +1943,7 @@ export const seedCredentials = internalMutation({
         pathId: work.pathSlug,
         status: "published",
         permission: work.permission,
-        createdAt: ago(325 - index * 55),
+        createdAt: ago(323 - index * 55),
       })
       await ctx.db.insert("workCards", {
         workId: workDoc._id,
@@ -1933,7 +1960,7 @@ export const seedCredentials = internalMutation({
         permission: work.permission,
         accessLevel: "public",
         status: "published",
-        createdAt: ago(325 - index * 55),
+        createdAt: ago(323 - index * 55),
         updatedAt: NOW,
       })
     }
@@ -2013,6 +2040,7 @@ export const seedCommerce = internalMutation({
         uniqueAmount: 2_500_009,
         status: "awaiting_payment" as const,
         paidDaysAgo: undefined,
+        createdDaysAgo: 0.005,
         completedDaysAgo: undefined,
         paymentStatus: "pending" as const,
         payoutStatus: undefined,
@@ -2030,7 +2058,7 @@ export const seedCommerce = internalMutation({
         paidDaysAgo: 40,
         completedDaysAgo: undefined,
         paymentStatus: "refunded" as const,
-        payoutStatus: "reversed" as const,
+        payoutStatus: undefined,
         gatewayFee: 14_500,
       },
       {
@@ -2057,8 +2085,8 @@ export const seedCommerce = internalMutation({
         baseAmount: 1_450_000,
         uniqueAmount: 1_450_058,
         status: "completed" as const,
-        paidDaysAgo: 358,
-        completedDaysAgo: 348,
+        paidDaysAgo: 320,
+        completedDaysAgo: 310,
         paymentStatus: "paid" as const,
         payoutStatus: "paid" as const,
         gatewayFee: 14_500,
@@ -2072,8 +2100,8 @@ export const seedCommerce = internalMutation({
         baseAmount: 2_900_000,
         uniqueAmount: 2_900_046,
         status: "completed" as const,
-        paidDaysAgo: 296,
-        completedDaysAgo: 286,
+        paidDaysAgo: 210,
+        completedDaysAgo: 200,
         paymentStatus: "paid" as const,
         payoutStatus: "paid" as const,
         gatewayFee: 29_000,
@@ -2087,8 +2115,8 @@ export const seedCommerce = internalMutation({
         baseAmount: 2_500_000,
         uniqueAmount: 2_500_072,
         status: "completed" as const,
-        paidDaysAgo: 236,
-        completedDaysAgo: 228,
+        paidDaysAgo: 155,
+        completedDaysAgo: 148,
         paymentStatus: "paid" as const,
         payoutStatus: "approved" as const,
         gatewayFee: 25_000,
@@ -2102,8 +2130,8 @@ export const seedCommerce = internalMutation({
         baseAmount: 850_000,
         uniqueAmount: 850_061,
         status: "completed" as const,
-        paidDaysAgo: 168,
-        completedDaysAgo: 158,
+        paidDaysAgo: 148,
+        completedDaysAgo: 140,
         paymentStatus: "paid" as const,
         payoutStatus: "paid" as const,
         gatewayFee: 8_500,
@@ -2118,7 +2146,7 @@ export const seedCommerce = internalMutation({
         uniqueAmount: 1_450_083,
         status: "completed" as const,
         paidDaysAgo: 112,
-        completedDaysAgo: 102,
+        completedDaysAgo: 104,
         paymentStatus: "paid" as const,
         payoutStatus: "approved" as const,
         gatewayFee: 14_500,
@@ -2133,7 +2161,7 @@ export const seedCommerce = internalMutation({
         uniqueAmount: 850_094,
         status: "completed" as const,
         paidDaysAgo: 58,
-        completedDaysAgo: 48,
+        completedDaysAgo: 50,
         paymentStatus: "paid" as const,
         payoutStatus: "approved" as const,
         gatewayFee: 8_500,
@@ -2166,7 +2194,11 @@ export const seedCommerce = internalMutation({
       const buyer = await userByEmail(ctx, seedEmail(seed.buyerKey))
       const seller = await userByEmail(ctx, seedEmail(seed.sellerKey))
       const work = await workBySlug(ctx, seed.workSlug)
-      const createdAt = ago(seed.paidDaysAgo ?? 2)
+      const createdAt = ago(
+        "createdDaysAgo" in seed && seed.createdDaysAgo !== undefined
+          ? seed.createdDaysAgo
+          : (seed.paidDaysAgo ?? 2),
+      )
       const paidAt =
         seed.paidDaysAgo !== undefined ? ago(seed.paidDaysAgo) : undefined
       const orderId = await ctx.db.insert("orders", {
@@ -2225,11 +2257,11 @@ export const seedCommerce = internalMutation({
       const paymentId = await ctx.db.insert("payments", {
         orderId,
         provider: "gopay_qris",
-        providerChargeId: `seed-charge-${seed.key}`,
+        providerChargeId: `ch_${seed.key.replace("order-", "26")}`,
         providerReference: `QRIS-${seed.code}`,
         providerTransactionId:
           seed.paymentStatus === "paid" || seed.paymentStatus === "refunded"
-            ? `seed-trx-${seed.key}`
+            ? `trx_${seed.key.replace("order-", "26")}`
             : undefined,
         baseAmount: seed.baseAmount,
         uniqueAmount: seed.uniqueAmount,
@@ -2241,15 +2273,17 @@ export const seedCommerce = internalMutation({
         qrString: `00020101021226${seed.code}5802ID`,
         qrImageUrl: undefined,
         reconciliationState: "none",
-        settledEventId: paidAt ? `seed-event-settled-${seed.key}` : undefined,
-        idempotencyKey: `seed-payment-idem-${seed.key}`,
+        settledEventId: paidAt
+          ? `evt_settled_${seed.key.replace("order-", "26")}`
+          : undefined,
+        idempotencyKey: `idem_${seed.key.replace("order-", "26")}`,
         createdAt,
         updatedAt: NOW,
       })
       paymentIds.set(seed.key, paymentId)
 
       await ctx.db.insert("paymentEvents", {
-        eventId: `seed-event-created-${seed.key}`,
+        eventId: `evt_created_${seed.key.replace("order-", "26")}`,
         paymentId,
         orderId,
         kind: "created",
@@ -2260,7 +2294,7 @@ export const seedCommerce = internalMutation({
       })
       if (paidAt) {
         await ctx.db.insert("paymentEvents", {
-          eventId: `seed-event-settled-${seed.key}`,
+          eventId: `evt_settled_${seed.key.replace("order-", "26")}`,
           paymentId,
           orderId,
           kind: "settled",
@@ -2272,7 +2306,7 @@ export const seedCommerce = internalMutation({
       }
       if (seed.status === "refunded") {
         await ctx.db.insert("paymentEvents", {
-          eventId: `seed-event-refunded-${seed.key}`,
+          eventId: `evt_refunded_${seed.key.replace("order-", "26")}`,
           paymentId,
           orderId,
           kind: "refunded",
@@ -2301,7 +2335,14 @@ export const seedCommerce = internalMutation({
             seed.payoutStatus === "approved" || seed.payoutStatus === "paid"
               ? admin._id
               : undefined,
-          paidAt: seed.payoutStatus === "paid" ? ago(10) : undefined,
+          paidAt:
+            seed.payoutStatus === "paid"
+              ? seed.completedDaysAgo !== undefined
+                ? ago(Math.max(0, seed.completedDaysAgo - 3))
+                : paidAt
+                  ? paidAt + 7 * DAY
+                  : undefined
+              : undefined,
           reason:
             seed.payoutStatus === "held"
               ? "Ditahan sampai pesanan selesai atau sengketa ditutup."

@@ -125,6 +125,148 @@ describe("seed realism", () => {
     }
   })
 
+  it("keeps every causal chain in order", async () => {
+    const t = createTestDb()
+    await seedWorkspace(t)
+
+    const chains = await t.run(async (ctx) => {
+      const users = await ctx.db.query("users").collect()
+      const userById = new Map(users.map((user) => [user._id, user]))
+      const enrollments = await ctx.db.query("enrollments").collect()
+      const submissions = await ctx.db.query("submissions").collect()
+      const assessments = await ctx.db.query("assessments").collect()
+      const certificates = await ctx.db.query("certificates").collect()
+      const works = await ctx.db.query("works").collect()
+      const orders = await ctx.db.query("orders").collect()
+      const payments = await ctx.db.query("payments").collect()
+      const payouts = await ctx.db.query("payouts").collect()
+
+      const byId = <T extends { _id: string }>(rows: T[]) =>
+        new Map(rows.map((row) => [row._id as string, row]))
+      const assessmentBySubmission = new Map(
+        assessments.map((row) => [row.submissionId as string, row]),
+      )
+      const certificateById = byId(certificates)
+      const workById = byId(works)
+      const paymentByOrder = new Map(
+        payments.map((row) => [row.orderId as string, row]),
+      )
+      const payoutByOrder = new Map(
+        payouts.map((row) => [row.orderId as string, row]),
+      )
+
+      return {
+        enrollmentBeforeStudent: enrollments
+          .map((row) => ({
+            student: userById.get(row.studentId)?.createdAt,
+            enrolledAt: row.enrolledAt,
+          }))
+          .filter((row) => row.student !== undefined),
+        enrollmentBeforeSubmission: submissions
+          .map((row) => {
+            const enrollment = enrollments.find(
+              (item) =>
+                item.studentId === row.studentId &&
+                item.cohortId === row.cohortId,
+            )
+            return {
+              enrolledAt: enrollment?.enrolledAt,
+              submittedAt: row.submittedAt,
+            }
+          })
+          .filter((row) => row.enrolledAt !== undefined && row.submittedAt),
+        submissionBeforeAssessment: submissions
+          .map((row) => ({
+            submittedAt: row.submittedAt,
+            assessedAt: assessmentBySubmission.get(row._id)?.createdAt,
+          }))
+          .filter((row) => row.submittedAt && row.assessedAt),
+        assessmentBeforeCertificate: certificates
+          .map((row) => ({
+            assessedAt: assessmentBySubmission.get(row.assessmentId)?.createdAt,
+            issuedAt: row.issuedAt,
+          }))
+          .filter((row) => row.assessedAt !== undefined),
+        certificateBeforeWork: works
+          .map((row) => ({
+            issuedAt: row.certificateId
+              ? certificateById.get(row.certificateId)?.issuedAt
+              : undefined,
+            workCreatedAt: row.createdAt,
+          }))
+          .filter((row) => row.issuedAt !== undefined),
+        workBeforeOrder: orders
+          .map((row) => ({
+            workCreatedAt: row.workId
+              ? workById.get(row.workId)?.createdAt
+              : undefined,
+            orderCreatedAt: row.createdAt,
+          }))
+          .filter((row) => row.workCreatedAt !== undefined),
+        orderBeforePayment: orders
+          .map((row) => ({
+            orderPaidAt: row.paidAt,
+            paymentPaidAt: paymentByOrder.get(row._id)?.paidAt,
+          }))
+          .filter((row) => row.orderPaidAt && row.paymentPaidAt),
+        paymentBeforePayout: payments
+          .map((row) => ({
+            paymentPaidAt: row.paidAt,
+            payoutPaidAt: payoutByOrder.get(row.orderId)?.paidAt,
+          }))
+          .filter((row) => row.paymentPaidAt && row.payoutPaidAt),
+      }
+    })
+
+    for (const row of chains.enrollmentBeforeStudent) {
+      expect(row.enrolledAt, "enrollment after account").toBeGreaterThanOrEqual(
+        row.student as number,
+      )
+    }
+    for (const row of chains.enrollmentBeforeSubmission) {
+      expect(
+        row.submittedAt as number,
+        "submission after enrollment",
+      ).toBeGreaterThanOrEqual(row.enrolledAt as number)
+    }
+    for (const row of chains.submissionBeforeAssessment) {
+      expect(
+        row.assessedAt as number,
+        "assessment after submission",
+      ).toBeGreaterThanOrEqual(row.submittedAt as number)
+    }
+    for (const row of chains.assessmentBeforeCertificate) {
+      expect(
+        row.issuedAt,
+        "certificate after assessment",
+      ).toBeGreaterThanOrEqual(row.assessedAt as number)
+    }
+    for (const row of chains.certificateBeforeWork) {
+      expect(
+        row.workCreatedAt,
+        "work after certificate",
+      ).toBeGreaterThanOrEqual(row.issuedAt as number)
+    }
+    for (const row of chains.workBeforeOrder) {
+      expect(
+        row.orderCreatedAt,
+        "order after work",
+      ).toBeGreaterThanOrEqual(row.workCreatedAt as number)
+    }
+    for (const row of chains.orderBeforePayment) {
+      expect(
+        row.paymentPaidAt as number,
+        "payment after order",
+      ).toBeGreaterThanOrEqual(row.orderPaidAt as number)
+    }
+    for (const row of chains.paymentBeforePayout) {
+      expect(
+        row.payoutPaidAt as number,
+        "payout after payment",
+      ).toBeGreaterThanOrEqual(row.paymentPaidAt as number)
+    }
+  })
+
   it("spreads domain activity from January 2026 to the present", async () => {
     const t = createTestDb()
     await seedWorkspace(t)
@@ -169,18 +311,18 @@ describe("seed realism", () => {
     }
 
     const startOfMarch = Date.UTC(2026, 2, 1)
-    const startOfFebruary = Date.UTC(2026, 1, 10)
+    const startOfApril = Date.UTC(2026, 3, 1)
     const sixtyDaysAgo = NOW - 60 * DAY
     const ninetyDaysAgo = NOW - 90 * DAY
     const sevenDaysAgo = NOW - 7 * DAY
 
     expect(ranges.submissions.min).toBeLessThan(startOfMarch)
     expect(ranges.submissions.max).toBeGreaterThan(sixtyDaysAgo)
-    expect(ranges.orders.min).toBeLessThan(startOfFebruary)
+    expect(ranges.orders.min).toBeLessThan(startOfApril)
     expect(ranges.orders.max).toBeGreaterThan(sixtyDaysAgo)
     expect(ranges.messages.min).toBeLessThan(startOfMarch)
     expect(ranges.messages.max).toBeGreaterThan(sevenDaysAgo)
-    expect(ranges.leads.min).toBeLessThan(startOfFebruary)
+    expect(ranges.leads.min).toBeLessThan(startOfMarch)
     expect(ranges.leads.max).toBeGreaterThan(sevenDaysAgo)
     expect(ranges.auditLogs.min).toBeLessThanOrEqual(SEED_START + DAY)
     expect(ranges.auditLogs.max).toBeGreaterThan(ninetyDaysAgo)

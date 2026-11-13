@@ -293,7 +293,7 @@ export const seedContent = internalMutation({
         modules: 0,
         teacherId: user._id,
         status: path.comingSoon ? "planned" : "open",
-        createdAt: ago(360 - order * 36),
+        createdAt: ago(395 - order * 12),
       })
     }
 
@@ -309,10 +309,10 @@ export const seedContent = internalMutation({
         pathIds: path ? [path.slug] : [],
         status: isReview ? "review" : "active",
         verificationStatus: isReview ? "under_review" : "verified",
-        verifiedBy: isReview ? undefined : "seed",
-        verifiedAt: isReview ? undefined : ago(370 - order * 55),
+        verifiedBy: isReview ? undefined : "Pengelola",
+        verifiedAt: isReview ? undefined : ago(390 - order * 10),
         published: !isReview,
-        publishedAt: isReview ? undefined : ago(368 - order * 55),
+        publishedAt: isReview ? undefined : ago(388 - order * 10),
       })
     }
 
@@ -321,7 +321,7 @@ export const seedContent = internalMutation({
         order,
         ...work,
         status: "published",
-        createdAt: ago(296 - order * 24),
+        createdAt: ago(320 - order * 55),
       })
     }
 
@@ -498,7 +498,7 @@ export const seedContent = internalMutation({
       credit: "KalaNidhi Digital",
       permission: "Izin internal platform",
       status: "active",
-      uploadedBy: "seed",
+      uploadedBy: "Pengelola",
       createdAt: ago(60),
     })
     await ctx.db.insert("mediaAssets", {
@@ -513,7 +513,7 @@ export const seedContent = internalMutation({
       credit: "KalaNidhi Digital",
       permission: "Izin internal platform",
       status: "active",
-      uploadedBy: "seed",
+      uploadedBy: "Pengelola",
       createdAt: ago(60),
     })
 
