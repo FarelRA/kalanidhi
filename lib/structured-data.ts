@@ -11,6 +11,8 @@ export function buildLandingJsonLd(data: SiteData) {
         "@id": `${site}/#organization`,
         name: data.metadata.siteName,
         url: site,
+        logo: `${site}/brand/kalanidhi-icon-512.png`,
+        image: `${site}/brand/kalanidhi-icon-512.png`,
         description: data.metadata.description,
         areaServed: {
           "@type": "AdministrativeArea",

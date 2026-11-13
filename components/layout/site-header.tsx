@@ -140,7 +140,7 @@ export function SiteHeader({
             aria-label={copy.brandAria}
             className="shrink-0"
           >
-            <BrandLockup markSize={35} />
+            <BrandLockup markSize={35} loading="eager" />
           </Link>
 
           <nav

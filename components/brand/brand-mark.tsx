@@ -1,49 +1,59 @@
+import Image from "next/image"
+
 import { cn } from "cn"
+
+/**
+ * Brand assets derived from the KalaNidhi mark. The source artwork is a cream
+ * "K" on a dark wood tile; the app needs the mark on both light and dark
+ * surfaces, so both tones ship as transparent, tightly cropped renditions.
+ */
+const MARK = {
+  ink: {
+    src: "/brand/kalanidhi-mark-ink.webp",
+    width: 774,
+    height: 1024,
+  },
+  paper: {
+    src: "/brand/kalanidhi-mark-paper.webp",
+    width: 774,
+    height: 1024,
+  },
+} as const
+
+export type BrandTone = keyof typeof MARK
 
 type BrandMarkProps = {
   className?: string
+  /** Rendered height in CSS pixels. Width follows the mark's aspect ratio. */
   size?: number
+  /** `ink` for light surfaces, `paper` for the dark wood surfaces. */
+  tone?: BrandTone
+  /** Use `eager` only for a mark that is visible before the first paint. */
+  loading?: "lazy" | "eager"
+  /** Supply text only when the mark itself carries meaning for screen readers. */
+  alt?: string
 }
 
-/**
- * A circular bench seen from above, with a finished piece returning to the
- * first station. The loop and the tag in one mark.
- */
-export function BrandMark({ className, size = 38 }: BrandMarkProps) {
+export function BrandMark({
+  className,
+  size = 38,
+  tone = "ink",
+  loading,
+  alt,
+}: BrandMarkProps) {
+  const asset = MARK[tone]
+
   return (
-    <svg
-      aria-hidden="true"
-      width={size}
-      height={size}
-      viewBox="0 0 40 40"
-      fill="none"
-      className={cn("shrink-0", className)}
-    >
-      <circle
-        cx="20"
-        cy="20"
-        r="15.2"
-        stroke="currentColor"
-        strokeWidth="1"
-        strokeOpacity="0.24"
-      />
-      <path
-        d="M20 5.4a14.6 14.6 0 1 1-10.6 4.6"
-        stroke="var(--copper)"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-      />
-      <rect
-        x="6.7"
-        y="6.9"
-        width="6.8"
-        height="6.8"
-        rx="0.8"
-        fill="var(--copper-dark)"
-        transform="rotate(-10 10.1 10.3)"
-      />
-      <circle cx="20" cy="20" r="2" fill="currentColor" />
-    </svg>
+    <Image
+      src={asset.src}
+      alt={alt ?? ""}
+      width={asset.width}
+      height={asset.height}
+      loading={loading}
+      aria-hidden={alt ? undefined : true}
+      className={cn("shrink-0 select-none", className)}
+      style={{ height: size, width: "auto" }}
+    />
   )
 }
 
@@ -51,16 +61,18 @@ export function BrandLockup({
   className,
   markSize = 36,
   tone = "ink",
+  loading,
 }: {
   className?: string
   markSize?: number
-  tone?: "ink" | "paper"
+  tone?: BrandTone
+  loading?: "lazy" | "eager"
 }) {
   const dark = tone === "paper"
 
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <BrandMark size={markSize} />
+      <BrandMark size={markSize} tone={tone} loading={loading} />
       <span className="flex flex-col leading-none">
         <span
           className={cn(

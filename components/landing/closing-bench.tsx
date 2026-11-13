@@ -78,7 +78,7 @@ export function ClosingBench({
 
         <div className="hidden justify-center lg:col-span-5 lg:flex">
           <div className="relative size-[300px]">
-            <BrandMark size={300} className="text-paper/25" />
+            <BrandMark size={300} tone="paper" className="opacity-20" />
           </div>
         </div>
       </div>

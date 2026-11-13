@@ -59,7 +59,7 @@ export function BenchHero({
                     src={hero.plate.image}
                     alt={hero.plate.alt}
                     fill
-                    priority
+                    preload
                     sizes="(min-width: 1024px) 560px, 92vw"
                     className="object-cover"
                   />

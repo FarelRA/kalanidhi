@@ -13,6 +13,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "coverage/**",
     "next-env.d.ts",
+    // Convex generates these on every push; do not lint generated output.
+    "convex/_generated/**",
   ]),
 ]);
 

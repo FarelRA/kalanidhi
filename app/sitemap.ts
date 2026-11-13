@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next"
+import { connection } from "next/server"
 
 import { getPublicWorks } from "@/lib/commerce/server"
 import { getSiteBaseUrl } from "@/lib/content/metadata"
@@ -33,6 +34,11 @@ const staticRoutes = [
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // The sitemap reflects published Convex entities, so it has to run at
+  // request time. Without this, Next starts a prerender and the cached Convex
+  // queries finish after it ends, which logs a spurious build warning.
+  await connection()
+
   const baseUrl = await getSiteBaseUrl()
   if (!baseUrl) return []
 
