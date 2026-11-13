@@ -138,11 +138,6 @@ export const siteSeed: SeedSiteCopy = {
       "Karya yang selesai dibawa kembali ke bangku pertama. Lulusan yang mengajar menaruh alatnya di rak, dan pelajar berikutnya duduk.",
     returnCaveat:
       "Jalur kembali tidak menjanjikan semua lulusan mengajar. Pintu ini disiapkan untuk pengajar pendamping, penilai tugas, atau pemasok bahan. Setiap pintu yang terisi membuka jalur baru.",
-    diagram: {
-      title: "Bangku kerja melingkar dengan lima tahap",
-      description:
-        "Lima tahap tersusun mengelilingi bangku. Jalur kembali membawa karya yang selesai ke bangku pertama, tempat lulusan mulai mengajar.",
-    },
     stages: [
       {
         code: "01",

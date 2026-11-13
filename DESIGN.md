@@ -10,7 +10,7 @@ The product is a closed loop, and the page is built around it:
 
 **Belajar → dinilai pengajar → sertifikat platform + Kartu Karya → berkarya atau berjualan → kembali mengajar, menilai, atau memasok → jalur baru lahir.**
 
-The one memorable artifact is the **circular bench** in the loop section: five stations around a thick ring, a dashed copper return rail, and a small finished cloth travelling back to station 01. The second artifact is the **Kartu Karya tag** pinned over the hero photograph. Everything else stays disciplined.
+The one memorable artifact is the **stepped bench rail** in the loop section: five numbered steps that walk diagonally down the bench, four open rows, and a copper return block that closes the loop. No diagram, no illustration — the order itself is the graphic. The second artifact is the **Kartu Karya tag** pinned over the hero photograph. Everything else stays disciplined.
 
 ## Palette
 
@@ -47,7 +47,7 @@ Scale: hero `clamp(2.5rem, 6vw, 4.6rem)` at 0.95 line-height; section `clamp(2.1
 A 1200px shell and a 12-column desktop grid. The page alternates dark teak and cream working surfaces, with panel bands for the shelf, works, and institution. Sections use 64px / 80px / 96px vertical rhythm.
 
 - **Hero:** 6/6 split. Left: headline, description, and two actions. Right: a framed photograph and a punched Kartu Karya tag overlapping the image.
-- **Loop:** 5/7 split. Left: the circular bench drawing. Right: five numbered stages, with the return stage boxed in copper.
+- **Loop:** asymmetric 12-column walk. The header splits 7/4 with the description offset to the right. Below it, a hairline rail on the left and four stage rows that indent further with each step, each led by an outlined numeral. The return stage breaks the rhythm as a copper block, slightly offset, carrying the return note and the honest caveat underneath.
 - **Shelf:** three readiness groups, each a row of chunky material tags over a wooden plank.
 - **Paths:** horizontal bench slips with a photograph, facts, tags, and two actions.
 - **Teachers:** three staggered portraits with offset name plates and a quote.
@@ -63,14 +63,14 @@ One arrival gesture: the hero photograph settles from a slight rotation and the 
 
 ## The loop
 
-The loop is the second section and the centre of gravity.
+The loop is the second section and the centre of gravity. It is built from type and rules, not artwork.
 
-- Five stations around a thick circular bench: **Belajar, Dinilai, Tersertifikat, Berkarya, Kembali mengajar**.
-- The return leg is a dashed copper rail with an arrowhead and the label **Jalur kembali**.
-- A small finished cloth tag marked **KAIN** travels along the return rail back to station 01.
-- The centre reads **belajar / LALU / mengajari**.
-- The fifth stage is boxed in copper and labelled **Jalur kembali**.
-- The note under the drawing says the return path is a door, not a promise: graduates can apply as teaching assistants, assessors, or suppliers, and each filled door opens a new path.
+- Five steps: **Belajar, Dinilai, Tersertifikat, Berkarya, Kembali mengajar**.
+- A vertical hairline labelled **alur kerja** anchors the left edge; each step indents further right, so the sequence reads as a walk along the bench rather than a row of cards.
+- Steps 01–04 use outlined copper numerals, a small icon chip, and a hairline divider; the step counter sits quietly at the right edge.
+- Step 05 breaks the pattern: an offset copper block labelled **Jalur kembali**, with the return note set beside the step and the honest caveat beneath it.
+- The return path is a door, not a promise: graduates can apply as teaching assistants, assessors, or suppliers, and each filled door opens a new path.
+- No arrows, no SVG, no illustration. If the order needs a picture to be understood, the copy is wrong.
 
 The same loop is echoed in the FAQ, the closing section, and the footer description. A first-time visitor sees the return path before the catalog.
 

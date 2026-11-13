@@ -223,10 +223,6 @@ export type LoopContent = {
   /** Honest caveat under the return step, editable by the admin. */
   returnCaveat: string
   stages: LoopStage[]
-  diagram: {
-    title: string
-    description: string
-  }
 }
 
 export type CatalogGroup = {

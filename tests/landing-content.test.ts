@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs"
+import path from "node:path"
+
 import { describe, expect, it } from "vitest"
 
 import { siteSeed, pathsSeed } from "../convex/seedData"
@@ -17,6 +20,16 @@ describe("landing content sources", () => {
 
   it("keeps the loop caveat editable in siteContent", () => {
     expect(siteSeed.loop.returnCaveat.length).toBeGreaterThan(20)
+    expect(siteSeed.loop).not.toHaveProperty("diagram")
+  })
+
+  it("draws the loop with type and rules, not an illustration", () => {
+    const source = readFileSync(
+      path.resolve(__dirname, "../components/landing/bench-loop.tsx"),
+      "utf8",
+    )
+    expect(source).not.toContain("<svg")
+    expect(source).not.toContain("diagram")
   })
 
   it("derives the revenue split from the shared money constant", () => {

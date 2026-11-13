@@ -11,309 +11,151 @@ import type { LoopContent } from "@/lib/content/types"
 
 const stageIcons = [BookOpen, PenLine, BadgeCheck, Store, Users] as const
 
-const stations = [
-  { x: 280, y: 112 },
-  { x: 439.8, y: 228.1 },
-  { x: 378.8, y: 415.9 },
-  { x: 181.2, y: 415.9 },
-  { x: 120.2, y: 228.1 },
-] as const
-
-const forwardArrows = [
-  { x: 378.7, y: 144.1, angle: 36 },
-  { x: 439.8, y: 331.9, angle: 108 },
-  { x: 280, y: 448, angle: 180 },
-  { x: 120.2, y: 331.9, angle: 252 },
+/**
+ * The rail is deliberately uneven: each step sits a little further in than the
+ * one before, so the eye walks down the bench instead of scanning a card grid.
+ * Only literal class names are listed here so Tailwind can see them.
+ */
+const stageIndent = [
+  "lg:pl-0",
+  "lg:pl-12",
+  "lg:pl-24",
+  "lg:pl-36",
 ] as const
 
 export function BenchLoop({ loop }: { loop: LoopContent }) {
+  const returnStage = loop.stages[loop.stages.length - 1]
+  const workedStages = loop.stages.slice(0, -1)
+
   return (
     <section
       id="lingkaran"
       aria-labelledby="loop-title"
-      className="border-b border-ink/15 bg-cream py-16 sm:py-20 lg:py-24"
+      className="relative border-b border-ink/15 bg-cream py-16 sm:py-20 lg:py-28"
     >
       <div className="shell">
-        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-[44rem]">
+        <div className="grid gap-6 lg:grid-cols-12 lg:items-end">
+          <div className="lg:col-span-7">
             <span className="stamp border-ink/35 text-ink">{loop.label}</span>
-            <h2 id="loop-title" className="heading-section mt-5 max-w-[18ch]">
+            <h2
+              id="loop-title"
+              className="heading-section mt-5 max-w-[17ch] text-balance"
+            >
               {loop.title}
             </h2>
           </div>
-          <p className="body-copy max-w-[34rem] md:mb-1">{loop.description}</p>
+          <p className="body-copy max-w-[34rem] lg:col-span-4 lg:col-start-9 lg:pb-2">
+            {loop.description}
+          </p>
         </div>
 
-        <div className="mt-12 grid items-start gap-12 lg:mt-16 lg:grid-cols-12 lg:gap-10">
-          <figure className="lg:col-span-5">
-            <div className="relative mx-auto max-w-[560px]">
-              <svg
-                viewBox="0 0 560 560"
-                role="img"
-                aria-labelledby="loop-svg-title loop-svg-desc"
-                className="h-auto w-full overflow-visible"
-              >
-                <title id="loop-svg-title">{loop.diagram.title}</title>
-                <desc id="loop-svg-desc">{loop.diagram.description}</desc>
-
-                {/* Return rail: the finished piece travels back to the first seat. */}
-                <path
-                  d="M 63.1 209.5 A 228 228 0 0 1 280 52"
-                  fill="none"
-                  stroke="#3a2418"
-                  strokeWidth="16"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M 63.1 209.5 A 228 228 0 0 1 280 52"
-                  fill="none"
-                  stroke="#a9552c"
-                  strokeWidth="4"
-                  strokeDasharray="2 8"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M 280 52 L 280 76"
-                  fill="none"
-                  stroke="#a9552c"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  markerEnd="url(#return-arrow)"
-                />
-                <defs>
-                  <marker
-                    id="return-arrow"
-                    markerWidth="10"
-                    markerHeight="10"
-                    refX="6"
-                    refY="5"
-                    orient="auto"
-                  >
-                    <path d="M 0 0 L 10 5 L 0 10 Z" fill="#a9552c" />
-                  </marker>
-                </defs>
-
-                {/* The bench ring. */}
-                <circle
-                  cx="280"
-                  cy="280"
-                  r="168"
-                  fill="none"
-                  stroke="#3a2418"
-                  strokeWidth="38"
-                />
-                <circle
-                  cx="280"
-                  cy="280"
-                  r="168"
-                  fill="none"
-                  stroke="#4a2f20"
-                  strokeWidth="38"
-                  strokeDasharray="2 7"
-                  opacity="0.7"
-                />
-                <circle
-                  cx="280"
-                  cy="280"
-                  r="146"
-                  fill="none"
-                  stroke="#d7ad63"
-                  strokeWidth="1.5"
-                  strokeDasharray="4 7"
-                  opacity="0.7"
-                />
-
-                {forwardArrows.map((arrow) => (
-                  <path
-                    key={`${arrow.x}-${arrow.y}`}
-                    d="M -4 -5 L 5 0 L -4 5 Z"
-                    fill="#d7ad63"
-                    transform={`translate(${arrow.x} ${arrow.y}) rotate(${arrow.angle})`}
-                  />
-                ))}
-
-                {stations.map((station, index) => (
-                  <g key={station.x}>
-                    <circle
-                      cx={station.x}
-                      cy={station.y}
-                      r="34"
-                      fill="#fbf4e6"
-                      stroke="#2b1d14"
-                      strokeWidth="3"
-                    />
-                    <text
-                      x={station.x}
-                      y={station.y + 7}
-                      textAnchor="middle"
-                      fill="#2b1d14"
-                      fontFamily="var(--font-heading), Georgia, serif"
-                      fontSize="21"
-                      fontWeight="600"
-                    >
-                      {String(index + 1).padStart(2, "0")}
-                    </text>
-                  </g>
-                ))}
-
-                <circle
-                  cx="280"
-                  cy="280"
-                  r="88"
-                  fill="#e7d5b8"
-                  stroke="#2b1d14"
-                  strokeWidth="2"
-                />
-                <text
-                  x="280"
-                  y="265"
-                  textAnchor="middle"
-                  fill="#2b1d14"
-                  fontFamily="var(--font-heading), Georgia, serif"
-                  fontSize="28"
-                  fontWeight="600"
-                >
-                  belajar
-                </text>
-                <text
-                  x="280"
-                  y="290"
-                  textAnchor="middle"
-                  fill="#6b5a4a"
-                  fontFamily="var(--font-karla), sans-serif"
-                  fontSize="13"
-                  letterSpacing="1.5"
-                >
-                  LALU
-                </text>
-                <text
-                  x="280"
-                  y="318"
-                  textAnchor="middle"
-                  fill="#2b1d14"
-                  fontFamily="var(--font-heading), Georgia, serif"
-                  fontSize="28"
-                  fontWeight="600"
-                >
-                  mengajari
-                </text>
-
-                {/* Finished piece on the return rail. */}
-                <g transform="translate(146 95.5) rotate(54)">
-                  <rect
-                    x="-27"
-                    y="-17"
-                    width="54"
-                    height="34"
-                    rx="2"
-                    fill="#fbf4e6"
-                    stroke="#2b1d14"
-                    strokeWidth="2"
-                  />
-                  <path
-                    d="M -20 -9 H 20 M -20 0 H 20 M -20 9 H 20"
-                    stroke="#a9552c"
-                    strokeWidth="1.2"
-                    strokeDasharray="3 3"
-                  />
-                  <text
-                    x="0"
-                    y="3"
-                    textAnchor="middle"
-                    fill="#2b1d14"
-                    fontFamily="var(--font-karla), sans-serif"
-                    fontSize="8"
-                    fontWeight="700"
-                    letterSpacing="0.8"
-                  >
-                    KAIN
-                  </text>
-                </g>
-
-                <g transform="translate(208 112)">
-                  <rect
-                    x="-58"
-                    y="-11"
-                    width="58"
-                    height="22"
-                    rx="1"
-                    fill="#a9552c"
-                  />
-                  <text
-                    x="-29"
-                    y="4"
-                    textAnchor="middle"
-                    fill="#fbf4e6"
-                    fontFamily="var(--font-karla), sans-serif"
-                    fontSize="9"
-                    fontWeight="700"
-                    letterSpacing="0.9"
-                  >
-                    JALUR KEMBALI
-                  </text>
-                </g>
-              </svg>
-            </div>
-            <figcaption className="mx-auto mt-6 max-w-[30rem] border-l-2 border-copper pl-4 text-[12px] leading-relaxed text-ink-soft">
-              {loop.returnNote}
-            </figcaption>
-          </figure>
-
-          <div className="lg:col-span-7">
-            <ol className="space-y-3">
-              {loop.stages.map((stage, index) => {
-                const Icon = stageIcons[index] ?? BookOpen
-                const isReturn = index === loop.stages.length - 1
-
-                return (
-                  <li
-                    key={stage.code}
-                    className={
-                      isReturn
-                        ? "grid grid-cols-[44px_1fr] gap-4 border-2 border-copper-dark bg-paper-2 p-4 sm:p-5"
-                        : "grid grid-cols-[44px_1fr] gap-4 border border-ink/15 bg-paper/55 p-4 sm:p-5"
-                    }
-                  >
-                    <span
-                      className={
-                        isReturn
-                          ? "flex size-11 items-center justify-center bg-copper-dark text-cream-2"
-                          : "flex size-11 items-center justify-center bg-panel text-ink"
-                      }
-                      aria-hidden="true"
-                    >
-                      <Icon className="size-5" />
-                    </span>
-                    <div>
-                      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                        <span className="text-[10px] font-bold tracking-[0.12em] text-copper-dark">
-                          {stage.code}
-                        </span>
-                        <h3 className="font-heading text-[1.25rem] leading-tight">
-                          {stage.title}
-                        </h3>
-                        {isReturn ? (
-                          <span className="stamp stamp-soft border-copper-dark/50 text-copper-dark">
-                            {loop.returnLabel}
-                          </span>
-                        ) : null}
-                      </div>
-                      <p className="mt-1.5 text-[13px] leading-relaxed text-ink/70">
-                        {stage.description}
-                      </p>
-                    </div>
-                  </li>
-                )
-              })}
-            </ol>
-
-            <div className="mt-5 flex items-start gap-3 border-t-2 border-ink/20 pt-5">
-              <Undo2 className="mt-0.5 size-4 shrink-0 text-copper-dark" aria-hidden="true" />
-              <p className="text-[12.5px] leading-relaxed text-ink/70">
-                {loop.returnCaveat}
-              </p>
-            </div>
+        <div className="mt-14 grid lg:mt-20 lg:grid-cols-12">
+          <div
+            className="hidden lg:col-span-1 lg:flex lg:flex-col lg:items-center lg:gap-5"
+            aria-hidden="true"
+          >
+            <span className="text-[9px] font-bold uppercase tracking-[0.32em] text-ink/40 [writing-mode:vertical-rl]">
+              alur kerja
+            </span>
+            <span className="w-px flex-1 bg-gradient-to-b from-ink/25 via-ink/15 to-transparent" />
           </div>
+
+          <ol className="border-t border-ink/15 lg:col-span-11 lg:border-t-0">
+            {workedStages.map((stage, index) => {
+              const Icon = stageIcons[index] ?? BookOpen
+
+              return (
+                <li
+                  key={stage.code}
+                  className={`group relative grid gap-4 border-b border-ink/15 py-8 sm:grid-cols-[5.5rem_1fr] sm:gap-8 sm:py-9 ${stageIndent[index] ?? "lg:pl-0"}`}
+                >
+                  <div className="flex items-center gap-4 sm:block">
+                    <span
+                      aria-hidden="true"
+                      className="block font-heading text-[2.9rem] leading-none tabular-nums text-transparent [-webkit-text-stroke:1.2px_var(--color-copper-dark)] sm:text-[3.6rem]"
+                    >
+                      {stage.code}
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="hidden h-px w-8 bg-ink/20 sm:mt-4 sm:block"
+                    />
+                  </div>
+
+                  <div className="max-w-[40rem]">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                      <span
+                        className="flex size-8 items-center justify-center border border-ink/25 bg-paper/60 text-ink"
+                        aria-hidden="true"
+                      >
+                        <Icon className="size-4" />
+                      </span>
+                      <h3 className="font-heading text-[1.35rem] leading-tight">
+                        {stage.title}
+                      </h3>
+                      <span className="ml-auto hidden text-[10px] font-bold uppercase tracking-[0.18em] text-ink/35 sm:block">
+                        langkah {stage.code} / {String(loop.stages.length).padStart(2, "0")}
+                      </span>
+                    </div>
+                    <p className="mt-2.5 max-w-[36rem] text-[13.5px] leading-relaxed text-ink/70">
+                      {stage.description}
+                    </p>
+                  </div>
+                </li>
+              )
+            })}
+
+            {returnStage ? (
+              <li className="pt-10 lg:pl-16">
+                <div className="relative border-2 border-copper-dark bg-paper-2 shadow-[7px_7px_0_0_rgba(58,36,24,0.14)]">
+                  <span className="absolute -top-3 left-6 bg-cream px-2 text-[9px] font-bold uppercase tracking-[0.22em] text-copper-dark">
+                    {loop.returnLabel}
+                  </span>
+
+                  <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-10">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                      <span
+                        aria-hidden="true"
+                        className="font-heading text-[2.6rem] leading-none tabular-nums text-copper-dark/25"
+                      >
+                        {returnStage.code}
+                      </span>
+                      <span
+                        className="flex size-8 items-center justify-center bg-copper-dark text-cream-2"
+                        aria-hidden="true"
+                      >
+                        <Users className="size-4" />
+                      </span>
+                      <h3 className="font-heading text-[1.5rem] leading-tight text-copper-dark">
+                        {returnStage.title}
+                      </h3>
+                      <span className="ml-auto text-[10px] font-bold uppercase tracking-[0.18em] text-copper-dark/55">
+                        langkah {returnStage.code} /{" "}
+                        {String(loop.stages.length).padStart(2, "0")}
+                      </span>
+                    </div>
+                    <p className="mt-3 max-w-[38rem] text-[13.5px] leading-relaxed text-ink/75">
+                      {returnStage.description}
+                    </p>
+
+                    <p className="border-l-2 border-copper/70 pl-4 text-[12px] leading-relaxed text-ink-muted lg:border-l lg:border-ink/20 lg:pl-5">
+                      {loop.returnNote}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex max-w-[52rem] items-start gap-3 border-t-2 border-ink/20 pt-5">
+                  <Undo2
+                    className="mt-0.5 size-4 shrink-0 text-copper-dark"
+                    aria-hidden="true"
+                  />
+                  <p className="text-[12.5px] leading-relaxed text-ink/70">
+                    {loop.returnCaveat}
+                  </p>
+                </div>
+              </li>
+            ) : null}
+          </ol>
         </div>
       </div>
     </section>

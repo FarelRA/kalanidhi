@@ -143,10 +143,6 @@ const loopSchema = z.object({
   returnNote: required(1_000),
   returnCaveat: required(1_200),
   stages: z.array(loopStageSchema).min(3).max(8),
-  diagram: z.object({
-    title: required(200),
-    description: required(1_000),
-  }),
 })
 
 const catalogSchema = z.object({
