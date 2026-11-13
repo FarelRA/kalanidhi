@@ -1,206 +1,26 @@
 import type { Doc, Id } from "./_generated/dataModel"
 import { internalMutation, type MutationCtx } from "./_generated/server"
 
-const DAY = 86_400_000
-const HOUR = 3_600_000
-const NOW = Date.now()
-const ago = (days: number) => NOW - days * DAY
-const ahead = (days: number) => NOW + days * DAY
+import {
+  DAY,
+  HOUR,
+  SEED_ADMIN_PROFILE,
+  SEED_NOW as NOW,
+  SEED_START,
+  SEED_USERS,
+  seedAdmin,
+  seedAgo as ago,
+  seedAhead as ahead,
+  seedEmail,
+} from "./seedIdentities"
 
-type Role = "student" | "teacher" | "admin"
-
-type SeedUser = {
-  key: string
-  name: string
-  email: string
-  phone: string
-  province: string
-  region: string
-  initials: string
-  roles: Role[]
-}
-
-const SEED_USERS: SeedUser[] = [
-  {
-    key: "bambang",
-    name: "Bambang Hardjono",
-    email: "bambang@kalanidhi.site",
-    phone: "6281210000001",
-    province: "DI Yogyakarta",
-    region: "Giriloyo, Bantul, DI Yogyakarta",
-    initials: "BH",
-    roles: ["teacher"],
-  },
-  {
-    key: "sri",
-    name: "Sri Sriningsih",
-    email: "sri@kalanidhi.site",
-    phone: "6281210000002",
-    province: "Jawa Tengah",
-    region: "Lasem, Rembang, Jawa Tengah",
-    initials: "SS",
-    roles: ["teacher"],
-  },
-  {
-    key: "widagdo",
-    name: "Widagdo Saputra",
-    email: "widagdo@kalanidhi.site",
-    phone: "6281210000003",
-    province: "Jawa Tengah",
-    region: "Surakarta, Jawa Tengah",
-    initials: "WS",
-    roles: ["teacher"],
-  },
-  {
-    key: "joko",
-    name: "Joko Santoso",
-    email: "joko@kalanidhi.site",
-    phone: "6281210000004",
-    province: "Jawa Tengah",
-    region: "Jepara, Jawa Tengah",
-    initials: "JS",
-    roles: ["teacher"],
-  },
-  {
-    key: "anisa",
-    name: "Anisa Rahmawati",
-    email: "anisa@kalanidhi.site",
-    phone: "6281210000005",
-    province: "DI Yogyakarta",
-    region: "Bantul, DI Yogyakarta",
-    initials: "AR",
-    roles: ["student"],
-  },
-  {
-    key: "dimas",
-    name: "Dimas Yoga Pratama",
-    email: "dimas@kalanidhi.site",
-    phone: "6281210000006",
-    province: "Jawa Tengah",
-    region: "Surakarta, Jawa Tengah",
-    initials: "DP",
-    roles: ["student"],
-  },
-  {
-    key: "purnomo",
-    name: "Bambang Purnomo",
-    email: "purnomo@kalanidhi.site",
-    phone: "6281210000007",
-    province: "DI Yogyakarta",
-    region: "Sleman, DI Yogyakarta",
-    initials: "BP",
-    roles: ["student"],
-  },
-  {
-    key: "rani",
-    name: "Rani Wikaningsih",
-    email: "rani@kalanidhi.site",
-    phone: "6281210000008",
-    province: "DI Yogyakarta",
-    region: "Yogyakarta, DI Yogyakarta",
-    initials: "RW",
-    roles: ["student"],
-  },
-  {
-    key: "sari",
-    name: "Sari Wulandari",
-    email: "sari@kalanidhi.site",
-    phone: "6281210000009",
-    province: "DI Yogyakarta",
-    region: "Yogyakarta, DI Yogyakarta",
-    initials: "SW",
-    roles: ["student"],
-  },
-  {
-    key: "dwi",
-    name: "Dwi Lestari",
-    email: "dwi@kalanidhi.site",
-    phone: "6281210000010",
-    province: "DI Yogyakarta",
-    region: "Sleman, DI Yogyakarta",
-    initials: "DL",
-    roles: ["student"],
-  },
-  {
-    key: "bayu",
-    name: "Bayu Pratama",
-    email: "bayu@kalanidhi.site",
-    phone: "6281210000011",
-    province: "Jawa Tengah",
-    region: "Surakarta, Jawa Tengah",
-    initials: "BP",
-    roles: ["student"],
-  },
-  {
-    key: "nanda",
-    name: "Nanda Kusuma",
-    email: "nanda@kalanidhi.site",
-    phone: "6281210000012",
-    province: "DI Yogyakarta",
-    region: "Bantul, DI Yogyakarta",
-    initials: "NK",
-    roles: ["student"],
-  },
-  {
-    key: "ratih",
-    name: "Ratih Puspitasari",
-    email: "ratih@kalanidhi.site",
-    phone: "6281210000013",
-    province: "Jawa Tengah",
-    region: "Klaten, Jawa Tengah",
-    initials: "RP",
-    roles: ["student"],
-  },
-  {
-    key: "yusuf",
-    name: "Yusuf Maulana",
-    email: "yusuf@kalanidhi.site",
-    phone: "6281210000014",
-    province: "DI Yogyakarta",
-    region: "Kulon Progo, DI Yogyakarta",
-    initials: "YM",
-    roles: ["student"],
-  },
-  {
-    key: "melati",
-    name: "Melati Anggraini",
-    email: "melati@kalanidhi.site",
-    phone: "6281210000015",
-    province: "Jawa Tengah",
-    region: "Magelang, Jawa Tengah",
-    initials: "MA",
-    roles: ["student"],
-  },
-  {
-    key: "arif",
-    name: "Arif Setiawan",
-    email: "arif@kalanidhi.site",
-    phone: "6281210000016",
-    province: "DI Yogyakarta",
-    region: "Yogyakarta, DI Yogyakarta",
-    initials: "AS",
-    roles: ["student"],
-  },
-  {
-    key: "dewi",
-    name: "Dewi Kartika",
-    email: "dewi@kalanidhi.site",
-    phone: "6281210000017",
-    province: "Jawa Tengah",
-    region: "Semarang, Jawa Tengah",
-    initials: "DK",
-    roles: ["student"],
-  },
-  {
-    key: "fajar",
-    name: "Fajar Nugroho",
-    email: "fajar@kalanidhi.site",
-    phone: "6281210000018",
-    province: "DI Yogyakarta",
-    region: "Sleman, DI Yogyakarta",
-    initials: "FN",
-    roles: ["student"],
-  },
+/** Realistic browser strings keep session and auth panels from reading like fixtures. */
+const USER_AGENTS = [
+  "Mozilla/5.0 (Linux; Android 14; SM-A546E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15",
+  "Mozilla/5.0 (Linux; Android 13; Redmi Note 12) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36",
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1",
 ]
 
 const SEED_TEACHERS = [
@@ -229,13 +49,13 @@ const SEED_TEACHERS = [
     name: "Sri Sriningsih",
     initials: "SS",
     specialty: "Ahli pewarnaan alami",
-    region: "Lasem, Jawa Tengah",
+    region: "Pleret, Bantul, D.I. Yogyakarta",
     experience: "32 tahun pewarnaan alami",
     quote:
       "Warna alami tidak bisa dipaksa. Kalau bahan dan musimnya tepat, hasilnya justru lebih tenang.",
     focus: "Pewarna alami dan ekstraksi nila",
     path: "Batik Tulis Soga",
-    community: "Rumah Warna Lasem",
+    community: "Rumah Warna Pleret",
     imageFile: "teacher-sriningsih.jpg",
     pathIds: ["batik-tulis-soga"],
     status: "active" as const,
@@ -248,13 +68,13 @@ const SEED_TEACHERS = [
     name: "Widagdo Saputra",
     initials: "WS",
     specialty: "Instruktur tata upacara",
-    region: "Surakarta",
+    region: "Kota Yogyakarta, D.I. Yogyakarta",
     experience: "30 tahun tata upacara",
     quote:
       "Pembawa acara yang baik mengatur napas acara. Kalimatnya jelas, urutannya tidak membuat tamu menunggu.",
     focus: "Pembawa acara adat dan protokol",
     path: "Seni Pembawa Acara Tradisi Jawa",
-    community: "Sanggar Wicara Surakarta",
+    community: "Sanggar Wicara Ngayogyakarta",
     imageFile: "teacher-sudarsono.jpg",
     pathIds: ["pranatacara-jawa"],
     status: "active" as const,
@@ -267,13 +87,13 @@ const SEED_TEACHERS = [
     name: "Joko Santoso",
     initials: "JS",
     specialty: "Pengrajin ukir kayu",
-    region: "Jepara, Jawa Tengah",
+    region: "Sewon, Bantul, D.I. Yogyakarta",
     experience: "27 tahun mengukir",
     quote:
       "Ukiran yang baik lahir dari arah pahat yang sabar. Saya ajarkan urutan, bukan hanya bentuk akhir.",
     focus: "Ukir relief dan ornamen sulur",
-    path: "Kriya Ukir Kayu Jepara",
-    community: "Sanggar Ukir Jepara",
+    path: "Kriya Ukir Kayu Bantul",
+    community: "Sanggar Ukir Bantul",
     imageFile: "teacher-joko.jpg",
     pathIds: ["kriya-ukir-jepara"],
     status: "review" as const,
@@ -645,7 +465,7 @@ const MODULES: Record<string, SeedModule[]> = {
   ],
   "kriya-ukir-jepara": [
     {
-      title: "Pengantar ukir Jepara",
+      title: "Pengantar ukir Bantul",
       summary: "Alat, kayu, dan prinsip relief.",
       estimatedMinutes: 80,
       lessons: [
@@ -682,7 +502,7 @@ const COHORTS = [
   },
   {
     key: "bts-2025-02",
-    code: "BTS-2025-02",
+    code: "BTS-2026-00",
     pathSlug: "batik-tulis-soga",
     teacherKey: "bambang",
     title: "Batik Tulis Soga — Angkatan Perintis",
@@ -726,7 +546,7 @@ const COHORTS = [
   },
   {
     key: "pra-2025-01",
-    code: "PRA-2025-01",
+    code: "PRA-2026-00",
     pathSlug: "pranatacara-jawa",
     teacherKey: "widagdo",
     title: "Pranatacara Jawa — Angkatan Perintis",
@@ -1073,7 +893,7 @@ const WORKS = [
     maker: "Anisa Rahmawati",
     makerRole: "Lulusan jalur Batik Tulis",
     teacher: "Bambang Hardjono",
-    region: "Yogyakarta",
+    region: "Giriloyo, Bantul",
     price: 1_450_000,
     unit: "Kain panjang, 2,5 x 1,05 m",
     technique: "Tulis",
@@ -1082,7 +902,7 @@ const WORKS = [
     description:
       "Pewarna soga dari kulit tingi dan jambal, dengan motif geometris yang disusun ulang dari pola klasik Giriloyo. Proses pembuatan tercatat dalam 12 foto bertanggal.",
     imageFile: "work-soga.jpg",
-    permission: "Izin berbagi motif tercatat 12 Maret 2026",
+    permission: "Izin berbagi motif tercatat 3 Februari 2026",
   },
   {
     slug: "selendang-canting-nitik",
@@ -1095,7 +915,7 @@ const WORKS = [
     maker: "Dimas Yoga Pratama",
     makerRole: "Lulusan jalur Batik Tulis",
     teacher: "Sri Sriningsih",
-    region: "Surakarta",
+    region: "Kasihan, Bantul",
     price: 850_000,
     unit: "Selendang primis, 2 x 0,55 m",
     technique: "Tulis",
@@ -1104,7 +924,7 @@ const WORKS = [
     description:
       "Selendang primis dengan titik canting rapat. Panduan perawatan dan kartu bahan disertakan.",
     imageFile: "work-nitik.jpg",
-    permission: "Izin berbagi motif tercatat 4 April 2026",
+    permission: "Izin berbagi motif tercatat 24 Maret 2026",
   },
   {
     slug: "batik-soga-lereng",
@@ -1117,7 +937,7 @@ const WORKS = [
     maker: "Bambang Purnomo",
     makerRole: "Lulusan jalur lanjutan",
     teacher: "Bambang Hardjono",
-    region: "Yogyakarta",
+    region: "Mlati, Sleman",
     price: 2_900_000,
     unit: "Kain halus, sutra ATBM",
     technique: "Tulis",
@@ -1126,7 +946,7 @@ const WORKS = [
     description:
       "Karya lanjutan dengan 14 tahap pewarnaan soga. Motif lereng klasik, bukan motif sakral.",
     imageFile: "work-sutra.jpg",
-    permission: "Izin berbagi motif tercatat 18 Mei 2026",
+    permission: "Izin berbagi motif tercatat 26 Mei 2026",
   },
   {
     slug: "pranatacara-siraman",
@@ -1139,7 +959,7 @@ const WORKS = [
     maker: "Rani Wikaningsih",
     makerRole: "Praktisi tersertifikasi platform",
     teacher: "Widagdo Saputra",
-    region: "Yogyakarta dan sekitarnya",
+    region: "Kota Yogyakarta dan sekitarnya",
     price: 2_500_000,
     priceLabel: "Mulai dari",
     unit: "Layanan acara, 1 hari",
@@ -1149,7 +969,7 @@ const WORKS = [
     description:
       "Permintaan booking untuk rangkaian siraman dan midodareni. Susunan acara dikonfirmasi bersama praktisi.",
     imageFile: "work-pranatacara.jpg",
-    permission: "Izin tampil dan publikasi portofolio tercatat 2 Juni 2026",
+    permission: "Izin tampil dan publikasi portofolio tercatat 28 Mei 2026",
   },
 ]
 
@@ -1223,21 +1043,32 @@ export const seedPeople = internalMutation({
     if (!admin) {
       const adminId = await ctx.db.insert("users", {
         authUserId: "seed-admin",
-        name: "Farel Reski Aditiya",
-        email: "farel@farel.is-a.dev",
+        name: SEED_ADMIN_PROFILE.name,
+        email: SEED_ADMIN_PROFILE.email,
         emailVerified: true,
-        phone: "6285157813352",
-        province: "DI Yogyakarta",
+        phone: SEED_ADMIN_PROFILE.phone,
+        province: SEED_ADMIN_PROFILE.province,
         whatsappVerified: true,
-        whatsappVerifiedAt: ago(120),
-        initials: "FR",
-        region: "DI Yogyakarta",
+        whatsappVerifiedAt: ago(SEED_ADMIN_PROFILE.joinedDaysAgo - 1),
+        initials: SEED_ADMIN_PROFILE.initials,
+        region: SEED_ADMIN_PROFILE.region,
         roles: ["admin"],
         status: "active",
-        createdAt: ago(180),
+        createdAt: ago(SEED_ADMIN_PROFILE.joinedDaysAgo),
         updatedAt: NOW,
       })
       admin = (await ctx.db.get(adminId)) as Doc<"users">
+    } else if (
+      admin.province !== SEED_ADMIN_PROFILE.province ||
+      admin.region !== SEED_ADMIN_PROFILE.region
+    ) {
+      // The operator mailbox belongs to Better Auth and stays untouched; only
+      // the public profile location is normalized for the demo workspace.
+      await ctx.db.patch(admin._id, {
+        province: SEED_ADMIN_PROFILE.province,
+        region: SEED_ADMIN_PROFILE.region,
+        updatedAt: NOW,
+      })
     }
 
     const byKey = new Map<string, Doc<"users">>()
@@ -1251,7 +1082,7 @@ export const seedPeople = internalMutation({
       action: "grant",
       actorId: "system",
       reason: "Admin bootstrap preserved across seed",
-      createdAt: ago(180),
+      createdAt: ago(SEED_ADMIN_PROFILE.joinedDaysAgo),
     })
     await ctx.db.insert("consents", {
       userId: admin._id,
@@ -1259,8 +1090,8 @@ export const seedPeople = internalMutation({
       granted: true,
       version: "2026-11",
       source: "bootstrap",
-      grantedAt: ago(180),
-      createdAt: ago(180),
+      grantedAt: ago(SEED_ADMIN_PROFILE.joinedDaysAgo),
+      createdAt: ago(SEED_ADMIN_PROFILE.joinedDaysAgo),
     })
     await ctx.db.insert("consents", {
       userId: admin._id,
@@ -1268,17 +1099,17 @@ export const seedPeople = internalMutation({
       granted: true,
       version: "2026-11",
       source: "bootstrap",
-      grantedAt: ago(180),
-      createdAt: ago(180),
+      grantedAt: ago(SEED_ADMIN_PROFILE.joinedDaysAgo),
+      createdAt: ago(SEED_ADMIN_PROFILE.joinedDaysAgo),
     })
     await ctx.db.insert("whatsappVerifications", {
       userId: admin._id,
       phone: admin.phone,
       tokenHash: await sha256("seed-verification-admin"),
       status: "verified",
-      expiresAt: ago(170),
-      createdAt: ago(180),
-      verifiedAt: ago(179),
+      expiresAt: ago(SEED_ADMIN_PROFILE.joinedDaysAgo - 1),
+      createdAt: ago(SEED_ADMIN_PROFILE.joinedDaysAgo),
+      verifiedAt: ago(SEED_ADMIN_PROFILE.joinedDaysAgo - 1) + 2 * HOUR,
       messageId: "seed-wa-admin",
     })
     await ctx.db.insert("authLogs", {
@@ -1286,7 +1117,7 @@ export const seedPeople = internalMutation({
       authUserId: admin.authUserId,
       kind: "sign_in",
       ipHash: "seed-ip-admin",
-      userAgent: "KalaNidhiSeed",
+      userAgent: USER_AGENTS[1],
       createdAt: ago(1),
     })
     const adminSessions = await ctx.db
@@ -1298,7 +1129,7 @@ export const seedPeople = internalMutation({
         userId: admin._id,
         authSessionId: "seed-session-admin",
         deviceName: "Peramban",
-        userAgent: "KalaNidhiSeed",
+        userAgent: USER_AGENTS[1],
         createdAt: ago(1),
         lastSeenAt: ago(0),
         expiresAt: ahead(30),
@@ -1314,13 +1145,13 @@ export const seedPeople = internalMutation({
         phone: seed.phone,
         province: seed.province,
         whatsappVerified: true,
-        whatsappVerifiedAt: ago(90 - index),
+        whatsappVerifiedAt: ago(seed.joinedDaysAgo - 1),
         initials: seed.initials,
         region: seed.region,
         roles: seed.roles,
         status: "active",
-        lastActiveAt: ago(index % 7),
-        createdAt: ago(120 - index),
+        lastActiveAt: ago(seed.lastActiveDaysAgo),
+        createdAt: ago(seed.joinedDaysAgo),
         updatedAt: NOW,
       })
       const user = (await ctx.db.get(userId)) as Doc<"users">
@@ -1333,20 +1164,18 @@ export const seedPeople = internalMutation({
           action: "grant",
           actorId: admin._id,
           reason: "Seed account provisioning",
-          createdAt: ago(120 - index),
+          createdAt: ago(seed.joinedDaysAgo),
         })
       }
 
       await ctx.db.insert("sessions", {
         userId,
         authSessionId: `seed-session-${seed.key}`,
-        deviceName: index % 2 === 0 ? "Peramban" : "Android",
-        userAgent:
-          index % 2 === 0
-            ? "Mozilla/5.0 (X11; Linux x86_64) KalaNidhiSeed"
-            : "KalaNidhiSeed Android",
-        createdAt: ago(10 + index),
-        lastSeenAt: ago(index % 5),
+        deviceName:
+          index % 3 === 0 ? "Android" : index % 3 === 1 ? "Windows" : "iPhone",
+        userAgent: USER_AGENTS[index % USER_AGENTS.length],
+        createdAt: ago(Math.max(1, seed.lastActiveDaysAgo + 1)),
+        lastSeenAt: ago(seed.lastActiveDaysAgo),
         expiresAt: ahead(30),
       })
 
@@ -1356,8 +1185,8 @@ export const seedPeople = internalMutation({
         granted: true,
         version: "2026-11",
         source: "signup",
-        grantedAt: ago(120 - index),
-        createdAt: ago(120 - index),
+        grantedAt: ago(seed.joinedDaysAgo),
+        createdAt: ago(seed.joinedDaysAgo),
       })
       await ctx.db.insert("consents", {
         userId,
@@ -1365,9 +1194,10 @@ export const seedPeople = internalMutation({
         granted: index % 3 !== 0,
         version: "2026-11",
         source: "signup",
-        grantedAt: index % 3 !== 0 ? ago(120 - index) : undefined,
-        revokedAt: index % 3 === 0 ? ago(30) : undefined,
-        createdAt: ago(120 - index),
+        grantedAt: index % 3 !== 0 ? ago(seed.joinedDaysAgo) : undefined,
+        revokedAt:
+          index % 3 === 0 ? ago(Math.max(1, seed.joinedDaysAgo - 45)) : undefined,
+        createdAt: ago(seed.joinedDaysAgo),
       })
       await ctx.db.insert("consents", {
         userId,
@@ -1384,9 +1214,9 @@ export const seedPeople = internalMutation({
         phone: seed.phone,
         tokenHash: await sha256(`seed-verification-${seed.key}`),
         status: "verified",
-        expiresAt: ago(80),
-        createdAt: ago(90),
-        verifiedAt: ago(89),
+        expiresAt: ago(seed.joinedDaysAgo) + HOUR,
+        createdAt: ago(seed.joinedDaysAgo),
+        verifiedAt: ago(seed.joinedDaysAgo) + 3 * 60_000,
         messageId: `seed-wa-${seed.key}`,
       })
 
@@ -1395,8 +1225,8 @@ export const seedPeople = internalMutation({
         authUserId: `seed-${seed.key}`,
         kind: "sign_in",
         ipHash: `seed-ip-${index}`,
-        userAgent: "KalaNidhiSeed",
-        createdAt: ago(10 + index),
+        userAgent: USER_AGENTS[index % USER_AGENTS.length],
+        createdAt: ago(Math.max(1, seed.lastActiveDaysAgo + 1)),
       })
     }
 
@@ -1467,18 +1297,18 @@ export const seedPeople = internalMutation({
     }
 
     await ctx.db.insert("invites", {
-      email: "rahayu@kalanidhi.site",
+      email: "rahayu.puspita86@gmail.com",
       name: "Rahayu Puspita",
       roles: ["teacher"],
       tokenHash: await sha256("seed-invite-rahayu"),
       status: "pending",
       invitedBy: admin._id,
-      reason: "Pengajar tenun Troso",
+      reason: "Pengajar tenun Gunungkidul",
       expiresAt: ahead(7),
       createdAt: ago(2),
     })
     await ctx.db.insert("invites", {
-      email: "bambang@kalanidhi.site",
+      email: seedEmail("bambang"),
       name: "Bambang Hardjono",
       roles: ["teacher"],
       tokenHash: await sha256("seed-invite-bambang"),
@@ -1486,18 +1316,18 @@ export const seedPeople = internalMutation({
       invitedBy: admin._id,
       acceptedBy: byKey.get("bambang")?._id,
       reason: "Pengajar batik Giriloyo",
-      expiresAt: ago(100),
-      createdAt: ago(120),
-      acceptedAt: ago(119),
+      expiresAt: ago(SEED_ADMIN_PROFILE.joinedDaysAgo - 8),
+      createdAt: ago(SEED_ADMIN_PROFILE.joinedDaysAgo),
+      acceptedAt: ago(SEED_ADMIN_PROFILE.joinedDaysAgo) + DAY,
     })
     await ctx.db.insert("invites", {
-      email: "mantan.pengajar@kalanidhi.site",
-      name: "Mantan Pengajar",
+      email: "sigit.pramono70@gmail.com",
+      name: "Sigit Pramono",
       roles: ["teacher"],
       tokenHash: await sha256("seed-invite-revoked"),
       status: "revoked",
       invitedBy: admin._id,
-      reason: "Undangan dibatalkan",
+      reason: "Jadwal mengajar bentrok; undangan dibatalkan atas permintaan calon pengajar.",
       expiresAt: ago(20),
       createdAt: ago(30),
     })
@@ -1505,6 +1335,16 @@ export const seedPeople = internalMutation({
     return { users: byKey.size }
   },
 })
+
+/** Turns a task title into the kind of filename a participant would upload. */
+function evidenceFilename(seed: SeedSubmission, index: number): string {
+  const slug = seed.taskTitle
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+  return `${slug}-${seed.studentKey}-${String(index + 1).padStart(2, "0")}.jpg`
+}
 
 export const seedCurriculum = internalMutation({
   args: {},
@@ -1519,11 +1359,16 @@ export const seedCurriculum = internalMutation({
     let moduleCount = 0
     let lessonCount = 0
 
+    const pathOrder = Object.keys(MODULES)
     for (const [pathSlug, modules] of Object.entries(MODULES)) {
       const path = await pathBySlug(ctx, pathSlug)
       const isDraft = pathSlug === "kriya-ukir-jepara"
+      const curriculumOrder = pathOrder.indexOf(pathSlug)
       let publishedModules = 0
       for (const [moduleIndex, module] of modules.entries()) {
+        const moduleCreatedAt = ago(
+          372 - curriculumOrder * 68 - moduleIndex * 9,
+        )
         const moduleId = await ctx.db.insert("pathModules", {
           order: moduleIndex + 1,
           pathId: path.slug,
@@ -1531,7 +1376,7 @@ export const seedCurriculum = internalMutation({
           summary: module.summary,
           estimatedMinutes: module.estimatedMinutes,
           status: isDraft ? "draft" : "published",
-          createdAt: ago(90),
+          createdAt: moduleCreatedAt,
         })
         moduleCount += 1
         if (!isDraft) publishedModules += 1
@@ -1554,7 +1399,7 @@ export const seedCurriculum = internalMutation({
             estimatedMinutes: lesson.estimatedMinutes,
             accessLevel: lesson.accessLevel,
             status: isDraft ? "draft" : "published",
-            createdAt: ago(90),
+            createdAt: moduleCreatedAt - (lessonIndex + 1) * 2 * DAY,
           })
           lessonCount += 1
         }
@@ -1570,14 +1415,11 @@ export const seedCurriculum = internalMutation({
 export const seedLearning = internalMutation({
   args: {},
   handler: async (ctx) => {
-    const admin = await userByEmail(ctx, "farel@farel.is-a.dev")
+    const admin = await seedAdmin(ctx)
     const cohortIds = new Map<string, Id<"cohorts">>()
     for (const seed of COHORTS) {
       const path = await pathBySlug(ctx, seed.pathSlug)
-      const teacher = await userByEmail(
-        ctx,
-        `${seed.teacherKey}@kalanidhi.site`,
-      )
+      const teacher = await userByEmail(ctx, seedEmail(seed.teacherKey))
       const cohortId = await ctx.db.insert("cohorts", {
         code: seed.code,
         pathId: path.slug,
@@ -1588,7 +1430,10 @@ export const seedLearning = internalMutation({
         capacity: seed.capacity,
         timezone: "Asia/Jakarta",
         status: seed.status,
-        createdAt: ago(60),
+        createdAt: Math.min(
+          NOW - DAY,
+          Math.max(SEED_START, seed.start - 45 * DAY),
+        ),
         updatedAt: NOW,
       })
       cohortIds.set(seed.key, cohortId)
@@ -1617,40 +1462,47 @@ export const seedLearning = internalMutation({
           status:
             startsAt < NOW
               ? "ended"
-              : index === 0
+              : startsAt - NOW < 2 * HOUR
                 ? "live"
                 : "scheduled",
-          createdAt: ago(50),
+          createdAt: Math.min(
+            NOW - HOUR,
+            Math.max(SEED_START, startsAt - 14 * DAY),
+          ),
         })
       }
     }
 
     const enrollmentIds = new Map<string, Id<"enrollments">>()
     for (const seed of ENROLLMENTS) {
-      const student = await userByEmail(
-        ctx,
-        `${seed.studentKey}@kalanidhi.site`,
-      )
+      const student = await userByEmail(ctx, seedEmail(seed.studentKey))
       const cohortId = cohortIds.get(seed.cohortKey)
       if (!cohortId) continue
       const cohort = await ctx.db.get(cohortId)
       if (!cohort) continue
+      const enrolledAt =
+        seed.status === "pending_payment"
+          ? ago(3)
+          : Math.max(SEED_START, cohort.startDate - 10 * DAY)
       const enrollmentId = await ctx.db.insert("enrollments", {
         studentId: student._id,
         pathId: cohort.pathId,
         cohortId,
         status: seed.status,
-        enrolledAt:
-          seed.status === "pending_payment" ? ago(3) : ago(40),
-        completedAt: seed.status === "completed" ? ago(330) : undefined,
-        withdrawnAt: seed.status === "withdrawn" ? ago(15) : undefined,
+        enrolledAt,
+        completedAt:
+          seed.status === "completed" ? cohort.endDate : undefined,
+        withdrawnAt:
+          seed.status === "withdrawn"
+            ? Math.min(NOW, cohort.startDate + 21 * DAY)
+            : undefined,
         withdrawReason:
           seed.status === "withdrawn"
             ? "Jadwal kerja berubah; peserta menunda ke angkatan berikutnya."
             : undefined,
         lastActivityAt: ago(1),
-        deadlineAt: ahead(14),
-        createdAt: ago(40),
+        deadlineAt: cohort.endDate,
+        createdAt: enrolledAt,
         updatedAt: NOW,
       })
       enrollmentIds.set(`${seed.studentKey}:${seed.cohortKey}`, enrollmentId)
@@ -1681,7 +1533,19 @@ export const seedLearning = internalMutation({
         seed.status === "completed"
           ? ordered.length
           : Math.max(1, Math.floor(ordered.length * 0.45))
+      // Distribute lesson completion across the real cohort window instead of
+      // stacking every lesson on the same afternoon.
+      const windowStart = Math.max(SEED_START, cohort.startDate)
+      const windowSpan = Math.max(DAY, NOW - windowStart)
       for (const [index, lesson] of ordered.entries()) {
+        const completedAt =
+          index < completedCount
+            ? Math.min(
+                NOW - HOUR,
+                windowStart +
+                  Math.round((windowSpan * (index + 1)) / (completedCount + 2)),
+              )
+            : undefined
         await ctx.db.insert("lessonProgress", {
           userId: student._id,
           enrollmentId,
@@ -1693,13 +1557,9 @@ export const seedLearning = internalMutation({
                 ? "in_progress"
                 : "not_started",
           attendance:
-            index < completedCount
-              ? "present"
-              : index === completedCount
-                ? "present"
-                : undefined,
-          completedAt: index < completedCount ? ago(20 - index) : undefined,
-          updatedAt: ago(1),
+            index <= completedCount ? "present" : undefined,
+          completedAt,
+          updatedAt: completedAt ?? ago(1),
         })
       }
     }
@@ -1708,11 +1568,8 @@ export const seedLearning = internalMutation({
     const assessmentIds = new Map<string, Id<"assessments">>()
     const submissionIds = new Map<string, Id<"submissions">>()
 
-    for (const seed of SUBMISSIONS) {
-      const student = await userByEmail(
-        ctx,
-        `${seed.studentKey}@kalanidhi.site`,
-      )
+    for (const [submissionIndex, seed] of SUBMISSIONS.entries()) {
+      const student = await userByEmail(ctx, seedEmail(seed.studentKey))
       const cohortId = cohortIds.get(seed.cohortKey)
       if (!cohortId) continue
       const cohort = await ctx.db.get(cohortId)
@@ -1734,7 +1591,7 @@ export const seedLearning = internalMutation({
         taskTitle: seed.taskTitle,
         status: seed.status,
         submittedAt,
-        dueAt: ago((seed.submittedDaysAgo ?? 0) - 7),
+        dueAt: submittedAt ? submittedAt + DAY : ahead(6),
         evidenceText: seed.evidenceText,
         assetIds: [],
         revisionCount: seed.revisionCount,
@@ -1748,7 +1605,7 @@ export const seedLearning = internalMutation({
           submissionId,
           storageId,
           kind: "image",
-          filename: `${seed.key}-evidence.jpg`,
+          filename: evidenceFilename(seed, submissionIndex),
           mimeType: "image/jpeg",
           size: 48_000,
           createdAt: submittedAt ?? ago(6),
@@ -1769,7 +1626,7 @@ export const seedLearning = internalMutation({
 
       const assessor = await userByEmail(
         ctx,
-        `${seed.cohortKey.startsWith("pra") ? "widagdo" : "bambang"}@kalanidhi.site`,
+        seedEmail(seed.cohortKey.startsWith("pra") ? "widagdo" : "bambang"),
       )
       const assessedAt =
         seed.assessedDaysAgo !== undefined
@@ -1790,19 +1647,28 @@ export const seedLearning = internalMutation({
             criterion: "Teknik",
             weight: 40,
             score: seed.score,
-            comment: seed.feedback,
+            comment:
+              seed.feedback ??
+              "Menunggu penilaian pengajar pada aspek teknik.",
           },
           {
             criterion: "Konsistensi",
             weight: 30,
             score: seed.score,
-            comment: seed.feedback,
+            comment:
+              seed.status === "revision_requested"
+                ? "Hasil belum konsisten di bagian tepi; ulangi dengan takaran yang sama."
+                : seed.feedback
+                  ? "Hasil antar-lembar cukup konsisten."
+                  : "Menunggu penilaian pengajar pada aspek konsistensi.",
           },
           {
             criterion: "Dokumentasi",
             weight: 30,
             score: seed.score,
-            comment: seed.feedback,
+            comment: seed.feedback
+              ? "Dokumentasi proses lengkap, foto bertanggal dan takaran tercatat."
+              : "Menunggu penilaian pengajar pada aspek dokumentasi.",
           },
         ],
         score: seed.score,
@@ -1846,8 +1712,8 @@ export const seedLearning = internalMutation({
 
     const disputeAssessment = assessmentIds.get("dwi-bts-2")
     if (disputeAssessment) {
-      const dwi = await userByEmail(ctx, "dwi@kalanidhi.site")
-      const admin = await userByEmail(ctx, "farel@farel.is-a.dev")
+      const dwi = await userByEmail(ctx, seedEmail("dwi"))
+      const admin = await seedAdmin(ctx)
       await ctx.db.insert("disputes", {
         subjectType: "assessment",
         subjectId: disputeAssessment,
@@ -1873,7 +1739,7 @@ export const seedLearning = internalMutation({
 export const seedCredentials = internalMutation({
   args: {},
   handler: async (ctx) => {
-    const admin = await userByEmail(ctx, "farel@farel.is-a.dev")
+    const admin = await seedAdmin(ctx)
     const certificateIds = new Map<string, Id<"certificates">>()
 
     const finals = [
@@ -1881,37 +1747,34 @@ export const seedCredentials = internalMutation({
         key: "anisa",
         submissionKey: "anisa-bts-final",
         pathSlug: "batik-tulis-soga",
-        teacherEmail: "bambang@kalanidhi.site",
+        teacherEmail: seedEmail("bambang"),
         score: 92,
       },
       {
         key: "dimas",
         submissionKey: "dimas-bts-final",
         pathSlug: "batik-tulis-soga",
-        teacherEmail: "sri@kalanidhi.site",
+        teacherEmail: seedEmail("sri"),
         score: 89,
       },
       {
         key: "purnomo",
         submissionKey: "purnomo-bts-final",
         pathSlug: "batik-tulis-soga",
-        teacherEmail: "bambang@kalanidhi.site",
+        teacherEmail: seedEmail("bambang"),
         score: 95,
       },
       {
         key: "rani",
         submissionKey: "rani-pra-final",
         pathSlug: "pranatacara-jawa",
-        teacherEmail: "widagdo@kalanidhi.site",
+        teacherEmail: seedEmail("widagdo"),
         score: 90,
       },
     ]
 
     for (const [index, final] of finals.entries()) {
-      const student = await userByEmail(
-        ctx,
-        `${final.key}@kalanidhi.site`,
-      )
+      const student = await userByEmail(ctx, seedEmail(final.key))
       const teacher = await userByEmail(ctx, final.teacherEmail)
       const path = await pathBySlug(ctx, final.pathSlug)
       const submission = await ctx.db
@@ -1973,7 +1836,7 @@ export const seedCredentials = internalMutation({
 
     // A revoked certificate exercises the revocation history in the
     // certificate drawer without leaving a dangling work card.
-    const dwi = await userByEmail(ctx, "dwi@kalanidhi.site")
+    const dwi = await userByEmail(ctx, seedEmail("dwi"))
     const dwiSubmission = await ctx.db
       .query("submissions")
       .withIndex("by_code", (q) => q.eq("code", "TUG-DWI-BTS-1"))
@@ -1989,13 +1852,13 @@ export const seedCredentials = internalMutation({
         const path = await pathBySlug(ctx, "batik-tulis-soga")
         const teacher = await userByEmail(
           ctx,
-          "bambang@kalanidhi.site",
+          seedEmail("bambang"),
         )
-        const issuedAt = ago(300)
-        const revokedAt = ago(40)
+        const issuedAt = ago(15)
+        const revokedAt = ago(5)
         const certificateId = await ctx.db.insert("certificates", {
           serial: "KN-2026-0005",
-          publicCode: "KN-DWI-2025",
+          publicCode: "KN-DWI-2026",
           studentId: dwi._id,
           pathId: path.slug,
           teacherId: teacher._id,
@@ -2004,7 +1867,7 @@ export const seedCredentials = internalMutation({
           issuedAt,
           revokedAt,
           revokeReason:
-            "Sertifikat lama diganti setelah koreksi nama dan penilaian ulang.",
+            "Sertifikat uji alur verifikasi dicabut setelah koreksi ejaan nama; sertifikat pengganti diterbitkan terpisah.",
           revokedBy: admin._id,
           snapshot: {
             studentName: dwi.name,
@@ -2036,10 +1899,7 @@ export const seedCredentials = internalMutation({
 
     for (const [index, work] of WORKS.entries()) {
       const workDoc = await workBySlug(ctx, work.slug)
-      const maker = await userByEmail(
-        ctx,
-        `${work.makerKey}@kalanidhi.site`,
-      )
+      const maker = await userByEmail(ctx, seedEmail(work.makerKey))
       const certificateId = certificateIds.get(work.certificateKey)
       if (!certificateId) continue
       await ctx.db.patch(workDoc._id, {
@@ -2048,7 +1908,7 @@ export const seedCredentials = internalMutation({
         pathId: work.pathSlug,
         status: "published",
         permission: work.permission,
-        createdAt: ago(300 - index * 5),
+        createdAt: ago(325 - index * 55),
       })
       await ctx.db.insert("workCards", {
         workId: workDoc._id,
@@ -2065,7 +1925,7 @@ export const seedCredentials = internalMutation({
         permission: work.permission,
         accessLevel: "public",
         status: "published",
-        createdAt: ago(300 - index * 5),
+        createdAt: ago(325 - index * 55),
         updatedAt: NOW,
       })
     }
@@ -2088,7 +1948,7 @@ export const seedCredentials = internalMutation({
 export const seedCommerce = internalMutation({
   args: {},
   handler: async (ctx) => {
-    const admin = await userByEmail(ctx, "farel@farel.is-a.dev")
+    const admin = await seedAdmin(ctx)
     const orders = [
       {
         key: "order-1",
@@ -2180,7 +2040,114 @@ export const seedCommerce = internalMutation({
         payoutStatus: "held" as const,
         gatewayFee: 8_500,
       },
+      {
+        key: "order-7",
+        code: "KN-2026-000107",
+        buyerKey: "dewi",
+        sellerKey: "anisa",
+        workSlug: "batik-soga-anyaman",
+        baseAmount: 1_450_000,
+        uniqueAmount: 1_450_058,
+        status: "completed" as const,
+        paidDaysAgo: 358,
+        completedDaysAgo: 348,
+        paymentStatus: "paid" as const,
+        payoutStatus: "paid" as const,
+        gatewayFee: 14_500,
+      },
+      {
+        key: "order-8",
+        code: "KN-2026-000108",
+        buyerKey: "arif",
+        sellerKey: "purnomo",
+        workSlug: "batik-soga-lereng",
+        baseAmount: 2_900_000,
+        uniqueAmount: 2_900_046,
+        status: "completed" as const,
+        paidDaysAgo: 296,
+        completedDaysAgo: 286,
+        paymentStatus: "paid" as const,
+        payoutStatus: "paid" as const,
+        gatewayFee: 29_000,
+      },
+      {
+        key: "order-9",
+        code: "KN-2026-000109",
+        buyerKey: "melati",
+        sellerKey: "rani",
+        workSlug: "pranatacara-siraman",
+        baseAmount: 2_500_000,
+        uniqueAmount: 2_500_072,
+        status: "completed" as const,
+        paidDaysAgo: 236,
+        completedDaysAgo: 228,
+        paymentStatus: "paid" as const,
+        payoutStatus: "approved" as const,
+        gatewayFee: 25_000,
+      },
+      {
+        key: "order-10",
+        code: "KN-2026-000110",
+        buyerKey: "fajar",
+        sellerKey: "dimas",
+        workSlug: "selendang-canting-nitik",
+        baseAmount: 850_000,
+        uniqueAmount: 850_061,
+        status: "completed" as const,
+        paidDaysAgo: 168,
+        completedDaysAgo: 158,
+        paymentStatus: "paid" as const,
+        payoutStatus: "paid" as const,
+        gatewayFee: 8_500,
+      },
+      {
+        key: "order-11",
+        code: "KN-2026-000111",
+        buyerKey: "ratih",
+        sellerKey: "anisa",
+        workSlug: "batik-soga-anyaman",
+        baseAmount: 1_450_000,
+        uniqueAmount: 1_450_083,
+        status: "completed" as const,
+        paidDaysAgo: 112,
+        completedDaysAgo: 102,
+        paymentStatus: "paid" as const,
+        payoutStatus: "approved" as const,
+        gatewayFee: 14_500,
+      },
+      {
+        key: "order-12",
+        code: "KN-2026-000112",
+        buyerKey: "nanda",
+        sellerKey: "dimas",
+        workSlug: "selendang-canting-nitik",
+        baseAmount: 850_000,
+        uniqueAmount: 850_094,
+        status: "completed" as const,
+        paidDaysAgo: 58,
+        completedDaysAgo: 48,
+        paymentStatus: "paid" as const,
+        payoutStatus: "approved" as const,
+        gatewayFee: 8_500,
+      },
     ]
+
+    const orderNotes: Record<string, string> = {
+      "order-1":
+        "Mohon dibungkus kertas bebas asam, kirim ke Mergangsan, Kota Yogyakarta.",
+      "order-2":
+        "Untuk hadiah pernikahan, mohon sertakan kartu perawatan kain.",
+      "order-3":
+        "Kirim ke alamat kantor di Mlati, terima Senin–Jumat pukul 09.00–16.00.",
+      "order-4":
+        "Booking untuk akad 12 Desember 2026, prosesi pagi di Banguntapan.",
+      "order-7": "Pesanan pertama, mohon dipotret proses pewarnaan terakhir.",
+      "order-8": "Kain untuk dipajang di galeri, mohon sertakan Kartu Karya.",
+      "order-9": "Acara keluarga di Kotagede, butuh gladi resik sehari sebelumnya.",
+      "order-10": "Hadiah untuk ibu, mohon dibungkus rapi.",
+      "order-11": "Pesanan ulang setelah kain pertama dipakai untuk pameran.",
+      "order-12": "Warna diminta sedikit lebih terang dari contoh foto.",
+    }
 
     const orderIds = new Map<string, Id<"orders">>()
     const paymentIds = new Map<string, Id<"payments">>()
@@ -2188,14 +2155,8 @@ export const seedCommerce = internalMutation({
     const saleLedgerIds = new Map<string, Id<"ledgerEntries">>()
 
     for (const seed of orders) {
-      const buyer = await userByEmail(
-        ctx,
-        `${seed.buyerKey}@kalanidhi.site`,
-      )
-      const seller = await userByEmail(
-        ctx,
-        `${seed.sellerKey}@kalanidhi.site`,
-      )
+      const buyer = await userByEmail(ctx, seedEmail(seed.buyerKey))
+      const seller = await userByEmail(ctx, seedEmail(seed.sellerKey))
       const work = await workBySlug(ctx, seed.workSlug)
       const createdAt = ago(seed.paidDaysAgo ?? 2)
       const paidAt =
@@ -2214,9 +2175,10 @@ export const seedCommerce = internalMutation({
         status: seed.status,
         channel: "web",
         note:
-          seed.status === "disputed"
+          orderNotes[seed.key] ??
+          (seed.status === "disputed"
             ? "Pembeli meminta peninjauan kondisi kain."
-            : undefined,
+            : undefined),
         tokenHash: await sha256(`seed-order-token-${seed.key}`),
         idempotencyKey: `seed-idem-${seed.key}`,
         consentVersion: "2026-11-transactional",
@@ -2425,7 +2387,7 @@ export const seedCommerce = internalMutation({
     const refundOrder = orderIds.get("order-5")
     const refundPayment = paymentIds.get("order-5")
     if (refundOrder && refundPayment) {
-      const ratih = await userByEmail(ctx, "ratih@kalanidhi.site")
+      const ratih = await userByEmail(ctx, seedEmail("ratih"))
       const refundId = await ctx.db.insert("refunds", {
         orderId: refundOrder,
         paymentId: refundPayment,
@@ -2444,7 +2406,7 @@ export const seedCommerce = internalMutation({
       const originalPayout = payoutIds.get("order-5")
       if (originalPayout) {
         const reversalId = await ctx.db.insert("payouts", {
-          teacherId: (await userByEmail(ctx, "anisa@kalanidhi.site"))._id,
+          teacherId: (await userByEmail(ctx, seedEmail("anisa")))._id,
           periodStart: ago(40),
           periodEnd: ago(33),
           gross: -1_450_000,
@@ -2505,7 +2467,7 @@ export const seedCommerce = internalMutation({
 
     const disputeOrder = orderIds.get("order-6")
     if (disputeOrder) {
-      const yusuf = await userByEmail(ctx, "yusuf@kalanidhi.site")
+      const yusuf = await userByEmail(ctx, seedEmail("yusuf"))
       await ctx.db.insert("disputes", {
         subjectType: "order",
         subjectId: disputeOrder,

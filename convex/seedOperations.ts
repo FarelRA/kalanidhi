@@ -1,12 +1,15 @@
 import { FLOW_SPECS } from "../lib/flows/definitions"
 import type { Doc, Id } from "./_generated/dataModel"
 import { internalMutation, type MutationCtx } from "./_generated/server"
-
-const DAY = 86_400_000
-const HOUR = 3_600_000
-const NOW = Date.now()
-const ago = (days: number) => NOW - days * DAY
-const ahead = (days: number) => NOW + days * DAY
+import {
+  HOUR,
+  SEED_NOW as NOW,
+  seedAdmin,
+  seedAgo as ago,
+  seedAhead as ahead,
+  seedEmail,
+  seedPhone,
+} from "./seedIdentities"
 
 async function sha256(value: string): Promise<string> {
   const bytes = new TextEncoder().encode(value)
@@ -93,19 +96,22 @@ function pairKey(a: string, b: string): string {
 export const seedMessaging = internalMutation({
   args: {},
   handler: async (ctx) => {
-    const admin = await userByEmail(ctx, "farel@farel.is-a.dev")
-    const bambang = await userByEmail(ctx, "bambang@kalanidhi.site")
-    const sri = await userByEmail(ctx, "sri@kalanidhi.site")
-    const widagdo = await userByEmail(ctx, "widagdo@kalanidhi.site")
-    const sari = await userByEmail(ctx, "sari@kalanidhi.site")
-    const dimas = await userByEmail(ctx, "dimas@kalanidhi.site")
-    const rani = await userByEmail(ctx, "rani@kalanidhi.site")
-    const nanda = await userByEmail(ctx, "nanda@kalanidhi.site")
-    const yusuf = await userByEmail(ctx, "yusuf@kalanidhi.site")
+    const admin = await seedAdmin(ctx)
+    const bambang = await userByEmail(ctx, seedEmail("bambang"))
+    const sri = await userByEmail(ctx, seedEmail("sri"))
+    const widagdo = await userByEmail(ctx, seedEmail("widagdo"))
+    const sari = await userByEmail(ctx, seedEmail("sari"))
+    const dimas = await userByEmail(ctx, seedEmail("dimas"))
+    const rani = await userByEmail(ctx, seedEmail("rani"))
+    const nanda = await userByEmail(ctx, seedEmail("nanda"))
+    const yusuf = await userByEmail(ctx, seedEmail("yusuf"))
+    const anisa = await userByEmail(ctx, seedEmail("anisa"))
+    const dwi = await userByEmail(ctx, seedEmail("dwi"))
+    const ratih = await userByEmail(ctx, seedEmail("ratih"))
     const cohort = await cohortByCode(ctx, "BTS-2026-01")
     const cohortStudents = await Promise.all(
       ["sari", "dwi", "bayu", "nanda", "ratih", "yusuf", "melati", "arif"].map(
-        (key) => userByEmail(ctx, `${key}@kalanidhi.site`),
+        (key) => userByEmail(ctx, seedEmail(key)),
       ),
     )
 
@@ -171,6 +177,24 @@ export const seedMessaging = internalMutation({
         kind: "image" as const,
         body: "Ini hasil setelah suhu malam saya turunkan.",
         createdAt: ago(1),
+      },
+      {
+        senderId: bambang._id,
+        kind: "text" as const,
+        body: "Garisnya sudah jauh lebih rata. Untuk Sabtu bawa kain primis 40 x 40 cm, kita latihan lengkung ganda.",
+        createdAt: ago(0.8),
+      },
+      {
+        senderId: sari._id,
+        kind: "text" as const,
+        body: "Siap, Pak. Saya juga bawa hasil pewarnaan soga terakhir untuk diperiksa.",
+        createdAt: ago(0.6),
+      },
+      {
+        senderId: bambang._id,
+        kind: "text" as const,
+        body: "Bagus. Datang lima belas menit lebih awal supaya sempat menyiapkan wajan.",
+        createdAt: ago(0.4),
       },
     ]
     const directMessageIds: Id<"messages">[] = []
@@ -277,7 +301,31 @@ export const seedMessaging = internalMutation({
         senderId: sari._id,
         kind: "text" as const,
         body: "Baik, Pak. Saya sudah siapkan dua lembar kain perca untuk latihan.",
-        createdAt: ago(1),
+        createdAt: ago(1.4),
+      },
+      {
+        senderId: dwi._id,
+        kind: "text" as const,
+        body: "Pak, apakah kain primis boleh diganti katun biasa untuk latihan di rumah?",
+        createdAt: ago(1.2),
+      },
+      {
+        senderId: bambang._id,
+        kind: "text" as const,
+        body: "Untuk latihan boleh. Untuk tugas akhir tetap pakai primis supaya hasil pewarnaan bisa dibandingkan.",
+        createdAt: ago(1.1),
+      },
+      {
+        senderId: ratih._id,
+        kind: "text" as const,
+        body: "Catatan sesi kemarin sudah saya salin. Bagian fiksasi warna masih perlu saya ulang.",
+        createdAt: ago(0.9),
+      },
+      {
+        senderId: bambang._id,
+        kind: "text" as const,
+        body: "Iya, ulangi fiksasi dengan waktu yang sama. Catat suhu airnya, jangan hanya takaran bahan.",
+        createdAt: ago(0.8),
       },
     ]
     for (const message of cohortMessages) {
@@ -333,7 +381,25 @@ export const seedMessaging = internalMutation({
         senderId: admin._id,
         kind: "text" as const,
         body: "Terima kasih, Sari. Saya cek mutasi gateway dan akan kabari di tiket yang sama.",
+        createdAt: ago(1.6),
+      },
+      {
+        senderId: admin._id,
+        kind: "text" as const,
+        body: "Mutasi sudah cocok dengan nominal unik 1.450.037. Status pesanan saya ubah ke dibayar.",
+        createdAt: ago(1.2),
+      },
+      {
+        senderId: sari._id,
+        kind: "text" as const,
+        body: "Sudah masuk sekarang, terima kasih. Saya tunggu kabar pengirimannya.",
         createdAt: ago(1),
+      },
+      {
+        senderId: admin._id,
+        kind: "text" as const,
+        body: "Baik, tiket saya tutup. Kalau ada kendala lain, buka chat lagi kapan saja.",
+        createdAt: ago(0.9),
       },
     ]
     for (const message of supportMessages) {
@@ -384,7 +450,22 @@ export const seedMessaging = internalMutation({
       {
         senderId: rani._id,
         body: "Sudah saya tambahkan, Pak. Saya kirim ulang malam ini.",
-        createdAt: ago(4),
+        createdAt: ago(4.2),
+      },
+      {
+        senderId: widagdo._id,
+        body: "Sudah saya baca. Bagian penyerahan ke keluarga sudah pas, tinggal latih tempo bicaranya.",
+        createdAt: ago(3.8),
+      },
+      {
+        senderId: rani._id,
+        body: "Baik. Saya juga sudah menyiapkan susunan keluarga untuk prosesi siraman.",
+        createdAt: ago(3.5),
+      },
+      {
+        senderId: widagdo._id,
+        body: "Bagus. Besok kita gladi resik pukul 19.00 lewat panggilan, saya kirim tautannya.",
+        createdAt: ago(3.2),
       },
     ]) {
       const messageId = await ctx.db.insert("messages", {
@@ -425,20 +506,217 @@ export const seedMessaging = internalMutation({
         joinedAt: ago(15),
       })
     }
-    const dimasMessageId = await ctx.db.insert("messages", {
-      conversationId: dimasConversationId,
-      senderId: sri._id,
-      kind: "text",
-      body: "Dimas, hasil pencelupan nila sudah bagus. Jangan lupa catat pH air sebelum pencelupan berikutnya.",
-      createdAt: ago(6),
-    })
-    for (const member of [sri, dimas]) {
-      await ctx.db.insert("messageReceipts", {
-        messageId: dimasMessageId,
-        userId: member._id,
-        deliveredAt: ago(6) + 1_000,
-        readAt: ago(6) + 20_000,
+    const dimasThread = [
+      {
+        senderId: sri._id,
+        body: "Dimas, hasil pencelupan nila sudah bagus. Jangan lupa catat pH air sebelum pencelupan berikutnya.",
+        createdAt: ago(6),
+      },
+      {
+        senderId: dimas._id,
+        body: "Baik, Bu. Saya catat pH 6,5 dan suhu 80 derajat. Hasilnya lebih gelap dari percobaan pertama.",
+        createdAt: ago(5.6),
+      },
+      {
+        senderId: sri._id,
+        body: "Itu masih masuk rentang. Coba ulangi dengan kain yang sama sebagai pembanding, lalu foto berdampingan.",
+        createdAt: ago(5.2),
+      },
+      {
+        senderId: dimas._id,
+        body: "Siap, sore ini saya kerjakan. Terima kasih, Bu.",
+        createdAt: ago(4.9),
+      },
+    ]
+    for (const message of dimasThread) {
+      const messageId = await ctx.db.insert("messages", {
+        conversationId: dimasConversationId,
+        senderId: message.senderId,
+        kind: "text",
+        body: message.body,
+        createdAt: message.createdAt,
       })
+      for (const member of [sri, dimas]) {
+        await ctx.db.insert("messageReceipts", {
+          messageId,
+          userId: member._id,
+          deliveredAt: message.createdAt + 1_000,
+          readAt:
+            member._id === message.senderId
+              ? message.createdAt + 1_000
+              : message.createdAt + 25_000,
+        })
+      }
+    }
+
+    const orderConversationId = await ctx.db.insert("conversations", {
+      kind: "direct",
+      title: "Pesanan kain soga anyaman",
+      pathId: "batik-tulis-soga",
+      createdBy: anisa._id,
+      status: "open",
+      pairKey: pairKey(anisa._id, sari._id),
+      lastMessageAt: ago(18),
+      createdAt: ago(24),
+      updatedAt: ago(18),
+    })
+    for (const member of [sari, anisa]) {
+      await ctx.db.insert("conversationMembers", {
+        conversationId: orderConversationId,
+        userId: member._id,
+        role: member._id === anisa._id ? "owner" : "member",
+        lastReadAt: ago(18),
+        lastSeenAt: ago(18),
+        joinedAt: ago(24),
+      })
+    }
+    const orderThread = [
+      {
+        senderId: sari._id,
+        kind: "text" as const,
+        body: "Mbak Anisa, kainnya sudah sampai. Motifnya rapi, terima kasih ya.",
+        createdAt: ago(21),
+      },
+      {
+        senderId: anisa._id,
+        kind: "text" as const,
+        body: "Alhamdulillah, senang mendengarnya. Kalau mau, saya kirim panduan perawatan kainnya.",
+        createdAt: ago(20.6),
+      },
+      {
+        senderId: sari._id,
+        kind: "text" as const,
+        body: "Boleh, sekalian tips menyimpan supaya warna soga tidak cepat pudar.",
+        createdAt: ago(20.2),
+      },
+      {
+        senderId: anisa._id,
+        kind: "image" as const,
+        body: "Sudah saya kirim panduan perawatan kainnya.",
+        createdAt: ago(19),
+      },
+      {
+        senderId: anisa._id,
+        kind: "text" as const,
+        body: "Hindari sinar matahari langsung, lipat dengan kertas bebas asam, dan cuci dengan sabun lembut.",
+        createdAt: ago(18.6),
+      },
+      {
+        senderId: sari._id,
+        kind: "text" as const,
+        body: "Sudah saya catat. Terima kasih, Mbak. Nanti saya kabari kalau mau pesan selendang.",
+        createdAt: ago(18),
+      },
+    ]
+    for (const message of orderThread) {
+      const messageId = await ctx.db.insert("messages", {
+        conversationId: orderConversationId,
+        senderId: message.senderId,
+        kind: message.kind,
+        body: message.body,
+        createdAt: message.createdAt,
+      })
+      if (message.kind === "image") {
+        const assetId = await ctx.db.insert("messageAssets", {
+          messageId,
+          storageId: imageStorage,
+          senderId: message.senderId,
+          kind: "image",
+          filename: "panduan-perawatan-kain.jpg",
+          mimeType: "image/jpeg",
+          size: 62_000,
+          width: 1080,
+          height: 1350,
+          createdAt: message.createdAt,
+        })
+        await ctx.db.patch(messageId, { assetId })
+      }
+      for (const member of [sari, anisa]) {
+        await ctx.db.insert("messageReceipts", {
+          messageId,
+          userId: member._id,
+          deliveredAt: message.createdAt + 2_000,
+          readAt:
+            member._id === message.senderId
+              ? message.createdAt + 2_000
+              : message.createdAt + 45_000,
+        })
+      }
+    }
+
+    const mentorConversationId = await ctx.db.insert("conversations", {
+      kind: "direct",
+      title: "Bimbingan karya akhir Anisa",
+      pathId: "batik-tulis-soga",
+      createdBy: bambang._id,
+      status: "archived",
+      pairKey: pairKey(bambang._id, anisa._id),
+      lastMessageAt: ago(300),
+      createdAt: ago(360),
+      updatedAt: ago(300),
+    })
+    for (const member of [bambang, anisa]) {
+      await ctx.db.insert("conversationMembers", {
+        conversationId: mentorConversationId,
+        userId: member._id,
+        role: member._id === bambang._id ? "owner" : "member",
+        lastReadAt: ago(300),
+        lastSeenAt: ago(300),
+        joinedAt: ago(360),
+        leftAt: ago(299),
+      })
+    }
+    const mentorThread = [
+      {
+        senderId: anisa._id,
+        body: "Pak, saya sudah menyelesaikan pelorodan. Besok saya unggah dua belas foto prosesnya.",
+        createdAt: ago(356),
+      },
+      {
+        senderId: bambang._id,
+        body: "Bagus. Pastikan foto bahan dan takaran ikut, bukan hanya hasil akhir.",
+        createdAt: ago(355),
+      },
+      {
+        senderId: anisa._id,
+        body: "Sudah saya susun per tahap. Ada satu foto fiksasi yang kurang fokus, saya ulang.",
+        createdAt: ago(354),
+      },
+      {
+        senderId: bambang._id,
+        body: "Kirim yang jelas saja. Nanti saya nilai dan ajukan Kartu Karya.",
+        createdAt: ago(353),
+      },
+      {
+        senderId: anisa._id,
+        body: "Terima kasih, Pak. Saya juga ingin mengajukan diri sebagai pengajar pendamping.",
+        createdAt: ago(300),
+      },
+      {
+        senderId: bambang._id,
+        body: "Boleh. Setelah sertifikat terbit, ajukan lewat menu pengajar.",
+        createdAt: ago(300),
+      },
+    ]
+    for (const message of mentorThread) {
+      const messageId = await ctx.db.insert("messages", {
+        conversationId: mentorConversationId,
+        senderId: message.senderId,
+        kind: "text",
+        body: message.body,
+        createdAt: message.createdAt,
+      })
+      for (const member of [bambang, anisa]) {
+        await ctx.db.insert("messageReceipts", {
+          messageId,
+          userId: member._id,
+          deliveredAt: message.createdAt + 2_000,
+          readAt:
+            member._id === message.senderId
+              ? message.createdAt + 2_000
+              : message.createdAt + 60_000,
+        })
+      }
     }
 
     const blockedConversationId = await ctx.db.insert("conversations", {
@@ -522,12 +800,23 @@ export const seedMessaging = internalMutation({
       lastSeenAt: ago(1),
       joinedAt: ago(30),
     })
-    await ctx.db.insert("messages", {
-      conversationId: systemConversationId,
-      kind: "system",
-      body: "Seed workspace selesai. Semua modul operasional sudah terhubung.",
-      createdAt: ago(1),
-    })
+    for (const notice of [
+      {
+        body: "Pemeliharaan terjadwal Minggu, 16 November 2026 pukul 01.00–03.00 WIB. Ruang belajar tetap dapat dibuka; unggahan tugas mungkin tertunda beberapa menit.",
+        createdAt: ago(1.5),
+      },
+      {
+        body: "Sertifikat angkatan perintis sudah terbit dan dapat diverifikasi lewat halaman Verifikasi. Gunakan kode yang tertera pada sertifikat.",
+        createdAt: ago(1),
+      },
+    ]) {
+      await ctx.db.insert("messages", {
+        conversationId: systemConversationId,
+        kind: "system",
+        body: notice.body,
+        createdAt: notice.createdAt,
+      })
+    }
 
     const callId = await ctx.db.insert("callSessions", {
       roomName: "kalanidhi-bts-2026-01-review",
@@ -703,8 +992,10 @@ export const seedMessaging = internalMutation({
     })
 
     return {
-      conversations: 7,
-      messages: directMessageIds.length + cohortMessages.length + 6,
+      conversations: 9,
+      // Direct 7 + cohort 3 + support 4 + rani 4 + dimas 4 + order 6 +
+      // mentor 6 + flagged 1 + system 2 = 37.
+      messages: 37,
       calls: 4,
     }
   },
@@ -713,12 +1004,12 @@ export const seedMessaging = internalMutation({
 export const seedOps = internalMutation({
   args: {},
   handler: async (ctx) => {
-    const admin = await userByEmail(ctx, "farel@farel.is-a.dev")
-    const sari = await userByEmail(ctx, "sari@kalanidhi.site")
-    const dwi = await userByEmail(ctx, "dwi@kalanidhi.site")
-    const anisa = await userByEmail(ctx, "anisa@kalanidhi.site")
-    const rani = await userByEmail(ctx, "rani@kalanidhi.site")
-    const purnomo = await userByEmail(ctx, "purnomo@kalanidhi.site")
+    const admin = await seedAdmin(ctx)
+    const sari = await userByEmail(ctx, seedEmail("sari"))
+    const dwi = await userByEmail(ctx, seedEmail("dwi"))
+    const anisa = await userByEmail(ctx, seedEmail("anisa"))
+    const rani = await userByEmail(ctx, seedEmail("rani"))
+    const purnomo = await userByEmail(ctx, seedEmail("purnomo"))
     const order1 = await orderByCode(ctx, "KN-2026-000101")
     const payoutForOrder1 = (
       await ctx.db
@@ -726,6 +1017,18 @@ export const seedOps = internalMutation({
         .withIndex("by_orderId", (q) => q.eq("orderId", order1._id))
         .collect()
     )[0]
+    const paymentForOrder1 = (
+      await ctx.db
+        .query("payments")
+        .withIndex("by_orderId", (q) => q.eq("orderId", order1._id))
+        .collect()
+    )[0]
+    const raniConversation = (
+      await ctx.db.query("conversations").collect()
+    ).find((item) => item.title === "Pranatacara: jadwal siraman")
+    const missedCall = (await ctx.db.query("callSessions").collect()).find(
+      (item) => item.status === "missed",
+    )
     const submission = await submissionByCode(ctx, "TUG-DWI-BTS-2")
     const certificate = await certificateByCode(ctx, "KN-ANISA-2026")
     const work = await workBySlug(ctx, "batik-soga-lereng")
@@ -734,10 +1037,11 @@ export const seedOps = internalMutation({
       {
         intent: "student" as const,
         name: "Sari Wulandari",
-        email: "sari@kalanidhi.site",
-        whatsapp: "6281210000009",
+        email: seedEmail("sari"),
+        whatsapp: seedPhone("sari"),
         interest: "Batik Tulis Soga",
-        message: "Saya ingin mulai dari kelas pemula, apakah masih ada kursi?",
+        message:
+          "Saya ingin mulai dari kelas pemula. Apakah angkatan Oktober masih ada kursi?",
         source: "landing",
         status: "new" as const,
         daysAgo: 1,
@@ -745,10 +1049,11 @@ export const seedOps = internalMutation({
       {
         intent: "student" as const,
         name: "Rina Kusumawati",
-        email: "rina.kusuma@example.com",
-        whatsapp: "6281210000099",
+        email: "rina.kusumawati88@gmail.com",
+        whatsapp: "6281392847506",
         interest: "Pranatacara Jawa",
-        message: "Saya sudah pernah membantu acara keluarga, ingin belajar lebih rapi.",
+        message:
+          "Saya sudah pernah membantu acara keluarga di Sleman, ingin belajar susunan acara yang lebih rapi.",
         source: "instagram",
         status: "contacted" as const,
         daysAgo: 4,
@@ -756,13 +1061,14 @@ export const seedOps = internalMutation({
       {
         intent: "institution" as const,
         name: "Dwi Lestari",
-        email: "dwi@kalanidhi.site",
-        whatsapp: "6281210000010",
+        email: seedEmail("dwi"),
+        whatsapp: seedPhone("dwi"),
         institution: "SD Negeri Srandakan",
         institutionType: "Sekolah dasar",
         participants: 28,
         interest: "Muatan lokal batik",
-        message: "Kami butuh program 6 pekan untuk kelas 5 dan 6.",
+        message:
+          "Kami butuh program 6 pekan untuk kelas 5 dan 6, jadwal Jumat siang.",
         source: "referral",
         status: "qualified" as const,
         daysAgo: 8,
@@ -770,10 +1076,11 @@ export const seedOps = internalMutation({
       {
         intent: "consultation" as const,
         name: "Bayu Pratama",
-        email: "bayu@kalanidhi.site",
-        whatsapp: "6281210000011",
+        email: seedEmail("bayu"),
+        whatsapp: seedPhone("bayu"),
         interest: "Pembawa acara siraman",
-        message: "Apakah bisa konsultasi paket siraman dan midodareni?",
+        message:
+          "Apakah bisa konsultasi paket siraman dan midodareni untuk akad Desember?",
         source: "landing",
         status: "converted" as const,
         daysAgo: 12,
@@ -781,23 +1088,74 @@ export const seedOps = internalMutation({
       {
         intent: "notify" as const,
         name: "Nanda Kusuma",
-        email: "nanda@kalanidhi.site",
-        whatsapp: "6281210000012",
-        interest: "Kriya ukir Jepara",
-        message: "Kabari saya kalau jalur ukir sudah dibuka.",
+        email: seedEmail("nanda"),
+        whatsapp: seedPhone("nanda"),
+        interest: "Kriya ukir Bantul",
+        message: "Kabari saya kalau jalur ukir kayu sudah dibuka.",
         source: "footer",
         status: "closed" as const,
         daysAgo: 20,
       },
       {
         intent: "student" as const,
-        name: "Tanpa Nama",
-        email: "spam@example.com",
-        interest: "Promo",
-        message: "Klik tautan ini untuk promo besar.",
+        name: "Bagas Prakoso",
+        email: "bagas.prakoso23@gmail.com",
+        whatsapp: "6281228475903",
+        interest: "Promo kaus",
+        message: "Klik tautan ini untuk promo kaus murah, stok terbatas.",
         source: "unknown",
         status: "spam" as const,
         daysAgo: 2,
+      },
+      {
+        intent: "institution" as const,
+        name: "Retno Palupi",
+        email: "retno.palupi80@gmail.com",
+        whatsapp: "6285728103946",
+        institution: "Sanggar Tari Kembang Setaman",
+        institutionType: "Sanggar seni",
+        participants: 16,
+        interest: "Kelas pranatacara untuk pengurus sanggar",
+        message:
+          "Kami ingin menyiapkan enam pengurus agar bisa memandu acara sanggar.",
+        source: "referral",
+        status: "converted" as const,
+        daysAgo: 186,
+      },
+      {
+        intent: "consultation" as const,
+        name: "Yoga Pratama",
+        email: "yoga.pratama91@gmail.com",
+        whatsapp: "6282137604589",
+        interest: "Pewarnaan alami",
+        message:
+          "Saya punya usaha batik kecil di Imogiri, ingin belajar ekstraksi nila yang lebih stabil.",
+        source: "whatsapp",
+        status: "converted" as const,
+        daysAgo: 264,
+      },
+      {
+        intent: "notify" as const,
+        name: "Lintang Ayu",
+        email: "lintang.ayu04@gmail.com",
+        whatsapp: "6281290653742",
+        interest: "Tenun Gunungkidul",
+        message: "Tolong kabari kalau kelas tenun dibuka untuk pemula.",
+        source: "landing",
+        status: "closed" as const,
+        daysAgo: 122,
+      },
+      {
+        intent: "student" as const,
+        name: "Heru Santosa",
+        email: "heru.santosa84@gmail.com",
+        whatsapp: "6282134908571",
+        interest: "Batik Tulis Soga",
+        message:
+          "Saya tetangga sanggar Giriloyo, ingin ikut angkatan perintis kalau masih dibuka.",
+        source: "referral",
+        status: "converted" as const,
+        daysAgo: 382,
       },
     ]
 
@@ -817,7 +1175,10 @@ export const seedOps = internalMutation({
         status: lead.status,
         createdAt: ago(lead.daysAgo),
         updatedAt: ago(Math.max(0, lead.daysAgo - 1)),
-        convertedAt: lead.status === "converted" ? ago(10) : undefined,
+        convertedAt:
+          lead.status === "converted"
+            ? ago(Math.max(1, lead.daysAgo - 2))
+            : undefined,
       })
       await ctx.db.insert("leadAssignments", {
         leadId,
@@ -848,7 +1209,11 @@ export const seedOps = internalMutation({
         channel: "chat" as const,
         linkedRecords: [
           { type: "order" as const, id: order1._id, label: order1.code },
-          { type: "payment" as const, id: "seed-charge-order-1", label: "QRIS" },
+          {
+            type: "payment" as const,
+            id: paymentForOrder1?._id ?? order1.code,
+            label: "QRIS",
+          },
         ],
         messages: [
           {
@@ -936,7 +1301,7 @@ export const seedOps = internalMutation({
         linkedRecords: [
           {
             type: "conversation" as const,
-            id: "seed-conversation-rani",
+            id: raniConversation?._id ?? "Pranatacara: jadwal siraman",
             label: "Pranatacara: jadwal siraman",
           },
         ],
@@ -958,6 +1323,32 @@ export const seedOps = internalMutation({
       },
       {
         code: "SUP-2026-0005",
+        requester: anisa,
+        subject: "Kartu Karya belum muncul di halaman karya",
+        priority: "normal" as const,
+        status: "closed" as const,
+        channel: "chat" as const,
+        linkedRecords: [
+          { type: "work" as const, id: work._id, label: work.title },
+        ],
+        messages: [
+          {
+            authorId: anisa._id,
+            kind: "user" as const,
+            body: "Kartu Karya untuk kain soga sudah terbit, tetapi belum muncul di halaman karya.",
+            daysAgo: 226,
+          },
+          {
+            authorId: admin._id,
+            kind: "user" as const,
+            body: "Sudah saya periksa: karya belum ditautkan ke sertifikat. Sekarang sudah tampil.",
+            daysAgo: 225,
+          },
+        ],
+        daysAgo: 226,
+      },
+      {
+        code: "SUP-2026-0006",
         requester: purnomo,
         subject: "Karya belum tampil di etalase",
         priority: "normal" as const,
@@ -1134,7 +1525,7 @@ export const seedOps = internalMutation({
         title: "Panggilan tak terjawab",
         body: "Widagdo Saputra mencoba menghubungi Anda.",
         entityType: "callSessions",
-        entityId: "seed-call-missed",
+        entityId: missedCall?._id ?? "Panggilan tak terjawab",
         readAt: undefined,
         daysAgo: 4,
       },
@@ -1256,10 +1647,10 @@ export const seedOps = internalMutation({
 export const seedSettings = internalMutation({
   args: {},
   handler: async (ctx) => {
-    const admin = await userByEmail(ctx, "farel@farel.is-a.dev")
-    const sari = await userByEmail(ctx, "sari@kalanidhi.site")
-    const bambang = await userByEmail(ctx, "bambang@kalanidhi.site")
-    const anisa = await userByEmail(ctx, "anisa@kalanidhi.site")
+    const admin = await seedAdmin(ctx)
+    const sari = await userByEmail(ctx, seedEmail("sari"))
+    const bambang = await userByEmail(ctx, seedEmail("bambang"))
+    const anisa = await userByEmail(ctx, seedEmail("anisa"))
 
     const settings = [
       {
@@ -1276,7 +1667,7 @@ export const seedSettings = internalMutation({
       },
       {
         key: "platform.regions",
-        value: ["DI Yogyakarta", "Jawa Tengah"],
+        value: ["DI Yogyakarta"],
       },
       { key: "platform.timezone", value: "Asia/Jakarta" },
       {
@@ -1302,8 +1693,8 @@ export const seedSettings = internalMutation({
           whatsapp: user.phone,
           bio:
             user._id === admin._id
-              ? "Mengelola operasional platform di Yogyakarta."
-              : "Praktisi budaya Nusantara.",
+              ? "Mengelola operasional platform di Kota Yogyakarta."
+              : "Praktisi budaya di Daerah Istimewa Yogyakarta.",
           locale: "id",
           timezone: "Asia/Jakarta",
           dataSaver: false,
@@ -1608,10 +1999,10 @@ export const seedSettings = internalMutation({
 export const seedGovernance = internalMutation({
   args: {},
   handler: async (ctx) => {
-    const admin = await userByEmail(ctx, "farel@farel.is-a.dev")
-    const sari = await userByEmail(ctx, "sari@kalanidhi.site")
-    const dwi = await userByEmail(ctx, "dwi@kalanidhi.site")
-    const anisa = await userByEmail(ctx, "anisa@kalanidhi.site")
+    const admin = await seedAdmin(ctx)
+    const sari = await userByEmail(ctx, seedEmail("sari"))
+    const dwi = await userByEmail(ctx, seedEmail("dwi"))
+    const anisa = await userByEmail(ctx, seedEmail("anisa"))
     const workSoga = await workBySlug(ctx, "batik-soga-anyaman")
     const workNitik = await workBySlug(ctx, "selendang-canting-nitik")
     const workPranatacara = await workBySlug(ctx, "pranatacara-siraman")
@@ -1627,7 +2018,7 @@ export const seedGovernance = internalMutation({
         pathId: "batik-tulis-soga",
         workId: workSoga._id,
         permissionDocumentRef: "IZIN-SG-2026-03",
-        permissionDate: ago(240),
+        permissionDate: ago(360),
         accessLevel: "public" as const,
         attribution:
           "Sanggar Soga Giriloyo, Bantul. Pengetahuan diolah bersama pengajar dan kurator.",
@@ -1636,43 +2027,43 @@ export const seedGovernance = internalMutation({
         status: "active" as const,
       },
       {
-        community: "Rumah Warna Lasem",
-        sourceName: "Catatan pewarnaan alami Lasem",
+        community: "Rumah Warna Pleret",
+        sourceName: "Catatan pewarnaan alami Pleret",
         pathId: "batik-tulis-soga",
         workId: workNitik._id,
         permissionDocumentRef: "IZIN-RWL-2026-04",
-        permissionDate: ago(210),
+        permissionDate: ago(300),
         accessLevel: "community" as const,
         attribution:
-          "Rumah Warna Lasem, Rembang. Bahan dan takaran dibagikan untuk pelajar terdaftar.",
+          "Rumah Warna Pleret, Bantul. Bahan dan takaran dibagikan untuk pelajar terdaftar.",
         notes: "Sebagian takaran hanya untuk pelajar terdaftar.",
         withdrawalStatus: "active" as const,
         status: "active" as const,
       },
       {
-        community: "Sanggar Wicara Surakarta",
+        community: "Sanggar Wicara Ngayogyakarta",
         sourceName: "Arsip tata upacara dan rundown siraman",
         pathId: "pranatacara-jawa",
         workId: workPranatacara._id,
         permissionDocumentRef: "IZIN-SW-2026-06",
-        permissionDate: ago(180),
+        permissionDate: ago(220),
         accessLevel: "public" as const,
         attribution:
-          "Sanggar Wicara Surakarta. Rundown disusun ulang untuk konteks kelas.",
+          "Sanggar Wicara Ngayogyakarta. Rundown disusun ulang untuk konteks kelas.",
         notes: "Rundown tidak memuat data keluarga nyata.",
         withdrawalStatus: "active" as const,
         status: "active" as const,
       },
       {
-        community: "Sanggar Ukir Jepara",
-        sourceName: "Draf pengantar ukir relief Jepara",
+        community: "Sanggar Ukir Bantul",
+        sourceName: "Draf pengantar ukir relief Bantul",
         pathId: "kriya-ukir-jepara",
         workId: undefined,
         permissionDocumentRef: "IZIN-SUJ-2026-11",
         permissionDate: ago(20),
         accessLevel: "restricted" as const,
         attribution:
-          "Sanggar Ukir Jepara. Materi masih dalam peninjauan komunitas.",
+          "Sanggar Ukir Bantul. Materi masih dalam peninjauan komunitas.",
         notes: "Belum diterbitkan; menunggu persetujuan pengajar.",
         withdrawalStatus: "withdrawal_requested" as const,
         status: "active" as const,
@@ -1702,7 +2093,7 @@ export const seedGovernance = internalMutation({
             : undefined,
         status: source.status,
         createdBy: admin._id,
-        createdAt: ago(240),
+        createdAt: source.permissionDate,
         updatedAt: NOW,
       })
       sourceIds.push(sourceId)
@@ -1714,7 +2105,7 @@ export const seedGovernance = internalMutation({
       targetId: workNitik._id,
       targetLabel: workNitik.title,
       culturalSourceId: sourceIds[1],
-      requesterName: "Perwakilan Rumah Warna Lasem",
+      requesterName: "Perwakilan Rumah Warna Pleret",
       requesterContact: "izin@rumahwarnalasem.example",
       reason:
         "Sebagian catatan takaran pewarna belum boleh dipublikasikan.",
@@ -1730,7 +2121,7 @@ export const seedGovernance = internalMutation({
       targetLabel: imageAsset?.filename ?? "Aset gambar",
       culturalSourceId: sourceIds[0],
       requesterName: "Kurator KalaNidhi",
-      requesterContact: "kurator@kalanidhi.site",
+      requesterContact: "kurator.kalanidhi@gmail.com",
       reason: "Gambar lama diganti dengan foto berizin baru.",
       status: "completed",
       decisionReason: "Aset lama diarsipkan, aset baru sudah terpasang.",
@@ -1747,7 +2138,7 @@ export const seedGovernance = internalMutation({
       targetId: "site",
       targetLabel: "Konten landing",
       requesterName: "Tim kurasi",
-      requesterContact: "kurasi@kalanidhi.site",
+      requesterContact: "kurasi.kalanidhi@gmail.com",
       reason: "Permintaan peninjauan teks yang sudah diperbaiki.",
       status: "rejected",
       decisionReason: "Teks sudah diperbaiki sebelum peninjauan.",
@@ -2001,13 +2392,13 @@ export const seedMetrics = internalMutation({
       })
     }
 
-    for (let day = 13; day >= 0; day -= 1) {
+    for (let day = 44; day >= 0; day -= 1) {
       const timestamp = ago(day)
       const date = jakartaDate(timestamp)
       for (const [index, definition] of METRIC_DEFINITIONS.entries()) {
         const ratio = 0.42 + ((day + index) % 6) * 0.07
         const hours = 16 + ((day + index) % 5) * 5
-        const rupiah = 1_200_000 + (13 - day) * 180_000 + index * 25_000
+        const rupiah = 1_200_000 + (44 - day) * 60_000 + index * 25_000
         const value =
           definition.key === "gmv" ||
           definition.key === "net_revenue" ||
@@ -2028,17 +2419,17 @@ export const seedMetrics = internalMutation({
       }
     }
 
-    return { definitions: METRIC_DEFINITIONS.length, days: 14 }
+    return { definitions: METRIC_DEFINITIONS.length, days: 45 }
   },
 })
 
 export const seedAudit = internalMutation({
   args: {},
   handler: async (ctx) => {
-    const admin = await userByEmail(ctx, "farel@farel.is-a.dev")
-    const bambang = await userByEmail(ctx, "bambang@kalanidhi.site")
-    const sari = await userByEmail(ctx, "sari@kalanidhi.site")
-    const anisa = await userByEmail(ctx, "anisa@kalanidhi.site")
+    const admin = await seedAdmin(ctx)
+    const bambang = await userByEmail(ctx, seedEmail("bambang"))
+    const sari = await userByEmail(ctx, seedEmail("sari"))
+    const anisa = await userByEmail(ctx, seedEmail("anisa"))
     const order1 = await orderByCode(ctx, "KN-2026-000101")
     const work = await workBySlug(ctx, "batik-soga-anyaman")
     const certificate = await certificateByCode(ctx, "KN-ANISA-2026")
@@ -2066,6 +2457,17 @@ export const seedAudit = internalMutation({
     )
 
     const events = [
+      {
+        actorId: admin._id,
+        actorRole: "Pengelola",
+        action: "platform.launch",
+        entityType: "siteContent",
+        entityId: "site",
+        reason:
+          "Rilis perdana KalaNidhi Digital untuk wilayah Daerah Istimewa Yogyakarta.",
+        severity: "info" as const,
+        daysAgo: 400,
+      },
       {
         actorId: admin._id,
         actorRole: "Pengelola",

@@ -34,6 +34,7 @@ import type * as payouts from "../payouts.js";
 import type * as people from "../people.js";
 import type * as seed from "../seed.js";
 import type * as seedData from "../seedData.js";
+import type * as seedIdentities from "../seedIdentities.js";
 import type * as seedOperations from "../seedOperations.js";
 import type * as seedRunner from "../seedRunner.js";
 import type * as seedWorkspace from "../seedWorkspace.js";
@@ -83,6 +84,7 @@ declare const fullApi: ApiFromModules<{
   people: typeof people;
   seed: typeof seed;
   seedData: typeof seedData;
+  seedIdentities: typeof seedIdentities;
   seedOperations: typeof seedOperations;
   seedRunner: typeof seedRunner;
   seedWorkspace: typeof seedWorkspace;

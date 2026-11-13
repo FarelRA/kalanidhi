@@ -324,7 +324,7 @@ describe("content CMS / copy document and validation", () => {
     expect(errorCode(error)).toBe("CONTENT_INVALID")
   })
 
-  it("[P1-CMS-13] the base region must remain Yogyakarta and Jawa Tengah", async () => {
+  it("[P1-CMS-13] the base region must remain Yogyakarta", async () => {
     const t = await adminDb()
     const value = contentFixture()
     value.metadata.areaServed = "Seluruh Indonesia"

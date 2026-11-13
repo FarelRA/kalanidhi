@@ -21,10 +21,12 @@ import {
   internalQuery,
   type MutationCtx,
 } from "./_generated/server"
-
-const DAY = 86_400_000
-const NOW = Date.now()
-const ago = (days: number) => NOW - days * DAY
+import {
+  DAY,
+  SEED_NOW as NOW,
+  seedAdmin,
+  seedAgo as ago,
+} from "./seedIdentities"
 
 const CLEAR_TABLES = [
   "siteContent",
@@ -206,15 +208,6 @@ async function storageUrl(
   return url
 }
 
-async function userByEmail(ctx: MutationCtx, email: string) {
-  const user = await ctx.db
-    .query("users")
-    .withIndex("by_email", (q) => q.eq("email", email))
-    .unique()
-  if (!user) throw new Error(`Seed user missing: ${email}`)
-  return user
-}
-
 /** Seed rows are linked by name, so no slug/email map can drift. */
 async function usersByName(ctx: MutationCtx) {
   const users = await ctx.db.query("users").collect()
@@ -300,7 +293,7 @@ export const seedContent = internalMutation({
         modules: 0,
         teacherId: user._id,
         status: path.comingSoon ? "planned" : "open",
-        createdAt: ago(120),
+        createdAt: ago(360 - order * 36),
       })
     }
 
@@ -317,9 +310,9 @@ export const seedContent = internalMutation({
         status: isReview ? "review" : "active",
         verificationStatus: isReview ? "under_review" : "verified",
         verifiedBy: isReview ? undefined : "seed",
-        verifiedAt: isReview ? undefined : ago(110),
+        verifiedAt: isReview ? undefined : ago(370 - order * 55),
         published: !isReview,
-        publishedAt: isReview ? undefined : ago(110),
+        publishedAt: isReview ? undefined : ago(368 - order * 55),
       })
     }
 
@@ -328,7 +321,7 @@ export const seedContent = internalMutation({
         order,
         ...work,
         status: "published",
-        createdAt: ago(300),
+        createdAt: ago(296 - order * 24),
       })
     }
 
@@ -412,7 +405,7 @@ export const seedContent = internalMutation({
       version: 1,
       value: revisionCopy,
       status: "published",
-      authorId: (await userByEmail(ctx, "farel@farel.is-a.dev"))._id,
+      authorId: (await seedAdmin(ctx))._id,
       note: "Terbitan awal edisi 2026.",
       createdAt: ago(60),
       publishedAt: ago(60),
@@ -422,7 +415,7 @@ export const seedContent = internalMutation({
       version: 2,
       value: draftCopy,
       status: "draft",
-      authorId: (await userByEmail(ctx, "farel@farel.is-a.dev"))._id,
+      authorId: (await seedAdmin(ctx))._id,
       note: "Draf penyempurnaan judul hero.",
       basedOnVersion: 1,
       createdAt: ago(2),
@@ -432,7 +425,7 @@ export const seedContent = internalMutation({
       version: 3,
       value: scheduledCopy,
       status: "scheduled",
-      authorId: (await userByEmail(ctx, "farel@farel.is-a.dev"))._id,
+      authorId: (await seedAdmin(ctx))._id,
       note: "Jadwal pembaruan kabar edisi Desember.",
       basedOnVersion: 1,
       createdAt: ago(1),
@@ -443,7 +436,7 @@ export const seedContent = internalMutation({
       contentKey: "site",
       version: 2,
       tokenHash: await sha256("seed-preview-token"),
-      createdBy: (await userByEmail(ctx, "farel@farel.is-a.dev"))._id,
+      createdBy: (await seedAdmin(ctx))._id,
       createdAt: ago(1),
       expiresAt: NOW + 2 * DAY,
     })

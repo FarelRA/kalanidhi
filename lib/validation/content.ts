@@ -542,12 +542,6 @@ export function validateContentDocument(value: unknown): {
       message: "Wilayah dasar harus menyebut Yogyakarta.",
     })
   }
-  if (!data.metadata.areaServed.toLowerCase().includes("jawa tengah")) {
-    issues.push({
-      path: "metadata.areaServed",
-      message: "Wilayah dasar harus menyebut Jawa Tengah.",
-    })
-  }
   if (/seluruh indonesia|jangkauan nasional|beroperasi di seluruh/.test(text)) {
     issues.push({
       path: "metadata.areaServed",
