@@ -67,7 +67,7 @@ export function BenchLoop({ loop }: { loop: LoopContent }) {
               return (
                 <li
                   key={stage.code}
-                  className={`group relative grid gap-4 border-b border-ink/15 py-8 sm:grid-cols-[5.5rem_1fr] sm:gap-8 sm:py-9 ${stageIndent[index] ?? "lg:pl-0"}`}
+                  className={`relative grid gap-4 border-b border-ink/15 py-8 transition-colors duration-300 hover:bg-paper/40 sm:grid-cols-[5.5rem_1fr] sm:gap-8 sm:py-9 ${stageIndent[index] ?? "lg:pl-0"}`}
                 >
                   <div className="flex items-center gap-4 sm:block">
                     <span
@@ -113,30 +113,32 @@ export function BenchLoop({ loop }: { loop: LoopContent }) {
                   </span>
 
                   <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-10">
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                      <span
-                        aria-hidden="true"
-                        className="font-heading text-[2.6rem] leading-none tabular-nums text-copper-dark/25"
-                      >
-                        {returnStage.code}
-                      </span>
-                      <span
-                        className="flex size-8 items-center justify-center bg-copper-dark text-cream-2"
-                        aria-hidden="true"
-                      >
-                        <Users className="size-4" />
-                      </span>
-                      <h3 className="font-heading text-[1.5rem] leading-tight text-copper-dark">
-                        {returnStage.title}
-                      </h3>
-                      <span className="ml-auto text-[10px] font-bold uppercase tracking-[0.18em] text-copper-dark/55">
-                        langkah {returnStage.code} /{" "}
-                        {String(loop.stages.length).padStart(2, "0")}
-                      </span>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                        <span
+                          aria-hidden="true"
+                          className="font-heading text-[2.6rem] leading-none tabular-nums text-copper-dark/25"
+                        >
+                          {returnStage.code}
+                        </span>
+                        <span
+                          className="flex size-8 items-center justify-center bg-copper-dark text-cream-2"
+                          aria-hidden="true"
+                        >
+                          <Users className="size-4" />
+                        </span>
+                        <h3 className="font-heading text-[1.5rem] leading-tight text-copper-dark">
+                          {returnStage.title}
+                        </h3>
+                        <span className="ml-auto text-[10px] font-bold uppercase tracking-[0.18em] text-copper-dark/55">
+                          langkah {returnStage.code} /{" "}
+                          {String(loop.stages.length).padStart(2, "0")}
+                        </span>
+                      </div>
+                      <p className="mt-3 max-w-[38rem] text-[13.5px] leading-relaxed text-ink/75">
+                        {returnStage.description}
+                      </p>
                     </div>
-                    <p className="mt-3 max-w-[38rem] text-[13.5px] leading-relaxed text-ink/75">
-                      {returnStage.description}
-                    </p>
 
                     <p className="border-l-2 border-copper/70 pl-4 text-[12px] leading-relaxed text-ink-muted lg:border-l lg:border-ink/20 lg:pl-5">
                       {loop.returnNote}
