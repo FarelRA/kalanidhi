@@ -8,6 +8,9 @@ RUN npm ci
 FROM node:24-bookworm-slim AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+# The release workflow type-checks before it builds the image, so the image
+# skips the duplicate pass. Keep typechecking in CI as the required gate.
+ENV SKIP_TYPECHECK=1
 ARG CONVEX_URL
 ENV CONVEX_URL=$CONVEX_URL
 COPY --from=deps /app/node_modules ./node_modules

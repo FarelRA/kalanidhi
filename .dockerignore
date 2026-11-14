@@ -8,4 +8,17 @@ tsconfig.tsbuildinfo
 next-env.d.ts
 .env*
 !.env.example
+
+# Not needed to build the image. Keeping them out trims the build context and
+# stops the builder from copying seed photos, test suites, and docs it never
+# reads.
+tests
+coverage
+docs
 reference
+seed
+scripts
+.icon-build
+**/*.md
+vitest.config.mts
+eslint.config.mjs

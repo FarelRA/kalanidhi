@@ -8,13 +8,22 @@ on:
       - "reference/**"
   workflow_dispatch:
 
+# A new push supersedes the build in flight. Without this, two runners export
+# the same cache and race to overwrite `:latest`, and a burst of pushes leaves
+# the slowest build winning the tag.
+concurrency:
+  group: docker-release-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   docker:
-    runs-on: ubuntu-24.04
+    # Native arm64: the image targets linux/arm64, and emulating that build on
+    # an x64 runner under QEMU was most of the wall time.
+    runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
       packages: write
