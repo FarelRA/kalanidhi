@@ -98,7 +98,8 @@ Representative lines:
 
 - The certificate is a **sertifikat platform** everywhere, with a public verification code. The FAQ, footer, and verification dialog all say it is not government or BNSP certification.
 - The **Kartu Sumber Budaya** shows both knowledge sources, permission date, reference, and access level. The 70 / 15 / 15 split is shown before transaction.
-- No sacred or forbidden motif is used. The brand mark is an abstract bench ring with a finished-piece tag, not a batik pattern.
+- No sacred or forbidden motif is used. The brand mark is a cream **K** drawn from bench and tag shapes on a dark wood tile, not a batik pattern.
+- Tab and install icons use the tile with a rounded corner (`npm run icons:build`); the Apple touch icon and the maskable tile stay full-bleed because iOS and the launcher apply their own mask.
 - Cultural detail stays modest. The mangsa entry follows the Kasunanan Surakarta Pranata Mangsa, describes rice transplanting in Kapitu, and notes that the calendar is local and can shift with weather.
 - The base region is stated in the closing and the footer. The platform is “terbuka untuk” practitioners elsewhere, not “beroperasi di” everywhere.
 - Testimonials are labelled as participant and partner interviews with permission. No partnerships, coverage, or revenue figures are invented.
