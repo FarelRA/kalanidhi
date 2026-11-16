@@ -17,7 +17,7 @@ function path(overrides: Partial<LearningPath> = {}): LearningPath {
   return {
     slug: "batik-tulis-soga",
     code: "JLR-01",
-    title: "Batik Tulis Soga",
+    title: "Batik Tulis Giriloyo",
     subtitle: "Belajar batik tulis dari pembatik Giriloyo.",
     teacher: "Bambang Hardjono",
     teacherRole: "Pembatik",
@@ -78,7 +78,7 @@ function teacher(
     experience: "30 tahun",
     quote: "Batik adalah doa.",
     focus: "Batik tulis",
-    path: "Batik Tulis Soga",
+    path: "Batik Tulis Giriloyo",
     community: "Giriloyo",
     image: "https://example.test/teacher.jpg",
     verified: true,
@@ -86,7 +86,7 @@ function teacher(
       {
         slug: "batik-tulis-soga",
         code: "JLR-01",
-        title: "Batik Tulis Soga",
+        title: "Batik Tulis Giriloyo",
         level: "Dasar",
         region: "Giriloyo",
         price: 850_000,
@@ -173,23 +173,23 @@ describe("/minat smart routing", () => {
   it("renders a chooser when a teacher has multiple paths", () => {
     const result = resolveMinat({
       params: { teacher: "bambang-hardjono" },
-      paths: [path(), path({ slug: "kriya-ukir-bantul" })],
+      paths: [path(), path({ slug: "kriya-gerabah-bantul" })],
       works: [],
       teacher: teacher({
         paths: [
           {
             slug: "batik-tulis-soga",
             code: "JLR-01",
-            title: "Batik Tulis Soga",
+            title: "Batik Tulis Giriloyo",
             level: "Dasar",
             region: "Giriloyo",
             price: 850_000,
             comingSoon: false,
           },
           {
-            slug: "kriya-ukir-bantul",
+            slug: "kriya-gerabah-bantul",
             code: "JLR-02",
-            title: "Kriya Ukir Bantul",
+            title: "Kriya Gerabah Bantul",
             level: "Dasar",
             region: "Bantul",
             price: 900_000,

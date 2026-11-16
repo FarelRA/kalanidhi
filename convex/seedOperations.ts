@@ -112,6 +112,8 @@ export const seedMessaging = internalMutation({
     const anisa = await userByEmail(ctx, seedEmail("anisa"))
     const dwi = await userByEmail(ctx, seedEmail("dwi"))
     const ratih = await userByEmail(ctx, seedEmail("ratih"))
+    const suwardi = await userByEmail(ctx, seedEmail("suwardi"))
+    const galuh = await userByEmail(ctx, seedEmail("galuh"))
     const cohort = await cohortByCode(ctx, "BTS-2026-01")
     const cohortStudents = await Promise.all(
       ["sari", "dwi", "bayu", "nanda", "ratih", "yusuf", "melati", "arif"].map(
@@ -269,7 +271,7 @@ export const seedMessaging = internalMutation({
 
     const cohortConversationId = await ctx.db.insert("conversations", {
       kind: "cohort",
-      title: "Batik Tulis Soga — Angkatan 1",
+      title: "Batik Tulis Giriloyo, Angkatan 1",
       pathId: "batik-tulis-soga",
       cohortId: cohort._id,
       createdBy: bambang._id,
@@ -787,6 +789,74 @@ export const seedMessaging = internalMutation({
       createdAt: ago(1),
     })
 
+    const aksaraConversationId = await ctx.db.insert("conversations", {
+      kind: "direct",
+      title: "Aksara: koreksi pasangan dan spasi",
+      pathId: "aksara-jawa",
+      createdBy: suwardi._id,
+      status: "open",
+      pairKey: pairKey(suwardi._id, galuh._id),
+      lastMessageAt: ago(122),
+      createdAt: ago(124),
+      updatedAt: ago(122),
+    })
+    for (const member of [suwardi, galuh]) {
+      await ctx.db.insert("conversationMembers", {
+        conversationId: aksaraConversationId,
+        userId: member._id,
+        role: member._id === suwardi._id ? "owner" : "member",
+        lastReadAt: ago(122),
+        lastSeenAt: ago(122),
+        joinedAt: ago(124),
+      })
+    }
+    for (const message of [
+      {
+        senderId: suwardi._id,
+        body: "Galuh, draf lembar uji aksara-mu sudah saya baca. Pasangan ra sudah benar, tetapi masih ada spasi di tengah kalimat ketiga.",
+        createdAt: ago(123.6),
+      },
+      {
+        senderId: galuh._id,
+        body: "Terima kasih, Pak. Saya kira spasi setelah pada lingsa masih boleh.",
+        createdAt: ago(123.2),
+      },
+      {
+        senderId: suwardi._id,
+        body: "Pada lingsa tetap menempel tanpa spasi, sama seperti aksara lain di sekitarnya.",
+        createdAt: ago(122.8),
+      },
+      {
+        senderId: galuh._id,
+        body: "Sudah saya perbaiki dan unggah ulang. Bagian taling dan pepet juga saya rekam lagi.",
+        createdAt: ago(122.4),
+      },
+      {
+        senderId: suwardi._id,
+        body: "Bagus. Untuk undangan yang kamu tulis, kirim dulu ejaan Latin-nya supaya saya bisa cek nama sebelum naik ke aksara.",
+        createdAt: ago(122),
+      },
+    ]) {
+      const messageId = await ctx.db.insert("messages", {
+        conversationId: aksaraConversationId,
+        senderId: message.senderId,
+        kind: "text",
+        body: message.body,
+        createdAt: message.createdAt,
+      })
+      for (const member of [suwardi, galuh]) {
+        await ctx.db.insert("messageReceipts", {
+          messageId,
+          userId: member._id,
+          deliveredAt: message.createdAt + 1_000,
+          readAt:
+            member._id === message.senderId
+              ? message.createdAt + 1_000
+              : message.createdAt + 25_000,
+        })
+      }
+    }
+
     const systemConversationId = await ctx.db.insert("conversations", {
       kind: "system",
       title: "Pemberitahuan platform",
@@ -1035,6 +1105,8 @@ export const seedOps = internalMutation({
     )
     const submission = await submissionByCode(ctx, "TUG-DWI-BTS-2")
     const certificate = await certificateByCode(ctx, "KN-ANISA-2026")
+    const aksaraCertificate = await certificateByCode(ctx, "KN-GALUH-2026")
+    const galuh = await userByEmail(ctx, seedEmail("galuh"))
     const work = await workBySlug(ctx, "batik-soga-lereng")
     const anisaWork = await workBySlug(ctx, "batik-soga-anyaman")
 
@@ -1044,7 +1116,7 @@ export const seedOps = internalMutation({
         name: "Ayu Sekar Melati",
         email: "ayu.sekar.melati96@gmail.com",
         whatsapp: "6281392847506",
-        interest: "Batik Tulis Soga",
+        interest: "Batik Tulis Giriloyo",
         message:
           "Saya ingin mulai dari kelas pemula. Apakah angkatan Oktober masih ada kursi?",
         source: "landing",
@@ -1095,8 +1167,8 @@ export const seedOps = internalMutation({
         name: "Nanda Kusuma",
         email: seedEmail("nanda"),
         whatsapp: seedPhone("nanda"),
-        interest: "Kriya ukir Bantul",
-        message: "Kabari saya kalau jalur ukir kayu sudah dibuka.",
+        interest: "Kriya gerabah Bantul",
+        message: "Kabari saya kalau jalur gerabah Kasongan sudah dibuka.",
         source: "footer",
         status: "closed" as const,
         daysAgo: 20,
@@ -1144,8 +1216,8 @@ export const seedOps = internalMutation({
         name: "Lintang Ayu",
         email: "lintang.ayu04@gmail.com",
         whatsapp: "6281290653742",
-        interest: "Tenun Gunungkidul",
-        message: "Tolong kabari kalau kelas tenun dibuka untuk pemula.",
+        interest: "Batik bambu",
+        message: "Tolong kabari kalau kelas batik bambu dibuka untuk pemula.",
         source: "landing",
         status: "closed" as const,
         daysAgo: 122,
@@ -1155,7 +1227,7 @@ export const seedOps = internalMutation({
         name: "Heru Santosa",
         email: "heru.santosa84@gmail.com",
         whatsapp: "6282134908571",
-        interest: "Batik Tulis Soga",
+        interest: "Batik Tulis Giriloyo",
         message:
           "Saya tetangga sanggar Giriloyo, ingin ikut angkatan perintis kalau masih dibuka.",
         source: "referral",
@@ -1605,7 +1677,7 @@ export const seedOps = internalMutation({
         channel: "in_app" as const,
         template: "work.published",
         title: "Karya tampil di halaman publik",
-        body: "Batik Tulis Soga Lereng sudah tayang. Anda dapat membagikan tautannya.",
+        body: "Batik Tulis Lereng Soga sudah tayang. Anda dapat membagikan tautannya.",
         entityType: "works",
         entityId: work._id,
         readAt: ago(208),
@@ -1621,6 +1693,17 @@ export const seedOps = internalMutation({
         entityId: "BTS-2026-01",
         readAt: undefined,
         daysAgo: 12,
+      },
+      {
+        recipient: galuh,
+        channel: "in_app" as const,
+        template: "certificate.issued",
+        title: "Sertifikat jalur Aksara Jawa terbit",
+        body: "Sertifikat KN-GALUH-2026 sudah terbit. Kartu Karya jasa tulis aksaramu bisa dibuka dari halaman karya.",
+        entityType: "certificates",
+        entityId: aksaraCertificate._id,
+        readAt: ago(108),
+        daysAgo: 110,
       },
     ]
     for (const notification of notifications) {
@@ -1785,7 +1868,7 @@ export const seedSettings = internalMutation({
         value: {
           enabled: true,
           message:
-            "Pendaftaran Batik Tulis Soga angkatan baru dibuka sampai 30 November.",
+            "Pendaftaran angkatan baru Batik Tulis Giriloyo dan Aksara Jawa dibuka sampai 30 November.",
         },
       },
       {
@@ -2129,6 +2212,7 @@ export const seedGovernance = internalMutation({
     const workSoga = await workBySlug(ctx, "batik-soga-anyaman")
     const workNitik = await workBySlug(ctx, "selendang-canting-nitik")
     const workPranatacara = await workBySlug(ctx, "pranatacara-siraman")
+    const workAksara = await workBySlug(ctx, "jasa-tulis-aksara")
     const assets = await ctx.db.query("mediaAssets").collect()
     const imageAsset = assets.find((asset) => asset.kind === "image")
     const call = await ctx.db.query("callSessions").collect()
@@ -2136,15 +2220,19 @@ export const seedGovernance = internalMutation({
 
     const sources = [
       {
-        community: "Sanggar Soga Giriloyo",
-        sourceName: "Arsip motif dan pewarnaan soga Giriloyo",
+        community:
+          "Paguyuban Batik Tulis Giriloyo (Koperasi Jasa Kampung Batik Giriloyo), Desa Wukirsari",
+        sourceName: "Materi Batik Giriloyo",
         pathId: "batik-tulis-soga",
         workId: workSoga._id,
-        permissionDocumentRef: "IZIN-SG-2026-03",
-        permissionDate: ago(360),
+        permissionDocumentRef:
+          "Dokumen sumber dipegang pengelola platform; izin publikasi menunggu konfirmasi",
+        permissionDocumentUrl: undefined,
+        permissionDate: ago(0),
+        permissionStatus: "pending" as const,
         accessLevel: "public" as const,
         attribution:
-          "Sanggar Soga Giriloyo, Bantul. Pengetahuan diolah bersama pengajar dan kurator.",
+          "Materi Batik Giriloyo disusun Paguyuban Batik Tulis Giriloyo (Koperasi Jasa Kampung Batik Giriloyo), Desa Wukirsari, Bantul. Dokumen sumber dipegang pengelola platform; izin publikasi menunggu konfirmasi.",
         notes: "Motif geometris disusun ulang; motif sakral tidak dipakai.",
         withdrawalStatus: "active" as const,
         status: "active" as const,
@@ -2154,8 +2242,9 @@ export const seedGovernance = internalMutation({
         sourceName: "Catatan pewarnaan alami Pleret",
         pathId: "batik-tulis-soga",
         workId: workNitik._id,
-        permissionDocumentRef: "IZIN-RWL-2026-04",
-        permissionDate: ago(300),
+        permissionDocumentRef: "Dokumen sumber dipegang pengelola platform; izin publikasi menunggu konfirmasi",
+        permissionDate: ago(0),
+        permissionStatus: "pending" as const,
         accessLevel: "community" as const,
         attribution:
           "Rumah Warna Pleret, Bantul. Bahan dan takaran dibagikan untuk pelajar terdaftar.",
@@ -2168,8 +2257,9 @@ export const seedGovernance = internalMutation({
         sourceName: "Arsip tata upacara dan rundown siraman",
         pathId: "pranatacara-jawa",
         workId: workPranatacara._id,
-        permissionDocumentRef: "IZIN-SW-2026-06",
-        permissionDate: ago(220),
+        permissionDocumentRef: "Dokumen sumber dipegang pengelola platform; izin publikasi menunggu konfirmasi",
+        permissionDate: ago(0),
+        permissionStatus: "pending" as const,
         accessLevel: "public" as const,
         attribution:
           "Sanggar Wicara Ngayogyakarta. Rundown disusun ulang untuk konteks kelas.",
@@ -2178,17 +2268,36 @@ export const seedGovernance = internalMutation({
         status: "active" as const,
       },
       {
-        community: "Sanggar Ukir Bantul",
-        sourceName: "Draf pengantar ukir relief Bantul",
-        pathId: "kriya-ukir-bantul",
+        community: "Sanggar Gerabah Kasongan",
+        sourceName: "Draf pengantar gerabah Kasongan",
+        pathId: "kriya-gerabah-bantul",
         workId: undefined,
-        permissionDocumentRef: "IZIN-SUJ-2026-11",
-        permissionDate: ago(20),
+        permissionDocumentRef: "Dokumen sumber dipegang pengelola platform; izin publikasi menunggu konfirmasi",
+        permissionDate: ago(0),
+        permissionStatus: "pending" as const,
         accessLevel: "restricted" as const,
         attribution:
-          "Sanggar Ukir Bantul. Materi masih dalam peninjauan komunitas.",
+          "Sanggar Gerabah Kasongan, Bantul. Materi masih dalam peninjauan komunitas.",
         notes: "Belum diterbitkan; menunggu persetujuan pengajar.",
         withdrawalStatus: "withdrawal_requested" as const,
+        status: "active" as const,
+      },
+      {
+        community: "Tanpa penulis tercatat",
+        sourceName: "Materi aksara Jawa dan tabel sandhangan",
+        pathId: "aksara-jawa",
+        workId: workAksara._id,
+        permissionDocumentRef:
+          "Dokumen sumber dipegang pengelola platform; izin publikasi menunggu konfirmasi",
+        permissionDocumentUrl: undefined,
+        permissionDate: ago(0),
+        permissionStatus: "pending" as const,
+        accessLevel: "public" as const,
+        attribution:
+          "Dokumen sumber aksara Jawa tanpa penulis tercatat, dipegang pengelola platform; izin publikasi menunggu konfirmasi.",
+        notes:
+          "Contoh tulisan memakai kalimat sumber; moral paragraf penutup tidak dipakai sebagai ajaran kursus.",
+        withdrawalStatus: "active" as const,
         status: "active" as const,
       },
     ]
@@ -2200,12 +2309,18 @@ export const seedGovernance = internalMutation({
         pathId: source.pathId,
         workId: source.workId,
         permissionDocumentRef: source.permissionDocumentRef,
-        permissionDocumentUrl: `https://kalanidhi.site/dokumen/${source.permissionDocumentRef}`,
+        permissionDocumentUrl:
+          "permissionDocumentUrl" in source
+            ? source.permissionDocumentUrl
+            : `https://kalanidhi.site/dokumen/${source.permissionDocumentRef}`,
         permissionDate: source.permissionDate,
         permissionStatus:
-          source.withdrawalStatus === "withdrawal_requested"
+          ("permissionStatus" in source
+            ? source.permissionStatus
+            : undefined) ??
+          (source.withdrawalStatus === "withdrawal_requested"
             ? "pending"
-            : "granted",
+            : "granted"),
         accessLevel: source.accessLevel,
         attribution: source.attribution,
         notes: source.notes,
@@ -2790,6 +2905,8 @@ export const seedAudit = internalMutation({
     const order1 = await orderByCode(ctx, "KN-2026-000108")
     const work = await workBySlug(ctx, "batik-soga-anyaman")
     const certificate = await certificateByCode(ctx, "KN-ANISA-2026")
+    const aksaraCertificate = await certificateByCode(ctx, "KN-GALUH-2026")
+    const suwardi = await userByEmail(ctx, seedEmail("suwardi"))
     const submission = await submissionByCode(ctx, "TUG-SARI-BTS-1")
     const payoutForOrder1 = (
       await ctx.db
@@ -2970,6 +3087,28 @@ export const seedAudit = internalMutation({
         reason: "Mengirim tugas canting pertama.",
         severity: "info" as const,
         daysAgo: 20,
+      },
+      {
+        actorId: admin._id,
+        actorRole: "Pengelola",
+        action: "users.setRoles",
+        entityType: "users",
+        entityId: suwardi._id,
+        reason: "Verifikasi pengajar aksara Jawa, Kota Yogyakarta.",
+        severity: "info" as const,
+        daysAgo: 259,
+        before: { roles: ["student"] },
+        after: { roles: ["teacher"] },
+      },
+      {
+        actorId: admin._id,
+        actorRole: "Pengelola",
+        action: "certificates.issue",
+        entityType: "certificates",
+        entityId: aksaraCertificate._id,
+        reason: "Penerbitan sertifikat jalur Aksara Jawa angkatan 1.",
+        severity: "info" as const,
+        daysAgo: 110,
       },
     ]
 

@@ -7,6 +7,7 @@ import {
   teachersSeed,
   worksSeed,
 } from "../../convex/seedData"
+import { CURRICULUM_IMAGE_FILES } from "../../convex/seedWorkspace"
 import { createTestDb } from "../helpers/convex"
 
 const NOW = 1_760_000_000_000
@@ -19,6 +20,7 @@ function seedFilenames(): string[] {
       ...pathsSeed.map((path) => path.imageFile),
       ...teachersSeed.map((teacher) => teacher.imageFile),
       ...worksSeed.map((work) => work.imageFile),
+      ...CURRICULUM_IMAGE_FILES,
     ]),
   )
 }

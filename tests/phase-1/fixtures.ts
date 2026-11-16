@@ -129,18 +129,16 @@ export async function seedContent(t: TestDb): Promise<void> {
       } = teacher
       void imageFile
       void key
-      void pathIds
-      void status
-      void verificationStatus
-      void published
       await ctx.db.insert("teachers", {
         ...rest,
         order: index,
         userId: teacherUsers[index],
-        status: "active",
-        published: true,
-        verificationStatus: "verified",
-        verifiedAt: NOW,
+        pathIds,
+        status,
+        published,
+        verificationStatus,
+        verifiedAt: published ? NOW : undefined,
+        publishedAt: published ? NOW : undefined,
         imageAssetId,
       })
     }
@@ -168,14 +166,13 @@ export async function seedContent(t: TestDb): Promise<void> {
       const { imageFile, makerKey, pathSlug, certificateKey, ...rest } = work
       void imageFile
       void makerKey
-      void pathSlug
       void certificateKey
       const workId = await ctx.db.insert("works", {
         ...rest,
         order: index,
         status: "published",
         makerId: makerUsers[index],
-        pathId: pathsSeed[index % pathsSeed.length].slug,
+        pathId: pathSlug,
         imageAssetId,
         createdAt: NOW,
       })
@@ -199,7 +196,8 @@ export async function seedContent(t: TestDb): Promise<void> {
 
     const certificateIds: Id<"certificates">[] = []
     for (const [index, work] of worksSeed.entries()) {
-      const path = pathsSeed[index % pathsSeed.length]
+      const path = pathsSeed.find((item) => item.slug === work.pathSlug)
+      if (!path) throw new Error(`Fixture path missing: ${work.pathSlug}`)
       const teacher = teacherUsers[teacherIndexFor(path.teacher)]
       const maker = makerUsers[index]
       const cohortId = cohortByPath.get(path.slug)

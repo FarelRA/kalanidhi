@@ -1,6 +1,9 @@
+import { ConvexError } from "convex/values"
+
 import type { Doc, Id } from "./_generated/dataModel"
 import { internalMutation, type MutationCtx } from "./_generated/server"
 
+import { rubricForPath } from "./assessments"
 import { teachersSeed as SEED_TEACHERS, worksSeed as WORKS } from "./seedData"
 import {
   DAY,
@@ -24,214 +27,252 @@ const USER_AGENTS = [
   "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1",
 ]
 
+type SeedLesson = {
+  title: string
+  kind: "text" | "video" | "audio" | "file" | "practice"
+  body: string
+  estimatedMinutes: number
+  accessLevel: "public" | "enrolled" | "certified"
+  /** Bare filename resolved from `mediaAssets`; omit when no asset exists. */
+  mediaFile?: string
+}
+
 type SeedModule = {
   title: string
   summary: string
   estimatedMinutes: number
-  lessons: {
-    title: string
-    kind: "text" | "video" | "audio" | "file" | "practice"
-    body: string
-    estimatedMinutes: number
-    accessLevel: "public" | "enrolled" | "certified"
-  }[]
+  lessons: SeedLesson[]
 }
 
+/**
+ * Curriculum copy is written from two real sources: the Paguyuban Batik Tulis
+ * Giriloyo deck and the aksara Jawa worksheet. Steps the sources do not name
+ * are not invented, and anything the platform authored says so in the lesson.
+ */
 const MODULES: Record<string, SeedModule[]> = {
   "batik-tulis-soga": [
     {
-      title: "Alat, bahan, dan ruang kerja",
-      summary: "Mengenal canting, malam, kain, dan cara menata meja kerja.",
-      estimatedMinutes: 90,
+      title: "Batik tulis dan Kampung Giriloyo",
+      summary:
+        "Apa itu batik tulis, dari mana Giriloyo mendapat ilmunya, dan siapa yang mengajar.",
+      estimatedMinutes: 55,
       lessons: [
         {
-          title: "Canting: bagian, ukuran, dan perawatan",
-          kind: "video",
-          body: "Canting terdiri dari nyamplung, cucuk, dan pegangan. Pelajari ukuran cucuk dan cara membersihkannya setelah dipakai.",
-          estimatedMinutes: 25,
+          title: "Apa itu batik tulis",
+          kind: "text",
+          body: "Batik tulis adalah metode tradisional membuat kain bercorak dengan memanfaatkan lilin panas sebagai perintang warna. Bagian kain yang dilapisi lilin tetap putih karena tidak kemasukan pewarna, sedangkan warna muncul di bagian yang tidak dilapisi. Batik cap dan batik printing juga menghasilkan kain bercorak, hanya saja coraknya dipindahkan dengan alat lain; kelas ini fokus pada canting dan tangan. Tugas: kuis 5 soal. Kriteria: 5 dari 5 jawaban benar.",
+          estimatedMinutes: 12,
           accessLevel: "public",
         },
         {
-          title: "Malam dan suhu kerja",
+          title: "Giriloyo: 1634 sampai sekarang",
           kind: "text",
-          body: "Malam yang terlalu panas menembus kain, yang terlalu dingin tidak menempel. Latih suhu dengan tes di kain perca.",
-          estimatedMinutes: 20,
-          accessLevel: "enrolled",
+          body: "Menurut Paguyuban Batik Tulis Giriloyo, ilmunya sampai ke kampung ini sejak 1634, saat Kerajaan Mataram membangun makam raja di Imogiri dan mengajarkan batik kepada warga Giriloyo. Gempa Bantul 2006 memicu pendataan ulang: lebih dari 1.200 perajin tercatat ketika kampung menyusun kembali usahanya. Setahun kemudian Giriloyo memecahkan Rekor Muri untuk selendang batik tulis terpanjang, lalu antara 2008 dan 2019 kampung itu tumbuh sebagai pusat edu-wisata. Tugas: kuis 6 soal urutan tahun. Kriteria: 5 dari 6 benar.",
+          estimatedMinutes: 18,
+          accessLevel: "public",
         },
         {
-          title: "Menata meja dan keselamatan kerja",
+          title: "Paguyuban, koperasi, dan cara kelas berjalan",
           kind: "text",
-          body: "Susun alat dalam jangkauan tangan, jauhkan sumber panas, dan siapkan kain lap bersih.",
+          body: "Menurut materi Paguyuban Batik Tulis Giriloyo, kampung ini bekerja bersama Desa Wukirsari, Paguyuban Batik Tulis Giriloyo, dan Koperasi Jasa Kampung Batik Giriloyo yang menaungi 15 kelompok perajin. Kelompok kerja Belajar Batik memandu kunjungan dengan rasio empat peserta untuk satu perajin, dan pola itulah yang dipakai sebagai acuan jalur ini. Rasio itu penting karena setiap orang perlu diperiksa satu per satu saat memegang canting, bukan hanya dinilai di akhir. Ini short course dengan tugas yang dinilai, bukan magang penuh sampai menjadi perajin mandiri. Tugas: tulis satu paragraf tentang siapa yang menilai karyamu dan mengapa rasio 4:1 dipakai. Kriteria: menyebut perajin penilai dan alasannya.",
           estimatedMinutes: 15,
           accessLevel: "enrolled",
         },
+        {
+          title: "Mengenali hasil batik tulis",
+          kind: "text",
+          body: "Periksa kain di bawah cahaya terang dan lihat dari dua sisi. Batik tulis yang rapi memperlihatkan garis lilin yang menembus ke belakang, warna yang tidak menembus bagian ber-lilin, retak lilin halus yang wajar, dan tidak menyisakan lilin yang gagal hilang. Sebutkan enam contoh kain yang pernah kamu lihat, lalu tulis alasan untuk setiap tanda. Foto dan contoh pada materi ini berasal dari dokumen Materi Batik Giriloyo milik Paguyuban Batik Tulis Giriloyo yang dipegang pengelola platform; izin publikasi masih menunggu konfirmasi. Tugas: sebutkan 6 contoh dan alasannya. Kriteria: 5 dari 6 tanda tepat.",
+          estimatedMinutes: 10,
+          accessLevel: "enrolled",
+        },
       ],
     },
     {
-      title: "Menyiapkan kain primis",
-      summary: "Mencuci, menjemur, dan menyetrika kain sebelum dibatik.",
+      title: "Bahan, alat, dan keselamatan kerja",
+      summary:
+        "Kain mori, lilin, pewarna, wajan-kompor, canting, gawangan, dan cara tidak terbakar.",
       estimatedMinutes: 80,
       lessons: [
         {
-          title: "Mencuci kain primis",
+          title: "Kain mori: katun dan sutera",
           kind: "text",
-          body: "Buang kanji dengan air bersih, jangan memeras terlalu kuat, lalu jemur di tempat teduh.",
-          estimatedMinutes: 25,
+          body: "Mori adalah kain putih yang belum diproses, dan jenisnya menentukan hasil akhir. Katun lebih mudah menyerap lilin dan pewarna, sementara sutera lebih halus, lebih mahal, dan lebih sulit diulang. Untuk latihan pertama, pakai sapu tangan katun supaya biaya kesalahan tetap rendah. Catat jenis, ukuran, dan gramasi kain sebelum mulai. Tugas: catat jenis, ukuran, dan gramasi. Kriteria: catatan lengkap.",
+          estimatedMinutes: 15,
           accessLevel: "enrolled",
         },
         {
-          title: "Menyetrika dan menandai bidang",
-          kind: "practice",
-          body: "Setrika kain hingga rata, lalu tandai batas motif dengan pensil jahit yang mudah hilang.",
-          estimatedMinutes: 30,
+          title: "Lilin batik dan pewarna",
+          kind: "text",
+          body: "Lilin batik menempel saat panas dan mengeras saat dingin, lalu dilepas di nglorod. Pewarna sintetis memberi warna seragam dan cepat, sedangkan pewarna alami butuh waktu lebih lama dan hasilnya tidak selalu sama antar-pencelupan. Catat jenis lilin dan pewarna yang kamu pakai supaya hasil bisa dibandingkan. Tugas: kuis 6 soal. Kriteria: 5 dari 6 benar.",
+          estimatedMinutes: 15,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Wajan, kompor, dan suhu lilin",
+          kind: "text",
+          body: "Uji suhu lilin dengan meneteskan sedikit ke kain perca, bukan menebak dari asap wajan. Kalau tetesan menembus dan bagian belakang terasa basah, lilin terlalu panas; kalau menggumpal di permukaan, terlalu dingin. Angka suhu yang nyaman berbeda antar-wajan dan antar-ruang, dan materi sumber tidak memberi angka, jadi catat angka versimu sendiri. Tugas: uji tiga tingkat suhu dan foto hasilnya. Kriteria: tiga tingkat terbaca.",
+          estimatedMinutes: 15,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Canting dan gawangan",
+          kind: "text",
+          body: "Canting punya tiga bagian yang perlu kamu kenal: nyamplung sebagai wadah lilin, cucuk sebagai corong, dan pegangan. Istilah itu dipakai di banyak sentra, tetapi sebutan tiap perajin bisa berbeda, jadi konfirmasikan ke pengajarmu. Gawangan membuat kain tegang dan menjaga kain tetap di atas lantai supaya lilin tidak tertarik. Tugas: rekam 30 detik saat menyebut tiga bagian canting. Kriteria: tiga bagian benar beserta alasannya.",
+          estimatedMinutes: 15,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Menata tempat kerja dan keselamatan",
+          kind: "text",
+          body: "Jangan tinggalkan wajan berisi lilin panas tanpa pengawasan, dan jauhkan kain perca dari kompor. Jangan meniup atau menyentuh ujung canting yang panas; pakai ventilasi yang cukup karena uap lilin bisa mengiritasi. Untuk luka bakar ringan, alirkan air dingin dan hentikan latihan bila luka terasa perih atau melepuh. Bagian keselamatan ini disusun tim platform, bukan diambil dari materi Paguyuban. Tugas: foto tempat kerja dan checklist 10 butir. Kriteria: 10 dari 10 butir terpenuhi.",
+          estimatedMinutes: 20,
           accessLevel: "enrolled",
         },
       ],
     },
     {
-      title: "Dasar canting dan malam",
-      summary: "Garis lurus, lengkung, dan titik dengan tekanan yang stabil.",
-      estimatedMinutes: 120,
+      title: "Mola: merancang motif di atas kain",
+      summary:
+        "Desain pensil, motif larangan Keraton, dan cara mengulang motif.",
+      estimatedMinutes: 80,
       lessons: [
         {
-          title: "Garis lurus tanpa putus",
-          kind: "practice",
-          body: "Latih garis lurus sepanjang 20 cm. Jaga tekanan dan kecepatan agar malam tidak menumpuk.",
-          estimatedMinutes: 30,
+          title: "Mola: desain dengan pensil",
+          kind: "text",
+          body: "Mola adalah membuat desain dengan pensil langsung di atas kain sebelum lilin diteteskan. Garis pensil akan tertutup lilin dan tidak ikut terwarnai, jadi garis tipis lebih aman daripada garis tebal yang menekan serat. Mulai dari satu ulangan motif yang utuh, bukan dari seluruh bidang kain. Foto pada pelajaran ini berasal dari dokumen Materi Batik Giriloyo milik Paguyuban Batik Tulis Giriloyo yang dipegang pengelola platform; izin publikasi masih menunggu konfirmasi. Tugas: salin satu ulangan motif. Kriteria: proporsi mirip dan garis tipis.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+          mediaFile: "lesson-mola.jpg",
+        },
+        {
+          title: "Motif larangan Keraton Yogyakarta",
+          kind: "text",
+          body: "Motif larangan adalah delapan motif Keraton Yogyakarta yang disebut materi sumber: Huk, Kawung Alit Gurdha, Parang Klithik, Parang Barong, Parang Gendreh, Parang Rusak Barong, Semen Ageng Sawat Gurdha, dan Rujak Senthe. Sumber hanya menyebut nama dan statusnya; aturan pemakaiannya tidak dijelaskan di sana, jadi kelas ini juga tidak mengajarkannya. Kamu cukup mengenali nama dan bentuknya sebagai kosakata. Sumber gambar: Materi Batik Giriloyo, Paguyuban Batik Tulis Giriloyo; dokumen dipegang pengelola platform dan izin publikasi masih menunggu konfirmasi. Tugas: cocokkan 8 nama dengan gambarnya. Kriteria: 7 dari 8 benar.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+          mediaFile: "motif-larangan-yogyakarta-1.jpg",
+        },
+        {
+          title: "Bidang, raport, dan pengulangan",
+          kind: "text",
+          body: "Tentukan bidang kerja dan ukuran satu ulangan sebelum menggambar, karena titik ulang harus jatuh di tempat yang sama setiap kali motif diulang. Buat garis bantu pensil dengan tekanan ringan, lalu hapus sebelum nglowongi supaya tidak ada bekas kotor di bawah lilin. Tiga kotak raport berukuran sama membuat motif lebih mudah disambung. Tugas: buat tiga kotak raport 10 x 10 cm. Kriteria: ukuran sama dan garis jelas.",
+          estimatedMinutes: 20,
           accessLevel: "enrolled",
         },
         {
-          title: "Lengkung dan titik",
+          title: "Latihan mola",
           kind: "practice",
-          body: "Buat lengkung sejajar dan titik rapat. Periksa jarak antar titik dengan kaca pembesar.",
+          body: "Pilih satu motif utuh, parang sederhana atau kawung, pada kain 25 x 25 cm. Gambar satu ulangan yang bersambung ke tepi kain, lalu periksa proporsinya dari jarak satu langkah. Tugas: unggah foto keseluruhan dan satu foto detail. Kriteria: motif terbaca, ulangan bersambung, dan tidak ada bekas hapus yang kotor.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Nglowongi dan nerusi: dua tahap lilin",
+      summary:
+        "Melilin tahap pertama dan kedua, inti keterampilan batik tulis.",
+      estimatedMinutes: 105,
+      lessons: [
+        {
+          title: "Nglowongi: pelilitan lilin tahap pertama",
+          kind: "text",
+          body: "Nglowongi adalah pelilitan lilin tahap pertama: ikuti garis pensil dengan canting dan pastikan lilin menembus sisi belakang kain. Kalau sisi belakang belum basah, pewarna akan menembus dan bagian putihmu hilang. Kerjakan garis lurus lebih dulu, lalu satu lengkung, sebelum masuk ke motif penuh. Tugas: melilin garis lurus 20 cm dan satu lengkung, foto dua sisi. Kriteria: garis tidak putus dan lilin tembus.",
+          estimatedMinutes: 25,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Nerusi: pelilitan lilin tahap kedua",
+          kind: "text",
+          body: "Nerusi adalah pelilitan lilin tahap kedua: menebalkan atau menutup bagian yang sudah dililin agar benar-benar rapat. Istilah ini bisa berbeda antar-perajin, jadi tanyakan sebutan yang dipakai di kelasmu. Tumpuk lilin tipis berulang, jangan sekali tebal, supaya garis tidak melebar. Tugas: tebalkan 5 cm garis yang sudah dililin. Kriteria: tidak ada bagian tipis dan garis tidak melebar.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Memegang canting dan berhenti dengan bersih",
+          kind: "practice",
+          body: "Pegang canting seperti pensil dengan sudut sekitar 45 derajat, lalu atur aliran lilin dengan meniup cucuk saat mulai dan berhenti. Akhiri setiap garis dengan mengangkat canting perlahan supaya tidak ada ekor lilin. Latihan pendek yang diulang lebih berguna daripada satu garis panjang yang tergesa. Tugas: unggah enam baris latihan di kain perca. Kriteria: enam bentuk bersih tanpa cabang tak sengaja.",
+          estimatedMinutes: 25,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Latihan nglowongi + nerusi pada satu motif",
+          kind: "practice",
+          body: "Kerjakan satu motif utuh dari mola sampai dua tahap lilin. Periksa dari sisi belakang: semua garis mola harus terliput lilin dan tembus dua sisi. Tugas: unggah kain setelah nglowongi dan nerusi. Kriteria: semua garis terliput dan lilin tembus dua sisi.",
           estimatedMinutes: 35,
           accessLevel: "enrolled",
         },
-        {
-          title: "Kesalahan umum dan koreksinya",
-          kind: "video",
-          body: "Malam menembus kain, garis bergelombang, dan cucuk tersumbat: kenali penyebab dan cara memperbaikinya.",
-          estimatedMinutes: 25,
-          accessLevel: "enrolled",
-        },
       ],
     },
     {
-      title: "Motif geometris Giriloyo",
-      summary: "Menyusun ulang pola klasik menjadi motif geometris baru.",
-      estimatedMinutes: 110,
-      lessons: [
-        {
-          title: "Membaca pola klasik",
-          kind: "text",
-          body: "Pahami sumbu, pengulangan, dan batas bidang pada pola klasik Giriloyo.",
-          estimatedMinutes: 25,
-          accessLevel: "enrolled",
-        },
-        {
-          title: "Menyusun grid motif",
-          kind: "practice",
-          body: "Buat grid 4 x 4, lalu susun ulang elemen pola tanpa menyalin motif sakral.",
-          estimatedMinutes: 45,
-          accessLevel: "enrolled",
-        },
-        {
-          title: "Menghitung kebutuhan malam",
-          kind: "text",
-          body: "Perkirakan kebutuhan malam dari panjang garis dan kerapatan titik.",
-          estimatedMinutes: 20,
-          accessLevel: "enrolled",
-        },
-      ],
-    },
-    {
-      title: "Pewarnaan soga pertama",
-      summary: "Menyiapkan larutan soga dan mewarnai bidang kain.",
-      estimatedMinutes: 130,
-      lessons: [
-        {
-          title: "Bahan pewarna soga",
-          kind: "text",
-          body: "Kenali tingi, jambal, dan bahan pembantu. Catat asal bahan dan takarannya.",
-          estimatedMinutes: 30,
-          accessLevel: "enrolled",
-        },
-        {
-          title: "Teknik celup dan kuas",
-          kind: "video",
-          body: "Bandingkan hasil celup dan kuas pada kain primis. Jaga suhu larutan tetap stabil.",
-          estimatedMinutes: 40,
-          accessLevel: "enrolled",
-        },
-        {
-          title: "Membaca hasil warna",
-          kind: "practice",
-          body: "Keringkan potongan kain, lalu bandingkan intensitas warna dengan catatan takaran.",
-          estimatedMinutes: 30,
-          accessLevel: "enrolled",
-        },
-      ],
-    },
-    {
-      title: "Fiksasi dan pelorodan",
-      summary: "Mengunci warna dan melepas malam tanpa merusak serat kain.",
-      estimatedMinutes: 90,
-      lessons: [
-        {
-          title: "Fiksasi warna",
-          kind: "text",
-          body: "Gunakan larutan fiksasi sesuai jenis pewarna. Catat waktu dan suhu.",
-          estimatedMinutes: 25,
-          accessLevel: "enrolled",
-        },
-        {
-          title: "Pelorodan malam",
-          kind: "practice",
-          body: "Rebus kain dengan hati-hati, bilas bertahap, lalu keringkan di tempat teduh.",
-          estimatedMinutes: 40,
-          accessLevel: "enrolled",
-        },
-      ],
-    },
-    {
-      title: "Merawat kain dan alat",
-      summary: "Menyimpan kain, merawat canting, dan menjaga kualitas warna.",
-      estimatedMinutes: 60,
-      lessons: [
-        {
-          title: "Menyimpan kain batik",
-          kind: "text",
-          body: "Lipat dengan kertas bebas asam, hindari sinar matahari langsung, dan beri silica gel.",
-          estimatedMinutes: 20,
-          accessLevel: "enrolled",
-        },
-        {
-          title: "Merawat canting dan wajan",
-          kind: "text",
-          body: "Bersihkan malam sisa, simpan canting dalam posisi tegak, dan periksa cucuk secara berkala.",
-          estimatedMinutes: 20,
-          accessLevel: "enrolled",
-        },
-      ],
-    },
-    {
-      title: "Menyusun Kartu Karya",
-      summary: "Mendokumentasikan proses, bahan, dan izin karya.",
+      title: "Ngisen-isen: mengisi dan memperkaya motif",
+      summary: "Mengisi bidang kosong dengan titik dan garis rapat.",
       estimatedMinutes: 70,
       lessons: [
         {
-          title: "Merekam proses",
-          kind: "practice",
-          body: "Ambil foto bertanggal pada setiap tahap: primis, canting, pewarnaan, dan hasil akhir.",
-          estimatedMinutes: 30,
+          title: "Ngisen-isen: melengkapi motif",
+          kind: "text",
+          body: "Ngisen-isen adalah mengisi bidang kosong supaya motif lebih kaya, bukan menambah motif baru di atasnya. Isian biasanya berupa titik dan garis rapat yang menentukan kepadatan kain saat dilihat dari jauh. Tahan diri untuk tidak memenuhi seluruh bidang. Tugas: sebutkan tiga jenis isian yang kamu pakai. Kriteria: titik atau deret titik dan garis rapat, dengan contoh bidangnya.",
+          estimatedMinutes: 20,
           accessLevel: "enrolled",
         },
         {
-          title: "Menulis provenance dan izin",
+          title: "Isian: titik, cecek, dan garis rapat",
+          kind: "practice",
+          body: "Jarak titik harus tetap: buat deret 5 cm dengan jarak yang sama, lalu bandingkan dengan deret berikutnya. Garis pendek rapat dipakai untuk mengisi bidang sempit, dan gabungan keduanya membuat isian terasa hidup. Nama isian berbeda antar-daerah, jadi catat istilah yang dipakai pengajarmu. Tugas: unggah lembar latihan tiga baris. Kriteria: jarak konsisten lebih kurang 1 mm.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Latihan ngisen-isen pada kain kerja",
+          kind: "practice",
+          body: "Isi bidang kosong pada kain kerja tanpa menimpa garis utama. Kerjakan per bidang, bukan per titik, supaya kepadatan merata. Tugas: unggah foto kain. Kriteria: sedikitnya 80 persen bidang terisi dengan kepadatan merata.",
+          estimatedMinutes: 30,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Mbabar, nglorod, mepe: dari warna ke kain jadi",
+      summary: "Mewarnai, melepas lilin, mencuci, menjemur, memeriksa.",
+      estimatedMinutes: 100,
+      lessons: [
+        {
+          title: "Mbabar: mencelup kain pada bahan pewarna",
           kind: "text",
-          body: "Catat asal motif, komunitas sumber, dan izin berbagi sebelum karya dipublikasikan.",
-          estimatedMinutes: 25,
-          accessLevel: "certified",
+          body: "Mbabar adalah mencelup kain pada bahan pewarna setelah lilin selesai. Bagian yang ber-lilin tetap putih, jadi rendam kain penuh supaya warna rata sampai ke serat. Aduk perlahan dan jangan menggosok kain saat basah. Sumber foto: Materi Batik Giriloyo, Paguyuban Batik Tulis Giriloyo; dokumen dipegang pengelola platform dan izin publikasi masih menunggu konfirmasi. Tugas: celup kain latihan satu warna, foto sebelum dan sesudah. Kriteria: warna rata dan lilin tidak rusak.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+          mediaFile: "lesson-mbabar.jpg",
+        },
+        {
+          title: "Colet atau celup",
+          kind: "text",
+          body: "Colet memakai kuas atau spons: warnanya bisa terperinci, tetapi sulit merata. Celup merendam seluruh kain: hasilnya merata, cepat, dan cocok untuk banyak kain sekaligus. Pilih satu teknik untuk kain latihanmu dan tulis alasannya dalam dua kalimat. Tugas: pilih teknik dan tulis alasan. Kriteria: pilihan masuk akal untuk motif yang dipakai.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Nglorod: menghilangkan lilin dengan air panas",
+          kind: "text",
+          body: "Nglorod adalah menghilangkan lilin dengan air panas: didihkan air, masukkan kain, aduk terus, lalu angkat lilin yang mengapung. Pakai sarung tangan, wadah yang stabil, dan ventilasi yang baik. Di sentra, proses ini memakai drum besar, bukan dapur rumah. Tugas: foto proses dan catat suhu serta waktu. Kriteria: lilin lepas sedikitnya 90 persen dan prosedur keselamatan terlihat.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Mepe: mencuci sisa lilin dan menjemur",
+          kind: "text",
+          body: "Mepe adalah mencuci sisa lilin lalu menjemur kain sampai kering. Bilas sampai air bilasan jernih, lalu jemur di tempat teduh supaya warna tidak berubah karena matahari langsung. Sumber foto: Materi Batik Giriloyo, Paguyuban Batik Tulis Giriloyo; dokumen dipegang pengelola platform dan izin publikasi masih menunggu konfirmasi. Tugas: foto kain basah dan kering. Kriteria: tanpa bercak dan kering rata.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+          mediaFile: "lesson-mepe.jpg",
+        },
+        {
+          title: "Memeriksa hasil",
+          kind: "practice",
+          body: "Periksa enam butir: garis tidak putus, warna tidak menembus bagian putih, retak lilin wajar, sisa lilin hilang, motif bersambung, dan tepi rapi. Nilai kainmu sendiri sebelum pengajar menilai, lalu bandingkan selisihnya. Tugas: unggah kain jadi dan penilaian diri. Kriteria: 5 dari 6 butir dan selisih nilai diri tidak lebih dari satu tingkat.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
         },
       ],
     },
@@ -245,21 +286,21 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Latihan napas dan jeda",
           kind: "practice",
-          body: "Latih pernapasan diafragma dan jeda kalimat agar tidak terburu-buru.",
+          body: "Tarik napas dari diafragma, bukan dari dada, lalu hitung empat ketukan sebelum mulai berbicara. Jeda setelah kalimat pembuka membuat suaramu tidak terburu-buru di acara panjang. Rekam dua menit latihan dan tandai bagian yang napasnya terpotong. Tugas: rekam latihan napas dua menit. Kriteria: jeda terdengar dan kalimat tidak terpotong.",
           estimatedMinutes: 30,
           accessLevel: "public",
         },
         {
           title: "Volume dan artikulasi",
-          kind: "video",
-          body: "Rekam suara, lalu periksa kejelasan konsonan dan volume di ruang terbuka.",
+          kind: "text",
+          body: "Rekam suaramu di ruang terbuka, lalu dengarkan ulang dari jarak tiga meter. Kejelasan konsonan akhir biasanya hilang lebih dulu daripada volume. Latih kalimat pembuka dengan tempo lambat sebelum menambah kecepatan. Tugas: unggah rekaman satu menit. Kriteria: konsonan akhir terdengar jelas.",
           estimatedMinutes: 30,
           accessLevel: "enrolled",
         },
         {
           title: "Bahasa Jawa halus untuk acara",
           kind: "text",
-          body: "Pilih tingkat bahasa yang tepat untuk tamu, keluarga, dan sesepuh.",
+          body: "Tingkat bahasa menentukan sapaan kepada tamu, keluarga, dan sesepuh. Pakai krama inggil untuk menyebut orang yang dihormati, dan jangan mencampur tingkat bahasa dalam satu paragraf. Tanyakan kebiasaan keluarga, karena tiap keluarga punya batas sopan sendiri. Tugas: tulis tiga sapaan untuk tiga tamu berbeda. Kriteria: tingkat bahasa tepat.",
           estimatedMinutes: 25,
           accessLevel: "enrolled",
         },
@@ -273,21 +314,21 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Urutan siraman",
           kind: "text",
-          body: "Susun urutan prosesi, pembaca doa, dan pembagian tugas keluarga.",
+          body: "Susun urutan prosesi, pembaca doa, dan pembagian tugas keluarga dalam satu lembar. Tandai siapa yang menyerahkan air dan siapa yang menerima, supaya tidak ada bagian yang diulang. Konfirmasi urutan ke keluarga sebelum gladi resik. Tugas: tulis urutan siraman. Kriteria: urutan lengkap dan tidak tumpang tindih.",
           estimatedMinutes: 30,
           accessLevel: "enrolled",
         },
         {
           title: "Midodareni dan resepsi",
           kind: "text",
-          body: "Bedakan suasana dan urutan acara malam midodareni dengan resepsi siang.",
+          body: "Midodareni berlangsung malam dengan suasana tenang, sedangkan resepsi berjalan siang dengan tamu lebih banyak. Bedakan tempo bicara dan jumlah informasi yang perlu disampaikan di keduanya. Tugas: bandingkan dua susunan acara. Kriteria: perbedaan suasana dan urutan dijelaskan.",
           estimatedMinutes: 30,
           accessLevel: "enrolled",
         },
         {
           title: "Menyusun rundown",
           kind: "practice",
-          body: "Buat rundown 60 menit dengan penanda waktu dan antisipasi keterlambatan.",
+          body: "Buat rundown 60 menit dengan penanda waktu dan ruang untuk keterlambatan. Beri jeda lima menit di antara bagian yang melibatkan banyak pihak. Tugas: unggah rundown. Kriteria: penanda waktu jelas dan antisipasi keterlambatan ada.",
           estimatedMinutes: 30,
           accessLevel: "enrolled",
         },
@@ -301,14 +342,14 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Penampilan dan busana",
           kind: "text",
-          body: "Pilih busana yang sopan, nyaman, dan sesuai konteks acara.",
+          body: "Pilih busana yang sopan, nyaman, dan sesuai konteks acara, lalu uji bergerak dan duduk di dalamnya. Warna busana sebaiknya tidak bertabrakan dengan pakaian keluarga inti. Tugas: foto busana dan tulis alasannya. Kriteria: sesuai konteks acara.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
         },
         {
           title: "Koordinasi dengan tim acara",
           kind: "practice",
-          body: "Latih isyarat dengan pengarah acara, sound system, dan keluarga.",
+          body: "Sepakati isyarat dengan pengarah acara, penata suara, dan keluarga sebelum acara dimulai. Isyarat tangan lebih aman daripada memanggil nama di tengah prosesi. Tugas: rekam simulasi isyarat. Kriteria: tiga isyarat disepakati dan dipakai.",
           estimatedMinutes: 30,
           accessLevel: "enrolled",
         },
@@ -322,21 +363,21 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Skenario siraman",
           kind: "practice",
-          body: "Jalankan skenario lengkap dari pembukaan sampai penutup.",
+          body: "Jalankan skenario lengkap dari pembukaan sampai penutup tanpa berhenti. Catat bagian yang membuatmu mencari kata, lalu ulangi bagian itu saja. Tugas: unggah rekaman skenario siraman. Kriteria: urutan lengkap dan penutup jelas.",
           estimatedMinutes: 45,
           accessLevel: "enrolled",
         },
         {
           title: "Skenario midodareni",
           kind: "practice",
-          body: "Latih transisi suasana dan sapaan kepada keluarga kedua pihak.",
+          body: "Latih transisi dari suasana tenang ke sapaan kepada keluarga kedua pihak. Perhatikan jeda saat menyebut nama dan gelar. Tugas: unggah rekaman 10 menit. Kriteria: transisi mulus dan sapaan tepat.",
           estimatedMinutes: 45,
           accessLevel: "enrolled",
         },
         {
-          title: "Umpan balik pengajar",
-          kind: "video",
-          body: "Tonton rekaman koreksi dan catat tiga perbaikan untuk latihan berikutnya.",
+          title: "Membaca catatan koreksi",
+          kind: "text",
+          body: "Baca catatan koreksi pengajar dan catat tiga perbaikan yang bisa dikerjakan minggu ini. Pilih satu perbaikan untuk dilatih ulang sebelum sesi berikutnya. Tugas: tulis tiga catatan perbaikan. Kriteria: tiga catatan spesifik.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
         },
@@ -348,16 +389,16 @@ const MODULES: Record<string, SeedModule[]> = {
       estimatedMinutes: 90,
       lessons: [
         {
-          title: "Sesi live pertama",
-          kind: "video",
-          body: "Ikuti sesi live, tampil 5 menit, dan terima catatan pengajar.",
+          title: "Persiapan sesi live pertama",
+          kind: "text",
+          body: "Sebelum sesi live, siapkan air dan naskah ringkas di luar jangkauan kamera. Saat sesi, tampil lima menit dan terima catatan pengajar secara langsung. Tugas: hadir dan tampil. Kriteria: tampil lima menit penuh.",
           estimatedMinutes: 45,
           accessLevel: "enrolled",
         },
         {
           title: "Rekaman praktik mandiri",
           kind: "practice",
-          body: "Rekam praktik 10 menit, unggah, dan tandai bagian yang ingin diperbaiki.",
+          body: "Rekam praktik sepuluh menit, lalu tandai bagian yang ingin diperbaiki sebelum mengunggah. Jangan mengedit rekaman; pengajar perlu melihat kesalahan aslinya. Tugas: unggah rekaman dan tiga tanda waktu. Kriteria: rekaman utuh dan tanda waktu jelas.",
           estimatedMinutes: 30,
           accessLevel: "enrolled",
         },
@@ -371,38 +412,311 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Menulis profil praktisi",
           kind: "text",
-          body: "Tulis pengalaman, wilayah layanan, dan jenis acara yang ditangani.",
+          body: "Tulis pengalaman, wilayah layanan, dan jenis acara yang kamu tangani. Sebut yang sudah pernah dikerjakan, bukan yang belum. Tugas: unggah profil 150 kata. Kriteria: wilayah dan pengalaman jelas.",
           estimatedMinutes: 25,
           accessLevel: "enrolled",
         },
         {
           title: "Menyiapkan paket layanan",
           kind: "text",
-          body: "Susun paket, harga, dan cakupan layanan yang jelas.",
+          body: "Susun paket, harga, dan cakupan layanan yang jelas, termasuk apa yang tidak termasuk di dalamnya. Harga tanpa cakupan membuat tamu menebak. Tugas: unggah satu paket layanan. Kriteria: cakupan dan batasan tertulis.",
           estimatedMinutes: 25,
           accessLevel: "certified",
         },
       ],
     },
   ],
-  "kriya-ukir-bantul": [
+  "kriya-gerabah-bantul": [
     {
-      title: "Pengantar ukir Bantul",
-      summary: "Alat, kayu, dan prinsip relief.",
-      estimatedMinutes: 80,
+      title: "Tanah liat Kasongan",
+      summary: "Asal tanah, campuran, dan cara menyiapkan tanah kerja.",
+      estimatedMinutes: 60,
       lessons: [
         {
-          title: "Mengenal pahat dan kayu",
+          title: "Tanah liat dan campurannya",
           kind: "text",
-          body: "Kenali jenis pahat, arah serat kayu, dan keselamatan kerja.",
+          body: "Tanah liat Kasongan dicampur pasir halus supaya tidak mudah retak saat dibakar. Kadar air menentukan apakah tanah bisa dibentuk tanpa lengket di tangan. Uji dengan menggulung tanah menjadi pilin kecil: kalau mudah patah, campuran terlalu kering. Tugas: catat asal tanah dan perbandingan campuran. Kriteria: catatan lengkap.",
+          estimatedMinutes: 20,
+          accessLevel: "public",
+        },
+        {
+          title: "Menguli tanah sampai homogen",
+          kind: "text",
+          body: "Menguli membuang gelembung udara yang bisa membuat gerabah pecah di tungku. Kerjakan di permukaan yang lembap, lipat, tekan, dan ulangi sampai tanah terasa rata. Tugas: foto sebelum dan sesudah pengulian. Kriteria: permukaan tanah rata.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Menyimpan tanah kerja",
+          kind: "text",
+          body: "Bungkus tanah sisa dengan kain lembap dan simpan di wadah tertutup. Tanah yang mengering di udara perlu dibasahi ulang perlahan, bukan disiram. Tugas: catat cara penyimpanan. Kriteria: tanah tetap siap pakai.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Membentuk gerabah",
+      summary: "Pilin, lempeng, dan memusatkan tanah di roda putar.",
+      estimatedMinutes: 90,
+      lessons: [
+        {
+          title: "Membentuk pilin dan lempeng",
+          kind: "text",
+          body: "Pilin dan lempeng adalah dua bentuk dasar sebelum masuk ke roda putar. Sambungan pilin ditekan miring supaya tidak berongga, dan lempeng dibentuk di atas alas kain. Tugas: buat satu lempeng dan satu pilin. Kriteria: sambungan rapat.",
           estimatedMinutes: 30,
           accessLevel: "public",
         },
         {
-          title: "Membaca relief sulur",
+          title: "Roda putar: memusatkan tanah",
           kind: "text",
-          body: "Pelajari susunan bidang dan kedalaman relief pada ornamen sulur.",
+          body: "Memusatkan tanah adalah bagian tersulit: tanah harus tepat di tengah roda sebelum dibuka. Tekan dengan kedua tangan dan jaga siku menempel di lutut supaya gerakmu stabil. Tugas: rekam dua menit memusatkan tanah. Kriteria: tanah tidak goyang.",
           estimatedMinutes: 30,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Menaikkan dinding dan menyelesaikan bibir",
+          kind: "practice",
+          body: "Naikkan dinding dua kali, bukan sekali tebal, lalu rapikan bibir dengan jari basah. Tugas: unggah satu mangkuk setengah jadi. Kriteria: dinding rata dan bibir tidak sobek.",
+          estimatedMinutes: 30,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Mengeringkan dan membakar",
+      summary: "Pengeringan bertahap, penyusunan tungku, dan pemeriksaan hasil.",
+      estimatedMinutes: 60,
+      lessons: [
+        {
+          title: "Pengeringan bertahap",
+          kind: "text",
+          body: "Gerabah dikeringkan di tempat teduh dengan kelembapan yang stabil, bukan di bawah matahari langsung. Bagian bawah biasanya masih dingin saat permukaan terlihat kering, jadi tunggu satu hari lagi. Tugas: catat lama pengeringan. Kriteria: catatan harian.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Menyusun tungku dan membakar",
+          kind: "text",
+          body: "Susun gerabah di tungku dengan jarak yang cukup agar panas merata. Pembakaran bertahap mengurangi risiko pecah mendadak. Tugas: tulis urutan pembakaran. Kriteria: urutan jelas.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Memeriksa hasil bakar",
+          kind: "text",
+          body: "Periksa bunyi, retak, dan warna setelah tungku dingin. Retak rambut sering baru terlihat setelah gerabah dibersihkan. Tugas: foto tiga hasil. Kriteria: tiga hasil terbaca.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+  ],
+  "aksara-jawa": [
+    {
+      title: "Hanacaraka: dua puluh aksara dasar",
+      summary:
+        "Mengenal 20 aksara dasar, urutannya, dan vokal /a/ yang menempel pada setiap aksara.",
+      estimatedMinutes: 70,
+      lessons: [
+        {
+          title: "Apa itu aksara Jawa",
+          kind: "text",
+          body: "Aksara Jawa bukan abjad, melainkan aksara suku kata: setiap aksara mewakili satu suku kata terbuka. Dua puluh aksara dasar disusun dalam empat baris, ha-na-ca-ra-ka, da-ta-sa-wa-la, pa-dha-ja-ya-nya, ma-ga-ba-tha-nga. Urutan itu dihafal sebagai hanacaraka, dan kelas ini memakai urutan yang sama. Tugas: kuis mandiri 8 soal tentang aksara dan bunyinya. Kriteria: 8 dari 8 benar.",
+          estimatedMinutes: 15,
+          accessLevel: "public",
+        },
+        {
+          title: "Membaca baris pertama: ha na ca ra ka",
+          kind: "text",
+          body: "Lima aksara pertama adalah ꦲ ꦤ ꦕ ꦫ ꦏ, dibaca ha, na, ca, ra, ka. Latih dengan kata yang sudah dikenal: ꦏꦿꦠꦺꦴꦤ꧀ dibaca kraton dan ꦫꦩ dibaca rama. Perhatikan aksara yang mirip, yaitu na dan nya, da dan dha, ta dan tha; bedanya ada pada bentuk, bukan pada bunyi vokal. Tugas: rekam baca lima aksara selama 30 detik. Kriteria: 5 dari 5 bunyi benar.",
+          estimatedMinutes: 15,
+          accessLevel: "public",
+        },
+        {
+          title: "Membaca baris kedua sampai keempat",
+          kind: "text",
+          body: "Lima belas aksara sisanya dilatih dengan kata utuh: ꦱꦥꦶ sapi, ꦧꦸꦏꦸ buku, ꦭꦺꦭꦺ lélé, ꦏꦼꦫꦶꦱ꧀ keris, ꦭꦺꦴꦩ꧀ꦧ lomba, ꦱꦧꦂ sabar, ꦧꦸꦔꦃ bungah, ꦭꦪꦁ layang. Baca keras sambil menunjuk aksara satu per satu, lalu ulangi tanpa menunjuk. Tugas: kuis 20 soal dua arah, aksara ke bunyi dan bunyi ke aksara. Kriteria: sedikitnya 16 dari 20 benar.",
+          estimatedMinutes: 15,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Vokal /a/ yang menempel",
+          kind: "text",
+          body: "Setiap aksara dasar berbunyi dengan vokal /a/, jadi ꦱ dibaca sa, bukan s. Konsekuensinya, kata sapi ditulis ꦱꦥꦶ tanpa tambahan apa pun. Menulis lima kata berakhiran /a/ menguji apakah kamu sudah membuang kebiasaan menambah huruf Latin. Tugas: tulis lima kata berakhiran /a/ tanpa sandhangan. Kriteria: 5 dari 5 benar.",
+          estimatedMinutes: 10,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Latihan hanacaraka",
+          kind: "practice",
+          body: "Salin dua puluh aksara di kotak bergaris, lalu baca ulang dari kiri ke kanan tanpa melihat contoh. Periksa bentuk yang paling sering tertukar, biasanya na dan nya serta da dan dha. Tugas: unggah foto salinan dan rekaman bacaan. Kriteria: 20 aksara terbaca dengan paling banyak 2 bentuk keliru.",
+          estimatedMinutes: 15,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Sandhangan: mengubah vokal, menutup suku kata",
+      summary:
+        "Lima sandhangan vokal, tiga panyigeg, pangkon, dan aksara khusus.",
+      estimatedMinutes: 100,
+      lessons: [
+        {
+          title: "Lima sandhangan vokal",
+          kind: "text",
+          body: "Lima sandhangan vokal mengubah bunyi /a/ pada aksara: wulu ꦶ untuk i, suku ꦸ untuk u, taling ꦺ untuk é, pepet ꦼ untuk ê, dan taling tarung ꦺꦴ untuk o. Taling ditulis sebelum aksara, sedangkan tarung ditulis sesudahnya, jadi taling tarung mengapit aksara. Tugas: kuis 10 soal. Kriteria: sedikitnya 8 dari 10 benar.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Panyigeg: layar, wignyan, cecak",
+          kind: "text",
+          body: "Tiga panyigeg menutup suku kata dengan konsonan: layar ꦂ untuk /r/ seperti ꦱꦧꦂ sabar, wignyan ꦃ untuk /h/ seperti ꦧꦸꦔꦃ bungah, dan cecak ꦁ untuk /ng/ seperti ꦭꦪꦁ layang. Ketiganya ditulis setelah aksara yang ditutup, bukan sebelumnya. Tugas: tulis sembilan kata berakhiran -r, -h, dan -ng. Kriteria: 9 dari 9 benar.",
+          estimatedMinutes: 15,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Pangkon: mematikan vokal",
+          kind: "text",
+          body: "Pangkon ꧀ menghapus vokal /a/ pada aksara, seperti pada ꦱꦪꦸꦏ꧀ sayuk. Jangan memakai pangkon untuk bunyi /ng/, karena bunyi itu selalu ditulis dengan cecak. Tugas: perbaiki lima kata yang salah memakai pangkon. Kriteria: 5 dari 5 benar.",
+          estimatedMinutes: 15,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Cakra, keret, dan panjing",
+          kind: "text",
+          body: "Selain sandhangan vokal, ada aksara khusus yang mengubah bunyi dasar. Pengkal ꦾ dipakai untuk /ya/ seperti ꦧꦒꦾ bagya, cakra ꦿ untuk /ra/ seperti ꦏꦿꦠꦺꦴꦤ꧀ kraton, dan keret ꦽ untuk /re/ seperti ꦏꦽꦠꦼꦒ꧀ kreteg. Panjing la dan panjing wa menempel pada aksara sebelumnya, seperti ꦏ꧀ꦭꦥ klapa dan ꦏ꧀ꦮꦕꦶ kwaci. Pa cerek ꦉ dipakai untuk /re/ seperti ꦉꦒꦼꦠ꧀ reget, dan nga lelet ꦊ untuk /le/ seperti ꦊꦔ lenga. Tugas: baca tujuh contoh dan tulis ulang. Kriteria: 7 dari 7 benar.",
+          estimatedMinutes: 15,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Latihan sandhangan",
+          kind: "practice",
+          body: "Dua belas kata latihan: sapi, buku, lélé, keris, lomba, sabar, bungah, layang, klapa, kwaci, reget, lenga. Tulis semuanya tanpa melihat tabel, lalu periksa satu per satu. Tugas: unggah foto dua belas kata dan satu rekaman bacaan. Kriteria: sedikitnya 10 dari 12 benar dan taling tidak tertukar dengan tarung.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Membaca ulang taling dan pepet",
+          kind: "text",
+          body: "Dua sandhangan yang paling sering tertukar adalah taling é dan pepet ê. Baca ulang kata yang sudah dipelajari, tandai mana yang memakai taling dan mana yang memakai pepet, lalu cocokkan dengan tabel sandhangan. Tugas: rekam enam kata. Kriteria: 6 dari 6 benar.",
+          estimatedMinutes: 15,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Pasangan: konsonan mati di tengah kata",
+      summary:
+        "Dua puluh pasangan, tiga pengecualian, dan contoh bertahap sayuk rukun.",
+      estimatedMinutes: 85,
+      lessons: [
+        {
+          title: "Kenapa pasangan ada",
+          kind: "text",
+          body: "Konsonan mati di tengah kata ditulis dengan pasangan yang menempel di bawah aksara sebelumnya. Pasangan ha, sa, dan pa menjadi pengecualian karena bentuknya ditulis sejajar, tidak di bawah. Tugas: kuis 6 soal tentang pangkon dan pasangan. Kriteria: 6 dari 6 benar.",
+          estimatedMinutes: 15,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Dua puluh pasangan",
+          kind: "text",
+          body: "Tabel 4 x 5 berisi pasangan untuk setiap aksara dasar: ꦲ꧀ꦲ ha, ꦤ꧀ꦤ na, ꦕ꧀ꦕ ca, ꦫ꧀ꦫ ra, ꦏ꧀ꦏ ka, ꦢ꧀ꦢ da, ꦠ꧀ꦠ ta, ꦱ꧀ꦱ sa, ꦮ꧀ꦮ wa, ꦭ꧀ꦭ la, ꦥ꧀ꦥ pa, ꦣ꧀ꦝ dha, ꦗ꧀ꦗ ja, ꦪ꧀ꦪ ya, ꦚ꧀ꦚ nya, ꦩ꧀ꦩ ma, ꦒ꧀ꦒ ga, ꦧ꧀ꦧ ba, ꦛ꧀ꦛ tha, dan ꦔ꧀ꦔ nga. Materi sumber menulis pasangan ra dengan bentuk berbasis ha; tabel ini memakai ꦫ꧀ꦫ. Tugas: salin dua puluh pasangan. Kriteria: 18 dari 20 benar dan posisi pasangan di bawah aksara.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Sayuk rukun langkah demi langkah",
+          kind: "text",
+          body: "Mulai dari ꦱꦪꦸꦏ, lalu tambahkan pasangan untuk konsonan mati: ꦱꦪꦸꦏ꧀ꦫꦸꦏꦸꦤ. Langkah terakhir menutup kata kedua dengan pangkon sehingga menjadi ꦱꦪꦸꦏ꧀ꦫꦸꦏꦸꦤ꧀. Kerjakan tiga tahap itu berurutan, jangan langsung ke bentuk akhir. Tugas: tulis tiga tahap sayuk rukun. Kriteria: tiga tahap benar dan urut.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Latihan pasangan",
+          kind: "practice",
+          body: "Tulis sepuluh kata dua suku kata yang punya konsonan mati di tengah, seperti tumbas, godhong, rantas, sambung, tandur, dan kembang. Pasangan harus menempel di bawah aksara sebelumnya, bukan sejajar di sampingnya. Tugas: unggah foto sepuluh kata. Kriteria: sedikitnya 8 dari 10 benar dan pasangan berada di bawah aksara.",
+          estimatedMinutes: 30,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Tanda baca, angka, dan aksara khusus",
+      summary:
+        "Pada lungsi, pada lingsa, adeg-adeg, angka Jawa, swara, murda, rekan.",
+      estimatedMinutes: 90,
+      lessons: [
+        {
+          title: "Pada lungsi, pada lingsa, adeg-adeg",
+          kind: "text",
+          body: "Pada lungsi ꧉ menutup kalimat, pada lingsa ꧈ memisahkan rincian dalam satu kalimat, dan adeg-adeg ꧋ membuka paragraf. Ketiganya ditulis tanpa spasi, sama seperti aksara lain di sekitarnya. Tugas: beri tanda baca pada tiga kalimat. Kriteria: 3 dari 3 benar.",
+          estimatedMinutes: 15,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Angka Jawa dan pada pangkat",
+          kind: "text",
+          body: "Angka Jawa berjalan ꧑ sampai ꧐, dan angka yang dipakai sebagai bilangan diapit pada pangkat ꧇. Contohnya ꧇꧑꧙꧙꧐꧇ dibaca 1990 dan ꧇꧒꧐꧒꧖꧇ dibaca 2026, sedangkan ꦱꦱꦶꦏꦥꦶꦁ꧇꧙꧇ dibaca sasi kaping 9. Tugas: tulis lima angka. Kriteria: 5 dari 5 benar dan semua diapit ꧇.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Aksara swara",
+          kind: "text",
+          body: "Aksara swara ꦄ ꦆ ꦈ ꦌ ꦎ dipakai untuk vokal di awal kata, yaitu A, I, U, E, dan O. Tanpa swara, kata berawalan vokal akan terbaca seolah dimulai dengan konsonan. Tugas: tulis lima kata berawalan vokal. Kriteria: 5 dari 5 memakai aksara swara.",
+          estimatedMinutes: 15,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Aksara murda dan aksara rekan",
+          kind: "text",
+          body: "Aksara murda adalah ꦟ ꦑ ꦡ ꦯ ꦦ ꦘ ꦓ ꦨ, sedangkan aksara rekan dipakai untuk bunyi serapan: ꦥ꦳ fa/va, ꦗ꦳ za, ꦒ꦳ gha, ꦏ꦳ kha, dan ꦢ꦳ dza, seperti pada Fatah, Zaki, Ghani, Khalila, dan Dzalim. Materi sumber tidak memberi aturan pemakaian murda; kebiasaan memakainya untuk nama dan gelar adalah konvensi umum, bukan kutipan sumber. Tugas: tulis lima nama. Kriteria: 5 dari 5 memakai rekan yang tepat.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Latihan campuran",
+          kind: "practice",
+          body: "Tulis kalimat Tanggal 17 Agustus 2025, Khalila dan Zaki datang. Kalimat ini menguji angka bertanggal, dua aksara rekan, pada lungsi, dan aturan tanpa spasi sekaligus. Tugas: unggah foto kalimat lengkap. Kriteria: angka diapit ꧇, dua rekan tepat, pada lungsi ada, dan tidak memakai spasi.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Menulis kalimat utuh",
+      summary:
+        "Aturan tanpa spasi, membaca paragraf, dan menulis kalimat sendiri.",
+      estimatedMinutes: 80,
+      lessons: [
+        {
+          title: "Aturan tanpa spasi",
+          kind: "text",
+          body: "Satu-satunya aturan eksplisit dalam materi sumber: penulisan aksara Jawa tidak mengenal spasi, walaupun terdiri dari lebih dari satu kata. Bentuk benar adalah ꦤꦠꦧꦠ, sedangkan ꦤꦠ ꦧꦠ salah karena memakai spasi. Tugas: perbaiki empat tulisan yang memakai spasi. Kriteria: 4 dari 4 benar.",
+          estimatedMinutes: 15,
+          accessLevel: "public",
+        },
+        {
+          title: "Membaca paragraf",
+          kind: "text",
+          body: "Paragraf penutup materi sumber dibaca utuh, dari adeg-adeg sampai pada lungsi. Teks aksaranya: ꧋ꦏꦧꦸꦢꦪꦤ꧀ꦗꦮꦩꦶꦤꦺꦴꦁꦏꦮꦫꦶꦱ꧀ꦱꦤ꧀ꦥꦫꦊꦭꦸꦲꦸꦂꦏꦁꦏꦸꦢꦸꦢꦶꦗꦒꦭꦤ꧀ꦢꦶꦊꦱ꧀ꦠꦫꦺꦏ꧀ꦲꦏꦺ꧉ꦥꦫꦱꦶꦱ꧀ꦮꦩꦶꦤꦺꦴꦁꦏꦒꦺꦤꦼꦫꦱꦶꦩꦸꦣꦲꦤ꧀ꦢꦸꦮꦺꦤ꧀ꦤꦶꦠꦁꦒꦸꦁꦗꦮꦧ꧀ꦏꦁꦒꦺꦴꦔꦸꦫꦶꦪꦸꦫꦶꦏꦧꦸꦢꦪꦤ꧀ꦗꦮ꧉ꦱꦭꦃꦱꦮꦶꦗꦶꦤꦶꦁꦕꦫꦪꦲꦶꦏꦸꦱꦶꦤꦲꦸꦧꦱꦗꦮ꧈ꦲꦏ꧀ꦱꦫꦗꦮ꧈ꦲꦸꦁꦒꦃꦲꦸꦁꦒꦸꦃ꧈ꦭꦤ꧀ꦩꦤꦺꦏꦮꦂꦤꦏꦼꦱꦼꦤꦶꦪꦤ꧀ꦠꦿꦣꦶꦱꦶꦪꦺꦴꦤꦭ꧀꧈ꦲꦗꦧꦔꦼꦠ꧀ꦏꦥꦶꦭꦸꦠ꧀ꦩꦫꦁꦏꦧꦸꦢꦪꦤ꧀ꦩꦺꦴꦚꦕ꧉ Latinnya: Kabudayan Jawa minangka warisan para leluhur kang kudu dijaga lan dilestarekake. Para siswa minangka generasi mudha nduweni tanggung jawab kanggo nguri-uri kabudayan Jawa. Salah sawijining cara yaiku sinau basa Jawa, aksara Jawa, unggah-ungguh, lan maneka warna kesenian tradisional. Aja banget kapilut marang kabudayan manca. Paragraf ini ditulis untuk siswa sekolah. Kalimat terakhirnya adalah pesan penulis materi, bukan ajaran kursus ini; di kelas ini paragraf dipakai sebagai latihan membaca. Tugas: rekam bacaan dua kalimat. Kriteria: lancar dan tidak berhenti di tengah kata.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Menyalin kalimat sumber",
+          kind: "practice",
+          body: "Salin dua kalimat dari materi sumber: tumbas jamu godhong tela dan rawe-rawe rantas malang-malang putung. Keduanya panjang, jadi kerjakan per kata lalu sambungkan tanpa spasi. Tugas: unggah foto dua kalimat. Kriteria: sedikitnya 90 persen aksara benar, tanpa spasi, dan pasangan di bawah aksara.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Menulis kalimat sendiri",
+          kind: "practice",
+          body: "Tulis lima kalimat bahasa Indonesia sederhana tentang identitas, asal, dan pekerjaan. Susun kalimatnya pendek supaya setiap pasangan bisa diperiksa dengan tenang. Tugas: unggah foto dan rekaman bacaan. Kriteria: lima kalimat terbaca sesuai maksud dengan paling banyak 2 kesalahan.",
+          estimatedMinutes: 25,
           accessLevel: "enrolled",
         },
       ],
@@ -410,13 +724,29 @@ const MODULES: Record<string, SeedModule[]> = {
   ],
 }
 
+/** Lesson media filenames the seed expects to find in `mediaAssets`. */
+export const CURRICULUM_MEDIA_FILES: string[] = Array.from(
+  new Set(
+    Object.values(MODULES)
+      .flat()
+      .flatMap((module) => module.lessons)
+      .map((lesson) => lesson.mediaFile)
+      .filter((filename): filename is string => Boolean(filename)),
+  ),
+)
+
+/** The subset that must already exist in `seed/images` as an upload source. */
+export const CURRICULUM_IMAGE_FILES: string[] = CURRICULUM_MEDIA_FILES.filter(
+  (filename) => !filename.endsWith(".mp3"),
+)
+
 const COHORTS = [
   {
     key: "bts-2026-01",
     code: "BTS-2026-01",
     pathSlug: "batik-tulis-soga",
     teacherKey: "bambang",
-    title: "Batik Tulis Soga — Angkatan 1",
+    title: "Batik Tulis Giriloyo, Angkatan 1",
     start: ago(45),
     end: ahead(15),
     capacity: 12,
@@ -427,7 +757,7 @@ const COHORTS = [
     code: "BTS-2026-00",
     pathSlug: "batik-tulis-soga",
     teacherKey: "bambang",
-    title: "Batik Tulis Soga — Angkatan Perintis",
+    title: "Batik Tulis Giriloyo, Angkatan Perintis",
     start: ago(392),
     end: ago(330),
     capacity: 12,
@@ -438,7 +768,7 @@ const COHORTS = [
     code: "PRA-2026-01",
     pathSlug: "pranatacara-jawa",
     teacherKey: "widagdo",
-    title: "Pranatacara Jawa — Angkatan 1",
+    title: "Pranatacara Jawa, Angkatan 1",
     start: ago(30),
     end: ahead(30),
     capacity: 10,
@@ -449,7 +779,7 @@ const COHORTS = [
     code: "PRA-2026-02",
     pathSlug: "pranatacara-jawa",
     teacherKey: "widagdo",
-    title: "Pranatacara Jawa — Angkatan 2",
+    title: "Pranatacara Jawa, Angkatan 2",
     start: ahead(20),
     end: ahead(80),
     capacity: 10,
@@ -460,7 +790,7 @@ const COHORTS = [
     code: "BTS-2026-03",
     pathSlug: "batik-tulis-soga",
     teacherKey: "sri",
-    title: "Pewarnaan Alami — Kelas Pendamping",
+    title: "Pewarnaan Alami, Kelas Pendamping",
     start: ago(24),
     end: ahead(46),
     capacity: 8,
@@ -471,10 +801,21 @@ const COHORTS = [
     code: "PRA-2026-00",
     pathSlug: "pranatacara-jawa",
     teacherKey: "widagdo",
-    title: "Pranatacara Jawa — Angkatan Perintis",
+    title: "Pranatacara Jawa, Angkatan Perintis",
     start: ago(380),
     end: ago(320),
     capacity: 10,
+    status: "completed" as const,
+  },
+  {
+    key: "aks-2026-01",
+    code: "AKS-2026-01",
+    pathSlug: "aksara-jawa",
+    teacherKey: "suwardi",
+    title: "Aksara Jawa, Angkatan 1",
+    start: ago(150),
+    end: ago(115),
+    capacity: 12,
     status: "completed" as const,
   },
 ]
@@ -517,6 +858,14 @@ const ENROLLMENTS: {
     status: "active" as const,
   })),
   { studentKey: "rani", cohortKey: "pra-2025-01", status: "completed" },
+  ...["galuh", "arif"].map((studentKey) => ({
+    studentKey,
+    cohortKey: "aks-2026-01",
+    status: "completed" as const,
+  })),
+  // Melati left the aksara cohort before the final assessment, so her
+  // enrollment is not completed and she holds no certificate.
+  { studentKey: "melati", cohortKey: "aks-2026-01", status: "withdrawn" },
 ]
 
 type SeedSubmission = {
@@ -544,7 +893,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "sari-bts-1",
     studentKey: "sari",
     cohortKey: "bts-2026-01",
-    taskTitle: "Canting pertama: garis lurus dan lengkung",
+    taskTitle: "Memegang canting dan berhenti dengan bersih",
     status: "approved",
     score: 88,
     feedback:
@@ -559,7 +908,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "sari-bts-2",
     studentKey: "sari",
     cohortKey: "bts-2026-01",
-    taskTitle: "Motif geometris: grid dan pengulangan",
+    taskTitle: "Latihan mola",
     status: "submitted",
     submittedDaysAgo: 3,
     revisionCount: 0,
@@ -570,7 +919,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "dwi-bts-1",
     studentKey: "dwi",
     cohortKey: "bts-2026-01",
-    taskTitle: "Canting pertama: garis lurus dan lengkung",
+    taskTitle: "Memegang canting dan berhenti dengan bersih",
     status: "approved",
     score: 92,
     feedback:
@@ -584,7 +933,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "dwi-bts-2",
     studentKey: "dwi",
     cohortKey: "bts-2026-01",
-    taskTitle: "Pewarnaan soga pertama",
+    taskTitle: "Mbabar: mencelup kain pada bahan pewarna",
     status: "revision_requested",
     score: 70,
     feedback:
@@ -598,7 +947,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "bayu-bts-1",
     studentKey: "bayu",
     cohortKey: "bts-2026-01",
-    taskTitle: "Canting pertama: garis lurus dan lengkung",
+    taskTitle: "Memegang canting dan berhenti dengan bersih",
     status: "submitted",
     submittedDaysAgo: 2,
     revisionCount: 0,
@@ -608,7 +957,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "nanda-bts-1",
     studentKey: "nanda",
     cohortKey: "bts-2026-01",
-    taskTitle: "Menyiapkan kain primis",
+    taskTitle: "Latihan mola",
     status: "under_review",
     submittedDaysAgo: 5,
     revisionCount: 0,
@@ -618,7 +967,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "ratih-bts-1",
     studentKey: "ratih",
     cohortKey: "bts-2026-01",
-    taskTitle: "Canting pertama: garis lurus dan lengkung",
+    taskTitle: "Memegang canting dan berhenti dengan bersih",
     status: "approved",
     score: 85,
     feedback: "Garis sudah lurus. Kurangi malam yang menumpuk di titik awal.",
@@ -631,7 +980,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "yusuf-bts-1",
     studentKey: "yusuf",
     cohortKey: "bts-2026-01",
-    taskTitle: "Menyiapkan kain primis",
+    taskTitle: "Latihan mola",
     status: "submitted",
     submittedDaysAgo: 4,
     revisionCount: 0,
@@ -641,7 +990,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "melati-bts-1",
     studentKey: "melati",
     cohortKey: "bts-2026-01",
-    taskTitle: "Canting pertama: garis lurus dan lengkung",
+    taskTitle: "Memegang canting dan berhenti dengan bersih",
     status: "draft",
     revisionCount: 0,
     evidenceText: "Draf catatan latihan, belum diunggah.",
@@ -650,7 +999,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "arif-bts-1",
     studentKey: "arif",
     cohortKey: "bts-2026-01",
-    taskTitle: "Canting pertama: garis lurus dan lengkung",
+    taskTitle: "Memegang canting dan berhenti dengan bersih",
     status: "approved",
     score: 90,
     feedback: "Kontrol tekanan baik. Lanjutkan ke latihan lengkung ganda.",
@@ -663,7 +1012,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "anisa-bts-final",
     studentKey: "anisa",
     cohortKey: "bts-2025-02",
-    taskTitle: "Karya akhir: kain batik tulis soga",
+    taskTitle: "Kain uji dari mola sampai mepe",
     status: "approved",
     score: 92,
     feedback:
@@ -678,7 +1027,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "dimas-bts-final",
     studentKey: "dimas",
     cohortKey: "bts-2025-02",
-    taskTitle: "Karya akhir: selendang canting nitik",
+    taskTitle: "Kain uji dari mola sampai mepe",
     status: "approved",
     score: 89,
     feedback:
@@ -692,7 +1041,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "purnomo-bts-final",
     studentKey: "purnomo",
     cohortKey: "bts-2025-02",
-    taskTitle: "Karya akhir: batik tulis soga lereng",
+    taskTitle: "Kain uji dari mola sampai mepe",
     status: "approved",
     score: 95,
     feedback:
@@ -701,6 +1050,21 @@ const SUBMISSIONS: SeedSubmission[] = [
     assessedDaysAgo: 341,
     revisionCount: 2,
     evidenceText: "Jurnal proses 14 tahap dan foto hasil akhir.",
+  },
+  {
+    key: "dwi-bts-final",
+    studentKey: "dwi",
+    cohortKey: "bts-2026-01",
+    taskTitle: "Kain uji dari mola sampai mepe",
+    status: "approved",
+    score: 86,
+    feedback:
+      "Urutan langkah tercatat lengkap. Perbaiki kebersihan tepi sebelum kain diajukan.",
+    submittedDaysAgo: 20,
+    assessedDaysAgo: 18,
+    revisionCount: 0,
+    evidenceText:
+      "Kain uji 30 x 30 cm dengan catatan tanggal tiap langkah dan foto tiga detail.",
   },
   {
     key: "rani-pra-final",
@@ -720,7 +1084,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "sari-pra-1",
     studentKey: "sari",
     cohortKey: "pra-2026-01",
-    taskTitle: "Latihan napas dan tata wicara",
+    taskTitle: "Latihan napas dan jeda",
     status: "approved",
     score: 86,
     feedback: "Jeda kalimat sudah baik. Perjelas konsonan akhir.",
@@ -733,7 +1097,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "dwi-pra-1",
     studentKey: "dwi",
     cohortKey: "pra-2026-01",
-    taskTitle: "Menyusun rundown siraman",
+    taskTitle: "Menyusun rundown",
     status: "submitted",
     submittedDaysAgo: 2,
     revisionCount: 0,
@@ -743,7 +1107,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "bayu-pra-1",
     studentKey: "bayu",
     cohortKey: "pra-2026-01",
-    taskTitle: "Latihan napas dan tata wicara",
+    taskTitle: "Latihan napas dan jeda",
     status: "under_review",
     submittedDaysAgo: 4,
     revisionCount: 0,
@@ -753,7 +1117,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "nanda-pra-1",
     studentKey: "nanda",
     cohortKey: "pra-2026-01",
-    taskTitle: "Etiket panggung",
+    taskTitle: "Koordinasi dengan tim acara",
     status: "submitted",
     submittedDaysAgo: 1,
     revisionCount: 0,
@@ -763,7 +1127,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "dewi-pra-1",
     studentKey: "dewi",
     cohortKey: "pra-2026-01",
-    taskTitle: "Latihan napas dan tata wicara",
+    taskTitle: "Latihan napas dan jeda",
     status: "approved",
     score: 84,
     feedback: "Volume cukup. Latih pernapasan sebelum kalimat panjang.",
@@ -776,7 +1140,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "fajar-pra-1",
     studentKey: "fajar",
     cohortKey: "pra-2026-01",
-    taskTitle: "Menyusun rundown siraman",
+    taskTitle: "Menyusun rundown",
     status: "submitted",
     submittedDaysAgo: 3,
     revisionCount: 0,
@@ -800,6 +1164,65 @@ const SUBMISSIONS: SeedSubmission[] = [
     status: "draft",
     revisionCount: 0,
     evidenceText: "Draf catatan bahan.",
+  },
+  {
+    key: "galuh-aks-1",
+    studentKey: "galuh",
+    cohortKey: "aks-2026-01",
+    taskTitle: "Latihan pasangan",
+    status: "approved",
+    score: 84,
+    feedback:
+      "Pasangan ra dan nya sudah benar. Perbaiki dua pasangan yang masih sejajar, bukan di bawah aksara.",
+    submittedDaysAgo: 136,
+    assessedDaysAgo: 133,
+    revisionCount: 0,
+    evidenceText:
+      "Foto sepuluh kata dua suku kata dengan konsonan mati di tengah.",
+  },
+  {
+    key: "galuh-aks-final",
+    studentKey: "galuh",
+    cohortKey: "aks-2026-01",
+    taskTitle: "Lembar uji aksara",
+    status: "approved",
+    score: 88,
+    feedback:
+      "Transkripsi rapi dan tanpa spasi. Lafal perlu satu putaran lagi pada taling dan pepet.",
+    submittedDaysAgo: 120,
+    assessedDaysAgo: 118,
+    revisionCount: 1,
+    evidenceText:
+      "Transkripsi 28 kata, rekaman baca satu paragraf, dan lima kalimat yang ditandai lalu dibetulkan.",
+  },
+  {
+    key: "arif-aks-1",
+    studentKey: "arif",
+    cohortKey: "aks-2026-01",
+    taskTitle: "Latihan hanacaraka",
+    status: "approved",
+    score: 82,
+    feedback:
+      "Dua puluh aksara terbaca. Bentuk da dan dha masih tertukar di baris kedua.",
+    submittedDaysAgo: 140,
+    assessedDaysAgo: 138,
+    revisionCount: 0,
+    evidenceText: "Foto salinan dua puluh aksara dan rekaman bacaan.",
+  },
+  {
+    key: "arif-aks-final",
+    studentKey: "arif",
+    cohortKey: "aks-2026-01",
+    taskTitle: "Lembar uji aksara",
+    status: "approved",
+    score: 81,
+    feedback:
+      "Transkripsi terbaca dan pasangan berada di bawah aksara. Perbaiki dua tanda baca pada kalimat penutup.",
+    submittedDaysAgo: 122,
+    assessedDaysAgo: 120,
+    revisionCount: 0,
+    evidenceText:
+      "Transkripsi 26 kata, rekaman baca satu paragraf, dan lima kalimat yang dibetulkan.",
   },
 ]
 
@@ -1134,6 +1557,39 @@ export const seedPeople = internalMutation({
       })
     }
 
+    // The aksara seller earned her listing after the angkatan 1 certificate,
+    // so her seller rows start later than the batik and pranatacara sellers.
+    const galuh = byKey.get("galuh")
+    if (galuh) {
+      await ctx.db.insert("sellerProfiles", {
+        userId: galuh._id,
+        displayName: galuh.name,
+        status: "active",
+        onboardingChecklist: {
+          payoutAccount: true,
+          consent: true,
+          firstWorkCard: true,
+          taxDetails: true,
+        },
+        activatedAt: ago(107),
+        createdAt: ago(109),
+        updatedAt: NOW,
+      })
+      await ctx.db.insert("payoutAccounts", {
+        userId: galuh._id,
+        provider: "bank",
+        bankCode: "BNI",
+        accountName: galuh.name,
+        accountNumberMasked: `****${accountSuffix(galuh.name)}`,
+        accountRef: "vault:seed:galuh",
+        status: "verified",
+        verifiedBy: admin._id,
+        verifiedAt: ago(107),
+        createdAt: ago(108),
+        updatedAt: NOW,
+      })
+    }
+
     await ctx.db.insert("invites", {
       email: "rahayu.puspita86@gmail.com",
       name: "Rahayu Puspita",
@@ -1141,7 +1597,7 @@ export const seedPeople = internalMutation({
       tokenHash: await sha256("seed-invite-rahayu"),
       status: "pending",
       invitedBy: admin._id,
-      reason: "Pengajar tenun Gunungkidul",
+      reason: "Pengajar batik bambu Bantul",
       expiresAt: ahead(7),
       createdAt: ago(2),
     })
@@ -1188,11 +1644,8 @@ export const seedCurriculum = internalMutation({
   args: {},
   handler: async (ctx) => {
     const assets = await ctx.db.query("mediaAssets").collect()
-    const audio = assets.find(
-      (asset) => asset.filename === "lesson-soga-audio.mp3",
-    )
-    const video = assets.find(
-      (asset) => asset.filename === "lesson-pranatacara-video.mp4",
+    const byFilename = new Map(
+      assets.map((asset) => [asset.filename, asset] as const),
     )
     let moduleCount = 0
     let lessonCount = 0
@@ -1200,7 +1653,8 @@ export const seedCurriculum = internalMutation({
     const pathOrder = Object.keys(MODULES)
     for (const [pathSlug, modules] of Object.entries(MODULES)) {
       const path = await pathBySlug(ctx, pathSlug)
-      const isDraft = pathSlug === "kriya-ukir-bantul"
+      // Draft curriculum follows the path row, not a hardcoded slug.
+      const isDraft = path.comingSoon === true
       const curriculumOrder = pathOrder.indexOf(pathSlug)
       let publishedModules = 0
       for (const [moduleIndex, module] of modules.entries()) {
@@ -1220,18 +1674,16 @@ export const seedCurriculum = internalMutation({
         if (!isDraft) publishedModules += 1
         for (const [lessonIndex, lesson] of module.lessons.entries()) {
           const mediaAssetIds: Id<"mediaAssets">[] = []
-          // Attach media by lesson kind: videos play in video lessons and the
-          // practice demo stays on a practice step.
-          if (lesson.kind === "video" && video) {
-            mediaAssetIds.push(video._id)
-          } else if (
-            lesson.kind === "practice" &&
-            pathSlug === "batik-tulis-soga" &&
-            moduleIndex === 1 &&
-            lessonIndex === 0 &&
-            audio
-          ) {
-            mediaAssetIds.push(audio._id)
+          // A lesson names its own image file; a non-text lesson must attach one.
+          if (lesson.mediaFile) {
+            const asset = byFilename.get(lesson.mediaFile)
+            if (!asset) {
+              throw new ConvexError({
+                code: "SEED_MEDIA_MISSING",
+                message: `Media pelajaran "${lesson.mediaFile}" untuk ${lesson.title} belum ada di mediaAssets.`,
+              })
+            }
+            mediaAssetIds.push(asset._id)
           }
           await ctx.db.insert("lessons", {
             order: lessonIndex + 1,
@@ -1322,9 +1774,13 @@ export const seedLearning = internalMutation({
     for (const seed of ENROLLMENTS) {
       const student = await userByEmail(ctx, seedEmail(seed.studentKey))
       const cohortId = cohortIds.get(seed.cohortKey)
-      if (!cohortId) continue
+      if (!cohortId) {
+        throw new Error(`Seed cohort missing: ${seed.cohortKey}`)
+      }
       const cohort = await ctx.db.get(cohortId)
-      if (!cohort) continue
+      if (!cohort) {
+        throw new Error(`Seed cohort missing: ${seed.cohortKey}`)
+      }
       const enrolledAt = Math.min(
         NOW - HOUR,
         seed.status === "pending_payment"
@@ -1427,13 +1883,21 @@ export const seedLearning = internalMutation({
     for (const [submissionIndex, seed] of SUBMISSIONS.entries()) {
       const student = await userByEmail(ctx, seedEmail(seed.studentKey))
       const cohortId = cohortIds.get(seed.cohortKey)
-      if (!cohortId) continue
+      if (!cohortId) {
+        throw new Error(`Seed cohort missing: ${seed.cohortKey}`)
+      }
       const cohort = await ctx.db.get(cohortId)
-      if (!cohort) continue
+      if (!cohort) {
+        throw new Error(`Seed cohort missing: ${seed.cohortKey}`)
+      }
       const enrollmentId = enrollmentIds.get(
         `${seed.studentKey}:${seed.cohortKey}`,
       )
-      if (!enrollmentId) continue
+      if (!enrollmentId) {
+        throw new Error(
+          `Seed enrollment missing: ${seed.studentKey}:${seed.cohortKey}`,
+        )
+      }
       const submittedAt =
         seed.submittedDaysAgo !== undefined
           ? ago(seed.submittedDaysAgo)
@@ -1481,7 +1945,9 @@ export const seedLearning = internalMutation({
       if (seed.status === "draft") continue
 
       const pondokTeacher = await ctx.db.get(cohort.teacherId)
-      if (!pondokTeacher) continue
+      if (!pondokTeacher) {
+        throw new Error(`Seed cohort teacher missing: ${seed.cohortKey}`)
+      }
       const assessor = pondokTeacher
       const assessedAt =
         seed.assessedDaysAgo !== undefined
@@ -1497,35 +1963,32 @@ export const seedLearning = internalMutation({
         submissionId,
         assessorId: assessor._id,
         status: assessmentStatus,
-        rubric: [
-          {
-            criterion: "Teknik",
-            weight: 40,
-            score: seed.score,
-            comment:
-              seed.feedback ??
-              "Menunggu penilaian pengajar pada aspek teknik.",
-          },
-          {
-            criterion: "Konsistensi",
-            weight: 30,
+        rubric: rubricForPath(cohort.pathId).map((criterion) => {
+          const label = criterion.criterion.toLowerCase()
+          const revisionNote =
+            criterion.criterion === "Kualitas garis lilin" ||
+            criterion.criterion === "Warna dan kebersihan"
+              ? "Hasil belum konsisten di bagian tepi; ulangi dengan takaran yang sama."
+              : `Bagian ${label} perlu diulang sebelum dinilai lagi.`
+          const doneNote =
+            criterion.criterion === "Dokumentasi" ||
+            criterion.criterion === "Catatan proses" ||
+            criterion.criterion === "Keselamatan dan catatan"
+              ? "Dokumentasi proses lengkap, foto bertanggal dan takaran tercatat."
+              : `Catatan pengajar pada ${label} sudah lengkap.`
+          return {
+            criterion: criterion.criterion,
+            weight: criterion.weight,
             score: seed.score,
             comment:
               seed.status === "revision_requested"
-                ? "Hasil belum konsisten di bagian tepi; ulangi dengan takaran yang sama."
-                : seed.feedback
-                  ? "Hasil antar-lembar cukup konsisten."
-                  : "Menunggu penilaian pengajar pada aspek konsistensi.",
-          },
-          {
-            criterion: "Dokumentasi",
-            weight: 30,
-            score: seed.score,
-            comment: seed.feedback
-              ? "Dokumentasi proses lengkap, foto bertanggal dan takaran tercatat."
-              : "Menunggu penilaian pengajar pada aspek dokumentasi.",
-          },
-        ],
+                ? revisionNote
+                : (seed.feedback ??
+                  (seed.status === "approved"
+                    ? doneNote
+                    : `Menunggu penilaian pengajar pada aspek ${label}.`)),
+          }
+        }),
         score: seed.score,
         feedback: seed.feedback,
         assessedAt,
@@ -1597,6 +2060,7 @@ export const seedCredentials = internalMutation({
     const admin = await seedAdmin(ctx)
     const certificateIds = new Map<string, Id<"certificates">>()
 
+    // Serials follow issue order; the newest certificate is the revoked demo.
     const finals = [
       {
         key: "anisa",
@@ -1605,6 +2069,7 @@ export const seedCredentials = internalMutation({
         teacherEmail: seedEmail("bambang"),
         score: 92,
         issuedDaysAgo: 327,
+        serial: "KN-2026-0001",
       },
       {
         key: "dimas",
@@ -1613,6 +2078,7 @@ export const seedCredentials = internalMutation({
         teacherEmail: seedEmail("sri"),
         score: 89,
         issuedDaysAgo: 326,
+        serial: "KN-2026-0002",
       },
       {
         key: "purnomo",
@@ -1621,6 +2087,7 @@ export const seedCredentials = internalMutation({
         teacherEmail: seedEmail("bambang"),
         score: 95,
         issuedDaysAgo: 325,
+        serial: "KN-2026-0003",
       },
       {
         key: "rani",
@@ -1629,10 +2096,20 @@ export const seedCredentials = internalMutation({
         teacherEmail: seedEmail("widagdo"),
         score: 90,
         issuedDaysAgo: 318,
+        serial: "KN-2026-0004",
+      },
+      {
+        key: "galuh",
+        submissionKey: "galuh-aks-final",
+        pathSlug: "aksara-jawa",
+        teacherEmail: seedEmail("suwardi"),
+        score: 88,
+        issuedDaysAgo: 110,
+        serial: "KN-2026-0005",
       },
     ]
 
-    for (const [index, final] of finals.entries()) {
+    for (const final of finals) {
       const student = await userByEmail(ctx, seedEmail(final.key))
       const path = await pathBySlug(ctx, final.pathSlug)
       const submission = await ctx.db
@@ -1641,14 +2118,18 @@ export const seedCredentials = internalMutation({
           q.eq("code", `TUG-${final.submissionKey.toUpperCase()}`),
         )
         .unique()
-      if (!submission) continue
+      if (!submission) {
+        throw new Error(`Seed submission missing: ${final.submissionKey}`)
+      }
       const assessment = await ctx.db
         .query("assessments")
         .withIndex("by_submissionId", (q) =>
           q.eq("submissionId", submission._id),
         )
         .unique()
-      if (!assessment) continue
+      if (!assessment) {
+        throw new Error(`Seed assessment missing: ${final.submissionKey}`)
+      }
 
       const enrollment = await ctx.db
         .query("enrollments")
@@ -1666,7 +2147,7 @@ export const seedCredentials = internalMutation({
 
       const issuedAt = ago(final.issuedDaysAgo)
       const certificateId = await ctx.db.insert("certificates", {
-        serial: `KN-2026-${String(index + 1).padStart(4, "0")}`,
+        serial: final.serial,
         publicCode: `KN-${final.key.toUpperCase()}-2026`,
         studentId: student._id,
         pathId: path.slug,
@@ -1704,7 +2185,7 @@ export const seedCredentials = internalMutation({
     const dwi = await userByEmail(ctx, seedEmail("dwi"))
     const dwiSubmission = await ctx.db
       .query("submissions")
-      .withIndex("by_code", (q) => q.eq("code", "TUG-DWI-BTS-1"))
+      .withIndex("by_code", (q) => q.eq("code", "TUG-DWI-BTS-FINAL"))
       .unique()
     if (dwiSubmission) {
       const dwiAssessment = await ctx.db
@@ -1722,7 +2203,7 @@ export const seedCredentials = internalMutation({
         const issuedAt = ago(15)
         const revokedAt = ago(5)
         const certificateId = await ctx.db.insert("certificates", {
-          serial: "KN-2026-0005",
+          serial: "KN-2026-0006",
           publicCode: "KN-DWI-2026",
           studentId: dwi._id,
           pathId: path.slug,
@@ -1732,7 +2213,7 @@ export const seedCredentials = internalMutation({
           issuedAt,
           revokedAt,
           revokeReason:
-            "Sertifikat uji alur verifikasi dicabut setelah koreksi ejaan nama; sertifikat pengganti diterbitkan terpisah.",
+            "Sertifikat uji alur verifikasi dicabut setelah koreksi ejaan nama.",
           revokedBy: admin._id,
           snapshot: {
             studentName: dwi.name,
@@ -1748,15 +2229,14 @@ export const seedCredentials = internalMutation({
           certificateId,
           kind: "issue",
           actorId: teacher._id,
-          reason: "Penerbitan sertifikat angkatan perintis.",
+          reason: "Penerbitan sertifikat angkatan 1.",
           createdAt: issuedAt,
         })
         await ctx.db.insert("certificateEvents", {
           certificateId,
           kind: "revoke",
           actorId: admin._id,
-          reason:
-            "Koreksi nama dan penilaian ulang; sertifikat pengganti diterbitkan terpisah.",
+          reason: "Koreksi nama dan penilaian ulang.",
           createdAt: revokedAt,
         })
       }
@@ -1766,7 +2246,9 @@ export const seedCredentials = internalMutation({
       const workDoc = await workBySlug(ctx, work.slug)
       const maker = await userByEmail(ctx, seedEmail(work.makerKey))
       const certificateId = certificateIds.get(work.certificateKey)
-      if (!certificateId) continue
+      if (!certificateId) {
+        throw new Error(`Seed certificate missing: ${work.certificateKey}`)
+      }
       await ctx.db.patch(workDoc._id, {
         certificateId,
         makerId: maker._id,
@@ -1783,9 +2265,11 @@ export const seedCredentials = internalMutation({
         title: work.title,
         technique: work.technique,
         materials:
-          work.category === "batik"
+          work.pathSlug === "batik-tulis-soga"
             ? "Kain primis, malam, pewarna soga alami"
-            : "Busana adat, perlengkapan acara",
+            : work.pathSlug === "aksara-jawa"
+              ? "Kertas, tinta, pena, dan penggaris"
+              : "Busana adat, perlengkapan acara",
         provenance: work.region,
         permission: work.permission,
         accessLevel: "public",
@@ -1862,7 +2346,7 @@ export const seedCommerce = internalMutation({
       },
       {
         key: "order-4",
-        code: "KN-2026-000112",
+        code: "KN-2026-000113",
         buyerKey: "nanda",
         sellerKey: "rani",
         workSlug: "pranatacara-siraman",
@@ -1888,7 +2372,7 @@ export const seedCommerce = internalMutation({
         paidDaysAgo: 40,
         completedDaysAgo: undefined,
         paymentStatus: "refunded" as const,
-        payoutStatus: undefined,
+        payoutStatus: "paid" as const,
         gatewayFee: 14_500,
       },
       {
@@ -1996,6 +2480,21 @@ export const seedCommerce = internalMutation({
         payoutStatus: "approved" as const,
         gatewayFee: 8_500,
       },
+      {
+        key: "order-13",
+        code: "KN-2026-000112",
+        buyerKey: "melati",
+        sellerKey: "galuh",
+        workSlug: "jasa-tulis-aksara",
+        baseAmount: 275_000,
+        uniqueAmount: 275_037,
+        status: "completed" as const,
+        paidDaysAgo: 2,
+        completedDaysAgo: 0.5,
+        paymentStatus: "paid" as const,
+        payoutStatus: "approved" as const,
+        gatewayFee: 2_750,
+      },
     ]
 
     const orderNotes: Record<string, string> = {
@@ -2013,6 +2512,8 @@ export const seedCommerce = internalMutation({
       "order-10": "Hadiah untuk ibu, mohon dibungkus rapi.",
       "order-11": "Pesanan ulang setelah kain pertama dipakai untuk pameran.",
       "order-12": "Warna diminta sedikit lebih terang dari contoh foto.",
+      "order-13":
+        "Empat puluh undangan, ejaan nama keluarga mohon dicek sebelum ditulis.",
     }
 
     const orderIds = new Map<string, Id<"orders">>()
@@ -2031,6 +2532,15 @@ export const seedCommerce = internalMutation({
       )
       const paidAt =
         seed.paidDaysAgo !== undefined ? ago(seed.paidDaysAgo) : undefined
+      // Delivery falls between payment and completion, and never in the future.
+      const paidDaysAgo = seed.paidDaysAgo ?? 0
+      const deliveredDaysAgo =
+        seed.completedDaysAgo !== undefined
+          ? Math.min(
+              paidDaysAgo,
+              Math.max(paidDaysAgo - 3, seed.completedDaysAgo),
+            )
+          : Math.max(0, paidDaysAgo - 3)
       const orderId = await ctx.db.insert("orders", {
         code: seed.code,
         buyerUserId: buyer._id,
@@ -2057,7 +2567,7 @@ export const seedCommerce = internalMutation({
         paidAt,
         deliveredAt:
           seed.status === "delivered" || seed.status === "completed"
-            ? ago((seed.paidDaysAgo ?? 0) - 3)
+            ? ago(deliveredDaysAgo)
             : undefined,
         completedAt:
           seed.completedDaysAgo !== undefined
@@ -2148,6 +2658,17 @@ export const seedCommerce = internalMutation({
       }
 
       if (seed.payoutStatus) {
+        const payoutPaidAt =
+          seed.payoutStatus === "paid"
+            ? seed.key === "order-5"
+              ? // The original sale was paid out before the refund reversed it.
+                ago(37)
+              : seed.completedDaysAgo !== undefined
+                ? ago(Math.max(0, seed.completedDaysAgo - 3))
+                : paidAt
+                  ? paidAt + 7 * DAY
+                  : undefined
+            : undefined
         const teacherShare = Math.round(seed.baseAmount * 0.7)
         const platformShare = Math.round(seed.baseAmount * 0.15)
         const communityShare =
@@ -2165,14 +2686,7 @@ export const seedCommerce = internalMutation({
             seed.payoutStatus === "approved" || seed.payoutStatus === "paid"
               ? admin._id
               : undefined,
-          paidAt:
-            seed.payoutStatus === "paid"
-              ? seed.completedDaysAgo !== undefined
-                ? ago(Math.max(0, seed.completedDaysAgo - 3))
-                : paidAt
-                  ? paidAt + 7 * DAY
-                  : undefined
-              : undefined,
+          paidAt: payoutPaidAt,
           reason:
             seed.payoutStatus === "held"
               ? "Ditahan sampai pesanan selesai atau sengketa ditutup."
@@ -2188,7 +2702,7 @@ export const seedCommerce = internalMutation({
           paidAmount:
             seed.payoutStatus === "paid" ? teacherShare : undefined,
           reference: `PAYOUT-${seed.code}`,
-          createdAt: createdAt + DAY,
+          createdAt: Math.min(NOW - HOUR, createdAt + DAY),
           updatedAt: NOW,
         })
         payoutIds.set(seed.key, payoutId)
@@ -2257,7 +2771,7 @@ export const seedCommerce = internalMutation({
             currency: "IDR",
             entryType: "payout",
             reason: "Payout dibayarkan ke rekening pengajar",
-            createdAt: ago(10),
+            createdAt: payoutPaidAt ?? ago(10),
           })
         }
       }
@@ -2293,6 +2807,8 @@ export const seedCommerce = internalMutation({
           platformShare: -217_500,
           communityShare: -217_500,
           status: "paid",
+          paidAt: ago(34),
+          paidAmount: -1_015_000,
           orderId: refundOrder,
           paymentId: refundPayment,
           kind: "reversal",

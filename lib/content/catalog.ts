@@ -26,5 +26,5 @@ export function pathMatchesField(
     .join(" ")
     .toLowerCase()
 
-  return tokens.some((token) => haystack.includes(token))
+  return tokens.every((token) => haystack.includes(token))
 }

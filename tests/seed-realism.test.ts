@@ -3,13 +3,14 @@ import path from "node:path"
 
 import { describe, expect, it } from "vitest"
 
-import { internal } from "../convex/_generated/api"
+import { api, internal } from "../convex/_generated/api"
 import {
   pathsSeed,
   siteSeed,
   teachersSeed,
   worksSeed,
 } from "../convex/seedData"
+import { CURRICULUM_IMAGE_FILES } from "../convex/seedWorkspace"
 import { SEED_START } from "../convex/seedIdentities"
 import { createTestDb } from "./helpers/convex"
 
@@ -24,6 +25,7 @@ function seedFilenames(): string[] {
       ...pathsSeed.map((path) => path.imageFile),
       ...teachersSeed.map((teacher) => teacher.imageFile),
       ...worksSeed.map((work) => work.imageFile),
+      ...CURRICULUM_IMAGE_FILES,
     ]),
   )
 }
@@ -280,6 +282,181 @@ describe("seed realism", () => {
         "payout after payment",
       ).toBeGreaterThanOrEqual(row.paymentPaidAt as number)
     }
+  })
+
+  it("keeps delivery, certificate, and work-credit chronology honest", async () => {
+    const t = createTestDb()
+    await seedWorkspace(t)
+
+    const data = await t.run(async (ctx) => {
+      const orders = await ctx.db.query("orders").collect()
+      const payouts = await ctx.db.query("payouts").collect()
+      const certificates = await ctx.db.query("certificates").collect()
+      const works = await ctx.db.query("works").collect()
+      const workCards = await ctx.db.query("workCards").collect()
+      const enrollments = await ctx.db.query("enrollments").collect()
+      const submissions = await ctx.db.query("submissions").collect()
+      const assessments = await ctx.db.query("assessments").collect()
+      const lessons = await ctx.db.query("lessons").collect()
+      const mediaAssets = await ctx.db.query("mediaAssets").collect()
+      const culturalSources = await ctx.db.query("culturalSources").collect()
+      return {
+        orders,
+        payouts,
+        certificates,
+        works,
+        workCards,
+        enrollments,
+        submissions,
+        assessments,
+        lessons,
+        mediaAssets,
+        culturalSources,
+      }
+    })
+
+    for (const order of data.orders) {
+      if (order.paidAt !== undefined && order.deliveredAt !== undefined) {
+        expect(
+          order.deliveredAt,
+          `${order.code} delivered after payment`,
+        ).toBeGreaterThanOrEqual(order.paidAt)
+      }
+      if (order.deliveredAt !== undefined && order.completedAt !== undefined) {
+        expect(
+          order.completedAt,
+          `${order.code} completed after delivery`,
+        ).toBeGreaterThanOrEqual(order.deliveredAt)
+      }
+      for (const stamp of [order.deliveredAt, order.completedAt]) {
+        if (stamp !== undefined) expect(stamp).toBeLessThanOrEqual(NOW)
+      }
+    }
+
+    const serials = [...data.certificates].sort((a, b) =>
+      a.serial.localeCompare(b.serial),
+    )
+    for (let index = 1; index < serials.length; index += 1) {
+      expect(
+        serials[index].issuedAt,
+        `${serials[index].serial} follows ${serials[index - 1].serial}`,
+      ).toBeGreaterThanOrEqual(serials[index - 1].issuedAt)
+    }
+
+    const certificateById = new Map(
+      data.certificates.map((row) => [row._id as string, row]),
+    )
+    for (const work of data.works) {
+      if (!work.certificateId) continue
+      const certificate = certificateById.get(work.certificateId as string)
+      expect(certificate?.snapshot.teacherName, `${work.slug} teacher`).toBe(
+        work.teacher,
+      )
+    }
+
+    const assessmentBySubmission = new Map(
+      data.assessments.map((assessment) => [
+        assessment.submissionId as string,
+        assessment,
+      ]),
+    )
+    const isFinalTask = (title: string) => /uji|akhir/i.test(title)
+    const completedWithoutFinal = data.enrollments.filter(
+      (enrollment) =>
+        enrollment.status === "completed" &&
+        !enrollment.certificateId &&
+        !data.submissions.some(
+          (submission) =>
+            submission.enrollmentId === enrollment._id &&
+            isFinalTask(submission.taskTitle) &&
+            assessmentBySubmission.has(submission._id as string),
+        ),
+    )
+    expect(completedWithoutFinal).toHaveLength(0)
+
+    for (const payout of data.payouts) {
+      if (payout.status !== "paid") continue
+      expect(payout.paidAt, `${payout.reference} paidAt`).toBeDefined()
+      expect(payout.paidAmount, `${payout.reference} paidAmount`).toBeDefined()
+      if (payout.kind === "reversal") {
+        expect(payout.paidAmount, `${payout.reference} reversal amount`).toBe(
+          payout.teacherShare,
+        )
+      }
+    }
+
+    const assetById = new Map(
+      data.mediaAssets.map((asset) => [asset._id as string, asset]),
+    )
+    for (const lesson of data.lessons) {
+      if (!["video", "audio", "file"].includes(lesson.kind)) continue
+      expect(
+        lesson.mediaAssetIds.length,
+        `${lesson.title} needs matching media`,
+      ).toBeGreaterThan(0)
+      for (const assetId of lesson.mediaAssetIds) {
+        expect(assetById.get(assetId as string)?.kind, lesson.title).toBe(
+          lesson.kind,
+        )
+      }
+    }
+    expect(
+      data.mediaAssets.some(
+        (asset) =>
+          asset.filename === "lesson-soga-audio.mp3" ||
+          asset.filename === "lesson-pranatacara-video.mp4",
+      ),
+    ).toBe(false)
+
+    const sourceByWork = new Map(
+      data.culturalSources
+        .filter((source) => source.workId)
+        .map((source) => [source.workId as string, source]),
+    )
+    for (const work of data.works) {
+      const source = sourceByWork.get(work._id as string)
+      if (source && source.permissionStatus !== "pending") continue
+      expect(work.permission, `${work.slug} permission`).not.toContain(
+        "tercatat",
+      )
+      expect(work.permission, `${work.slug} permission`).toContain(
+        "menunggu konfirmasi",
+      )
+      const card = data.workCards.find((row) => row.workId === work._id)
+      expect(card?.permission, `${work.slug} card permission`).toBe(
+        work.permission,
+      )
+    }
+
+    const aksaraSource = data.culturalSources.find(
+      (source) => source.pathId === "aksara-jawa",
+    )
+    expect(aksaraSource?.community).toBe("Tanpa penulis tercatat")
+    expect(aksaraSource?.attribution).not.toContain("Sanggar Aksara")
+
+    const order13 = data.orders.find((order) => order.code === "KN-2026-000112")
+    const payout13 = data.payouts.find(
+      (payout) => payout.orderId === order13?._id,
+    )
+    expect(payout13?.status).toBe("approved")
+    expect(payout13?.paidAt).toBeUndefined()
+
+    const order5 = data.orders.find((order) => order.code === "KN-2026-000107")
+    expect(
+      data.payouts.some(
+        (payout) => payout.orderId === order5?._id && payout.kind === "reversal",
+      ),
+    ).toBe(true)
+
+    // The public evidence series in DESIGN.md must match the seeded tables.
+    const stats = await t.query(api.content.getPublicStats, {})
+    expect(stats).toEqual({
+      fields: 11,
+      teachers: 4,
+      participants: 15,
+      submissions: 16,
+      works: 5,
+    })
   })
 
   it("derives daily metrics from seeded events", async () => {

@@ -66,6 +66,27 @@ describe("landing content sources", () => {
       image: "",
     } as LearningPath
     expect(pathMatchesField(path, "Batik tulis")).toBe(true)
-    expect(pathMatchesField(path, "Tenun")).toBe(false)
+    expect(pathMatchesField(path, "Kriya gerabah")).toBe(false)
+    expect(pathMatchesField(path, "Batik bambu")).toBe(false)
+    const aksara = { ...pathsSeed[3], modules: 0, image: "" } as LearningPath
+    expect(pathMatchesField(aksara, "Aksara Jawa")).toBe(true)
+    const pranatacara = { ...pathsSeed[1], modules: 0, image: "" } as LearningPath
+    expect(pathMatchesField(pranatacara, "Pranatacara")).toBe(true)
+    const gerabah = { ...pathsSeed[2], modules: 0, image: "" } as LearningPath
+    expect(pathMatchesField(gerabah, "Kriya gerabah")).toBe(true)
+    for (const field of [
+      "Batik bambu",
+      "Karawitan",
+      "Tari tradisi",
+      "Keramik",
+      "Kuliner tradisi",
+      "Jamu",
+      "Wayang",
+    ]) {
+      expect(pathMatchesField(path, field), field).toBe(false)
+      expect(pathMatchesField(aksara, field), field).toBe(false)
+      expect(pathMatchesField(pranatacara, field), field).toBe(false)
+      expect(pathMatchesField(gerabah, field), field).toBe(false)
+    }
   })
 })

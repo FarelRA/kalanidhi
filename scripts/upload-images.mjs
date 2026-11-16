@@ -53,7 +53,30 @@ const client = new ConvexHttpClient(url)
 client.setAdminAuth(adminKey)
 const token = process.env.SEED_UPLOAD_SECRET
 
+/** Descriptive alt text for the images the seed actually displays. */
+const ALT_BY_FILENAME = {
+  "lesson-mola.jpg":
+    "Peserta membatik mengikuti garis pensil di atas kain dengan canting",
+  "lesson-mbabar.jpg":
+    "Peserta mencelup kain ke dalam larutan pewarna batik",
+  "lesson-mepe.jpg":
+    "Kain batik dijemur di tempat teduh setelah dicuci",
+  "motif-larangan-yogyakarta-1.jpg":
+    "Lembar delapan motif larangan Keraton Yogyakarta",
+  "path-batik-tulis-giriloyo.jpg":
+    "Peserta membatik dengan canting di atas motif pensil",
+  "path-aksara-jawa.jpg":
+    "Aksara hanacaraka dicetak besar di atas kertas krem",
+  "path-gerabah-bantul.jpg":
+    "Plat tipografi Kriya Gerabah Bantul di atas kertas krem",
+  "path-pranatacara.jpg":
+    "Pembawa acara tradisi Jawa berbicara di depan mikrofon dalam acara adat",
+  "teacher-gerabah.jpg":
+    "Plat tipografi Kasongan dengan motif roda putar dan gerabah",
+}
+
 function altFor(filename) {
+  if (ALT_BY_FILENAME[filename]) return ALT_BY_FILENAME[filename]
   return filename
     .replace(/\.[^.]+$/, "")
     .replace(/[-_]+/g, " ")

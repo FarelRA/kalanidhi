@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { Fraunces, Karla } from "next/font/google"
+import { Fraunces, Karla, Noto_Sans_Javanese } from "next/font/google"
 import Script from "next/script"
 
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider"
@@ -23,6 +23,17 @@ const karla = Karla({
   subsets: ["latin"],
   display: "swap",
   preload: true,
+})
+
+/**
+ * Javanese script has no glyphs in Karla, so aksara copy falls back to Noto
+ * Sans Javanese. The subset is large, hence no preload.
+ */
+const javanese = Noto_Sans_Javanese({
+  variable: "--font-javanese",
+  subsets: ["javanese"],
+  display: "swap",
+  preload: false,
 })
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -74,7 +85,7 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${fraunces.variable} ${karla.variable} h-full scroll-smooth`}
+      className={`${fraunces.variable} ${karla.variable} ${javanese.variable} h-full scroll-smooth`}
       suppressHydrationWarning
     >
       <body className="min-h-full bg-background text-foreground">

@@ -76,17 +76,17 @@ The same loop is echoed in the FAQ, the closing section, and the footer descript
 
 ## Catalog breadth
 
-The catalog is a shelf, not a logo wall. **Rak bahan** groups ten mapped fields by readiness:
+The catalog is a shelf, not a logo wall. **Rak bahan** groups eleven mapped fields by readiness:
 
-- **Sudah di bangku (2):** Batik tulis, Pranatacara.
-- **Sedang disiapkan (3):** Kriya ukir kayu, Tenun, Karawitan.
-- **Menunggu pengajar (5):** Tari tradisi, Keramik, Kuliner tradisi, Jamu, Wayang.
+- **Sudah di bangku (3):** Batik tulis (Giriloyo), Aksara Jawa, Pranatacara.
+- **Sedang disiapkan (4):** Kriya gerabah (Kasongan), Batik bambu, Karawitan, Tari tradisi.
+- **Menunggu pengajar (4):** Keramik, Kuliner tradisi, Jamu, Wayang.
 
-Each tag carries a region and a short note. Open fields link to the paths section. The section states the base: Yogyakarta and Jawa Tengah, with practitioners from other regions able to propose a path. New fields open when curriculum, permission, and a teacher are ready.
+Each tag carries a region and a short note. Open fields link to the paths section. The catalog is DIY-only: every region named is a kabupaten or kota inside Daerah Istimewa Yogyakarta, and practitioners from elsewhere can propose a new path but do not extend the base. Gerabah is about forming and firing vessels at Kasongan; Keramik stays a separate field about glaze and stoneware, still waiting for a teacher. New fields open when curriculum, permission, and a teacher are ready.
 
 ## Copy voice
 
-Plain, warm, specific, and comfortable saying “belum”. Buttons name the outcome. The page avoids “maestro”, invented maturity metrics, and generic marketplace language. One evidence series is used everywhere: **10 fields, 2 open paths, 14 teachers, 24 participants, 36 assessed tasks, 12 works and services**.
+Plain, warm, specific, and comfortable saying “belum”. Buttons name the outcome. The page avoids “maestro”, invented maturity metrics, and generic marketplace language. One evidence series is used everywhere, recomputed from the seed: **11 fields, 3 open paths, 4 published teachers, 15 participants, 16 assessed tasks, 5 works and services**.
 
 Representative lines:
 
@@ -98,9 +98,9 @@ Representative lines:
 
 - The certificate is a **sertifikat platform** everywhere, with a public verification code. The FAQ, footer, and verification dialog all say it is not government or BNSP certification.
 - The **Kartu Sumber Budaya** shows both knowledge sources, permission date, reference, and access level. The 70 / 15 / 15 split is shown before transaction.
-- No sacred or forbidden motif is used. The brand mark is a cream **K** drawn from bench and tag shapes on a dark wood tile, not a batik pattern.
+- No sacred or forbidden motif is used as interface decoration. The motif-larangan sheet appears only inside the lesson that teaches the eight names, never as a brand or background pattern. The brand mark is a cream **K** drawn from bench and tag shapes on a dark wood tile, not a batik pattern.
 - Tab and install icons use the tile with a rounded corner (`npm run icons:build`); the Apple touch icon and the maskable tile stay full-bleed because iOS and the launcher apply their own mask.
-- Cultural detail stays modest. The mangsa entry follows the Kasunanan Surakarta Pranata Mangsa, describes rice transplanting in Kapitu, and notes that the calendar is local and can shift with weather.
+- Cultural detail stays modest. The mangsa entry follows the Kasunanan Surakarta Pranata Mangsa, describes rice transplanting in Kapitu, and notes that the calendar is local and can shift with weather. This is the one external reference outside DIY: the published Pranata Mangsa version is the Surakarta recension, so it is cited by name while the planting note stays tied to Merapi-Lawu and DIY.
 - The base region is stated in the closing and the footer. The platform is “terbuka untuk” practitioners elsewhere, not “beroperasi di” everywhere.
 - Testimonials are labelled as participant and partner interviews with permission. No partnerships, coverage, or revenue figures are invented.
 - Commerce is the outlet of learning: works are documented with maker, technique, teacher, and Kartu Karya, and the learning loop is always the larger frame.

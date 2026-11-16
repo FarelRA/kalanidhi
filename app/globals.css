@@ -49,9 +49,9 @@
   --color-thread: var(--thread);
   --color-thread-light: var(--thread-light);
 
-  --font-sans: var(--font-karla), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-karla), var(--font-javanese), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-fraunces), ui-serif, Georgia, serif;
-  --font-mono: var(--font-karla), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-karla), var(--font-javanese), ui-sans-serif, system-ui, sans-serif;
 
   --radius-sm: 0.125rem;
   --radius-md: 0.1875rem;

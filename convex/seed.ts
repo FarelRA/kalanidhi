@@ -365,8 +365,8 @@ export const seedContent = internalMutation({
 
     const featured: FeaturedSelection = {
       pathSlugs: seededPaths.map((path) => path.slug),
-      teacherSlugs: seededTeachers
-        .filter((teacher) => teacher.slug !== "joko-santoso")
+      teacherSlugs: teachersSeed
+        .filter((teacher) => teacher.published)
         .map((teacher) => teacher.slug),
       workSlugs: seededWorks.map((work) => work.slug),
       testimonialIds,
@@ -502,43 +502,6 @@ export const seedContent = internalMutation({
         updatedAt: NOW,
       })
     }
-
-    const audioStorage = await ctx.storage.store(
-      new Blob(["KalaNidhi seed lesson audio"], { type: "audio/mpeg" }),
-    )
-    const videoStorage = await ctx.storage.store(
-      new Blob(["KalaNidhi seed lesson video"], { type: "video/mp4" }),
-    )
-    await ctx.db.insert("mediaAssets", {
-      kind: "audio",
-      storageId: audioStorage,
-      filename: "lesson-soga-audio.mp3",
-      mimeType: "audio/mpeg",
-      size: 32_000,
-      durationMs: 180_000,
-      alt: "Rekaman penjelasan suhu malam",
-      caption: "Rekaman penjelasan suhu malam untuk pelajaran batik.",
-      credit: "KalaNidhi Digital",
-      permission: "Izin internal platform",
-      status: "active",
-      uploadedBy: SEED_ASSET_OWNER,
-      createdAt: ago(60),
-    })
-    await ctx.db.insert("mediaAssets", {
-      kind: "video",
-      storageId: videoStorage,
-      filename: "lesson-pranatacara-video.mp4",
-      mimeType: "video/mp4",
-      size: 64_000,
-      durationMs: 240_000,
-      alt: "Rekaman latihan tata wicara",
-      caption: "Rekaman latihan tata wicara untuk pelajaran pranatacara.",
-      credit: "KalaNidhi Digital",
-      permission: "Izin internal platform",
-      status: "active",
-      uploadedBy: SEED_ASSET_OWNER,
-      createdAt: ago(60),
-    })
 
     return {
       seeded: true,

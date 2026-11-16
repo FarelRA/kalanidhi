@@ -30,16 +30,39 @@ export type RubricCriterion = {
   comment?: string
 }
 
+/**
+ * Rubrics follow each path's own final assessment. The batik weights are the
+ * platform's seven-step review; the Giriloyo deck names seven steps but does
+ * not publish a rubric. The aksara weights are the "lembar uji aksara" rubric.
+ */
 const BATIK_RUBRIC: RubricCriterion[] = [
-  { criterion: "Ketepatan proses", weight: 40 },
-  { criterion: "Kualitas garis canting", weight: 30 },
-  { criterion: "Catatan proses", weight: 30 },
+  { criterion: "Urutan langkah", weight: 20 },
+  { criterion: "Kualitas garis lilin", weight: 25 },
+  { criterion: "Isian", weight: 15 },
+  { criterion: "Warna dan kebersihan", weight: 20 },
+  { criterion: "Kerapian motif", weight: 10 },
+  { criterion: "Keselamatan dan catatan", weight: 10 },
 ]
 
 const PRANATACARA_RUBRIC: RubricCriterion[] = [
   { criterion: "Urutan acara", weight: 45 },
   { criterion: "Tata wicara", weight: 35 },
   { criterion: "Kejelasan suara", weight: 20 },
+]
+
+const AKSARA_RUBRIC: RubricCriterion[] = [
+  { criterion: "Ketepatan aksara", weight: 40 },
+  { criterion: "Sandhangan dan panyigeg", weight: 20 },
+  { criterion: "Pasangan", weight: 20 },
+  { criterion: "Tanda baca dan angka", weight: 10 },
+  { criterion: "Lafal", weight: 10 },
+]
+
+const GERABAH_RUBRIC: RubricCriterion[] = [
+  { criterion: "Penyiapan tanah", weight: 25 },
+  { criterion: "Bentuk dan dinding", weight: 35 },
+  { criterion: "Pengeringan dan pembakaran", weight: 25 },
+  { criterion: "Catatan proses", weight: 15 },
 ]
 
 const DEFAULT_RUBRIC: RubricCriterion[] = [
@@ -51,6 +74,8 @@ const DEFAULT_RUBRIC: RubricCriterion[] = [
 export function rubricForPath(pathId: string): RubricCriterion[] {
   if (pathId === "batik-tulis-soga") return BATIK_RUBRIC
   if (pathId === "pranatacara-jawa") return PRANATACARA_RUBRIC
+  if (pathId === "aksara-jawa") return AKSARA_RUBRIC
+  if (pathId === "kriya-gerabah-bantul") return GERABAH_RUBRIC
   return DEFAULT_RUBRIC
 }
 

@@ -32,6 +32,8 @@ function serialPrefix(pathId: string): string {
   const known: Record<string, string> = {
     "batik-tulis-soga": "BTS",
     "pranatacara-jawa": "PRC",
+    "aksara-jawa": "AKS",
+    "kriya-gerabah-bantul": "GRB",
   }
   if (known[pathId]) return known[pathId]
   return pathId
