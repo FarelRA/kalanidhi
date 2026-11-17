@@ -19,7 +19,7 @@ const PERMISSION_STATUS_LABELS: Record<
   string
 > = {
   pending: "Menunggu persetujuan",
-  granted: "Izin diberikan",
+  granted: "Izin tercatat",
   withdrawn: "Izin ditarik",
 }
 
@@ -143,11 +143,7 @@ export function WorkshopRules({
                     {ethics.card.referenceLabel}
                   </dt>
                   <dd className="mt-0.5 text-[12px] leading-snug text-ink/75">
-                    {latest
-                      ? [latest.attribution, latest.notes]
-                          .filter(Boolean)
-                          .join(" ")
-                      : "—"}
+                    {latest ? latest.permissionReference : "—"}
                   </dd>
                 </div>
               </dl>

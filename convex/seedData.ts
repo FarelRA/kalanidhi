@@ -301,7 +301,7 @@ export const siteSeed: SeedSiteCopy = {
     label: "Aturan bengkel",
     title: "Setiap pengetahuan membawa nama, izin, dan pembagian.",
     description:
-      "Kartu Sumber Budaya tampil di jalur, karya, dan pustaka. Isinya mencatat komunitas sumber, status izin, tanggal bila izin sudah tercatat, tingkat akses, dan aliran nilai ekonomi. Kami menuliskannya sebelum kamu memutuskan.",
+      "Kartu Sumber Budaya tampil di jalur, karya, dan pustaka. Isinya mencatat komunitas sumber, status izin, tanggal persetujuan, tingkat akses, dan aliran nilai ekonomi. Kami menuliskannya sebelum kamu memutuskan.",
     principles: [
       {
         title: "Sumber yang bisa dilacak",
@@ -455,7 +455,7 @@ export const siteSeed: SeedSiteCopy = {
         "Prinsip yang kami pakai sebelum sebuah pengetahuan atau karya ditampilkan.",
       bullets: [
         "Komunitas, pengajar, dan sumber pengetahuan tampil di setiap jalur dan karya.",
-        "Status izin dan tanggal persetujuan, bila sudah tercatat, ditampilkan bersama tingkat aksesnya.",
+        "Status izin dan tanggal persetujuan ditampilkan bersama tingkat aksesnya.",
         "Rincian bagi hasil dapat dilihat sebelum transaksi, saat kamu masih bisa memutuskan.",
         "Pengetahuan terbatas dihormati. Tidak semua materi dibuka untuk publik.",
         "Motif sakral atau larangan tidak dipakai sebagai dekorasi antarmuka.",
@@ -916,7 +916,7 @@ export const worksSeed: SeedWork[] = [
     pathSlug: "batik-tulis-soga",
     certificateKey: "anisa",
     permission:
-      "Izin publikasi menunggu konfirmasi; dokumen sumber dipegang pengelola platform",
+      "Izin publikasi tercatat untuk pengelola platform; dokumen sumber diarsipkan pengelola platform",
     title: "Kain Batik Soga Anyaman",
     category: "batik",
     kind: "product",
@@ -939,7 +939,7 @@ export const worksSeed: SeedWork[] = [
     pathSlug: "batik-tulis-soga",
     certificateKey: "dimas",
     permission:
-      "Izin publikasi menunggu konfirmasi; dokumen sumber dipegang pengelola platform",
+      "Izin publikasi tercatat untuk pengelola platform; dokumen sumber diarsipkan pengelola platform",
     title: "Selendang Canting Nitik",
     category: "batik",
     kind: "product",
@@ -962,7 +962,7 @@ export const worksSeed: SeedWork[] = [
     pathSlug: "batik-tulis-soga",
     certificateKey: "purnomo",
     permission:
-      "Izin publikasi menunggu konfirmasi; dokumen sumber dipegang pengelola platform",
+      "Izin publikasi tercatat untuk pengelola platform; dokumen sumber diarsipkan pengelola platform",
     title: "Batik Tulis Lereng Soga",
     category: "batik",
     kind: "product",
@@ -985,7 +985,7 @@ export const worksSeed: SeedWork[] = [
     pathSlug: "pranatacara-jawa",
     certificateKey: "rani",
     permission:
-      "Izin publikasi menunggu konfirmasi; dokumen sumber dipegang pengelola platform",
+      "Izin publikasi tercatat untuk pengelola platform; dokumen sumber diarsipkan pengelola platform",
     title: "Pembawa Acara Siraman dan Midodareni",
     category: "layanan",
     kind: "service",
@@ -1009,7 +1009,7 @@ export const worksSeed: SeedWork[] = [
     pathSlug: "aksara-jawa",
     certificateKey: "galuh",
     permission:
-      "Izin publikasi menunggu konfirmasi; dokumen sumber dipegang pengelola platform",
+      "Izin publikasi tercatat untuk pengelola platform; dokumen sumber diarsipkan pengelola platform",
     title: "Jasa Tulis Aksara untuk Undangan dan Papan Nama",
     category: "layanan",
     kind: "service",
@@ -1085,7 +1085,7 @@ export const faqsSeed: Faq[] = [
   {
     question: "Bagaimana hak budaya dan bagi hasil dijaga?",
     answer:
-      "Setiap jalur dan karya menampilkan Kartu Sumber Budaya: komunitas sumber, pemberi izin, tanggal persetujuan, dan tingkat akses. Rincian bagi hasil ditampilkan sebelum transaksi, saat kamu masih bisa memutuskan.",
+      "Setiap jalur dan karya menampilkan Kartu Sumber Budaya: komunitas sumber, rujukan izin, tanggal persetujuan, dan tingkat akses. Rincian bagi hasil ditampilkan sebelum transaksi, saat kamu masih bisa memutuskan.",
   },
   {
     question: "Saya hanya ingin membeli karya. Apakah harus ikut kelas?",

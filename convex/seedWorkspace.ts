@@ -81,7 +81,7 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Mengenali hasil batik tulis",
           kind: "text",
-          body: "Periksa kain di bawah cahaya terang dan lihat dari dua sisi. Batik tulis yang rapi memperlihatkan garis lilin yang menembus ke belakang, warna yang tidak menembus bagian ber-lilin, retak lilin halus yang wajar, dan tidak menyisakan lilin yang gagal hilang. Sebutkan enam contoh kain yang pernah kamu lihat, lalu tulis alasan untuk setiap tanda. Foto dan contoh pada materi ini berasal dari dokumen Materi Batik Giriloyo milik Paguyuban Batik Tulis Giriloyo yang dipegang pengelola platform; izin publikasi masih menunggu konfirmasi. Tugas: sebutkan 6 contoh dan alasannya. Kriteria: 5 dari 6 tanda tepat.",
+          body: "Periksa kain di bawah cahaya terang dan lihat dari dua sisi. Batik tulis yang rapi memperlihatkan garis lilin yang menembus ke belakang, warna yang tidak menembus bagian ber-lilin, retak lilin halus yang wajar, dan tidak menyisakan lilin yang gagal hilang. Sebutkan enam contoh kain yang pernah kamu lihat, lalu tulis alasan untuk setiap tanda. Foto dan contoh pada materi ini berasal dari dokumen Materi Batik Giriloyo milik Paguyuban Batik Tulis Giriloyo yang dipegang pengelola platform; izin publikasi tercatat untuk pengelola platform. Tugas: sebutkan 6 contoh dan alasannya. Kriteria: 5 dari 6 tanda tepat.",
           estimatedMinutes: 10,
           accessLevel: "enrolled",
         },
@@ -139,7 +139,7 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Mola: desain dengan pensil",
           kind: "text",
-          body: "Mola adalah membuat desain dengan pensil langsung di atas kain sebelum lilin diteteskan. Garis pensil akan tertutup lilin dan tidak ikut terwarnai, jadi garis tipis lebih aman daripada garis tebal yang menekan serat. Mulai dari satu ulangan motif yang utuh, bukan dari seluruh bidang kain. Foto pada pelajaran ini berasal dari dokumen Materi Batik Giriloyo milik Paguyuban Batik Tulis Giriloyo yang dipegang pengelola platform; izin publikasi masih menunggu konfirmasi. Tugas: salin satu ulangan motif. Kriteria: proporsi mirip dan garis tipis.",
+          body: "Mola adalah membuat desain dengan pensil langsung di atas kain sebelum lilin diteteskan. Garis pensil akan tertutup lilin dan tidak ikut terwarnai, jadi garis tipis lebih aman daripada garis tebal yang menekan serat. Mulai dari satu ulangan motif yang utuh, bukan dari seluruh bidang kain. Foto pada pelajaran ini berasal dari dokumen Materi Batik Giriloyo milik Paguyuban Batik Tulis Giriloyo yang dipegang pengelola platform; izin publikasi tercatat untuk pengelola platform. Tugas: salin satu ulangan motif. Kriteria: proporsi mirip dan garis tipis.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
           mediaFile: "lesson-mola.jpg",
@@ -147,7 +147,7 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Motif larangan Keraton Yogyakarta",
           kind: "text",
-          body: "Motif larangan adalah delapan motif Keraton Yogyakarta yang disebut materi sumber: Huk, Kawung Alit Gurdha, Parang Klithik, Parang Barong, Parang Gendreh, Parang Rusak Barong, Semen Ageng Sawat Gurdha, dan Rujak Senthe. Sumber hanya menyebut nama dan statusnya; aturan pemakaiannya tidak dijelaskan di sana, jadi kelas ini juga tidak mengajarkannya. Kamu cukup mengenali nama dan bentuknya sebagai kosakata. Sumber gambar: Materi Batik Giriloyo, Paguyuban Batik Tulis Giriloyo; dokumen dipegang pengelola platform dan izin publikasi masih menunggu konfirmasi. Tugas: cocokkan 8 nama dengan gambarnya. Kriteria: 7 dari 8 benar.",
+          body: "Motif larangan adalah delapan motif Keraton Yogyakarta yang disebut materi sumber: Huk, Kawung Alit Gurdha, Parang Klithik, Parang Barong, Parang Gendreh, Parang Rusak Barong, Semen Ageng Sawat Gurdha, dan Rujak Senthe. Sumber hanya menyebut nama dan statusnya; aturan pemakaiannya tidak dijelaskan di sana, jadi kelas ini juga tidak mengajarkannya. Kamu cukup mengenali nama dan bentuknya sebagai kosakata. Sumber gambar: Materi Batik Giriloyo, Paguyuban Batik Tulis Giriloyo; dokumen dipegang pengelola platform dan izin publikasi tercatat untuk pengelola platform. Tugas: cocokkan 8 nama dengan gambarnya. Kriteria: 7 dari 8 benar.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
           mediaFile: "motif-larangan-yogyakarta-1.jpg",
@@ -240,7 +240,7 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Mbabar: mencelup kain pada bahan pewarna",
           kind: "text",
-          body: "Mbabar adalah mencelup kain pada bahan pewarna setelah lilin selesai. Bagian yang ber-lilin tetap putih, jadi rendam kain penuh supaya warna rata sampai ke serat. Aduk perlahan dan jangan menggosok kain saat basah. Sumber foto: Materi Batik Giriloyo, Paguyuban Batik Tulis Giriloyo; dokumen dipegang pengelola platform dan izin publikasi masih menunggu konfirmasi. Tugas: celup kain latihan satu warna, foto sebelum dan sesudah. Kriteria: warna rata dan lilin tidak rusak.",
+          body: "Mbabar adalah mencelup kain pada bahan pewarna setelah lilin selesai. Bagian yang ber-lilin tetap putih, jadi rendam kain penuh supaya warna rata sampai ke serat. Aduk perlahan dan jangan menggosok kain saat basah. Sumber foto: Materi Batik Giriloyo, Paguyuban Batik Tulis Giriloyo; dokumen dipegang pengelola platform dan izin publikasi tercatat untuk pengelola platform. Tugas: celup kain latihan satu warna, foto sebelum dan sesudah. Kriteria: warna rata dan lilin tidak rusak.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
           mediaFile: "lesson-mbabar.jpg",
@@ -262,7 +262,7 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Mepe: mencuci sisa lilin dan menjemur",
           kind: "text",
-          body: "Mepe adalah mencuci sisa lilin lalu menjemur kain sampai kering. Bilas sampai air bilasan jernih, lalu jemur di tempat teduh supaya warna tidak berubah karena matahari langsung. Sumber foto: Materi Batik Giriloyo, Paguyuban Batik Tulis Giriloyo; dokumen dipegang pengelola platform dan izin publikasi masih menunggu konfirmasi. Tugas: foto kain basah dan kering. Kriteria: tanpa bercak dan kering rata.",
+          body: "Mepe adalah mencuci sisa lilin lalu menjemur kain sampai kering. Bilas sampai air bilasan jernih, lalu jemur di tempat teduh supaya warna tidak berubah karena matahari langsung. Sumber foto: Materi Batik Giriloyo, Paguyuban Batik Tulis Giriloyo; dokumen dipegang pengelola platform dan izin publikasi tercatat untuk pengelola platform. Tugas: foto kain basah dan kering. Kriteria: tanpa bercak dan kering rata.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
           mediaFile: "lesson-mepe.jpg",

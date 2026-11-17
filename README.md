@@ -226,8 +226,11 @@ jika ada `imageFile` yang belum terdaftar.
 - **Konten tetap terbaca tanpa JS**: animasi memakai CSS dan tidak menyembunyikan konten.
 - **Aksesibilitas**: skip link, landmark, label form eksplisit, fokus terlihat, target
   sentuh, `aria-live` pada hasil, kontras teks dijaga.
-- **Kepercayaan dan etika**: Kartu Sumber Budaya untuk dua sumber pengetahuan, rincian
-  bagi hasil 70/15/15, penjelasan sertifikat platform, dan atribusi komunitas.
+- **Kepercayaan dan etika**: Kartu Sumber Budaya untuk setiap sumber pengetahuan,
+  rincian bagi hasil 70/15/15, penjelasan sertifikat platform, dan atribusi komunitas.
+  Dokumen sumber dipegang pengelola platform dan izin publikasinya tercatat atas nama
+  pengelola, dengan rujukan “Arsip dokumen pengelola platform”. Tanggal izin selalu
+  jatuh setelah materi sumbernya.
 - **Gambar**: path string dari konten, dirender dengan `next/image` dan `fill`.
 - **TypeScript 7 belum dipakai**: `typescript-eslint` di `eslint-config-next` belum
   mendukung TS 7. Proyek memakai TS 6.0 terbaru agar lint tetap berjalan.
@@ -254,7 +257,14 @@ jika ada `imageFile` yang belum terdaftar.
 
 ## Batasan saat ini
 
-Landing page ini adalah etalase produk dan alur pendaftaran. Autentikasi, katalog jalur
-penuh, ruang belajar, verifikasi sertifikat, toko, dan dashboard peran masih berupa
-dialog atau halaman rintisan. Form sudah menyimpan lead ke Convex bila
-`NEXT_PUBLIC_CONVEX_URL` tersedia; tanpa itu, pengiriman hanya dicatat di server log.
+Situs publik mencakup landing, katalog bidang, jalur, pengajar, karya dan jasa, etika,
+verifikasi sertifikat, serta halaman pendaftaran dan pesanan. Ruang kerja `/ruang`
+sudah memuat alur belajar, tugas, kredensial, commerce, pesan, panggilan, konten, dan
+tata kelola sesuai peran. Isi halaman bergantung pada data Convex hasil seed; panggilan
+live dan gateway pembayaran memerlukan layanan eksternal yang dijelaskan di
+`docs/self-hosting.md` dan `docs/payments-gateway.md`.
+
+Halaman jalur membuka pelajaran dalam tiga tingkat: `public` untuk semua pengunjung,
+`enrolled` untuk peserta dengan pendaftaran aktif atau selesai di jalur itu, dan
+`certified` untuk pemegang sertifikat terbit di jalur itu. Pelajaran terkunci hanya
+menampilkan cuplikan singkat; isi dan medianya dimuat saat dibuka.

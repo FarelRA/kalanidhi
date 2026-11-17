@@ -413,19 +413,46 @@ describe("seed realism", () => {
         .filter((source) => source.workId)
         .map((source) => [source.workId as string, source]),
     )
+    const sourceByPath = new Map(
+      data.culturalSources
+        .filter((source) => source.pathId)
+        .map((source) => [source.pathId as string, source]),
+    )
     for (const work of data.works) {
-      const source = sourceByWork.get(work._id as string)
-      if (source && source.permissionStatus !== "pending") continue
-      expect(work.permission, `${work.slug} permission`).not.toContain(
-        "tercatat",
-      )
-      expect(work.permission, `${work.slug} permission`).toContain(
-        "menunggu konfirmasi",
-      )
+      const source =
+        sourceByWork.get(work._id as string) ??
+        (work.pathId ? sourceByPath.get(work.pathId) : undefined)
+      if (/tercatat/i.test(work.permission ?? "")) {
+        expect(
+          source,
+          `${work.slug} claims a recorded permission without a source`,
+        ).toBeDefined()
+        expect(
+          source?.permissionStatus,
+          `${work.slug} source permission`,
+        ).toBe("granted")
+      }
       const card = data.workCards.find((row) => row.workId === work._id)
       expect(card?.permission, `${work.slug} card permission`).toBe(
         work.permission,
       )
+    }
+
+    // A permission date may never precede the material it covers. The
+    // Giriloyo deck is from 2022; the aksara document was created 2026-11-13.
+    const materialDates: Record<string, number> = {
+      "Materi Batik Giriloyo": Date.UTC(2022, 0, 1),
+      "Materi aksara Jawa dan tabel sandhangan": Date.UTC(2026, 10, 13),
+    }
+    for (const [sourceName, materialDate] of Object.entries(materialDates)) {
+      const source = data.culturalSources.find(
+        (row) => row.sourceName === sourceName,
+      )
+      expect(source, `${sourceName} source`).toBeDefined()
+      expect(
+        source?.permissionDate,
+        `${sourceName} permission date`,
+      ).toBeGreaterThan(materialDate)
     }
 
     const aksaraSource = data.culturalSources.find(

@@ -42,17 +42,47 @@ function parseRobots(value: string): Metadata["robots"] {
   }
 }
 
+function normaliseLabel(value: string): string {
+  return value.replace(/\s+/g, " ").trim().toLocaleLowerCase("id-ID")
+}
+
+/**
+ * True when a page title already names the site. The root layout appends
+ * `| siteName` through `title.template`, so such a title must be marked
+ * absolute or the site name would render twice.
+ */
+export function titleIncludesSiteName(
+  title: string,
+  siteName: string | null | undefined,
+): boolean {
+  if (!siteName) return false
+  const needle = normaliseLabel(siteName)
+  return needle.length > 0 && normaliseLabel(title).includes(needle)
+}
+
 /**
  * Applies an override on top of the page defaults. Missing override fields
  * keep the default value, so a partial override never blanks the metadata.
+ *
+ * `siteName` is the name the root layout appends to child titles. When an
+ * admin-edited title already contains it, the title is returned as
+ * `{ absolute }` so the template is skipped; a short title stays a plain
+ * string and receives the site name exactly once. Open Graph titles are not
+ * templated and are kept complete as written.
  */
 export function applySeoOverride(
   defaults: Metadata,
   override: SeoOverride | null,
+  siteName?: string | null,
 ): Metadata {
   if (!override) return defaults
 
-  const title = override.title || defaults.title
+  const overrideTitle = override.title || defaults.title
+  const title =
+    typeof overrideTitle === "string" &&
+    titleIncludesSiteName(overrideTitle, siteName)
+      ? { absolute: overrideTitle }
+      : overrideTitle
   const description = override.description || defaults.description
   const ogTitle =
     override.ogTitle || override.title || defaults.openGraph?.title
@@ -102,11 +132,17 @@ export async function buildPageMetadata(
   route: string,
   defaults: Metadata,
 ): Promise<Metadata> {
-  const override = await getSeoOverride(route)
-  const merged = applySeoOverride(defaults, override)
+  const [override, data] = await Promise.all([
+    getSeoOverride(route),
+    getSiteData().catch(() => null),
+  ])
+  const merged = applySeoOverride(
+    defaults,
+    override,
+    data?.metadata.siteName,
+  )
   if (!merged.openGraph || merged.openGraph.images) return merged
 
-  const data = await getSiteData().catch(() => null)
   return applyShareImage(merged, data?.metadata.image)
 }
 

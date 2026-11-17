@@ -110,12 +110,51 @@ export type Faq = {
   answer: string
 }
 
+export type PublicLessonKind = "text" | "video" | "audio" | "file" | "practice"
+
+export type PublicLessonAccessLevel = "public" | "enrolled" | "certified"
+
 export type PublicLessonSummary = {
+  /** Stable row id, used to load the reader on demand. */
+  id: string
   title: string
-  kind: "text" | "video" | "audio" | "file" | "practice"
+  kind: PublicLessonKind
   estimatedMinutes: number
-  accessLevel: "public" | "enrolled" | "certified"
+  accessLevel: PublicLessonAccessLevel
 }
+
+/** Resolved media attached to a public lesson. */
+export type PublicLessonMedia = {
+  url: string
+  alt: string
+  caption: string | null
+  kind: "image" | "audio" | "video" | "document"
+}
+
+type PublicLessonDetailBase = {
+  lessonId: string
+  title: string
+  kind: PublicLessonKind
+  estimatedMinutes: number
+  accessLevel: PublicLessonAccessLevel
+  moduleTitle: string
+  media: PublicLessonMedia[]
+}
+
+export type PublicLessonUnlocked = PublicLessonDetailBase & {
+  status: "unlocked"
+  body: string
+}
+
+export type PublicLessonLocked = PublicLessonDetailBase & {
+  status: "locked"
+  reason: Exclude<PublicLessonAccessLevel, "public">
+  /** A short excerpt, never the full body. */
+  teaser: string
+}
+
+/** Discriminated reader payload; locked lessons never carry `body`. */
+export type PublicLessonDetail = PublicLessonUnlocked | PublicLessonLocked
 
 export type PublicModuleSummary = {
   title: string

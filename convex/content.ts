@@ -13,6 +13,8 @@ import type {
   HeroWorkCard,
   LearningPath,
   PublicCulturalSource,
+  PublicLessonDetail,
+  PublicLessonMedia,
   PublicPathDetail,
   PublicStats,
   PublicTeacherDetail,
@@ -24,6 +26,7 @@ import type {
   Work,
 } from "../lib/content/types"
 import { TRACTION_METRICS } from "../lib/content/types"
+import { lessonTeaser, resolveLessonAccess } from "../lib/content/lesson-access"
 import { CONTENT_FALLBACKS } from "../lib/content/defaults"
 import { PUBLIC_ROUTES, publicHref } from "../lib/content/routes"
 import { UNLINKED_TEACHER_LABEL } from "../lib/content/status"
@@ -33,6 +36,7 @@ import {
 } from "../lib/validation/content"
 import { now, requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
+import { resolveViewer } from "./domainAccess"
 import type { Doc, Id } from "./_generated/dataModel"
 import {
   internalMutation,
@@ -917,6 +921,111 @@ export const listPublicPaths = query({
   },
 })
 
+/**
+ * Resolves lesson media without failing the whole reader when one asset is
+ * missing. The storage URL is read server-side; the client never sees an
+ * internal asset id it cannot render.
+ */
+async function resolveLessonMedia(
+  ctx: AnyCtx,
+  ids: Id<"mediaAssets">[],
+): Promise<PublicLessonMedia[]> {
+  const resolved = await Promise.all(
+    ids.map(async (id) => {
+      const asset = await ctx.db.get(id)
+      if (!asset) return null
+      const url = asset.storageId
+        ? await ctx.storage.getUrl(asset.storageId)
+        : (asset.externalUrl ?? null)
+      if (!url) return null
+      return {
+        url,
+        alt: asset.alt,
+        caption: asset.caption ?? null,
+        kind: asset.kind,
+      } satisfies PublicLessonMedia
+    }),
+  )
+  return resolved.filter((item): item is PublicLessonMedia => item !== null)
+}
+
+/**
+ * One published lesson for the public path page. The reader is loaded on
+ * demand, so this query resolves the body and media for a single lesson and
+ * applies the same viewer rules as the rest of the app.
+ */
+export const getPublicLesson = query({
+  args: { pathSlug: v.string(), lessonId: v.string() },
+  handler: async (ctx, args): Promise<PublicLessonDetail | null> => {
+    const path = await ctx.db
+      .query("paths")
+      .withIndex("by_slug", (q) => q.eq("slug", args.pathSlug))
+      .unique()
+    if (!path || path.status === "archived") return null
+
+    const lessonId = ctx.db.normalizeId("lessons", args.lessonId)
+    if (!lessonId) return null
+    const lesson = await ctx.db.get(lessonId)
+    if (
+      !lesson ||
+      lesson.pathId !== path.slug ||
+      lesson.status !== "published"
+    ) {
+      return null
+    }
+
+    const moduleDoc = await ctx.db.get(lesson.moduleId)
+    if (
+      !moduleDoc ||
+      moduleDoc.status !== "published" ||
+      moduleDoc.pathId !== path.slug
+    ) {
+      return null
+    }
+
+    const viewer = await resolveViewer(ctx)
+    const access = resolveLessonAccess(lesson.accessLevel, {
+      signedIn: Boolean(viewer),
+      enrolled: Boolean(
+        viewer?.enrollments.some(
+          (enrollment) =>
+            enrollment.pathId === path.slug &&
+            (enrollment.status === "active" ||
+              enrollment.status === "completed"),
+        ),
+      ),
+      certified: Boolean(
+        viewer?.certificates.some(
+          (certificate) =>
+            certificate.pathId === path.slug &&
+            certificate.status === "issued",
+        ),
+      ),
+    })
+
+    const base = {
+      lessonId: lesson._id,
+      title: lesson.title,
+      kind: lesson.kind,
+      estimatedMinutes: lesson.estimatedMinutes,
+      accessLevel: lesson.accessLevel,
+      moduleTitle: moduleDoc.title,
+      media: await resolveLessonMedia(ctx, lesson.mediaAssetIds),
+    }
+
+    if (!access.unlocked) {
+      return {
+        ...base,
+        status: "locked",
+        reason: access.reason,
+        teaser: lessonTeaser(lesson.body),
+      }
+    }
+
+    return { ...base, status: "unlocked", body: lesson.body }
+  },
+})
+
 /** One published path with its published modules, lessons, and cohorts. */
 export const getPublicPath = query({
   args: { slug: v.string() },
@@ -959,6 +1068,7 @@ export const getPublicPath = query({
               lesson.moduleId === module._id && lesson.pathId === path.slug,
           )
           .map((lesson) => ({
+            id: lesson._id,
             title: lesson.title,
             kind: lesson.kind,
             estimatedMinutes: lesson.estimatedMinutes,

@@ -30,6 +30,19 @@ function override(patch: Partial<SeoOverride> = {}): SeoOverride {
   }
 }
 
+const SITE_NAME = "KalaNidhi Digital"
+
+/** Mirrors the root layout's `%s | site` title template. */
+function renderedTitle(
+  title: Metadata["title"],
+  siteName: string,
+): string {
+  if (!title) return ""
+  if (typeof title === "string") return `${title} | ${siteName}`
+  if ("absolute" in title) return title.absolute
+  return `${title.default ?? ""} | ${siteName}`
+}
+
 describe("SEO metadata overrides", () => {
   it("returns the defaults unchanged when there is no override", () => {
     expect(applySeoOverride(defaults, null)).toBe(defaults)
@@ -68,6 +81,39 @@ describe("SEO metadata overrides", () => {
     expect(result.keywords).toEqual(["bawaan"])
     expect(result.openGraph?.title).toBe("Judul khusus")
     expect(result.openGraph?.description).toBe("OG deskripsi bawaan.")
+  })
+
+  it("does not repeat a site name already present in the override title", () => {
+    const title = `Aksara Jawa: Membaca dan Menulis — ${SITE_NAME}`
+    const result = applySeoOverride(
+      defaults,
+      override({ title }),
+      SITE_NAME,
+    )
+
+    expect(result.title).toEqual({ absolute: title })
+    expect(renderedTitle(result.title, SITE_NAME)).toBe(title)
+    expect(renderedTitle(result.title, SITE_NAME).split(SITE_NAME)).toHaveLength(
+      2,
+    )
+    // Open Graph is not templated, so the complete title is kept.
+    expect(result.openGraph?.title).toBe(title)
+  })
+
+  it("adds the site name once to a short override title", () => {
+    const result = applySeoOverride(
+      defaults,
+      override({ title: "Aksara Jawa" }),
+      SITE_NAME,
+    )
+
+    expect(result.title).toBe("Aksara Jawa")
+    expect(renderedTitle(result.title, SITE_NAME)).toBe(
+      `Aksara Jawa | ${SITE_NAME}`,
+    )
+    expect(renderedTitle(result.title, SITE_NAME).split(SITE_NAME)).toHaveLength(
+      2,
+    )
   })
 
   it("parses a robots string into index/follow flags", () => {

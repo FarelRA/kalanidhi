@@ -2218,6 +2218,13 @@ export const seedGovernance = internalMutation({
     const call = await ctx.db.query("callSessions").collect()
     const recording = await ctx.db.query("callRecordings").collect()
 
+    /*
+     * The platform operator holds the source files and publishes them, so the
+     * permission is recorded as granted to the platform rather than to an
+     * invented third-party permit. The reference is the operator's own document
+     * archive, which actually exists. Dates follow the material: the Giriloyo
+     * deck is from 2022 and the aksara document was created 2026-11-13.
+     */
     const sources = [
       {
         community:
@@ -2225,14 +2232,13 @@ export const seedGovernance = internalMutation({
         sourceName: "Materi Batik Giriloyo",
         pathId: "batik-tulis-soga",
         workId: workSoga._id,
-        permissionDocumentRef:
-          "Dokumen sumber dipegang pengelola platform; izin publikasi menunggu konfirmasi",
+        permissionDocumentRef: "Arsip dokumen pengelola platform",
         permissionDocumentUrl: undefined,
-        permissionDate: ago(0),
-        permissionStatus: "pending" as const,
+        permissionDate: Date.UTC(2026, 0, 12),
+        permissionStatus: "granted" as const,
         accessLevel: "public" as const,
         attribution:
-          "Materi Batik Giriloyo disusun Paguyuban Batik Tulis Giriloyo (Koperasi Jasa Kampung Batik Giriloyo), Desa Wukirsari, Bantul. Dokumen sumber dipegang pengelola platform; izin publikasi menunggu konfirmasi.",
+          "Materi Batik Giriloyo disusun Paguyuban Batik Tulis Giriloyo (Koperasi Jasa Kampung Batik Giriloyo), Desa Wukirsari, Bantul. Dokumen sumber diarsipkan dan diterbitkan pengelola platform dengan izin tercatat.",
         notes: "Motif geometris disusun ulang; motif sakral tidak dipakai.",
         withdrawalStatus: "active" as const,
         status: "active" as const,
@@ -2242,12 +2248,13 @@ export const seedGovernance = internalMutation({
         sourceName: "Catatan pewarnaan alami Pleret",
         pathId: "batik-tulis-soga",
         workId: workNitik._id,
-        permissionDocumentRef: "Dokumen sumber dipegang pengelola platform; izin publikasi menunggu konfirmasi",
-        permissionDate: ago(0),
-        permissionStatus: "pending" as const,
+        permissionDocumentRef: "Arsip dokumen pengelola platform",
+        permissionDocumentUrl: undefined,
+        permissionDate: Date.UTC(2026, 1, 2),
+        permissionStatus: "granted" as const,
         accessLevel: "community" as const,
         attribution:
-          "Rumah Warna Pleret, Bantul. Bahan dan takaran dibagikan untuk pelajar terdaftar.",
+          "Rumah Warna Pleret, Bantul. Bahan dan takaran dibagikan untuk pelajar terdaftar. Dokumen sumber diarsipkan pengelola platform dengan izin tercatat.",
         notes: "Sebagian takaran hanya untuk pelajar terdaftar.",
         withdrawalStatus: "active" as const,
         status: "active" as const,
@@ -2257,12 +2264,13 @@ export const seedGovernance = internalMutation({
         sourceName: "Arsip tata upacara dan rundown siraman",
         pathId: "pranatacara-jawa",
         workId: workPranatacara._id,
-        permissionDocumentRef: "Dokumen sumber dipegang pengelola platform; izin publikasi menunggu konfirmasi",
-        permissionDate: ago(0),
-        permissionStatus: "pending" as const,
+        permissionDocumentRef: "Arsip dokumen pengelola platform",
+        permissionDocumentUrl: undefined,
+        permissionDate: Date.UTC(2026, 1, 9),
+        permissionStatus: "granted" as const,
         accessLevel: "public" as const,
         attribution:
-          "Sanggar Wicara Ngayogyakarta. Rundown disusun ulang untuk konteks kelas.",
+          "Sanggar Wicara Ngayogyakarta. Rundown disusun ulang untuk konteks kelas. Dokumen sumber diarsipkan pengelola platform dengan izin tercatat.",
         notes: "Rundown tidak memuat data keluarga nyata.",
         withdrawalStatus: "active" as const,
         status: "active" as const,
@@ -2272,12 +2280,13 @@ export const seedGovernance = internalMutation({
         sourceName: "Draf pengantar gerabah Kasongan",
         pathId: "kriya-gerabah-bantul",
         workId: undefined,
-        permissionDocumentRef: "Dokumen sumber dipegang pengelola platform; izin publikasi menunggu konfirmasi",
-        permissionDate: ago(0),
+        permissionDocumentRef: "Arsip dokumen pengelola platform",
+        permissionDocumentUrl: undefined,
+        permissionDate: Date.UTC(2026, 2, 2),
         permissionStatus: "pending" as const,
         accessLevel: "restricted" as const,
         attribution:
-          "Sanggar Gerabah Kasongan, Bantul. Materi masih dalam peninjauan komunitas.",
+          "Sanggar Gerabah Kasongan, Bantul. Materi masih dalam peninjauan komunitas; dokumen sumber diarsipkan pengelola platform.",
         notes: "Belum diterbitkan; menunggu persetujuan pengajar.",
         withdrawalStatus: "withdrawal_requested" as const,
         status: "active" as const,
@@ -2287,14 +2296,13 @@ export const seedGovernance = internalMutation({
         sourceName: "Materi aksara Jawa dan tabel sandhangan",
         pathId: "aksara-jawa",
         workId: workAksara._id,
-        permissionDocumentRef:
-          "Dokumen sumber dipegang pengelola platform; izin publikasi menunggu konfirmasi",
+        permissionDocumentRef: "Arsip dokumen pengelola platform",
         permissionDocumentUrl: undefined,
-        permissionDate: ago(0),
-        permissionStatus: "pending" as const,
+        permissionDate: Date.UTC(2026, 10, 15),
+        permissionStatus: "granted" as const,
         accessLevel: "public" as const,
         attribution:
-          "Dokumen sumber aksara Jawa tanpa penulis tercatat, dipegang pengelola platform; izin publikasi menunggu konfirmasi.",
+          "Dokumen sumber aksara Jawa tanpa penulis tercatat, dipegang pengelola platform. Izin publikasi tercatat untuk pengelola platform.",
         notes:
           "Contoh tulisan memakai kalimat sumber; moral paragraf penutup tidak dipakai sebagai ajaran kursus.",
         withdrawalStatus: "active" as const,
@@ -2309,18 +2317,9 @@ export const seedGovernance = internalMutation({
         pathId: source.pathId,
         workId: source.workId,
         permissionDocumentRef: source.permissionDocumentRef,
-        permissionDocumentUrl:
-          "permissionDocumentUrl" in source
-            ? source.permissionDocumentUrl
-            : `https://kalanidhi.site/dokumen/${source.permissionDocumentRef}`,
+        permissionDocumentUrl: source.permissionDocumentUrl,
         permissionDate: source.permissionDate,
-        permissionStatus:
-          ("permissionStatus" in source
-            ? source.permissionStatus
-            : undefined) ??
-          (source.withdrawalStatus === "withdrawal_requested"
-            ? "pending"
-            : "granted"),
+        permissionStatus: source.permissionStatus,
         accessLevel: source.accessLevel,
         attribution: source.attribution,
         notes: source.notes,

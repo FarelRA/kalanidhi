@@ -6,13 +6,12 @@ import { connection } from "next/server"
 import { Suspense } from "react"
 import {
   ArrowRight,
-  BookOpen,
   Check,
   Clock,
-  Lock,
   Users,
 } from "lucide-react"
 
+import { LessonReader } from "@/components/landing/lesson-reader"
 import { Button } from "@/components/ui/button"
 import { api } from "@/convex/_generated/api"
 import type { Viewer } from "@/lib/access/viewer"
@@ -26,7 +25,6 @@ import {
 } from "@/lib/content/routes"
 import type {
   PublicCohortSummary,
-  PublicLessonSummary,
   PublicPathDetail,
   SiteData,
 } from "@/lib/content/types"
@@ -43,20 +41,6 @@ const cohortLabels: Record<PublicCohortSummary["status"], string> = {
   active: "Berjalan",
   completed: "Selesai",
   cancelled: "Dibatalkan",
-}
-
-const lessonKindLabels: Record<PublicLessonSummary["kind"], string> = {
-  text: "Bacaan",
-  video: "Video",
-  audio: "Audio",
-  file: "Berkas",
-  practice: "Praktik",
-}
-
-const accessLabels: Record<PublicLessonSummary["accessLevel"], string> = {
-  public: "Publik",
-  enrolled: "Peserta",
-  certified: "Tersertifikasi",
 }
 
 function formatDate(value: number): string {
@@ -252,24 +236,12 @@ export default async function PathDetailPage({
                       {module.lessons.length > 0 ? (
                         <ul className="mt-3 space-y-2 border-t border-ink/15 pt-3">
                           {module.lessons.map((lesson) => (
-                            <li
-                              key={`${module.title}-${lesson.title}`}
-                              className="flex flex-wrap items-center justify-between gap-2 text-[11.5px]"
-                            >
-                              <span className="flex items-center gap-2 text-ink/80">
-                                <BookOpen
-                                  className="size-3.5 shrink-0 text-copper-dark"
-                                  aria-hidden="true"
-                                />
-                                {lesson.title}
-                              </span>
-                              <span className="flex items-center gap-2 text-[9.5px] font-semibold uppercase tracking-[0.05em] text-ink-muted">
-                                {lessonKindLabels[lesson.kind]}
-                                <span className="inline-flex items-center gap-1">
-                                  <Lock className="size-2.5" aria-hidden="true" />
-                                  {accessLabels[lesson.accessLevel]}
-                                </span>
-                              </span>
+                            <li key={lesson.id}>
+                              <LessonReader
+                                pathSlug={path.slug}
+                                moduleTitle={module.title}
+                                lesson={lesson}
+                              />
                             </li>
                           ))}
                         </ul>
