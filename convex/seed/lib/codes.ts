@@ -1,0 +1,195 @@
+/**
+ * Typed seed key registry.
+ *
+ * Cross-file references (path slugs, cohort codes, work slugs, order codes,
+ * certificate serials, and task keys) live here so a rename cannot leave one
+ * seed module pointing at a row another module no longer creates. Every getter
+ * throws on an unknown key instead of silently skipping a row.
+ */
+
+function requireCode<T extends Record<string, string>>(
+  registry: T,
+  key: keyof T,
+  label: string,
+): string {
+  const value = registry[key]
+  if (value === undefined) {
+    throw new Error(`SEED_CODE_MISSING: ${label}.${String(key)}`)
+  }
+  return value
+}
+
+/** Path slugs, used by curriculum, cohorts, messaging, and governance. */
+export const PATHS = {
+  batikBambu: "batik-bambu",
+  pranatacaraJawa: "pranatacara-jawa",
+  kriyaGerabahBantul: "kriya-gerabah-bantul",
+  aksaraJawa: "aksara-jawa",
+  batikTulisSoga: "batik-tulis-soga",
+} as const
+
+export type PathKey = keyof typeof PATHS
+
+export function pathSlug(key: PathKey): string {
+  return requireCode(PATHS, key, "paths")
+}
+
+/** Internal cohort keys, used to group enrollments and submissions. */
+export const COHORT_KEYS = {
+  bbm2026_01: "bbm-2026-01",
+  bbm2025_02: "bbm-2025-02",
+  pra2026_01: "pra-2026-01",
+  pra2026_02: "pra-2026-02",
+  bbm2026_03: "bbm-2026-03",
+  bbm2026_04: "bbm-2026-04",
+  pra2025_01: "pra-2025-01",
+  aks2026_01: "aks-2026-01",
+} as const
+
+export type CohortKey = keyof typeof COHORT_KEYS
+
+export function cohortKey(key: CohortKey): string {
+  return requireCode(COHORT_KEYS, key, "cohortKeys")
+}
+
+/** Public cohort codes stored on `cohorts.code`. */
+export const COHORT_CODES = {
+  bbm2026_01: "BBM-2026-01",
+  bbm2025_02: "BBM-2026-00",
+  pra2026_01: "PRA-2026-01",
+  pra2026_02: "PRA-2026-02",
+  bbm2026_03: "BBM-2026-03",
+  bbm2026_04: "BBM-2026-04",
+  pra2025_01: "PRA-2026-00",
+  aks2026_01: "AKS-2026-01",
+} as const
+
+export function cohortCode(key: CohortKey): string {
+  return requireCode(COHORT_CODES, key, "cohortCodes")
+}
+
+/** Work slugs, used by commerce, work cards, and audit trails. */
+export const WORK_SLUGS = {
+  nampanBatikBambu: "nampan-batik-bambu",
+  boxTisuBatikBambu: "box-tisu-batik-bambu",
+  hiasanDindingBatikBambu: "hiasan-dinding-batik-bambu",
+  pranatacaraSiraman: "pranatacara-siraman",
+  jasaTulisAksara: "jasa-tulis-aksara",
+} as const
+
+export type WorkKey = keyof typeof WORK_SLUGS
+
+export function workSlug(key: WorkKey): string {
+  return requireCode(WORK_SLUGS, key, "workSlugs")
+}
+
+/** Order codes, used by commerce and the audit trail. */
+export const ORDER_CODES = {
+  order1: "KN-2026-000108",
+  order2: "KN-2026-000109",
+  order3: "KN-2026-000111",
+  order4: "KN-2026-000113",
+  order5: "KN-2026-000107",
+  order6: "KN-2026-000110",
+  order7: "KN-2026-000101",
+  order8: "KN-2026-000102",
+  order9: "KN-2026-000103",
+  order10: "KN-2026-000104",
+  order11: "KN-2026-000105",
+  order12: "KN-2026-000106",
+  order13: "KN-2026-000112",
+} as const
+
+export type OrderKey = keyof typeof ORDER_CODES
+
+export function orderCode(key: OrderKey): string {
+  return requireCode(ORDER_CODES, key, "orderCodes")
+}
+
+/** Certificate serials and public verification codes. */
+export const CERTIFICATES = {
+  anisa: { serial: "KN-2026-0001", publicCode: "KN-ANISA-2026" },
+  dimas: { serial: "KN-2026-0002", publicCode: "KN-DIMAS-2026" },
+  purnomo: { serial: "KN-2026-0003", publicCode: "KN-PURNOMO-2026" },
+  rani: { serial: "KN-2026-0004", publicCode: "KN-RANI-2026" },
+  galuh: { serial: "KN-2026-0005", publicCode: "KN-GALUH-2026" },
+  arif: { serial: "KN-2026-0007", publicCode: "KN-ARIF-2026" },
+  dwi: { serial: "KN-2026-0006", publicCode: "KN-DWI-2026" },
+} as const
+
+export type CertificateKey = keyof typeof CERTIFICATES
+
+function certificate(key: CertificateKey) {
+  const value = CERTIFICATES[key]
+  if (!value) throw new Error(`SEED_CODE_MISSING: certificates.${key}`)
+  return value
+}
+
+export function certificateSerial(key: CertificateKey): string {
+  return certificate(key).serial
+}
+
+export function certificatePublicCode(key: CertificateKey): string {
+  return certificate(key).publicCode
+}
+
+/** Task keys; the public submission code is derived from the key. */
+export const SUBMISSION_KEYS = {
+  sariBbm1: "sari-bbm-1",
+  sariBbm2: "sari-bbm-2",
+  dwiBbm1: "dwi-bbm-1",
+  dwiBbm2: "dwi-bbm-2",
+  bayuBbm1: "bayu-bbm-1",
+  nandaBbm1: "nanda-bbm-1",
+  ratihBbm1: "ratih-bbm-1",
+  yusufBbm1: "yusuf-bbm-1",
+  melatiBbm1: "melati-bbm-1",
+  arifBbm1: "arif-bbm-1",
+  anisaBbmFinal: "anisa-bbm-final",
+  dimasBbmFinal: "dimas-bbm-final",
+  purnomoBbmFinal: "purnomo-bbm-final",
+  dwiBbmFinal: "dwi-bbm-final",
+  raniPraFinal: "rani-pra-final",
+  sariPra1: "sari-pra-1",
+  dwiPra1: "dwi-pra-1",
+  bayuPra1: "bayu-pra-1",
+  nandaPra1: "nanda-pra-1",
+  dewiPra1: "dewi-pra-1",
+  fajarPra1: "fajar-pra-1",
+  arifBbm3: "arif-bbm-3",
+  dewiBbm3: "dewi-bbm-3",
+  galuhAks1: "galuh-aks-1",
+  galuhAksFinal: "galuh-aks-final",
+  arifAks1: "arif-aks-1",
+  arifAksFinal: "arif-aks-final",
+} as const
+
+export type SubmissionKey = keyof typeof SUBMISSION_KEYS
+
+export function submissionKey(key: SubmissionKey): string {
+  return requireCode(SUBMISSION_KEYS, key, "submissionKeys")
+}
+
+export function submissionCode(key: SubmissionKey): string {
+  return `TUG-${submissionKey(key).toUpperCase()}`
+}
+
+/** Derives the public code from a literal task key such as `sari-bbm-1`. */
+export function submissionCodeForKey(key: string): string {
+  if (!Object.values(SUBMISSION_KEYS).includes(key as never)) {
+    throw new Error(`SEED_CODE_MISSING: submissionKeys.${key}`)
+  }
+  return `TUG-${key.toUpperCase()}`
+}
+
+/** Evidence keys shared by submissions, audits, and support threads. */
+export const EVIDENCE_KEYS = {
+  sariBbm1: "TUG-SARI-BBM-1",
+  dwiBbm2: "TUG-DWI-BBM-2",
+} as const
+
+export type EvidenceKey = keyof typeof EVIDENCE_KEYS
+
+export function evidenceCode(key: EvidenceKey): string {
+  return requireCode(EVIDENCE_KEYS, key, "evidenceKeys")
+}

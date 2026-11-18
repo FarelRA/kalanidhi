@@ -10,6 +10,7 @@ describe("public entity queries", () => {
     await seedContent(t)
 
     const paths = await t.query(api.content.listPublicPaths, {})
+    expect(paths.map((path) => path.slug)).toContain("batik-bambu")
     expect(paths.map((path) => path.slug)).toContain("batik-tulis-soga")
     expect(paths.map((path) => path.slug)).toContain("kriya-gerabah-bantul")
     expect(paths.map((path) => path.slug)).toContain("aksara-jawa")
@@ -21,13 +22,20 @@ describe("public entity queries", () => {
     await seedContent(t)
 
     const path = await t.query(api.content.getPublicPath, {
-      slug: "batik-tulis-soga",
+      slug: "batik-bambu",
     })
     expect(path).not.toBeNull()
     expect(path?.curriculum.length).toBeGreaterThan(0)
     expect(path?.curriculum[0]?.lessons.length).toBeGreaterThan(0)
     expect(path?.cohorts.length).toBeGreaterThan(0)
     expect(path?.lessons).toBeGreaterThan(0)
+
+    const preparing = await t.query(api.content.getPublicPath, {
+      slug: "batik-tulis-soga",
+    })
+    expect(preparing?.comingSoon).toBe(true)
+    expect(preparing?.curriculum).toHaveLength(0)
+    expect(preparing?.lessons).toBe(0)
 
     expect(
       await t.query(api.content.getPublicPath, { slug: "tidak-ada" }),
@@ -42,9 +50,9 @@ describe("public entity queries", () => {
     expect(teachers.length).toBeGreaterThan(0)
 
     const teacher = await t.query(api.content.getPublicTeacher, {
-      slug: "bambang-hardjono",
+      slug: "sri-sriningsih",
     })
-    expect(teacher?.name).toBe("Bambang Hardjono")
+    expect(teacher?.name).toBe("Sri Sriningsih")
     expect(teacher?.paths.length).toBeGreaterThan(0)
     expect(teacher?.works.length).toBeGreaterThan(0)
 

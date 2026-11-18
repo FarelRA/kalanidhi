@@ -6,8 +6,8 @@ import {
   siteSeed,
   teachersSeed,
   worksSeed,
-} from "../convex/seedData"
-import { CURRICULUM_IMAGE_FILES } from "../convex/seedWorkspace"
+} from "../convex/seed/content/data"
+import { CURRICULUM_IMAGE_FILES } from "../convex/seed/domains/curriculum"
 import { createTestDb } from "./helpers/convex"
 
 const NOW = 1_760_000_000_000
@@ -53,7 +53,7 @@ describe("comprehensive seed connectivity", () => {
   it("seeds every domain table and leaves no orphaned node", async () => {
     const t = createTestDb()
     await registerImages(t, seedFilenames())
-    await t.action(internal.seedRunner.run, {})
+    await t.action(internal.seed.run.run, {})
 
     const counts = await t.run(async (ctx) => {
       const tables = [
@@ -280,7 +280,12 @@ describe("comprehensive seed connectivity", () => {
       for (const order of orders) {
         expect(userIds.has(order.sellerId as string)).toBe(true)
         expect(userIds.has(order.buyerUserId as string)).toBe(true)
-        expect(workIds.has(order.workId as string)).toBe(true)
+        if (order.workId === undefined) {
+          // Growth batches add paid path orders, which carry no work.
+          expect(pathSlugs.has(order.pathId as string)).toBe(true)
+        } else {
+          expect(workIds.has(order.workId as string)).toBe(true)
+        }
       }
       for (const payment of payments) {
         expect(orderIds.has(payment.orderId as string)).toBe(true)

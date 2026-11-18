@@ -497,6 +497,9 @@ export const operationsTables = {
       v.literal("pending"),
       v.literal("granted"),
       v.literal("withdrawn"),
+      /** A published article or profile cited for the medium, not a grant. */
+      v.literal("public_reference"),
+      v.literal("citation"),
     ),
     accessLevel: v.union(
       v.literal("public"),
@@ -585,6 +588,29 @@ export const operationsTables = {
     .index("by_actorId", ["actorId"])
     .index("by_entity", ["entityType", "entityId"])
     .index("by_expiresAt", ["expiresAt"]),
+
+  /**
+   * Seed run history. Never part of `CLEAR_TABLES`: a failed run is the
+   * evidence `runIfEmpty` uses to decide whether to reseed.
+   */
+  seedRuns: defineTable({
+    status: v.union(
+      v.literal("running"),
+      v.literal("complete"),
+      v.literal("failed"),
+    ),
+    /** Name of the step in flight (or `done` once complete). */
+    step: v.string(),
+    version: v.string(),
+    startedAt: v.number(),
+    finishedAt: v.optional(v.number()),
+    /** The single clock instant the run was anchored to. */
+    now: v.number(),
+    error: v.optional(v.string()),
+    counts: v.optional(jsonBagValidator),
+  })
+    .index("by_status", ["status"])
+    .index("by_startedAt", ["startedAt"]),
 
   contentLocks: defineTable({
     contentKey: v.string(),

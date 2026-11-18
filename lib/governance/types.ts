@@ -11,7 +11,12 @@ export type CulturalSourceView = {
   permissionDocumentRef: string
   permissionDocumentUrl: string | null
   permissionDate: number
-  permissionStatus: "pending" | "granted" | "withdrawn"
+  permissionStatus:
+    | "pending"
+    | "granted"
+    | "withdrawn"
+    | "public_reference"
+    | "citation"
   accessLevel: AccessLevel
   attribution: string
   notes: string | null

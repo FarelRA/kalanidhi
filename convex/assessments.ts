@@ -31,13 +31,14 @@ export type RubricCriterion = {
 }
 
 /**
- * Rubrics follow each path's own final assessment. The batik weights are the
- * platform's seven-step review; the Giriloyo deck names seven steps but does
- * not publish a rubric. The aksara weights are the "lembar uji aksara" rubric.
+ * Rubrics follow each path's own final assessment. The batik bambu weights are
+ * the platform's review of the bamboo process; the Giriloyo deck is a cloth
+ * source and does not publish a rubric for bamboo. The aksara weights are the
+ * "lembar uji aksara" rubric.
  */
-const BATIK_RUBRIC: RubricCriterion[] = [
-  { criterion: "Urutan langkah", weight: 20 },
-  { criterion: "Kualitas garis lilin", weight: 25 },
+const BATIK_BAMBU_RUBRIC: RubricCriterion[] = [
+  { criterion: "Urutan proses", weight: 20 },
+  { criterion: "Kualitas garis malam", weight: 25 },
   { criterion: "Isian", weight: 15 },
   { criterion: "Warna dan kebersihan", weight: 20 },
   { criterion: "Kerapian motif", weight: 10 },
@@ -72,7 +73,7 @@ const DEFAULT_RUBRIC: RubricCriterion[] = [
 ]
 
 export function rubricForPath(pathId: string): RubricCriterion[] {
-  if (pathId === "batik-tulis-soga") return BATIK_RUBRIC
+  if (pathId === "batik-bambu") return BATIK_BAMBU_RUBRIC
   if (pathId === "pranatacara-jawa") return PRANATACARA_RUBRIC
   if (pathId === "aksara-jawa") return AKSARA_RUBRIC
   if (pathId === "kriya-gerabah-bantul") return GERABAH_RUBRIC

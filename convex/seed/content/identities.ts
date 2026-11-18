@@ -1,44 +1,15 @@
-import type { Doc } from "./_generated/dataModel"
-import type { MutationCtx } from "./_generated/server"
-
 /**
- * Seed identities and timeline.
+ * Seed identities.
  *
- * The demo workspace should read like a real Yogyakarta studio, not a fixture:
+ * The workspace should read like a real Yogyakarta studio, not a fixture:
  * every account uses a plausible Gmail address, an Indonesian mobile number,
  * and a regency inside D.I. Yogyakarta. Timestamps are compressed into the
  * 2026 operating window so activities never predate the platform and never
  * pile up on a single day.
  */
-export const DAY = 86_400_000
+
 /** Owner tag for media rows the seed itself creates, so reseeds can clear them. */
 export const SEED_ASSET_OWNER = "KalaNidhi"
-export const HOUR = 3_600_000
-export const SEED_NOW = Date.now()
-
-/** The platform opened on 2 January 2026. */
-export const SEED_START = Date.UTC(2026, 0, 2, 8, 0, 0)
-
-const SEED_SPAN_DAYS = Math.max(1, (SEED_NOW - SEED_START) / DAY)
-
-/**
- * Legacy seed fixtures used relative offsets up to 400 days. Rescaling keeps
- * the original ordering (a certificate still lands after its assessment) while
- * pinning the oldest event to the opening week of 2026.
- */
-const LEGACY_SPAN_DAYS = 400
-
-/** A timestamp between 2 January 2026 and now, preserving relative order. */
-export function seedAgo(days: number): number {
-  if (days <= 0) return SEED_NOW - Math.round(days * DAY)
-  const scaled = (days / LEGACY_SPAN_DAYS) * SEED_SPAN_DAYS
-  return Math.max(SEED_START, Math.round(SEED_NOW - scaled * DAY))
-}
-
-/** A future timestamp for scheduled sessions, deadlines, and payouts. */
-export function seedAhead(days: number): number {
-  return SEED_NOW + Math.round(days * DAY)
-}
 
 export type SeedRole = "student" | "teacher" | "admin"
 
@@ -90,7 +61,7 @@ export const SEED_USERS: SeedUser[] = [
     email: "sri.sriningsih81@gmail.com",
     phone: "6285729461037",
     province: "DI Yogyakarta",
-    region: "Pleret, Bantul, DI Yogyakarta",
+    region: "Krebet, Sendangsari, Pajangan, Bantul, DI Yogyakarta",
     initials: "SS",
     roles: ["teacher"],
     joinedDaysAgo: 398,
@@ -316,7 +287,7 @@ export const SEED_USERS: SeedUser[] = [
 
 const BY_KEY = new Map(SEED_USERS.map((user) => [user.key, user] as const))
 
-export function seedUser(key: string): SeedUser {
+function seedUser(key: string): SeedUser {
   const user = BY_KEY.get(key)
   if (!user) throw new Error(`Seed identity missing: ${key}`)
   return user
@@ -328,17 +299,4 @@ export function seedEmail(key: string): string {
 
 export function seedPhone(key: string): string {
   return seedUser(key).phone
-}
-
-/**
- * The live admin row is tied to a Better Auth subject, so it must be resolved
- * by role instead of by a mailbox the seed controls.
- */
-export async function seedAdmin(ctx: MutationCtx): Promise<Doc<"users">> {
-  const users = await ctx.db.query("users").collect()
-  const admin = users.find(
-    (user) => user.roles.includes("admin") && user.status === "active",
-  )
-  if (!admin) throw new Error("Seed admin missing")
-  return admin
 }

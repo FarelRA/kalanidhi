@@ -1,6 +1,3 @@
-import { readFileSync } from "node:fs"
-import path from "node:path"
-
 import { describe, expect, it } from "vitest"
 
 import { api, internal } from "../convex/_generated/api"
@@ -9,9 +6,9 @@ import {
   siteSeed,
   teachersSeed,
   worksSeed,
-} from "../convex/seedData"
-import { CURRICULUM_IMAGE_FILES } from "../convex/seedWorkspace"
-import { SEED_START } from "../convex/seedIdentities"
+} from "../convex/seed/content/data"
+import { CURRICULUM_IMAGE_FILES } from "../convex/seed/domains/curriculum"
+import { SEED_START } from "../convex/seed/lib/clock"
 import { createTestDb } from "./helpers/convex"
 
 const NOW = Date.now()
@@ -49,7 +46,7 @@ async function seedWorkspace(t: ReturnType<typeof createTestDb>) {
       })
     }
   })
-  await t.action(internal.seedRunner.run, {})
+  await t.action(internal.seed.run.run, {})
 }
 
 function timestampRange(values: Array<number | undefined>) {
@@ -62,16 +59,25 @@ function timestampRange(values: Array<number | undefined>) {
 }
 
 describe("seed realism", () => {
-  it("keeps one canonical teacher and work definition", () => {
-    const root = path.resolve(__dirname, "..")
-    const source = readFileSync(
-      path.join(root, "convex/seedWorkspace.ts"),
-      "utf8",
+  it("seeds one canonical teacher and work definition", async () => {
+    const t = createTestDb()
+    await seedWorkspace(t)
+    const data = await t.run(async (ctx) => ({
+      teachers: await ctx.db.query("teachers").collect(),
+      works: await ctx.db.query("works").collect(),
+    }))
+    expect(data.teachers.map((teacher) => teacher.slug).sort()).toEqual(
+      teachersSeed.map((teacher) => teacher.slug).sort(),
     )
-    expect(source).toContain("teachersSeed as SEED_TEACHERS")
-    expect(source).toContain("worksSeed as WORKS")
-    expect(source).not.toContain("const SEED_TEACHERS = [")
-    expect(source).not.toContain("const WORKS = [")
+    expect(data.works.map((work) => work.slug).sort()).toEqual(
+      worksSeed.map((work) => work.slug).sort(),
+    )
+    expect(new Set(data.teachers.map((teacher) => teacher.slug)).size).toBe(
+      data.teachers.length,
+    )
+    expect(new Set(data.works.map((work) => work.slug)).size).toBe(
+      data.works.length,
+    )
   })
 
   it("uses plausible Gmail, WhatsApp, and DIY identities", async () => {
@@ -91,7 +97,11 @@ describe("seed realism", () => {
         continue
       }
 
-      expect(user.email).toMatch(/^[a-z0-9]+(\.[a-z0-9]+)*\d{2}@gmail\.com$/)
+      // Growth signups use the same personal-mail pattern the seed ships with:
+      // first.last plus two digits, on Gmail, Yahoo Indonesia, or Outlook.
+      expect(user.email).toMatch(
+        /^[a-z0-9]+(\.[a-z0-9]+)*\d{2}@(gmail\.com|yahoo\.co\.id|outlook\.com)$/,
+      )
       expect(user.phone).toMatch(/^628\d{8,11}$/)
       expect(user.province).toBe("DI Yogyakarta")
       expect(user.region.toLowerCase()).toContain("yogyakarta")
@@ -438,10 +448,15 @@ describe("seed realism", () => {
       )
     }
 
-    // A permission date may never precede the material it covers. The
-    // Giriloyo deck is from 2022; the aksara document was created 2026-11-13.
+    // An archive date follows the material it holds; a public reference is a
+    // citation, never a grant, and carries its own URL.
     const materialDates: Record<string, number> = {
       "Materi Batik Giriloyo": Date.UTC(2022, 0, 1),
+      "Batik Bambu: Inovasi Teknik Membatik pada Media Bambu": Date.UTC(
+        2013,
+        10,
+        8,
+      ),
       "Materi aksara Jawa dan tabel sandhangan": Date.UTC(2026, 10, 13),
     }
     for (const [sourceName, materialDate] of Object.entries(materialDates)) {
@@ -451,15 +466,41 @@ describe("seed realism", () => {
       expect(source, `${sourceName} source`).toBeDefined()
       expect(
         source?.permissionDate,
-        `${sourceName} permission date`,
-      ).toBeGreaterThan(materialDate)
+        `${sourceName} archive date`,
+      ).toBeGreaterThanOrEqual(materialDate)
+    }
+
+    for (const sourceName of [
+      "Batik Bambu: Inovasi Teknik Membatik pada Media Bambu",
+      "Profil Desa Wisata Krebet",
+    ]) {
+      const source = data.culturalSources.find(
+        (row) => row.sourceName === sourceName,
+      )
+      expect(source?.permissionStatus, `${sourceName} is a citation`).toBe(
+        "public_reference",
+      )
+      expect(source?.permissionDocumentRef, `${sourceName} URL`).toMatch(
+        /^https?:\/\//,
+      )
+      expect(source?.workId, `${sourceName} carries no work grant`).toBeUndefined()
     }
 
     const aksaraSource = data.culturalSources.find(
       (source) => source.pathId === "aksara-jawa",
     )
-    expect(aksaraSource?.community).toBe("Tanpa penulis tercatat")
+    expect(aksaraSource?.community).toBe("Arsip pengelola platform")
     expect(aksaraSource?.attribution).not.toContain("Sanggar Aksara")
+
+    const giriloyoSource = data.culturalSources.find(
+      (row) => row.sourceName === "Materi Batik Giriloyo",
+    )
+    expect(giriloyoSource?.pathId).toBe("batik-bambu")
+    expect(giriloyoSource?.attribution).toContain("diadaptasi")
+    expect(giriloyoSource?.attribution).toContain("hanya mencakup kain")
+    expect(giriloyoSource?.attribution).not.toContain(
+      "tidak dipraktikkan sebagai kampung batik bambu",
+    )
 
     const order13 = data.orders.find((order) => order.code === "KN-2026-000112")
     const payout13 = data.payouts.find(
@@ -476,12 +517,28 @@ describe("seed realism", () => {
     ).toBe(true)
 
     // The public evidence series in DESIGN.md must match the seeded tables.
+    // Growth batches add active participants, so the count is derived from the
+    // enrollments read above instead of being pinned to the original cohort.
+    const participants = new Set(
+      data.enrollments
+        .filter(
+          (enrollment) =>
+            enrollment.status === "active" ||
+            enrollment.status === "completed",
+        )
+        .map((enrollment) => enrollment.studentId as string),
+    ).size
+    const assessedSubmissions = data.submissions.filter((submission) =>
+      ["approved", "revision_requested", "rejected"].includes(
+        submission.status,
+      ),
+    ).length
     const stats = await t.query(api.content.getPublicStats, {})
     expect(stats).toEqual({
       fields: 11,
       teachers: 4,
-      participants: 15,
-      submissions: 16,
+      participants,
+      submissions: assessedSubmissions,
       works: 5,
     })
   })
@@ -522,6 +579,9 @@ describe("seed realism", () => {
         row.metricKey === "gmv" ||
         row.metricKey === "net_revenue" ||
         row.metricKey === "payout_due" ||
+        // A teacher can carry more than one live cohort, so this count is not
+        // bounded by 1 the way a share metric is.
+        row.metricKey === "teacher_load" ||
         row.metricKey === "assessment_sla_p50" ||
         row.metricKey === "assessment_sla_p90" ||
         row.metricKey === "support_first_response_p50" ||
@@ -600,5 +660,126 @@ describe("seed realism", () => {
     expect(ranges.auditLogs.min).toBeLessThanOrEqual(SEED_START + DAY)
     expect(ranges.auditLogs.max).toBeGreaterThan(ninetyDaysAgo)
     expect(ranges.certificates.max).toBeGreaterThan(ninetyDaysAgo)
+  })
+
+  it("opens Batik Bambu and leaves Batik Tulis honestly preparing", async () => {
+    const t = createTestDb()
+    await seedWorkspace(t)
+
+    const data = await t.run(async (ctx) => {
+      const paths = await ctx.db.query("paths").collect()
+      const modules = await ctx.db.query("pathModules").collect()
+      const lessons = await ctx.db.query("lessons").collect()
+      return { paths, modules, lessons }
+    })
+
+    const bamboo = data.paths.find((path) => path.slug === "batik-bambu")
+    expect(bamboo, "Batik Bambu path").toBeDefined()
+    expect(bamboo?.order).toBe(0)
+    expect(bamboo?.status).toBe("open")
+    expect(bamboo?.comingSoon).not.toBe(true)
+
+    const bambooModules = data.modules.filter(
+      (module) => module.pathId === "batik-bambu",
+    )
+    expect(bambooModules).toHaveLength(6)
+    expect(bambooModules.every((module) => module.status === "published")).toBe(
+      true,
+    )
+    const bambooLessons = data.lessons.filter(
+      (lesson) => lesson.pathId === "batik-bambu",
+    )
+    expect(bambooLessons.length).toBeGreaterThan(0)
+    expect(bambooLessons.some((lesson) => lesson.accessLevel === "public")).toBe(
+      true,
+    )
+    for (const lesson of bambooLessons) {
+      expect(lesson.body.toLowerCase(), lesson.title).not.toContain(
+        "tujuh langkah",
+      )
+      expect(lesson.title.toLowerCase(), lesson.title).not.toContain("nerusi")
+    }
+    const exam = bambooLessons.find((lesson) =>
+      lesson.title.startsWith("Ujian akhir"),
+    )
+    expect(exam?.body).toContain("nembok")
+    expect(exam?.body).not.toContain("nerusi")
+    for (const step of [
+      "pilih bambu",
+      "rebus",
+      "keringkan",
+      "amplas",
+      "pola",
+      "nglowongi",
+      "ngisen-isen",
+      "mbabar",
+      "nembok",
+      "warna dasar",
+      "nglorod",
+      "mepe",
+      "finishing",
+      "periksa",
+    ]) {
+      expect(exam?.body.toLowerCase(), step).toContain(step)
+    }
+
+    const aksaraLessons = data.lessons.filter(
+      (lesson) => lesson.pathId === "aksara-jawa",
+    )
+    expect(
+      aksaraLessons.some((lesson) => lesson.title === "Lembar uji aksara"),
+    ).toBe(true)
+    const paragraph = aksaraLessons.find((lesson) =>
+      lesson.title.startsWith("Membaca paragraf"),
+    )
+    expect(paragraph?.body).toContain("ꦩꦶꦤꦁꦏ")
+    expect(paragraph?.body).toContain("ꦩꦸꦣꦤ꧀ꦢꦸꦮꦺꦤꦶ")
+    expect(paragraph?.body).toContain("ꦩꦚ꧀ꦕ")
+    expect(paragraph?.body).toContain("ꦏꦼꦱꦺꦤꦶꦪꦤ꧀")
+    expect(paragraph?.body).toContain("Erratum")
+    for (const wrong of ["ꦩꦶꦤꦺꦴꦁꦏ", "ꦩꦺꦴꦚꦕ", "ꦏꦼꦱꦼꦤꦶꦪꦤ꧀"]) {
+      // The misspelling survives only inside the erratum that names it.
+      expect(paragraph?.body.indexOf(wrong)).toBeGreaterThan(
+        paragraph?.body.indexOf("Erratum") ?? -1,
+      )
+    }
+
+    const tulis = data.paths.find((path) => path.slug === "batik-tulis-soga")
+    expect(tulis, "Batik Tulis path").toBeDefined()
+    expect(tulis?.title).toBe("Batik Tulis")
+    expect(tulis?.comingSoon).toBe(true)
+    expect(tulis?.status).toBe("planned")
+    expect(
+      data.modules.filter((module) => module.pathId === "batik-tulis-soga"),
+    ).toHaveLength(0)
+    expect(
+      data.lessons.filter((lesson) => lesson.pathId === "batik-tulis-soga"),
+    ).toHaveLength(0)
+
+    const preparingPublic = await t.query(api.content.getPublicPath, {
+      slug: "batik-tulis-soga",
+    })
+    expect(preparingPublic?.comingSoon).toBe(true)
+    expect(preparingPublic?.curriculum).toHaveLength(0)
+    expect(preparingPublic?.lessons).toBe(0)
+  })
+
+  it("turns every batik work into a bamboo product", async () => {
+    const t = createTestDb()
+    await seedWorkspace(t)
+
+    const works = await t.run(async (ctx) =>
+      await ctx.db.query("works").collect(),
+    )
+    const batikWorks = works.filter((work) => work.category === "batik")
+    expect(batikWorks).toHaveLength(3)
+    for (const work of batikWorks) {
+      expect(work.pathId, work.slug).toBe("batik-bambu")
+      expect(work.title.toLowerCase(), work.slug).toContain("bambu")
+      expect(work.teacher, work.slug).toBe("Sri Sriningsih")
+    }
+    const titles = works.map((work) => work.title)
+    expect(titles).not.toContain("Kain Batik Soga Anyaman")
+    expect(titles).not.toContain("Batik Tulis Lereng Soga")
   })
 })

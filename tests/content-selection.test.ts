@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest"
 import { api } from "../convex/_generated/api"
 import type { Id } from "../convex/_generated/dataModel"
 import type { ContentDocument } from "../lib/content/types"
-import { catalogFieldsSeed, worksSeed } from "../convex/seedData"
+import { catalogFieldsSeed, worksSeed } from "../convex/seed/content/data"
 import { createTestDb } from "./helpers/convex"
 import { seedAdmin, seedContent } from "./phase-1/fixtures"
 

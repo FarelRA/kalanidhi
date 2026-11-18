@@ -3,7 +3,7 @@ import path from "node:path"
 
 import { describe, expect, it } from "vitest"
 
-import { siteSeed, pathsSeed } from "../convex/seedData"
+import { siteSeed, pathsSeed } from "../convex/seed/content/data"
 import { SPLIT_PERCENTAGES } from "../lib/commerce/money"
 import { pathMatchesField } from "../lib/content/catalog"
 import { fieldHref, PUBLIC_ROUTES } from "../lib/content/routes"
@@ -60,22 +60,30 @@ describe("landing content sources", () => {
   it("builds a field filter URL and matches paths honestly", () => {
     expect(fieldHref("Batik tulis")).toBe("/jalur?bidang=Batik%20tulis")
 
-    const path = {
+    const bamboo = {
       ...pathsSeed[0],
       modules: 0,
       image: "",
     } as LearningPath
-    expect(pathMatchesField(path, "Batik tulis")).toBe(true)
-    expect(pathMatchesField(path, "Kriya gerabah")).toBe(false)
-    expect(pathMatchesField(path, "Batik bambu")).toBe(false)
+    expect(bamboo.slug).toBe("batik-bambu")
+    expect(pathMatchesField(bamboo, "Batik bambu")).toBe(true)
+    expect(pathMatchesField(bamboo, "Batik tulis")).toBe(false)
+    expect(pathMatchesField(bamboo, "Kriya gerabah")).toBe(false)
     const aksara = { ...pathsSeed[3], modules: 0, image: "" } as LearningPath
     expect(pathMatchesField(aksara, "Aksara Jawa")).toBe(true)
     const pranatacara = { ...pathsSeed[1], modules: 0, image: "" } as LearningPath
     expect(pathMatchesField(pranatacara, "Pranatacara")).toBe(true)
     const gerabah = { ...pathsSeed[2], modules: 0, image: "" } as LearningPath
     expect(pathMatchesField(gerabah, "Kriya gerabah")).toBe(true)
+    const batikTulis = {
+      ...pathsSeed[4],
+      modules: 0,
+      image: "",
+    } as LearningPath
+    expect(batikTulis.slug).toBe("batik-tulis-soga")
+    expect(batikTulis.comingSoon).toBe(true)
+    expect(pathMatchesField(batikTulis, "Batik tulis")).toBe(true)
     for (const field of [
-      "Batik bambu",
       "Karawitan",
       "Tari tradisi",
       "Keramik",
@@ -83,7 +91,7 @@ describe("landing content sources", () => {
       "Jamu",
       "Wayang",
     ]) {
-      expect(pathMatchesField(path, field), field).toBe(false)
+      expect(pathMatchesField(bamboo, field), field).toBe(false)
       expect(pathMatchesField(aksara, field), field).toBe(false)
       expect(pathMatchesField(pranatacara, field), field).toBe(false)
       expect(pathMatchesField(gerabah, field), field).toBe(false)

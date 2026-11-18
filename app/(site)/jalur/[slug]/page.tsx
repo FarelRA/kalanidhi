@@ -17,6 +17,7 @@ import { api } from "@/convex/_generated/api"
 import type { Viewer } from "@/lib/access/viewer"
 import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
 import { buildPageMetadata } from "@/lib/content/metadata"
+import { publishedTeacherName } from "@/lib/content/people"
 import {
   enrollHref,
   interestHref,
@@ -28,7 +29,11 @@ import type {
   PublicPathDetail,
   SiteData,
 } from "@/lib/content/types"
-import { getPublicPath, getSiteData } from "@/lib/convex/server"
+import {
+  getPublicPath,
+  getPublicTeachers,
+  getSiteData,
+} from "@/lib/convex/server"
 import { formatIDR } from "@/lib/format"
 
 export const instant = false
@@ -91,10 +96,19 @@ export default async function PathDetailPage({
   params: Promise<Params>
 }) {
   const { slug } = await params
-  const [path, data] = await Promise.all([getPublicPath(slug), getSiteData()])
+  const [path, data, teachers] = await Promise.all([
+    getPublicPath(slug),
+    getSiteData(),
+    getPublicTeachers(),
+  ])
   if (!path) notFound()
 
   const copy = data.sections.paths
+  const teacherName = publishedTeacherName(
+    path.teacher,
+    teachers.map((teacher) => teacher.name),
+  )
+  const teacherRole = teacherName ? path.teacherRole : ""
 
   return (
     <div className="bg-cream">
@@ -133,7 +147,7 @@ export default async function PathDetailPage({
 
           <div className="lg:col-span-5">
             <p className="text-[9.5px] font-bold uppercase tracking-[0.1em] text-copper-dark">
-              {path.teacherRole ? `${path.teacherRole} · ` : ""}
+              {teacherRole ? `${teacherRole} · ` : ""}
               {path.level}
             </p>
             <h1 className="heading-section mt-3 text-[clamp(2rem,4vw,3rem)]">
@@ -142,17 +156,29 @@ export default async function PathDetailPage({
             <p className="body-copy mt-4">{path.subtitle}</p>
 
             <dl className="mt-6 grid grid-cols-2 gap-3 border-y border-ink/15 py-4 text-[11.5px]">
-              {[
-                [copy.teacherLabel, path.teacher],
-                [copy.regionLabel, path.region],
-                [copy.levelLabel, path.level],
-                [
-                  copy.contentLabel,
-                  path.comingSoon
-                    ? copy.curriculumPending
-                    : `${path.modules} modul · ${path.lessons} pelajaran · ${path.weeks} pekan`,
-                ],
-              ].map(([label, value]) => (
+              {(teacherName
+                ? [
+                    [copy.teacherLabel, teacherName],
+                    [copy.regionLabel, path.region],
+                    [copy.levelLabel, path.level],
+                    [
+                      copy.contentLabel,
+                      path.comingSoon
+                        ? copy.curriculumPending
+                        : `${path.modules} modul · ${path.lessons} pelajaran · ${path.weeks} pekan`,
+                    ],
+                  ]
+                : [
+                    [copy.regionLabel, path.region],
+                    [copy.levelLabel, path.level],
+                    [
+                      copy.contentLabel,
+                      path.comingSoon
+                        ? copy.curriculumPending
+                        : `${path.modules} modul · ${path.lessons} pelajaran · ${path.weeks} pekan`,
+                    ],
+                  ]
+              ).map(([label, value]) => (
                 <div key={label}>
                   <dt className="text-[9px] font-bold uppercase tracking-[0.07em] text-ink-muted">
                     {label}
@@ -403,7 +429,11 @@ function PathEnrollmentView({
           {path.comingSoon ? copy.statusLabel : copy.priceLabel}
         </p>
         <p className="mt-1 font-heading text-[2rem] leading-none">
-          {path.price ? formatIDR(path.price) : path.priceLabel}
+          {path.comingSoon
+            ? (path.priceLabel ?? copy.curriculumPending)
+            : path.price
+              ? formatIDR(path.price)
+              : path.priceLabel}
         </p>
         {enrolled ? (
           <p className="mt-2 inline-flex items-center gap-1.5 border border-moss/40 bg-moss/10 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-[0.08em] text-ink-soft">

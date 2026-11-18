@@ -160,7 +160,7 @@ Coverage never replaces an assertion. A file can be 100% covered by executing it
 - One canonical fixture pack per domain, extended additively.
 - Every fixture value is deterministic and readable in a failure report.
 - Fixtures are data and pure helpers. They must not export Convex mutations or queries.
-- The content seed (`convex/seed.ts`, `convex/seedData.ts`) is production content, not test data. Tests must never call it against a shared deployment.
+- The content seed (`convex/seed/domains/content.ts`, `convex/seed/content/data.ts`) is production content, not test data. Tests must never call it against a shared deployment.
 
 ### 2.2 Fixture layout
 
@@ -264,12 +264,12 @@ Required properties:
 
 ### 2.7 Seed safety and production-data separation
 
-- Test fixtures live under `convex/test/` and `tests/`. Production seed data lives in `convex/seedData.ts`. The two never import each other.
+- Test fixtures live under `convex/test/` and `tests/`. Production seed data lives in `convex/seed/content/data.ts`. The two never import each other.
 - `seedBase` refuses to run when `NODE_ENV === "production"`.
 - E2E seeding refuses unless the deployment name contains `e2e` and `E2E_SEED_ALLOWED === "1"`.
 - No test-only mutation is reachable from the public API. If an E2E reset needs a mutation, it is an internal mutation plus a deployment guard, never a public one.
 - `/ruang` has no preview mode, persona switcher, or local mock fixtures. A regression test asserts every workspace screen renders Convex data and that `/ruang` redirects to `/masuk` without a session.
-- Fallback landing content is a legitimate runtime fallback, not test data. No fixture string may appear in `lib/content/fallback.ts` or `convex/seedData.ts`.
+- Fallback landing content is a legitimate runtime fallback, not test data. No fixture string may appear in `lib/content/fallback.ts` or `convex/seed/content/data.ts`.
 - CI runs a boundary check: no import of `convex/test/*` or `tests/*` from runtime code.
 
 ### 2.8 Schema and fixture contract tests

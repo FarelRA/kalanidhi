@@ -1,7 +1,7 @@
 import { BookMarked, HandCoins, LockKeyhole } from "lucide-react"
 
+import { summarizeCulturalSource } from "@/lib/content/sources"
 import type { EthicsContent, PublicCulturalSource } from "@/lib/content/types"
-import { formatDate } from "@/lib/format"
 import { cn } from "cn"
 
 const principleIcons = [BookMarked, LockKeyhole, HandCoins] as const
@@ -13,15 +13,6 @@ const shareStyles = [
 ] as const
 
 const ACCESS_ORDER = ["public", "community", "restricted"] as const
-
-const PERMISSION_STATUS_LABELS: Record<
-  PublicCulturalSource["permissionStatus"],
-  string
-> = {
-  pending: "Menunggu persetujuan",
-  granted: "Izin tercatat",
-  withdrawn: "Izin ditarik",
-}
 
 function initialsOf(name: string): string {
   return name
@@ -39,12 +30,7 @@ export function WorkshopRules({
   ethics: EthicsContent
   sources: PublicCulturalSource[]
 }) {
-  const latest = sources.at(-1)
   const activeAccess = new Set(sources.map((source) => source.accessLevel))
-  const accessLabel = (level: PublicCulturalSource["accessLevel"]) => {
-    const index = ACCESS_ORDER.indexOf(level)
-    return ethics.accessLevels[index]?.label ?? level
-  }
   return (
     <section
       id="etika"
@@ -95,7 +81,7 @@ export function WorkshopRules({
                   {ethics.card.sourceTitle}
                 </span>
                 <span className="stamp border-moss bg-moss text-cream-2">
-                  {latest ? accessLabel(latest.accessLevel) : "—"}
+                  {sources.length > 0 ? `${sources.length} sumber` : "—"}
                 </span>
               </div>
               {sources.length === 0 ? (
@@ -104,49 +90,63 @@ export function WorkshopRules({
                 </p>
               ) : (
                 <ul className="mt-4 divide-y divide-ink/15 border-y border-ink/15">
-                  {sources.map((source) => (
-                    <li
-                      key={`${source.community}-${source.sourceName}`}
-                      className="flex items-start gap-3 py-3"
-                    >
-                      <span className="flex size-9 shrink-0 items-center justify-center border border-ink/30 bg-cream text-[10px] font-bold tracking-[0.08em] text-ink">
-                        {initialsOf(source.community)}
-                      </span>
-                      <div>
-                        <p className="font-heading text-[1.25rem] leading-tight">
-                          {source.community}
-                        </p>
-                        <p className="mt-0.5 text-[11.5px] leading-snug text-ink-muted">
-                          {source.sourceName}
-                        </p>
-                        <p className="mt-1 text-[10.5px] leading-snug text-ink/60">
-                          {source.attribution}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
+                  {sources.map((source) => {
+                    const row = summarizeCulturalSource(source)
+                    return (
+                      <li
+                        key={`${row.community}-${row.sourceName}`}
+                        className="flex items-start gap-3 py-3"
+                      >
+                        <span className="flex size-9 shrink-0 items-center justify-center border border-ink/30 bg-cream text-[10px] font-bold tracking-[0.08em] text-ink">
+                          {initialsOf(row.community)}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                            <p className="font-heading text-[1.25rem] leading-tight">
+                              {row.community}
+                            </p>
+                            <span className="text-[9px] font-bold uppercase tracking-[0.06em] text-ink-muted">
+                              {row.statusLabel}
+                            </span>
+                          </div>
+                          <p className="mt-0.5 text-[11.5px] leading-snug text-ink-muted">
+                            {row.sourceName}
+                          </p>
+                          {row.dateLabel || row.reference ? (
+                            <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[10.5px] leading-snug text-ink/70">
+                              {row.dateLabel ? (
+                                <span>
+                                  {ethics.card.permissionLabel}: {row.dateLabel}
+                                </span>
+                              ) : null}
+                              {row.reference ? (
+                                <span className="min-w-0 break-words">
+                                  {row.referenceLabel}:{" "}
+                                  {row.referenceKind === "public" ? (
+                                    <a
+                                      href={row.reference}
+                                      target="_blank"
+                                      rel="noreferrer noopener"
+                                      className="underline underline-offset-2 hover:text-copper-dark"
+                                    >
+                                      {row.reference}
+                                    </a>
+                                  ) : (
+                                    row.reference
+                                  )}
+                                </span>
+                              ) : null}
+                            </p>
+                          ) : null}
+                          <p className="mt-1 text-[10.5px] leading-snug text-ink/60">
+                            {row.attribution}
+                          </p>
+                        </div>
+                      </li>
+                    )
+                  })}
                 </ul>
               )}
-              <dl className="mt-4 space-y-3">
-                <div>
-                  <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                    {ethics.card.permissionLabel}
-                  </dt>
-                  <dd className="mt-0.5 text-[12px] leading-snug text-ink/75">
-                    {latest
-                      ? `${formatDate(latest.permissionDate)} · ${PERMISSION_STATUS_LABELS[latest.permissionStatus]}`
-                      : ethics.card.emptyState}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                    {ethics.card.referenceLabel}
-                  </dt>
-                  <dd className="mt-0.5 text-[12px] leading-snug text-ink/75">
-                    {latest ? latest.permissionReference : "—"}
-                  </dd>
-                </div>
-              </dl>
               <div className="mt-4 flex flex-wrap gap-2 border-t border-ink/15 pt-3">
                 {ethics.accessLevels.map((level, index) => {
                   const access = ACCESS_ORDER[index]

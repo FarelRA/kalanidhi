@@ -93,22 +93,22 @@ describe("public routes", () => {
     const routes = await appRoutes()
     const ctaHrefs = [
       "/",
-      pathHref("batik-tulis-soga"),
-      teacherHref("bambang-hardjono"),
-      workHref("batik-soga-anyaman"),
+      pathHref("batik-bambu"),
+      teacherHref("sri-sriningsih"),
+      workHref("nampan-batik-bambu"),
       verifyHref("KN-2026-0001"),
       interestHref({ intent: "student" }),
-      interestHref({ path: "batik-tulis-soga", intent: "student" }),
-      interestHref({ teacher: "bambang-hardjono", intent: "consultation" }),
-      interestHref({ work: "batik-soga-anyaman", intent: "consultation" }),
+      interestHref({ path: "batik-bambu", intent: "student" }),
+      interestHref({ teacher: "sri-sriningsih", intent: "consultation" }),
+      interestHref({ work: "nampan-batik-bambu", intent: "consultation" }),
       consultHref({ intent: "consultation" }),
-      consultHref({ teacher: "bambang-hardjono", intent: "consultation" }),
-      enrollHref("batik-tulis-soga"),
-      buyHref("batik-soga-anyaman"),
+      consultHref({ teacher: "sri-sriningsih", intent: "consultation" }),
+      enrollHref("batik-bambu"),
+      buyHref("nampan-batik-bambu"),
       "/masuk?next=%2Fruang%2Fbelajar",
       "/daftar?next=%2Fruang%2Fbelajar",
       "/ruang/belajar",
-      "/pesan/batik-soga-anyaman",
+      "/pesan/nampan-batik-bambu",
     ]
 
     for (const href of ctaHrefs) {

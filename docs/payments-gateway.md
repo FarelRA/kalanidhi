@@ -209,9 +209,9 @@ GET  /v1/session/status
 ```json
 {
   "orderId": "KN-2026-000123",
-  "baseAmount": 1450000,
+  "baseAmount": 385000,
   "expiresInSeconds": 900,
-  "description": "Batik Tulis Soga — Kain Soga Anyaman"
+  "description": "Batik Bambu — Nampan Batik Bambu"
 }
 ```
 

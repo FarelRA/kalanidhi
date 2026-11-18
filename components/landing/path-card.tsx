@@ -3,6 +3,7 @@ import Link from "next/link"
 import { ArrowUpRight, Check } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { publishedTeacherName } from "@/lib/content/people"
 import type { LearningPath, SectionCopy } from "@/lib/content/types"
 import { interestHref, pathHref } from "@/lib/content/routes"
 import { formatIDR } from "@/lib/format"
@@ -11,10 +12,28 @@ import { cn } from "cn"
 export function PathCard({
   path,
   copy,
+  publishedTeacherNames,
 }: {
   path: LearningPath
   copy: SectionCopy["paths"]
+  /** When provided, an unpublished teacher's name is left out entirely. */
+  publishedTeacherNames?: Iterable<string>
 }) {
+  const teacherName = publishedTeacherNames
+    ? publishedTeacherName(path.teacher, publishedTeacherNames)
+    : path.teacher
+  const facts: Array<[string, string]> = [
+    [copy.regionLabel, path.region],
+    [copy.levelLabel, path.level],
+    [
+      copy.contentLabel,
+      path.comingSoon
+        ? copy.curriculumPending
+        : `${path.modules} modul / ${path.weeks} pekan`,
+    ],
+  ]
+  if (teacherName) facts.unshift([copy.teacherLabel, teacherName])
+
   return (
     <article
       className={cn(
@@ -68,42 +87,24 @@ export function PathCard({
                 {path.comingSoon ? copy.statusLabel : copy.priceLabel}
               </p>
               <p className="mt-1 font-heading text-[1.55rem] leading-none text-ink">
-                {path.price ? formatIDR(path.price) : path.priceLabel}
+                {path.comingSoon
+                  ? (path.priceLabel ?? copy.curriculumPending)
+                  : path.price
+                    ? formatIDR(path.price)
+                    : path.priceLabel}
               </p>
             </div>
           </div>
 
           <dl className="mt-5 grid grid-cols-2 gap-3 border-y border-ink/15 py-3 text-[11.5px] sm:grid-cols-4">
-            <div>
-              <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                {copy.teacherLabel}
-              </dt>
-              <dd className="mt-1 font-semibold leading-snug">
-                {path.teacher}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                {copy.regionLabel}
-              </dt>
-              <dd className="mt-1 font-semibold leading-snug">{path.region}</dd>
-            </div>
-            <div>
-              <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                {copy.levelLabel}
-              </dt>
-              <dd className="mt-1 font-semibold leading-snug">{path.level}</dd>
-            </div>
-            <div>
-              <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                {copy.contentLabel}
-              </dt>
-              <dd className="mt-1 font-semibold leading-snug">
-                {path.comingSoon
-                  ? copy.curriculumPending
-                  : `${path.modules} modul / ${path.weeks} pekan`}
-              </dd>
-            </div>
+            {facts.map(([label, value]) => (
+              <div key={label}>
+                <dt className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
+                  {label}
+                </dt>
+                <dd className="mt-1 font-semibold leading-snug">{value}</dd>
+              </div>
+            ))}
           </dl>
 
           <div className="mt-5 flex flex-1 flex-col justify-end gap-4 sm:flex-row sm:items-end sm:justify-between">

@@ -186,7 +186,11 @@ export default async function TeacherDetailPage({
                         </p>
                       </div>
                       <p className="text-[12px] font-semibold">
-                        {path.price ? formatIDR(path.price) : path.priceLabel}
+                        {path.comingSoon
+                          ? (path.priceLabel ?? "Sedang disusun")
+                          : path.price
+                            ? formatIDR(path.price)
+                            : path.priceLabel}
                       </p>
                     </div>
                   </li>

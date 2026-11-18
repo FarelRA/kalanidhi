@@ -1,11 +1,20 @@
-import { ConvexError } from "convex/values"
+import { v } from "convex/values"
 
 import type {
   ContentDocument,
   FeaturedSelection,
-} from "../lib/content/types"
-import { pathHref, PUBLIC_ROUTES, workHref } from "../lib/content/routes"
-import type { StoredContentValue } from "./content"
+} from "../../../lib/content/types"
+import { pathHref, PUBLIC_ROUTES, workHref } from "../../../lib/content/routes"
+import type { StoredContentValue } from "../../content"
+import {
+  internalMutation,
+  internalQuery,
+  type MutationCtx,
+} from "../../_generated/server"
+import { createSeedClock, DAY } from "../lib/clock"
+import { sha256 } from "../lib/hash"
+import { seedAdmin } from "../lib/lookup"
+import { mediaUrl, resolveMediaAsset } from "../lib/media"
 import {
   catalogFieldsSeed,
   faqsSeed,
@@ -14,204 +23,7 @@ import {
   teachersSeed,
   testimonialsSeed,
   worksSeed,
-} from "./seedData"
-import type { Id } from "./_generated/dataModel"
-import {
-  internalMutation,
-  internalQuery,
-  type MutationCtx,
-} from "./_generated/server"
-import {
-  DAY,
-  SEED_ASSET_OWNER,
-  SEED_NOW as NOW,
-  seedAdmin,
-  seedAgo as ago,
-} from "./seedIdentities"
-
-const CLEAR_TABLES = [
-  "siteContent",
-  "contentRevisions",
-  "contentPreviews",
-  "contentLocks",
-  "catalogFields",
-  "paths",
-  "pathModules",
-  "lessons",
-  "teachers",
-  "works",
-  "testimonials",
-  "faqs",
-  "seoOverrides",
-  "whatsappVerifications",
-  "roleAssignments",
-  "invites",
-  "consents",
-  "payoutAccounts",
-  "sellerProfiles",
-  "cohorts",
-  "cohortSessions",
-  "enrollments",
-  "lessonProgress",
-  "submissions",
-  "submissionAssets",
-  "assessments",
-  "assessmentEvents",
-  "disputes",
-  "certificates",
-  "certificateEvents",
-  "workCards",
-  "orders",
-  "orderItems",
-  "payments",
-  "paymentEvents",
-  "payouts",
-  "refunds",
-  "ledgerEntries",
-  "conversations",
-  "conversationMembers",
-  "messages",
-  "messageAssets",
-  "messageReceipts",
-  "messageFlags",
-  "blocks",
-  "messageEdits",
-  "messageAccessGrants",
-  "messageUploadIntents",
-  "messagingRestrictions",
-  "callSessions",
-  "callParticipants",
-  "callEvents",
-  "callRecordings",
-  "leads",
-  "leadNotes",
-  "leadAssignments",
-  "supportTickets",
-  "supportMessages",
-  "supportCannedReplies",
-  "auditLogs",
-  "authLogs",
-  "webhookDeliveries",
-  "notificationOutbox",
-  "featureFlags",
-  "settings",
-  "integrationHealth",
-  "dailyMetrics",
-  "metricDefinitions",
-  "flowDefinitions",
-  "flowTransitions",
-  "slaPolicies",
-  "automationRules",
-  "notificationTemplates",
-  "apiKeys",
-  "webhookEndpoints",
-  "privacyRequests",
-  "impersonationSessions",
-  "culturalSources",
-  "takedownRequests",
-  "breakGlassGrants",
-] as const
-
-export const clearBatch = internalMutation({
-  args: {},
-  handler: async (ctx) => {
-    let budget = 500
-
-    for (const table of CLEAR_TABLES) {
-      while (budget > 0) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const documents = await ctx.db.query(table as any).take(100)
-        if (documents.length === 0) break
-        for (const document of documents) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await ctx.db.delete(table as any, document._id)
-          budget -= 1
-          if (budget <= 0) return { done: false }
-        }
-      }
-    }
-
-    const users = await ctx.db.query("users").take(100)
-    for (const user of users) {
-      if (user.roles.includes("admin")) continue
-      await ctx.db.delete(user._id)
-      budget -= 1
-      if (budget <= 0) return { done: false }
-    }
-
-    const sessions = await ctx.db.query("sessions").take(100)
-    for (const session of sessions) {
-      const user = await ctx.db.get(session.userId)
-      if (user && user.roles.includes("admin")) continue
-      await ctx.db.delete(session._id)
-      budget -= 1
-      if (budget <= 0) return { done: false }
-    }
-
-    const assets = await ctx.db.query("mediaAssets").take(100)
-    for (const asset of assets) {
-      if (asset.uploadedBy !== SEED_ASSET_OWNER) continue
-      await ctx.db.delete(asset._id)
-      budget -= 1
-      if (budget <= 0) return { done: false }
-    }
-
-    return { done: true }
-  },
-})
-
-/**
- * The seed never falls back to static files. Every `imageFile` must already
- * exist as an active image in `mediaAssets` (uploaded from `seed/images` by
- * `scripts/upload-images.mjs`), otherwise the whole seed fails loudly.
- */
-async function imageAssetsByFilename(
-  ctx: MutationCtx,
-): Promise<Map<string, Id<"mediaAssets">>> {
-  const assets = await ctx.db.query("mediaAssets").collect()
-  const byFilename = new Map<string, Id<"mediaAssets">>()
-  for (const asset of assets) {
-    if (asset.kind !== "image" || asset.status !== "active") continue
-    if (!byFilename.has(asset.filename)) {
-      byFilename.set(asset.filename, asset._id)
-    }
-  }
-  return byFilename
-}
-
-function requireImage(
-  assets: Map<string, Id<"mediaAssets">>,
-  filename: string,
-  label: string,
-): Id<"mediaAssets"> {
-  const id = assets.get(filename)
-  if (!id) {
-    throw new ConvexError({
-      code: "SEED_IMAGE_MISSING",
-      message: `Gambar seed "${filename}" untuk ${label} belum ada di mediaAssets. Jalankan scripts/upload-images.mjs lalu ulangi seed.`,
-    })
-  }
-  return id
-}
-
-async function storageUrl(
-  ctx: MutationCtx,
-  id: Id<"mediaAssets">,
-): Promise<string> {
-  const asset = await ctx.db.get(id)
-  const url = asset
-    ? asset.storageId
-      ? await ctx.storage.getUrl(asset.storageId)
-      : asset.externalUrl
-    : null
-  if (!url) {
-    throw new ConvexError({
-      code: "SEED_IMAGE_MISSING",
-      message: `Aset gambar ${id} tidak punya URL penyimpanan. Unggah ulang gambar seed.`,
-    })
-  }
-  return url
-}
+} from "../content/data"
 
 /** Seed rows are linked by name, so no slug/email map can drift. */
 async function usersByName(ctx: MutationCtx) {
@@ -232,11 +44,10 @@ function pathForTeacher(teacher: { path: string; name: string }) {
     pathsSeed.find((path) => path.teacher === teacher.name)
   )
 }
-
 export const seedContent = internalMutation({
-  args: {},
-  handler: async (ctx) => {
-    const assets = await imageAssetsByFilename(ctx)
+  args: { now: v.number() },
+  handler: async (ctx, args) => {
+    const clock = createSeedClock(args.now)
     const baseCopy: Omit<StoredContentValue, "featured"> = {
       ...siteSeed,
       hero: {
@@ -245,10 +56,9 @@ export const seedContent = internalMutation({
           alt: siteSeed.hero.plate.alt,
           caption: siteSeed.hero.plate.caption,
           note: siteSeed.hero.plate.note,
-          imageAssetId: requireImage(
-            assets,
+          imageAssetId: await resolveMediaAsset(
+            ctx,
             siteSeed.hero.plate.imageFile,
-            "hero.plate",
           ),
         },
       },
@@ -258,44 +68,57 @@ export const seedContent = internalMutation({
           width: siteSeed.metadata.image.width,
           height: siteSeed.metadata.image.height,
           alt: siteSeed.metadata.image.alt,
-          imageAssetId: requireImage(
-            assets,
+          imageAssetId: await resolveMediaAsset(
+            ctx,
             siteSeed.metadata.image.imageFile,
-            "metadata.image",
           ),
         },
       },
     }
 
-    const seededPaths = pathsSeed.map(({ imageFile, ...rest }) => ({
-      ...rest,
-      imageAssetId: requireImage(assets, imageFile, `jalur ${rest.slug}`),
-    }))
+    const seededPaths = await Promise.all(
+      pathsSeed.map(async ({ imageFile, ...rest }) => ({
+        ...rest,
+        imageAssetId: await resolveMediaAsset(ctx, imageFile),
+      })),
+    )
     // Identity fields power the workspace seed; the public table stores only
     // the published teacher record.
-    const seededTeachers = teachersSeed.map(
-      ({ imageFile, key, pathIds, status, verificationStatus, published, ...rest }) => {
-        void key
-        void pathIds
-        void status
-        void verificationStatus
-        void published
-        return {
-          ...rest,
-          imageAssetId: requireImage(assets, imageFile, `pengajar ${rest.slug}`),
-        }
-      },
+    const seededTeachers = await Promise.all(
+      teachersSeed.map(
+        async ({
+          imageFile,
+          key,
+          pathIds,
+          status,
+          verificationStatus,
+          published,
+          ...rest
+        }) => {
+          void key
+          void pathIds
+          void status
+          void verificationStatus
+          void published
+          return {
+            ...rest,
+            imageAssetId: await resolveMediaAsset(ctx, imageFile),
+          }
+        },
+      ),
     )
-    const seededWorks = worksSeed.map(
-      ({ imageFile, makerKey, pathSlug, certificateKey, ...rest }) => {
-        void makerKey
-        void pathSlug
-        void certificateKey
-        return {
-          ...rest,
-          imageAssetId: requireImage(assets, imageFile, `karya ${rest.slug}`),
-        }
-      },
+    const seededWorks = await Promise.all(
+      worksSeed.map(
+        async ({ imageFile, makerKey, pathSlug, certificateKey, ...rest }) => {
+          void makerKey
+          void pathSlug
+          void certificateKey
+          return {
+            ...rest,
+            imageAssetId: await resolveMediaAsset(ctx, imageFile),
+          }
+        },
+      ),
     )
 
     for (const [order, field] of catalogFieldsSeed.entries()) {
@@ -316,7 +139,7 @@ export const seedContent = internalMutation({
         modules: 0,
         teacherId: user._id,
         status: path.comingSoon ? "planned" : "open",
-        createdAt: ago(395 - order * 12),
+        createdAt: clock.ago(395 - order * 12),
       })
     }
 
@@ -333,9 +156,9 @@ export const seedContent = internalMutation({
         status: isReview ? "review" : "active",
         verificationStatus: isReview ? "under_review" : "verified",
         verifiedBy: isReview ? undefined : "Pengelola",
-        verifiedAt: isReview ? undefined : ago(390 - order * 10),
+        verifiedAt: isReview ? undefined : clock.ago(390 - order * 10),
         published: !isReview,
-        publishedAt: isReview ? undefined : ago(388 - order * 10),
+        publishedAt: isReview ? undefined : clock.ago(388 - order * 10),
       })
     }
 
@@ -344,7 +167,7 @@ export const seedContent = internalMutation({
         order,
         ...work,
         status: "published",
-        createdAt: ago(320 - order * 55),
+        createdAt: clock.ago(320 - order * 55),
       })
     }
 
@@ -378,7 +201,7 @@ export const seedContent = internalMutation({
     await ctx.db.insert("siteContent", {
       key: "site",
       value: { ...baseCopy, featured } satisfies StoredContentValue,
-      updatedAt: NOW,
+      updatedAt: clock.now,
     })
 
     const revisionCopy: ContentDocument = {
@@ -390,7 +213,7 @@ export const seedContent = internalMutation({
           alt: baseCopy.hero.plate.alt,
           caption: baseCopy.hero.plate.caption,
           note: baseCopy.hero.plate.note,
-          image: await storageUrl(ctx, baseCopy.hero.plate.imageAssetId),
+          image: await mediaUrl(ctx, baseCopy.hero.plate.imageAssetId),
         },
       },
       metadata: {
@@ -399,7 +222,7 @@ export const seedContent = internalMutation({
           width: baseCopy.metadata.image.width,
           height: baseCopy.metadata.image.height,
           alt: baseCopy.metadata.image.alt,
-          url: await storageUrl(ctx, baseCopy.metadata.image.imageAssetId),
+          url: await mediaUrl(ctx, baseCopy.metadata.image.imageAssetId),
         },
       },
     }
@@ -430,8 +253,8 @@ export const seedContent = internalMutation({
       status: "published",
       authorId: (await seedAdmin(ctx))._id,
       note: "Terbitan awal edisi 2026.",
-      createdAt: ago(60),
-      publishedAt: ago(60),
+      createdAt: clock.ago(60),
+      publishedAt: clock.ago(60),
     })
     await ctx.db.insert("contentRevisions", {
       key: "site",
@@ -441,7 +264,7 @@ export const seedContent = internalMutation({
       authorId: (await seedAdmin(ctx))._id,
       note: "Draf penyempurnaan judul hero.",
       basedOnVersion: 1,
-      createdAt: ago(2),
+      createdAt: clock.ago(2),
     })
     await ctx.db.insert("contentRevisions", {
       key: "site",
@@ -451,8 +274,8 @@ export const seedContent = internalMutation({
       authorId: (await seedAdmin(ctx))._id,
       note: "Jadwal pembaruan kabar edisi Desember.",
       basedOnVersion: 1,
-      createdAt: ago(1),
-      scheduledFor: NOW + 7 * DAY,
+      createdAt: clock.ago(1),
+      scheduledFor: clock.now + 7 * DAY,
     })
 
     await ctx.db.insert("contentPreviews", {
@@ -460,8 +283,8 @@ export const seedContent = internalMutation({
       version: 2,
       tokenHash: await sha256("seed-preview-token"),
       createdBy: (await seedAdmin(ctx))._id,
-      createdAt: ago(1),
-      expiresAt: NOW + 2 * DAY,
+      createdAt: clock.ago(1),
+      expiresAt: clock.now + 2 * DAY,
     })
 
     const siteName = siteSeed.metadata.siteName
@@ -499,7 +322,7 @@ export const seedContent = internalMutation({
         canonical: `${siteUrl}${seo.route === "/" ? "" : seo.route}`,
         keywords: ["KalaNidhi", "budaya Nusantara", "kursus budaya"],
         robots: "index,follow",
-        updatedAt: NOW,
+        updatedAt: clock.now,
       })
     }
 
@@ -516,14 +339,6 @@ export const seedContent = internalMutation({
     }
   },
 })
-
-async function sha256(value: string): Promise<string> {
-  const bytes = new TextEncoder().encode(value)
-  const digest = await crypto.subtle.digest("SHA-256", bytes)
-  return Array.from(new Uint8Array(digest))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("")
-}
 
 export const hasContent = internalQuery({
   args: {},

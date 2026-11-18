@@ -8,7 +8,7 @@ import {
   teachersSeed,
   testimonialsSeed,
   worksSeed,
-} from "../../convex/seedData"
+} from "../../convex/seed/content/data"
 import { seedAccount, type TestDb } from "../helpers/convex"
 
 export const NOW = 1_760_000_000_000
@@ -87,12 +87,13 @@ export async function seedContent(t: TestDb): Promise<void> {
       await ctx.db.insert("paths", {
         ...rest,
         order: index,
-        modules: 1,
+        modules: rest.comingSoon ? 0 : 1,
         status: rest.comingSoon ? "planned" : "open",
         teacherId: teacher,
         createdAt: NOW,
         imageAssetId,
       })
+      if (rest.comingSoon) continue
       const moduleId = await ctx.db.insert("pathModules", {
         order: 1,
         pathId: path.slug,
@@ -145,6 +146,7 @@ export async function seedContent(t: TestDb): Promise<void> {
 
     const cohortByPath = new Map<string, Id<"cohorts">>()
     for (const path of pathsSeed) {
+      if (path.comingSoon) continue
       const cohortId = await ctx.db.insert("cohorts", {
         code: `COH-${path.slug}`,
         pathId: path.slug,

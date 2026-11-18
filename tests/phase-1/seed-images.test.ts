@@ -6,8 +6,8 @@ import {
   siteSeed,
   teachersSeed,
   worksSeed,
-} from "../../convex/seedData"
-import { CURRICULUM_IMAGE_FILES } from "../../convex/seedWorkspace"
+} from "../../convex/seed/content/data"
+import { CURRICULUM_IMAGE_FILES } from "../../convex/seed/domains/curriculum"
 import { createTestDb } from "../helpers/convex"
 
 const NOW = 1_760_000_000_000
@@ -54,7 +54,7 @@ describe("seed images resolve through Convex storage", () => {
     const t = createTestDb()
     await registerImages(t, seedFilenames())
 
-    await t.action(internal.seedRunner.run, {})
+    await t.action(internal.seed.run.run, {})
 
     const site = await t.query(api.content.getSite, {})
     expect(site).not.toBeNull()
@@ -82,7 +82,7 @@ describe("seed images resolve through Convex storage", () => {
     const filenames = seedFilenames()
     await registerImages(t, filenames.slice(1))
 
-    await expect(t.action(internal.seedRunner.run, {})).rejects.toThrow(
+    await expect(t.action(internal.seed.run.run, {})).rejects.toThrow(
       /belum ada di mediaAssets/,
     )
   })

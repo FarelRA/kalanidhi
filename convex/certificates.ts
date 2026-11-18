@@ -30,6 +30,7 @@ async function uniquePublicCode(ctx: MutationCtx): Promise<string> {
 
 function serialPrefix(pathId: string): string {
   const known: Record<string, string> = {
+    "batik-bambu": "BBM",
     "batik-tulis-soga": "BTS",
     "pranatacara-jawa": "PRC",
     "aksara-jawa": "AKS",

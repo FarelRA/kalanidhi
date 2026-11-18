@@ -15,13 +15,13 @@ import {
 
 function path(overrides: Partial<LearningPath> = {}): LearningPath {
   return {
-    slug: "batik-tulis-soga",
+    slug: "batik-bambu",
     code: "JLR-01",
-    title: "Batik Tulis Giriloyo",
-    subtitle: "Belajar batik tulis dari pembatik Giriloyo.",
-    teacher: "Bambang Hardjono",
+    title: "Batik Bambu",
+    subtitle: "Belajar batik bambu dari perajin Krebet.",
+    teacher: "Sri Sriningsih",
     teacherRole: "Pembatik",
-    region: "Giriloyo, Yogyakarta",
+    region: "Krebet, Bantul, Yogyakarta",
     level: "Dasar",
     modules: 4,
     weeks: 6,
@@ -29,7 +29,7 @@ function path(overrides: Partial<LearningPath> = {}): LearningPath {
     price: 850_000,
     image: "https://example.test/batik.jpg",
     tags: ["Batik"],
-    outcome: "Bisa membatik tulis.",
+    outcome: "Bisa membatik bambu.",
     includes: ["Modul"],
     ...overrides,
   }
@@ -38,22 +38,22 @@ function path(overrides: Partial<LearningPath> = {}): LearningPath {
 function work(overrides: Partial<PublicWorkView> = {}): PublicWorkView {
   return {
     id: "work-1",
-    slug: "batik-soga-anyaman",
-    title: "Batik Soga Anyaman",
+    slug: "nampan-batik-bambu",
+    title: "Nampan Batik Bambu",
     kind: "product",
     category: "batik",
     maker: "Sari",
     makerRole: "Pengrajin",
-    teacher: "Bambang Hardjono",
-    region: "Giriloyo",
+    teacher: "Sri Sriningsih",
+    region: "Krebet, Bantul",
     price: 450_000,
     priceLabel: null,
-    unit: "lembar",
-    technique: "Batik tulis",
-    techniqueNote: "Soga",
+    unit: "nampan",
+    technique: "Batik bambu",
+    techniqueNote: "Canting pada bambu",
     workCard: "KN-2026-0001",
-    description: "Kain batik tulis.",
-    image: "https://example.test/kain.jpg",
+    description: "Nampan bambu batik.",
+    image: "https://example.test/bambu.jpg",
     permission: "Izin komunitas",
     split: {
       baseAmount: 450_000,
@@ -70,25 +70,25 @@ function teacher(
   overrides: Partial<PublicTeacherDetail> = {},
 ): PublicTeacherDetail {
   return {
-    slug: "bambang-hardjono",
-    name: "Bambang Hardjono",
-    initials: "BH",
-    specialty: "Batik tulis",
-    region: "Giriloyo",
-    experience: "30 tahun",
-    quote: "Batik adalah doa.",
-    focus: "Batik tulis",
-    path: "Batik Tulis Giriloyo",
+    slug: "sri-sriningsih",
+    name: "Sri Sriningsih",
+    initials: "SS",
+    specialty: "Batik bambu",
+    region: "Krebet, Bantul",
+    experience: "Belasan tahun",
+    quote: "Membatik bambu mengajarkan sabar.",
+    focus: "Batik bambu",
+    path: "Batik Bambu",
     community: "Giriloyo",
     image: "https://example.test/teacher.jpg",
     verified: true,
     paths: [
       {
-        slug: "batik-tulis-soga",
+        slug: "batik-bambu",
         code: "JLR-01",
-        title: "Batik Tulis Giriloyo",
+        title: "Batik Bambu",
         level: "Dasar",
-        region: "Giriloyo",
+        region: "Krebet, Bantul",
         price: 850_000,
         priceLabel: undefined,
         comingSoon: false,
@@ -102,33 +102,33 @@ function teacher(
 describe("/minat smart routing", () => {
   it("sends a path with student intent to the path checkout", () => {
     const result = resolveMinat({
-      params: { path: "batik-tulis-soga", intent: "student" },
+      params: { path: "batik-bambu", intent: "student" },
       paths: [path()],
       works: [],
       teacher: null,
     })
     expect(result).toEqual({
       kind: "redirect",
-      href: enrollHref("batik-tulis-soga"),
+      href: enrollHref("batik-bambu"),
     })
   })
 
   it("sends a work without intent to the work checkout", () => {
     const result = resolveMinat({
-      params: { work: "batik-soga-anyaman" },
+      params: { work: "nampan-batik-bambu" },
       paths: [],
       works: [work()],
       teacher: null,
     })
     expect(result).toEqual({
       kind: "redirect",
-      href: buyHref("batik-soga-anyaman"),
+      href: buyHref("nampan-batik-bambu"),
     })
   })
 
   it("sends consultation intent to /tanya with the same context", () => {
     const result = resolveMinat({
-      params: { teacher: "bambang-hardjono", intent: "consultation" },
+      params: { teacher: "sri-sriningsih", intent: "consultation" },
       paths: [],
       works: [],
       teacher: teacher(),
@@ -136,7 +136,7 @@ describe("/minat smart routing", () => {
     expect(result).toEqual({
       kind: "redirect",
       href: consultHref({
-        teacher: "bambang-hardjono",
+        teacher: "sri-sriningsih",
         intent: "consultation",
       }),
     })
@@ -145,44 +145,44 @@ describe("/minat smart routing", () => {
   it("sends notify and institution intents to /tanya", () => {
     for (const intent of ["notify", "institution"] as const) {
       const result = resolveMinat({
-        params: { path: "batik-tulis-soga", intent },
+        params: { path: "batik-bambu", intent },
         paths: [path()],
         works: [],
         teacher: null,
       })
       expect(result).toEqual({
         kind: "redirect",
-        href: consultHref({ path: "batik-tulis-soga", intent }),
+        href: consultHref({ path: "batik-bambu", intent }),
       })
     }
   })
 
   it("sends a teacher with exactly one path to that path checkout", () => {
     const result = resolveMinat({
-      params: { teacher: "bambang-hardjono", intent: "student" },
+      params: { teacher: "sri-sriningsih", intent: "student" },
       paths: [path()],
       works: [],
       teacher: teacher(),
     })
     expect(result).toEqual({
       kind: "redirect",
-      href: enrollHref("batik-tulis-soga"),
+      href: enrollHref("batik-bambu"),
     })
   })
 
   it("renders a chooser when a teacher has multiple paths", () => {
     const result = resolveMinat({
-      params: { teacher: "bambang-hardjono" },
+      params: { teacher: "sri-sriningsih" },
       paths: [path(), path({ slug: "kriya-gerabah-bantul" })],
       works: [],
       teacher: teacher({
         paths: [
           {
-            slug: "batik-tulis-soga",
+            slug: "batik-bambu",
             code: "JLR-01",
-            title: "Batik Tulis Giriloyo",
+            title: "Batik Bambu",
             level: "Dasar",
-            region: "Giriloyo",
+            region: "Krebet, Bantul",
             price: 850_000,
             comingSoon: false,
           },
@@ -203,14 +203,14 @@ describe("/minat smart routing", () => {
 
   it("sends a teacher without paths to /tanya", () => {
     const result = resolveMinat({
-      params: { teacher: "bambang-hardjono" },
+      params: { teacher: "sri-sriningsih" },
       paths: [],
       works: [],
       teacher: teacher({ paths: [] }),
     })
     expect(result).toEqual({
       kind: "redirect",
-      href: consultHref({ teacher: "bambang-hardjono" }),
+      href: consultHref({ teacher: "sri-sriningsih" }),
     })
   })
 
@@ -252,8 +252,8 @@ describe("/minat smart routing", () => {
   })
 
   it("keeps interestHref on /minat so existing landing links still route", () => {
-    expect(interestHref({ path: "batik-tulis-soga", intent: "student" })).toBe(
-      "/minat?path=batik-tulis-soga&intent=student",
+    expect(interestHref({ path: "batik-bambu", intent: "student" })).toBe(
+      "/minat?path=batik-bambu&intent=student",
     )
   })
 })

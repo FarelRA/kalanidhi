@@ -301,8 +301,15 @@ export type PublicCulturalSource = {
   pathSlug: string | null
   workSlug: string | null
   permissionReference: string
-  permissionDate: number
-  permissionStatus: "pending" | "granted" | "withdrawn"
+  /** Absent when the source is a citation rather than a recorded permission. */
+  permissionDate?: number | null
+  permissionStatus:
+    | "pending"
+    | "granted"
+    | "withdrawn"
+    /** A published article or profile cited as a reference, not a permission. */
+    | "public_reference"
+    | "citation"
   accessLevel: "public" | "community" | "restricted"
   attribution: string
   notes: string | null

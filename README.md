@@ -119,7 +119,7 @@ npm run convex:seed:if-empty
 ```
 
 Untuk mengisi deployment produksi, jalankan
-`npx convex run seedRunner:run --prod` setelah `npx convex deploy`.
+`npx convex run seed/run:run --prod` setelah `npx convex deploy`.
 
 `CONVEX_URL` wajib diisi saat build dan runtime. Tidak ada fallback konten statis:
 landing selalu membaca `content.getSite` dari Convex. Jika deployment belum di-seed,
@@ -140,10 +140,11 @@ convex/
                            works, testimonials, faqs, leads
   content.ts               Query getSite untuk merakit seluruh konten landing
   leads.ts                 Mutation create untuk formulir minat
-  seed.ts                  Seed konten + orkestrasi domain
-  seedWorkspace.ts         Seed pengguna, kurikulum, kohort, sertifikat, commerce
-  seedOperations.ts        Seed pesan, panggilan, operasi, setelan, tata kelola, metrik
-  seedData.ts              Sumber data awal untuk seed konten dan entitas
+  seed/run.ts              Orkestrasi seed, kunci run, dan riwayat
+  seed/content/            Sumber data konten dan identitas
+  seed/domains/            Seed per domain: people, curriculum, commerce, ops, dst.
+  seed/lib/                Clock, kode, builder, lookup, media, dan helper bersama
+  seed/integrity.ts        Pemeriksaan invarian setelah seed
 components/
   landing/                 Section landing: bangku, lingkaran, rak bahan, jalur, pengajar,
                            karya, etika, musim, institusi, catatan peserta, FAQ, penutup
@@ -199,7 +200,7 @@ testimoni, bidang katalog, FAQ, dan karya untuk Kartu Karya hero dilakukan di ha
    tersedia untuk pembalikan.
 2. Pilihan node landing disimpan lewat halaman `/ruang/konten/unggulan`.
 3. Untuk menambah jalur, pengajar, karya, atau bidang, tambahkan entri di
-   `convex/seedData.ts` atau dashboard domain terkait. Urutan tampil memakai field
+   `convex/seed/content/data.ts` atau dashboard domain terkait. Urutan tampil memakai field
    `order`.
 4. Jalankan `npm run convex:seed` hanya bila ingin mengisi ulang seluruh data domain;
    tabel `leads` tidak dihapus.
@@ -207,6 +208,15 @@ testimoni, bidang katalog, FAQ, dan karya untuk Kartu Karya hero dilakukan di ha
 Gambar sumber berada di `seed/images/`. Jalankan `npm run images:upload` untuk
 mengunggahnya ke Convex storage dan mendaftarkannya di `mediaAssets`; seed akan gagal
 jika ada `imageFile` yang belum terdaftar.
+
+Katalog seed berisi lima jalur: tiga terbuka dan dua sedang disiapkan. Jalur terbuka
+adalah Batik Bambu (Krebet, Sendangsari, Pajangan, Bantul), Aksara Jawa, dan Seni
+Pembawa Acara Tradisi Jawa. Kriya Gerabah Bantul dan Batik Tulis berstatus
+`comingSoon`; Batik Tulis tidak memiliki modul atau pelajaran karena materi batik tulis
+di atas kain belum tersedia sebagai kurikulum. Kurikulum Batik Bambu diadaptasi dari
+materi Paguyuban Batik Tulis Giriloyo untuk kain, lalu disesuaikan dengan proses bambu
+dari Fitinline dan profil Desa Wisata Krebet (Jadesta Kementerian Pariwisata). Krebet
+dikenal sebagai desa batik kayu; sebagian pengrajinnya juga membatik bambu.
 
 ## Keputusan implementasi
 
@@ -222,7 +232,7 @@ jika ada `imageFile` yang belum terdaftar.
 - **Tipografi sebagai identitas**: Fraunces untuk headline dan kutipan, Karla untuk UI.
   Label section memakai stempel kapital, bukan eyebrow dekoratif.
 - **Lingkaran sebagai struktur**: lima stasiun di bangku melingkar, jalur kembali putus-
-  putus, dan kain selesai yang berjalan balik ke stasiun 01.
+  putus, dan karya selesai yang berjalan balik ke stasiun 01.
 - **Konten tetap terbaca tanpa JS**: animasi memakai CSS dan tidak menyembunyikan konten.
 - **Aksesibilitas**: skip link, landmark, label form eksplisit, fokus terlihat, target
   sentuh, `aria-live` pada hasil, kontras teks dijaga.

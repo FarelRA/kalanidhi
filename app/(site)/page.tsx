@@ -12,8 +12,9 @@ import { QuestionsSection } from "@/components/landing/questions-section"
 import { SeasonNote } from "@/components/landing/season-note"
 import { WorksShelf } from "@/components/landing/works-shelf"
 import { WorkshopRules } from "@/components/landing/workshop-rules"
-import { getSiteData } from "@/lib/convex/server"
+import { getPublicTeachers, getSiteData } from "@/lib/convex/server"
 import { buildPageMetadata } from "@/lib/content/metadata"
+import { publishedTeacherNames } from "@/lib/content/people"
 import { buildLandingJsonLd } from "@/lib/structured-data"
 
 
@@ -32,7 +33,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const data = await getSiteData()
+  const [data, teachers] = await Promise.all([
+    getSiteData(),
+    getPublicTeachers(),
+  ])
   const jsonLd = buildLandingJsonLd(data)
 
   return (
@@ -44,7 +48,11 @@ export default async function HomePage() {
       <BenchHero hero={data.hero} workCard={data.heroWorkCard} />
       <BenchLoop loop={data.loop} />
       <MaterialShelf catalog={data.catalog} />
-      <OpenPaths paths={data.paths} copy={data.sections.paths} />
+      <OpenPaths
+        paths={data.paths}
+        copy={data.sections.paths}
+        publishedTeacherNames={publishedTeacherNames(teachers)}
+      />
       <BenchTeachers teachers={data.teachers} copy={data.sections.teachers} />
       <WorksShelf works={data.works} copy={data.sections.works} />
       <WorkshopRules ethics={data.ethics} sources={data.culturalSources} />

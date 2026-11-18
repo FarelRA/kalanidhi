@@ -78,17 +78,19 @@ The same loop is echoed in the FAQ, the closing section, and the footer descript
 
 The catalog is a shelf, not a logo wall. **Rak bahan** groups eleven mapped fields by readiness:
 
-- **Sudah di bangku (3):** Batik Tulis Giriloyo, Aksara Jawa: Membaca dan Menulis, Seni Pembawa Acara Tradisi Jawa.
-- **Sedang disiapkan (4):** Kriya gerabah (Kasongan), Batik bambu, Karawitan, Tari tradisi.
+- **Sudah di bangku (3):** Batik Bambu, Aksara Jawa: Membaca dan Menulis, Seni Pembawa Acara Tradisi Jawa.
+- **Sedang disiapkan (4):** Kriya gerabah (Kasongan), Batik tulis (Giriloyo), Karawitan, Tari tradisi.
 - **Menunggu pengajar (4):** Keramik, Kuliner tradisi, Jamu, Wayang.
 
-The seeded curriculum has four paths: the three open above, plus Kriya Gerabah Bantul as a coming-soon path with its own teacher and draft material.
+The seeded catalog has five paths: the three open above, plus Kriya Gerabah Bantul and Batik Tulis as coming-soon paths. Batik Tulis keeps its teacher persona and the Giriloyo attribution but has no modules or lessons, because the cloth material is not published as a curriculum yet. Batik Bambu is the only open batik path, located in Krebet, Sendangsari, Pajangan, Bantul. Krebet is known for batik kayu; some of its artisans also work bamboo.
+
+**Adaptation note.** The Batik Bambu curriculum is adapted from the Paguyuban Batik Tulis Giriloyo deck, which is written for batik tulis on cloth. What transfers is kept: classic Giriloyo motifs, wax as resist, dyeing, nglorod, and safety. Cloth-specific steps are replaced with the bamboo process described by Fitinline (select bamboo, boil, dry, sand, pattern, nglowongi, ngisen-isen, mbabar, nembok, base colour, nglorod, mepe, finishing, check). The lesson copy says plainly that the material we hold covers cloth only. The Krebet village profile at Jadesta (Kementerian Pariwisata) supports the location and the nampan bambu batik product; the bamboo-age reference is the Jurnal Hutan Tropis Universitas Mulawarman.
 
 Each tag carries a region and a short note. Open fields link to the paths section. The catalog is DIY-only: every region named is a kabupaten or kota inside Daerah Istimewa Yogyakarta, and practitioners from elsewhere can propose a new path but do not extend the base. Gerabah is about forming and firing vessels at Kasongan; Keramik stays a separate field about glaze and stoneware, still waiting for a teacher. New fields open when curriculum, permission, and a teacher are ready.
 
 ## Copy voice
 
-Plain, warm, specific, and comfortable saying “belum”. Buttons name the outcome. The page avoids “maestro”, invented maturity metrics, and generic marketplace language. One evidence series is used everywhere, recomputed from the seed: **11 fields, 3 open paths (plus 1 coming-soon path), 4 published teachers, 15 participants, 16 assessed tasks, 5 works and services**.
+Plain, warm, specific, and comfortable saying “belum”. Buttons name the outcome. The page avoids “maestro”, invented maturity metrics, and generic marketplace language. One evidence series is used everywhere, recomputed from the seed: **11 fields, 3 open paths (plus 2 coming-soon paths), 4 published teachers, 62 participants, 57 assessed tasks, 5 works and services**.
 
 Representative lines:
 
@@ -99,7 +101,7 @@ Representative lines:
 ## Cultural and ethical rules
 
 - The certificate is a **sertifikat platform** everywhere, with a public verification code. The FAQ, footer, and verification dialog all say it is not government or BNSP certification.
-- The **Kartu Sumber Budaya** shows each knowledge source, its permission status and date, the permission reference, and its access level. The platform operator holds the source files and publishes them, so permission is recorded as granted to the platform under the reference “Arsip dokumen pengelola platform” — a real operator archive, not an invented third-party permit. Every permission date follows its material. The gerabah draft stays in review because that path is not open. The 70 / 15 / 15 split is shown before transaction.
+- The **Kartu Sumber Budaya** shows each knowledge source, its permission status and date, the permission reference, and its access level. The platform operator holds the source files and publishes them, so permission is recorded as granted to the platform under the reference “Arsip dokumen pengelola platform” — a real operator archive, not an invented third-party permit. Every permission date follows its material. The Giriloyo deck is recorded as the cloth source adapted for bamboo; the Fitinline article and the Jadesta Krebet profile are recorded as public bamboo references with their URLs. The gerabah draft stays in review because that path is not open. The 70 / 15 / 15 split is shown before transaction.
 - Lesson access has three levels on the public path page: `public` opens to everyone, `enrolled` needs an active or completed enrollment on that path, and `certified` needs an issued certificate on that path. A locked lesson exposes only a short teaser; its body and media load on demand.
 - No sacred or forbidden motif is used as interface decoration. The motif-larangan sheet appears only inside the lesson that teaches the eight names, never as a brand or background pattern. The brand mark is a cream **K** drawn from bench and tag shapes on a dark wood tile, not a batik pattern.
 - Tab and install icons use the tile with a rounded corner (`npm run icons:build`); the Apple touch icon and the maskable tile stay full-bleed because iOS and the launcher apply their own mask.

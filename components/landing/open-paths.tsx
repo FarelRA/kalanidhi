@@ -5,9 +5,11 @@ import { PathCard } from "./path-card"
 export function OpenPaths({
   paths,
   copy,
+  publishedTeacherNames,
 }: {
   paths: LearningPath[]
   copy: SectionCopy["paths"]
+  publishedTeacherNames?: string[]
 }) {
   return (
     <section
@@ -35,7 +37,12 @@ export function OpenPaths({
         ) : (
           <div className="mt-12 space-y-5 lg:mt-16">
             {paths.map((path) => (
-              <PathCard key={path.slug} path={path} copy={copy} />
+              <PathCard
+                key={path.slug}
+                path={path}
+                copy={copy}
+                publishedTeacherNames={publishedTeacherNames}
+              />
             ))}
           </div>
         )}

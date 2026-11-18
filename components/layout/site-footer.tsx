@@ -8,7 +8,11 @@ import type {
   PublicCulturalSource,
 } from "@/lib/content/types"
 import { PUBLIC_ROUTES, publicHref } from "@/lib/content/routes"
-import { formatDate } from "@/lib/format"
+import {
+  CULTURAL_SOURCE_CARD_LABEL,
+  CULTURAL_SOURCE_NOTE_PREFIX,
+  summarizeCulturalSource,
+} from "@/lib/content/sources"
 
 export function SiteFooter({
   footer,
@@ -17,7 +21,6 @@ export function SiteFooter({
   footer: FooterContent
   sources: PublicCulturalSource[]
 }) {
-  const latest = sources.at(-1)
   return (
     <footer className="wood-deep border-t-2 border-copper-dark pb-28 text-paper md:pb-0">
       <div className="shell py-14 lg:py-20">
@@ -90,18 +93,38 @@ export function SiteFooter({
             <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-brass">
               {footer.sourcesLabel}
             </p>
-            <p className="mt-2 text-[12px] text-paper">
-              {sources.length > 0
-                ? sources.map((source) => source.community).join(" · ")
-                : "Belum ada catatan sumber yang terbit."}
-            </p>
-            <p className="mt-1 text-[10.5px] leading-relaxed text-paper/65">
-              {latest
-                ? `Izin tercatat ${formatDate(latest.permissionDate)}`
-                : "Izin dan atribusi menyusul setelah dicatat di Convex."}
-            </p>
-            <p className="mt-1 text-[10px] leading-relaxed text-paper/65">
-              {latest ? latest.attribution : "—"}
+            {sources.length > 0 ? (
+              <ul className="mt-2 border-t border-paper/20">
+                {sources.map((source) => {
+                  const row = summarizeCulturalSource(source)
+                  return (
+                    <li
+                      key={`${row.community}-${row.sourceName}`}
+                      className="flex items-baseline justify-between gap-3 border-b border-paper/10 py-1.5"
+                    >
+                      <span
+                        className="min-w-0 truncate text-[11.5px] text-paper/80"
+                        title={row.community}
+                      >
+                        {row.shortCommunity}
+                      </span>
+                      <span className="shrink-0 text-[9px] font-bold uppercase tracking-[0.06em] text-paper/55">
+                        {row.statusLabel}
+                      </span>
+                    </li>
+                  )
+                })}
+              </ul>
+            ) : null}
+            <p className="mt-3 text-[10.5px] leading-relaxed text-paper/65">
+              {CULTURAL_SOURCE_NOTE_PREFIX}
+              <Link
+                href={PUBLIC_ROUTES.ethics}
+                className="border-b border-copper-light/40 text-paper/85 hover:text-copper-light"
+              >
+                {CULTURAL_SOURCE_CARD_LABEL}
+              </Link>
+              .
             </p>
           </div>
           <div className="lg:col-span-3">

@@ -5,8 +5,13 @@ import { PathCard } from "@/components/landing/path-card"
 import { PublicPageIntro } from "@/components/landing/public-page-intro"
 import { pathMatchesField } from "@/lib/content/catalog"
 import { buildPageMetadata } from "@/lib/content/metadata"
+import { publishedTeacherNames } from "@/lib/content/people"
 import { fieldHref, PUBLIC_ROUTES } from "@/lib/content/routes"
-import { getPublicPaths, getSiteData } from "@/lib/convex/server"
+import {
+  getPublicPaths,
+  getPublicTeachers,
+  getSiteData,
+} from "@/lib/convex/server"
 import { cn } from "cn"
 
 export const instant = false
@@ -25,12 +30,14 @@ export default async function PathsPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  const [data, paths, params] = await Promise.all([
+  const [data, paths, teachers, params] = await Promise.all([
     getSiteData(),
     getPublicPaths(),
+    getPublicTeachers(),
     searchParams,
   ])
   const copy = data.sections.paths
+  const teacherNames = publishedTeacherNames(teachers)
   const rawField = params.bidang
   const selectedField = Array.isArray(rawField) ? rawField[0] : rawField
   const fields = data.catalog.fields
@@ -100,7 +107,12 @@ export default async function PathsPage({
         ) : (
           <div className="mt-12 space-y-5">
             {visiblePaths.map((path) => (
-              <PathCard key={path.slug} path={path} copy={copy} />
+              <PathCard
+                key={path.slug}
+                path={path}
+                copy={copy}
+                publishedTeacherNames={teacherNames}
+              />
             ))}
           </div>
         )}

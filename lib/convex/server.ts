@@ -38,7 +38,7 @@ export async function getSiteData(): Promise<SiteData> {
   })
   if (!data) {
     throw new Error(
-      "Konten landing belum tersedia di Convex. Jalankan seedRunner:run.",
+      "Konten landing belum tersedia di Convex. Jalankan seed/run:run.",
     )
   }
   return data

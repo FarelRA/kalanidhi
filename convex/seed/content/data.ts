@@ -1,8 +1,8 @@
-import { SPLIT_PERCENTAGES } from "../lib/commerce/money"
+import { SPLIT_PERCENTAGES } from "../../../lib/commerce/money"
 import {
   ABOUT_LOOP_HREF,
   PUBLIC_ROUTES,
-} from "../lib/content/routes"
+} from "../../../lib/content/routes"
 import type {
   CatalogField,
   Faq,
@@ -11,7 +11,7 @@ import type {
   Teacher,
   Testimonial,
   Work,
-} from "../lib/content/types"
+} from "../../../lib/content/types"
 
 /**
  * Seed data never stores static image paths. Each image carries a bare
@@ -63,13 +63,13 @@ export const siteSeed: SeedSiteCopy = {
     twitterDescription:
       "Jalur belajar praktik budaya Nusantara dengan penilaian pengajar dan sertifikat platform.",
     keywords: [
+      "batik bambu",
       "batik tulis",
       "batik tulis giriloyo",
       "aksara jawa",
       "hanacaraka",
       "pranatacara",
       "gerabah",
-      "batik bambu",
       "karawitan",
       "tari tradisi",
       "keramik",
@@ -108,14 +108,14 @@ export const siteSeed: SeedSiteCopy = {
   hero: {
     title: ["Duduk di bangku ini.", "Nanti kamu yang mengajari."],
     description:
-      "KalaNidhi Digital mempertemukan pelajar dengan pengajar batik tulis, aksara Jawa, pranatacara, gerabah, karawitan, tari, dan praktik hidup lain di Yogyakarta. Kerjakan tugas dengan tangan atau suara, kirim hasilnya, terima koreksi pengajar, lalu bawa karya atau jasamu ke pembeli. Lulusan yang siap kembali mengajar dan membuka jalur untuk pelajar berikutnya.",
+      "KalaNidhi Digital mempertemukan pelajar dengan pengajar batik bambu, aksara Jawa, pranatacara, gerabah, karawitan, tari, dan praktik hidup lain di Yogyakarta. Kerjakan tugas dengan tangan atau suara, kirim hasilnya, terima koreksi pengajar, lalu bawa karya atau jasamu ke pembeli. Lulusan yang siap kembali mengajar dan membuka jalur untuk pelajar berikutnya.",
     primaryCta: "Pilih jalur yang terbuka",
     secondaryCta: "Lihat lingkarannya",
     plate: {
       imageFile: "hero-canting.jpg",
       alt: "Tangan membatik dengan canting di atas kain",
-      caption: "Proses canting, Giriloyo",
-      note: "Lopati, 2026",
+      caption: "Ilustrasi proses canting di atas kain",
+      note: "Arsip platform",
     },
     workCard: {
       title: "Kartu Karya",
@@ -123,7 +123,7 @@ export const siteSeed: SeedSiteCopy = {
   },
   traction: {
     label: "Capaian 2026",
-    note: "Angka dihitung dari catatan publik Convex: bidang, pengajar terbit, peserta aktif, tugas yang sudah dinilai, dan karya terbit.",
+    note: "Angka dihitung dari catatan platform: bidang, pengajar terbit, peserta aktif, tugas yang dinilai, dan karya terbit.",
     figures: [
       { metric: "fields", label: "bidang budaya dipetakan" },
       { metric: "teachers", label: "pengajar dan praktisi" },
@@ -255,7 +255,7 @@ export const siteSeed: SeedSiteCopy = {
       label: "Catatan peserta",
       title: "Catatan dari peserta.",
       description:
-        "Catatan dari peserta dan mitra, dikutip dengan izin. Isinya pengalaman yang bisa diperiksa.",
+        "Catatan dari peserta dan mitra tentang pengalaman belajar, koreksi pengajar, dan karya yang mereka buat.",
       emptyState: "Belum ada catatan peserta yang terbit di Convex.",
     },
     faq: {
@@ -299,14 +299,14 @@ export const siteSeed: SeedSiteCopy = {
   },
   ethics: {
     label: "Aturan bengkel",
-    title: "Setiap pengetahuan membawa nama, izin, dan pembagian.",
+    title: "Setiap pengetahuan membawa nama, sumber, dan pembagian.",
     description:
-      "Kartu Sumber Budaya tampil di jalur, karya, dan pustaka. Isinya mencatat komunitas sumber, status izin, tanggal persetujuan, tingkat akses, dan aliran nilai ekonomi. Kami menuliskannya sebelum kamu memutuskan.",
+      "Kartu Sumber Budaya tampil di jalur, karya, dan pustaka. Isinya mencatat sumber materi, rujukan, tanggal pencatatan, tingkat akses, dan aliran nilai ekonomi. Kami menuliskannya sebelum kamu memutuskan.",
     principles: [
       {
         title: "Sumber yang bisa dilacak",
         description:
-          "Komunitas, pengajar, dan rujukan tercatat di setiap jalur dan karya. Tidak ada pengetahuan tanpa asal.",
+          "Materi kurikulum berasal dari arsip pengelola platform dan rujukan publik. Sumber, pengajar, dan rujukan tercatat di setiap jalur dan karya.",
       },
       {
         title: "Izin dan tingkat akses",
@@ -349,7 +349,7 @@ export const siteSeed: SeedSiteCopy = {
     shareAriaLabel: `Bagi hasil ${SPLIT_PERCENTAGES.teacher} persen untuk pengajar dan pembuat karya, ${SPLIT_PERCENTAGES.community} persen untuk dana komunitas dan sanggar, ${SPLIT_PERCENTAGES.platform} persen untuk operasional platform`,
     card: {
       sourceTitle: "Kartu Sumber Budaya",
-      permissionLabel: "Izin",
+      permissionLabel: "Sumber",
       referenceLabel: "Rujukan",
       emptyState:
         "Belum ada catatan sumber budaya yang terbit di Convex. Izin dan atribusi akan tampil di sini setelah dicatat.",
@@ -416,7 +416,7 @@ export const siteSeed: SeedSiteCopy = {
     copyright: "© 2026 KalaNidhi Digital. Dibuat di Yogyakarta.",
     sourceLabel: "Catatan sumber",
     sourceDescription:
-      "Pengetahuan pada halaman ini ditampilkan dengan sumber komunitas. Setiap karya mencantumkan pembuat, pengajar pendamping, dan sumber pengetahuan.",
+      "Pengetahuan pada halaman ini disertai catatan sumber. Setiap karya mencantumkan pembuat, pengajar pendamping, dan sumber pengetahuan.",
     sourcesLabel: "Sumber",
     cultureLabel: "Hak budaya",
     culturePolicyCta: "Baca prinsip etika",
@@ -454,8 +454,8 @@ export const siteSeed: SeedSiteCopy = {
       description:
         "Prinsip yang kami pakai sebelum sebuah pengetahuan atau karya ditampilkan.",
       bullets: [
-        "Komunitas, pengajar, dan sumber pengetahuan tampil di setiap jalur dan karya.",
-        "Status izin dan tanggal persetujuan ditampilkan bersama tingkat aksesnya.",
+        "Sumber materi, pengajar, dan rujukan tampil di setiap jalur dan karya.",
+        "Status sumber dan tanggal pencatatan ditampilkan bersama tingkat aksesnya.",
         "Rincian bagi hasil dapat dilihat sebelum transaksi, saat kamu masih bisa memutuskan.",
         "Pengetahuan terbatas dihormati. Tidak semua materi dibuka untuk publik.",
         "Motif sakral atau larangan tidak dipakai sebagai dekorasi antarmuka.",
@@ -642,8 +642,8 @@ export const siteSeed: SeedSiteCopy = {
 
 export const catalogFieldsSeed: CatalogField[] = [
   {
-    name: "Batik tulis",
-    region: "Giriloyo, Wukirsari, Imogiri, Bantul",
+    name: "Batik bambu",
+    region: "Krebet, Sendangsari, Pajangan, Bantul",
     status: "Terbuka",
     note: "Jalur aktif",
   },
@@ -666,10 +666,10 @@ export const catalogFieldsSeed: CatalogField[] = [
     note: "Kurikulum disusun; pembentukan dan pembakaran",
   },
   {
-    name: "Batik bambu",
-    region: "Bantul",
+    name: "Batik tulis",
+    region: "Giriloyo, Wukirsari, Imogiri, Bantul",
     status: "Sedang dipetakan",
-    note: "Pengajar dijajaki",
+    note: "Materi sumber belum tersedia",
   },
   {
     name: "Karawitan",
@@ -711,24 +711,27 @@ export const catalogFieldsSeed: CatalogField[] = [
 
 export const pathsSeed: SeedLearningPath[] = [
   {
-    slug: "batik-tulis-soga",
+    slug: "batik-bambu",
     code: "Jalur 01",
-    title: "Batik Tulis Giriloyo",
-    subtitle: "Mola, nglowongi, nerusi, ngisen-isen, mbabar, nglorod, mepe",
-    teacher: "Bambang Hardjono",
+    title: "Batik Bambu",
+    subtitle:
+      "Memilih bambu, merebus, mengeringkan, mengamplas, memberi pola, nglowongi, ngisen-isen, mbabar, nembok, warna dasar, nglorod, mepe, finishing, memeriksa",
+    teacher: "Sri Sriningsih",
     teacherRole:
-      "Pengajar batik tulis; materi menurut Paguyuban Batik Tulis Giriloyo",
-    region: "Giriloyo, Wukirsari, Imogiri, Bantul, D.I. Yogyakarta",
+      "Perajin batik bambu; materi adaptasi dari Paguyuban Batik Tulis Giriloyo",
+    region: "Krebet, Sendangsari, Pajangan, Bantul, D.I. Yogyakarta",
     level: "Pemula",
     weeks: 6,
     tasks: 6,
     price: 1_250_000,
-    imageFile: "path-batik-tulis-giriloyo.jpg",
+    imageFile: "path-batik-bambu.jpg",
     tags: ["Paket bahan disiapkan platform", "Sertifikat platform"],
     outcome:
-      "Sehelai kain batik tulis hasil sendiri, lengkap dengan catatan tujuh langkah prosesnya untuk Kartu Karya.",
+      "Satu nampan atau panel bambu batik hasil sendiri, lengkap dengan catatan proses dari pemilihan bambu sampai pelapisan untuk Kartu Karya.",
     includes: [
       "6 modul bacaan dan latihan",
+      "Paket bahan: tiga bilah bambu kering siap amplas, malam, tiga warna, dan pelapis",
+      "Alat pribadi yang perlu disiapkan: canting, wajan kecil, kompor, dan kuas",
       "Panduan bahan, alat, dan keselamatan kerja",
       "6 tugas praktik dinilai perajin",
       "Ujian akhir dan sertifikat platform",
@@ -762,8 +765,8 @@ export const pathsSeed: SeedLearningPath[] = [
     code: "Jalur 03",
     title: "Kriya Gerabah Bantul",
     subtitle: "Membentuk, mengeringkan, dan membakar gerabah Kasongan",
-    teacher: "Sutrisno Wibowo",
-    teacherRole: "Pengrajin gerabah Kasongan",
+    teacher: "",
+    teacherRole: "",
     region: "Kasongan, Kasihan, Bantul, D.I. Yogyakarta",
     level: "Pemula",
     weeks: 0,
@@ -804,6 +807,32 @@ export const pathsSeed: SeedLearningPath[] = [
       "Sertifikat platform",
     ],
   },
+  {
+    slug: "batik-tulis-soga",
+    code: "Jalur 05",
+    title: "Batik Tulis",
+    subtitle:
+      "Materi batik tulis di atas kain sedang disiapkan; belum ada modul yang diterbitkan",
+    teacher: "Bambang Hardjono",
+    teacherRole:
+      "Pengajar batik tulis; materi Paguyuban Batik Tulis Giriloyo sedang disiapkan",
+    region: "Giriloyo, Wukirsari, Imogiri, Bantul, D.I. Yogyakarta",
+    level: "Pemula",
+    weeks: 0,
+    tasks: 0,
+    price: null,
+    priceLabel: "Sedang disusun",
+    imageFile: "path-batik-tulis-giriloyo.jpg",
+    tags: ["Sedang disusun", "Materi sumber belum tersedia"],
+    outcome:
+      "Jalur batik tulis di atas kain belum dibuka. Materi sumber dari Paguyuban Batik Tulis Giriloyo masih disiapkan dan belum diterbitkan sebagai modul, jadi belum ada kurikulum yang bisa dijanjikan.",
+    includes: [
+      "Kurikulum dalam penyusunan",
+      "Daftar tunggu dibuka",
+      "Materi menyusul",
+    ],
+    comingSoon: true,
+  },
 ]
 
 export const teachersSeed: SeedTeacher[] = [
@@ -822,28 +851,28 @@ export const teachersSeed: SeedTeacher[] = [
     quote:
       "Canting yang stabil lebih penting daripada motif yang rumit. Saya minta murid berhenti sebentar sebelum meneteskan lilin.",
     focus: "Batik tulis dan pewarnaan soga",
-    path: "Batik Tulis Giriloyo",
-    community: "Sanggar Soga Giriloyo",
+    path: "Batik Tulis",
+    community: "Perajin batik tulis Giriloyo",
     imageFile: "teacher-hardjono.jpg",
     verified: true,
   },
   {
     slug: "sri-sriningsih",
     key: "sri",
-    pathIds: ["batik-tulis-soga"],
+    pathIds: ["batik-bambu"],
     status: "active" as const,
     verificationStatus: "verified" as const,
     published: true,
     name: "Sri Sriningsih",
     initials: "SS",
-    specialty: "Ahli pewarnaan alami",
-    region: "Pleret, Bantul, D.I. Yogyakarta",
-    experience: "32 tahun pewarnaan alami",
+    specialty: "Perajin batik bambu dan pewarna alami",
+    region: "Krebet, Sendangsari, Pajangan, Bantul, D.I. Yogyakarta",
+    experience: "Lebih dari tiga puluh tahun di pewarnaan alami, belasan tahun membatik bambu",
     quote:
-      "Warna alami tidak bisa dipaksa. Kalau bahan dan musimnya tepat, hasilnya justru lebih tenang.",
-    focus: "Pewarna alami dan ekstraksi nila untuk batik tulis",
-    path: "Batik Tulis Giriloyo",
-    community: "Rumah Warna Pleret",
+      "Bambu tidak menyerap malam seperti kain. Garis harus ditutup rapat, lalu diperiksa di bawah cahaya miring.",
+    focus: "Batik bambu: pemilihan bambu, canting, dan pewarnaan",
+    path: "Batik Bambu",
+    community: "Perajin batik bambu, Bantul",
     imageFile: "teacher-sriningsih.jpg",
     verified: true,
   },
@@ -863,7 +892,7 @@ export const teachersSeed: SeedTeacher[] = [
       "Pembawa acara yang baik mengatur napas acara. Kalimatnya jelas, urutannya tidak membuat tamu menunggu.",
     focus: "Pembawa acara adat dan protokol",
     path: "Seni Pembawa Acara Tradisi Jawa",
-    community: "Sanggar Wicara Ngayogyakarta",
+    community: "Pembawa acara tradisi Jawa, Yogyakarta",
     imageFile: "teacher-sudarsono.jpg",
     verified: true,
   },
@@ -883,7 +912,7 @@ export const teachersSeed: SeedTeacher[] = [
       "Tanah yang terlalu basah akan melengkung saat kering. Latihan pertama biasanya tentang menunggu, bukan mengejar bentuk.",
     focus: "Gerabah bentuk, roda putar, dan pembakaran",
     path: "Kriya Gerabah Bantul",
-    community: "Sanggar Gerabah Kasongan",
+    community: "Pengrajin gerabah Kasongan",
     imageFile: "teacher-gerabah.jpg",
     verified: false,
   },
@@ -903,7 +932,7 @@ export const teachersSeed: SeedTeacher[] = [
       "Saya menandai aksara yang salah satu per satu, bukan hanya memberi nilai di akhir. Kesalahan yang terlihat bisa diperbaiki besok.",
     focus: "Aksara Jawa, tembang, dan tata tulis",
     path: "Aksara Jawa: Membaca dan Menulis",
-    community: "Sanggar Aksara Yogyakarta",
+    community: "Pengajar aksara Jawa, Yogyakarta",
     imageFile: "teacher-suwardi.jpg",
     verified: true,
   },
@@ -911,73 +940,73 @@ export const teachersSeed: SeedTeacher[] = [
 
 export const worksSeed: SeedWork[] = [
   {
-    slug: "batik-soga-anyaman",
+    slug: "nampan-batik-bambu",
     makerKey: "anisa",
-    pathSlug: "batik-tulis-soga",
+    pathSlug: "batik-bambu",
     certificateKey: "anisa",
     permission:
-      "Izin publikasi tercatat untuk pengelola platform; dokumen sumber diarsipkan pengelola platform",
-    title: "Kain Batik Soga Anyaman",
+      "Izin publikasi karya tercatat dari pembuat untuk pengelola platform",
+    title: "Nampan Batik Bambu",
     category: "batik",
     kind: "product",
     maker: "Anisa Rahmawati",
-    makerRole: "Lulusan jalur Batik Tulis",
-    teacher: "Bambang Hardjono",
-    region: "Giriloyo, Bantul",
-    price: 1_450_000,
-    unit: "Kain panjang, 2,5 x 1,05 m",
+    makerRole: "Lulusan jalur Batik Bambu",
+    teacher: "Sri Sriningsih",
+    region: "Bantul",
+    price: 385_000,
+    unit: "Nampan bambu, diameter 30 cm",
     technique: "Tulis",
-    techniqueNote: "Canting tangan",
+    techniqueNote: "Canting pada bilah bambu",
     workCard: "KN-8821",
     description:
-      "Pewarna soga dari kulit tingi dan jambal, dengan motif geometris yang disusun ulang dari pola klasik Giriloyo. Proses pembuatan tercatat dalam 12 foto bertanggal.",
-    imageFile: "work-soga.jpg",
+      "Nampan bambu dengan motif geometris yang disusun ulang dari pola klasik Giriloyo. Malam dipakai sebagai perintang warna; motif ditutup malam sebelum warna dasar, lalu nglorod dan pelapisan akhir. Harga mencakup bilah bambu pilihan, malam, pewarna, pelapis, dan kerja canting. Tampilan Kartu Karya memakai ilustrasi tipografi, bukan foto produk.",
+    imageFile: "work-bambu-nampan.jpg",
   },
   {
-    slug: "selendang-canting-nitik",
+    slug: "box-tisu-batik-bambu",
     makerKey: "dimas",
-    pathSlug: "batik-tulis-soga",
+    pathSlug: "batik-bambu",
     certificateKey: "dimas",
     permission:
-      "Izin publikasi tercatat untuk pengelola platform; dokumen sumber diarsipkan pengelola platform",
-    title: "Selendang Canting Nitik",
+      "Izin publikasi karya tercatat dari pembuat untuk pengelola platform",
+    title: "Box Tisu Batik Bambu",
     category: "batik",
     kind: "product",
     maker: "Dimas Yoga Pratama",
-    makerRole: "Lulusan jalur Batik Tulis",
-    teacher: "Bambang Hardjono",
-    region: "Kasihan, Bantul",
-    price: 850_000,
-    unit: "Selendang primis, 2 x 0,55 m",
-    technique: "Tulis",
-    techniqueNote: "Titik canting halus",
+    makerRole: "Lulusan jalur Batik Bambu",
+    teacher: "Sri Sriningsih",
+    region: "Bantul",
+    price: 275_000,
+    unit: "Kotak tisu bambu, 22 x 12 x 8 cm",
+    technique: "Tulis dan colet",
+    techniqueNote: "Titik canting pada anyaman bambu",
     workCard: "KN-9014",
     description:
-      "Selendang primis dengan titik canting rapat. Panduan perawatan dan kartu bahan disertakan.",
-    imageFile: "work-nitik.jpg",
+      "Kotak tisu dari anyaman bambu dengan titik canting rapat dan dua warna. Motif ditutup malam sebelum warna dasar, lalu nglorod dan pelapisan akhir. Harga mencakup anyaman bambu, malam, pewarna, pelapis, dan kerja canting. Kartu bahan dan panduan perawatan tanpa rendam disertakan; tampilan Kartu Karya memakai ilustrasi tipografi.",
+    imageFile: "work-bambu-box-tisu.jpg",
   },
   {
-    slug: "batik-soga-lereng",
+    slug: "hiasan-dinding-batik-bambu",
     makerKey: "purnomo",
-    pathSlug: "batik-tulis-soga",
+    pathSlug: "batik-bambu",
     certificateKey: "purnomo",
     permission:
-      "Izin publikasi tercatat untuk pengelola platform; dokumen sumber diarsipkan pengelola platform",
-    title: "Batik Tulis Lereng Soga",
+      "Izin publikasi karya tercatat dari pembuat untuk pengelola platform",
+    title: "Hiasan Dinding Batik Bambu",
     category: "batik",
     kind: "product",
     maker: "Bambang Purnomo",
-    makerRole: "Lulusan jalur lanjutan",
-    teacher: "Bambang Hardjono",
-    region: "Mlati, Sleman",
-    price: 2_900_000,
-    unit: "Kain halus, sutra ATBM",
+    makerRole: "Lulusan jalur Batik Bambu",
+    teacher: "Sri Sriningsih",
+    region: "Bantul",
+    price: 650_000,
+    unit: "Panel bambu, 60 x 40 cm",
     technique: "Tulis",
-    techniqueNote: "14 tahap pewarnaan",
+    techniqueNote: "Canting dan colet dua warna",
     workCard: "KN-9147",
     description:
-      "Karya lanjutan dengan 14 tahap pewarnaan soga. Motif lereng klasik, bukan motif sakral.",
-    imageFile: "work-sutra.jpg",
+      "Panel bambu untuk dinding dengan motif lereng klasik yang disusun ulang, bukan motif sakral. Motif ditutup malam sebelum warna dasar, lalu nglorod dan pelapisan akhir. Harga mencakup bilah bambu pilihan, malam, pewarna, pelapis, dan kerja canting. Tampilan Kartu Karya memakai ilustrasi tipografi, bukan foto produk.",
+    imageFile: "work-bambu-hiasan.jpg",
   },
   {
     slug: "pranatacara-siraman",
@@ -1032,9 +1061,9 @@ export const worksSeed: SeedWork[] = [
 export const testimonialsSeed: Testimonial[] = [
   {
     quote:
-      "Saya kira belajar dari video sudah cukup. Setelah pengajar menandai bagian canting yang tekanannya terlalu kuat, kain saya jadi lebih rata. Tiga bulan kemudian saya berani membuka pesanan kecil.",
+      "Saya kira belajar dari video sudah cukup. Setelah pengajar menandai bagian canting yang tekanannya terlalu kuat, nampan bambu saya jadi lebih rata. Tiga bulan kemudian saya berani membuka pesanan kecil.",
     name: "Sari Wulandari",
-    role: "Karyawan kreatif, pelajar batik",
+    role: "Karyawan kreatif, pelajar batik bambu",
     city: "Yogyakarta",
     initials: "SW",
   },
@@ -1070,7 +1099,7 @@ export const faqsSeed: Faq[] = [
   {
     question: "Bidang apa saja yang bisa dipelajari?",
     answer:
-      "Bidang budaya sudah dipetakan, dari batik tulis Giriloyo, aksara Jawa, dan pranatacara sampai gerabah Kasongan, batik bambu, karawitan, tari, keramik, kuliner tradisi, jamu, dan wayang. Jalur dibuka bertahap setelah kurikulum dan izin komunitas selesai.",
+      "Bidang budaya sudah dipetakan, dari batik bambu Bantul, aksara Jawa, dan pranatacara sampai gerabah Kasongan, batik tulis Giriloyo, karawitan, tari, keramik, kuliner tradisi, jamu, dan wayang. Jalur dibuka bertahap setelah kurikulum dan sumbernya siap.",
   },
   {
     question: "Bagaimana pengajar menilai tugas praktik saya?",
@@ -1085,7 +1114,7 @@ export const faqsSeed: Faq[] = [
   {
     question: "Bagaimana hak budaya dan bagi hasil dijaga?",
     answer:
-      "Setiap jalur dan karya menampilkan Kartu Sumber Budaya: komunitas sumber, rujukan izin, tanggal persetujuan, dan tingkat akses. Rincian bagi hasil ditampilkan sebelum transaksi, saat kamu masih bisa memutuskan.",
+      "Setiap jalur dan karya menampilkan Kartu Sumber Budaya: sumber materi, rujukan, tanggal pencatatan, dan tingkat akses. Rincian bagi hasil ditampilkan sebelum transaksi, saat kamu masih bisa memutuskan.",
   },
   {
     question: "Saya hanya ingin membeli karya. Apakah harus ikut kelas?",

@@ -55,6 +55,11 @@ const token = process.env.SEED_UPLOAD_SECRET
 
 /** Descriptive alt text for the images the seed actually displays. */
 const ALT_BY_FILENAME = {
+  "path-batik-bambu.jpg":
+    "Plat tipografi jalur Batik Bambu, Krebet, Sendangsari, Pajangan, Bantul",
+  "work-bambu-nampan.jpg": "Plat Kartu Karya Nampan Batik Bambu",
+  "work-bambu-box-tisu.jpg": "Plat Kartu Karya Box Tisu Batik Bambu",
+  "work-bambu-hiasan.jpg": "Plat Kartu Karya Hiasan Dinding Batik Bambu",
   "lesson-mola.jpg":
     "Peserta membatik mengikuti garis pensil di atas kain dengan canting",
   "lesson-mbabar.jpg":
