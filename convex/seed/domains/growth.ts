@@ -814,6 +814,7 @@ type GrowthContext = {
   certificates: Array<{ serial: string; issuedAt: number }>
   nextOrderSerial: number
   nextCertificateSerial: number
+  workPurchaseCursor: number
 }
 
 /**
@@ -878,6 +879,7 @@ async function loadGrowthContext(
         0,
         ...certificates.map((certificate) => Number(certificate.serial.slice(-4)) || 0),
       ) + 1,
+    workPurchaseCursor: orders.filter((order) => order.workId !== undefined).length,
   }
   if (key !== undefined) growthContext = context
   return context
@@ -1125,11 +1127,23 @@ export const seedGrowthBatch = internalMutation({
         (work) => (work.createdAt ?? SEED_START) <= purchaseAt,
       )
       if (available.length === 0) return
-      const work = available[(seed * 7 + 3) % available.length]
-      if (!work?.makerId) return
-      if ((work.makerId as string) === (user._id as string)) return
-      const maker = userById.get(work.makerId)
-      if (!maker || maker.status !== "active") return
+      let work: Doc<"works"> | undefined
+      let maker: Doc<"users"> | undefined
+      for (let attempt = 0; attempt < available.length; attempt += 1) {
+        const candidate =
+          available[
+            (context.workPurchaseCursor + attempt) % available.length
+          ]
+        if (!candidate?.makerId) continue
+        if ((candidate.makerId as string) === (user._id as string)) continue
+        const owner = userById.get(candidate.makerId)
+        if (!owner || owner.status !== "active") continue
+        work = candidate
+        maker = owner
+        break
+      }
+      context.workPurchaseCursor += 1
+      if (!work || !maker) return
       const workCreatedAt = Math.max(
         purchaseAt,
         work.createdAt ?? SEED_START,
