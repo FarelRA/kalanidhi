@@ -29,6 +29,7 @@ import type * as learning from "../learning.js";
 import type * as media from "../media.js";
 import type * as messaging from "../messaging.js";
 import type * as notifications from "../notifications.js";
+import type * as overview from "../overview.js";
 import type * as payments from "../payments.js";
 import type * as payouts from "../payouts.js";
 import type * as people from "../people.js";
@@ -100,6 +101,7 @@ declare const fullApi: ApiFromModules<{
   media: typeof media;
   messaging: typeof messaging;
   notifications: typeof notifications;
+  overview: typeof overview;
   payments: typeof payments;
   payouts: typeof payouts;
   people: typeof people;

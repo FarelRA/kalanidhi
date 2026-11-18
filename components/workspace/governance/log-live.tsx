@@ -145,7 +145,7 @@ export function LogLive() {
         {result && !result.available ? (
           <EmptyState
             title="Sumber log belum tersedia"
-            description={result.note ?? "Tidak ada tabel sumber pada fase ini."}
+            description={result.note ?? "Belum ada sumber log untuk pilihan ini."}
             className="border-0"
           />
         ) : (result?.rows.length ?? 0) === 0 ? (

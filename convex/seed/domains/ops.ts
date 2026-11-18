@@ -393,6 +393,17 @@ export const seedOps = internalMutation({
       },
     ]
 
+    const ticketResolutionNotes: Record<string, string> = {
+      "SUP-2026-0005":
+        "Mutasi QRIS dicocokkan dengan nominal unik; pesanan ditandai lunas.",
+      "SUP-2026-0003":
+        "Sertifikat disinkronkan ulang dan sudah tampil di profil.",
+      "SUP-2026-0002":
+        "Tautan rekaman dikirim ke email peserta, berlaku 90 hari.",
+      "SUP-2026-0001":
+        "Karya ditautkan ke sertifikat dan sekarang tampil di etalase.",
+    }
+
     for (const ticket of tickets) {
       const ticketId = await ctx.db.insert("supportTickets", {
         code: ticket.code,
@@ -419,7 +430,7 @@ export const seedOps = internalMutation({
             : undefined,
         resolutionNote:
           ticket.status === "resolved" || ticket.status === "closed"
-            ? "Diselesaikan dan dikonfirmasi pemohon."
+            ? ticketResolutionNotes[ticket.code]
             : undefined,
         closedAt: ticket.status === "closed" ? clock.ago(ticket.daysAgo - 1) : undefined,
         createdAt: clock.ago(ticket.daysAgo),

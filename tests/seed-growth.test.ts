@@ -997,6 +997,36 @@ describe("seed growth / operating year", () => {
     }
   })
 
+  it("writes distinct support resolutions and varied priorities", async () => {
+    const t = createTestDb()
+    const { data } = await runGrowth(t)
+
+    const resolved = data.supportTickets.filter(
+      (ticket) => ticket.status === "resolved" || ticket.status === "closed",
+    )
+    expect(resolved.length).toBeGreaterThan(0)
+    const notes = resolved.map((ticket) => ticket.resolutionNote)
+    expect(notes.every((note) => (note ?? "").length > 10)).toBe(true)
+    expect(new Set(notes).size).toBe(notes.length)
+
+    const pending = data.supportTickets.filter(
+      (ticket) => ticket.status === "open" || ticket.status === "pending",
+    )
+    for (const ticket of pending) {
+      expect(ticket.resolutionNote).toBeUndefined()
+    }
+
+    const priorities = new Set(
+      data.supportTickets.map((ticket) => ticket.priority),
+    )
+    expect(priorities.has("high")).toBe(true)
+    expect(priorities.has("low")).toBe(true)
+    expect(priorities.has("normal")).toBe(true)
+
+    const noteBodies = data.leadNotes.map((note) => note.body)
+    expect(new Set(noteBodies).size).toBe(noteBodies.length)
+  })
+
   it("uses plausible identities and unique keys", async () => {
     const t = createTestDb()
     const { data } = await runGrowth(t)

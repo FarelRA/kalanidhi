@@ -741,8 +741,8 @@ function CallPrejoin({
           </div>
         </div>
         <p className="text-[9.5px] leading-relaxed text-ink-muted">
-          Rekaman mati secara bawaan. Persetujuan rekaman hanya dicatat sebagai
-          metadata pada fase ini; tidak ada egress atau berkas rekaman.
+          Rekaman tidak diaktifkan untuk panggilan ini. Persetujuan hanya dicatat
+          sebagai metadata; tidak ada egress atau berkas rekaman.
         </p>
       </div>
     </div>
@@ -1110,7 +1110,7 @@ function CallConsentPanel({
         consent,
       })
       toast(consent ? "Persetujuan rekaman dicatat" : "Rekaman ditolak", {
-        description: "Rekaman tetap mati pada fase ini; tidak ada egress.",
+        description: "Rekaman tetap tidak aktif untuk panggilan ini.",
       })
     } catch (error) {
       toast.error(errorMessage(error))
@@ -1123,7 +1123,7 @@ function CallConsentPanel({
     <Panel eyebrow="Konsen" title="Sebelum merekam">
       <p className="text-[10.5px] leading-relaxed text-ink-soft">
         Rekaman hanya untuk sengketa penilaian, atas persetujuan semua pihak, dan
-        disimpan 30 hari. Fase ini hanya mencatat persetujuan; tidak ada rekaman
+        disimpan 30 hari. Saat ini hanya persetujuan yang dicatat; belum ada rekaman
         yang dibuat.
       </p>
       <div className="mt-3 space-y-1.5">
@@ -1342,7 +1342,7 @@ function CallMonitor({ call }: { call: CallDetail }) {
         <Panel eyebrow="Pengelola" title="Tanpa bergabung ke media">
           <p className="text-[10.5px] leading-relaxed text-ink-soft">
             Pemantauan hanya membaca metadata panggilan. Tidak ada token media
-            yang diterbitkan untuk akun pengelola pada fase ini.
+            yang diterbitkan untuk akun pengelola.
           </p>
           <Button asChild variant="outline" className="mt-3 w-full">
             <Link href="/ruang/log">Buka log panggilan</Link>
@@ -1366,7 +1366,7 @@ function CallSummaryPanel({ call, left }: { call: CallDetail; left: boolean }) {
       <p className="mt-2 text-[12.5px] leading-relaxed text-ink-soft">
         {left && !isTerminal(call.status)
           ? "Panggilan masih berjalan untuk peserta lain. Kembali lewat percakapan bila diperlukan."
-          : `Durasi ${formatDuration(call.durationMs ?? 0)}. Tidak ada rekaman pada fase ini.`}
+          : `Durasi ${formatDuration(call.durationMs ?? 0)}. Tidak ada rekaman untuk panggilan ini.`}
       </p>
       <dl className="mx-auto mt-5 grid max-w-sm gap-2 text-left">
         <Fact label="Jenis" value={kindLabel(call.kind)} />
@@ -1398,8 +1398,7 @@ function CallRecordingsPanel({ call }: { call: CallDetail }) {
   return (
     <Panel eyebrow="Rekaman" title="Metadata rekaman">
       <p className="text-[10.5px] leading-relaxed text-ink-soft">
-        Rekaman tersimpan sebagai metadata. Pemutaran dan unduhan tidak tersedia
-        pada fase ini.
+        Rekaman tersimpan sebagai metadata. Pemutaran dan unduhan belum tersedia.
       </p>
       <ul className="mt-3 divide-y divide-ink/10 border border-ink/15">
         {call.recordings.map((recording) => (
@@ -1502,7 +1501,7 @@ function CallLandingSafety() {
     <Panel eyebrow="Keamanan" title="Sebelum memanggil">
       <ul className="space-y-2 text-[10.5px] leading-relaxed text-ink-soft">
         <li>Panggilan hanya dari percakapan atau jadwal yang diizinkan.</li>
-        <li>Rekaman mati secara bawaan; tidak ada egress pada fase ini.</li>
+        <li>Rekaman tidak aktif secara bawaan; tidak ada egress.</li>
         <li>Panggilan kohort maksimal 25 peserta.</li>
         <li>
           Peserta di bawah umur: panggilan 1:1 memerlukan pendampingan wali;

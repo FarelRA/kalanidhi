@@ -224,6 +224,19 @@ describe("seed runtime", () => {
 
     const integrity = await t.query(internal.seed.integrity.verify, {})
     expect(integrity).toEqual([])
+
+    const tickets = await t.run(async (ctx) =>
+      await ctx.db.query("supportTickets").collect(),
+    )
+    const resolved = tickets.filter(
+      (ticket) => ticket.status === "resolved" || ticket.status === "closed",
+    )
+    const notes = resolved.map((ticket) => ticket.resolutionNote ?? "")
+    expect(notes.every((note) => note.length > 10)).toBe(true)
+    expect(new Set(notes).size).toBe(notes.length)
+    const priorities = new Set(tickets.map((ticket) => ticket.priority))
+    expect(priorities.has("high")).toBe(true)
+    expect(priorities.has("low")).toBe(true)
   }, 180_000)
 
   it("produces identical timestamps for two worlds at the same now", async () => {

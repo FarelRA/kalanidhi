@@ -256,6 +256,18 @@ const LEAD_NOTES = [
   "Tinggal di luar kota, tanya paket bahan. Sudah saya cek ongkir ke Magelang.",
   "Minta dihubungi setelah gajian tanggal 25. Saya pasang pengingat.",
   "Masih membandingkan dua jalur. Saya sarankan datang ke sesi terbuka dulu.",
+  "Sudah saya kirim jadwal angkatan Juli dan tautan pendaftaran; dia akan cek dulu dengan suami.",
+  "Kerja shift malam, jadi saya tawarkan rekaman sesi dan sesi susulan akhir pekan.",
+  "Minta rincian biaya bahan. Sudah saya jelaskan apa saja yang termasuk dan ongkirnya.",
+  "Dia baru pindah ke Sleman, minta rekomendasi jalur yang dekat. Saya arahkan ke batik bambu.",
+  "Sudah saya kirim contoh tugas akhir dua lulusan; dia minta waktu sampai akhir bulan.",
+  "Tanya apakah sertifikat bisa dipakai untuk kenaikan jenjang. Saya jelaskan ini sertifikat platform.",
+  "Mau ikut berdua dengan teman kantor. Saya kirim dua tautan dan catat keduanya.",
+  "Belum pernah pegang canting, agak ragu. Saya tawarkan datang ke sesi terbuka dulu.",
+  "Minta dihubungi lewat telepon, bukan WA. Sudah saya catat nomornya dan jadwalkan sore.",
+  "Tanya soal aksara untuk undangan pernikahan. Saya kirim contoh dan tarif jasa tulis.",
+  "Sudah saya kabari jadwal angkatan Agustus; dia minta pengingat H-3.",
+  "Tertarik pranatacara untuk acara keluarga. Saya sarankan ikut angkatan Oktober.",
 ] as const
 
 const SUPPORT_SCENARIOS = [
@@ -264,72 +276,108 @@ const SUPPORT_SCENARIOS = [
     body: "Bu, canting saya bocor waktu latihan lengkung. Malamnya netes ke bagian yang sudah diwarnai, jadi ada bercak di tengah motif. Harus diulang dari nol atau bisa ditambal?",
     reply:
       "Bercaknya masih bisa ditutup kalau belum difiksasi. Keringkan dulu semalaman, lalu tutup tipis dengan malam dingin. Jangan dipanaskan lagi di bagian yang sudah berwarna.",
+    priority: "high" as const,
+    resolution:
+      "Canting pengganti dikirim Senin; {name} lanjut latihan di sesi susulan.",
   },
   {
     subject: "Video sesi kemarin tidak bisa diputar",
     body: "Sesi 2 kemarin saya buka ulang tapi muter terus. Sudah coba pakai WiFi kantor dan data HP, sama saja. Rekaman yang lain normal.",
     reply:
       "Rekaman sesi 2 sedang diproses ulang, biasanya selesai 2x24 jam. Sementara itu catatan sesi dan foto papan sudah saya taruh di materi modul.",
+    priority: "normal" as const,
+    resolution:
+      "Rekaman sesi 2 diunggah ulang dan {name} mengonfirmasi bisa diputar.",
   },
   {
     subject: "Paket bahan belum sampai",
     body: "Paket bahan untuk angkatan Juli belum saya terima. Kurir bilang alamat tidak ditemukan, padahal rumah saya di Jalan Imogiri Timur, patokannya masjid Al-Huda.",
     reply:
       "Sudah saya teruskan ke gudang, alamat akan dikirim ulang besok pagi. Kalau kurir menelepon lagi, minta antar ke masjid Al-Huda saja.",
+    priority: "high" as const,
+    resolution:
+      "Paket dikirim ulang ke masjid Al-Huda dan diterima {name} dua hari kemudian.",
   },
   {
     subject: "Sertifikat belum muncul di akun",
     body: "Tugas akhir saya sudah dinilai Bu Sri minggu lalu, tapi sertifikat belum ada di halaman akun. Apakah ada yang kurang?",
     reply:
       "Sudah saya cek, penilaiannya masuk dan sertifikat terbit hari ini. Coba muat ulang halaman verifikasi; kalau masih kosong, kirim tangkapan layarnya ke sini.",
+    priority: "normal" as const,
+    resolution:
+      "Sertifikat disinkronkan ulang dan sudah muncul di akun {name}.",
   },
   {
     subject: "Nominal transfer beda 37 rupiah",
     body: "Saya transfer 1.250.037 tapi di invoice tertulis 1.250.000. Yang 37 rupiah itu buat apa ya? Takutnya nanti statusnya belum lunas.",
     reply:
       "Tiga puluh tujuh rupiah itu kode unik untuk mencocokkan mutasi, bukan biaya tambahan. Statusnya sudah lunas, tidak perlu transfer lagi.",
+    priority: "high" as const,
+    resolution:
+      "Selisih 37 rupiah dikonfirmasi sebagai kode unik; pesanan {name} lunas.",
   },
   {
     subject: "Mau pindah jadwal sesi",
     body: "Sabtu ini saya ada acara keluarga di Kulon Progo. Bisa ikut sesi susulan atau minta rekamannya saja?",
     reply:
       "Bisa ikut sesi susulan minggu depan, atau pakai rekaman kalau lebih pas. Saya catat izinnya, tugas tetap dikumpulkan sesuai tenggat.",
+    priority: "normal" as const,
+    resolution:
+      "{name} dijadwalkan ikut sesi susulan minggu berikutnya.",
   },
   {
     subject: "Aksara di undangan kebalik",
     body: "Mas, saya baru sadar pasangan aksara di nama mempelai perempuan kebalik. Undangan sudah dicetak 200 lembar. Ada cara cepat membetulkannya?",
     reply:
       "Kalau yang salah cuma satu blok, bisa ditambal dengan stiker kertas bebas asam. Saya kirim versi aksara yang benar malam ini, sekalian ejaan Latin-nya.",
+    priority: "low" as const,
+    resolution:
+      "Blok aksara yang benar dikirim ulang; undangan {name} ditambal dengan stiker.",
   },
   {
     subject: "Belum dapat kabar jadwal wawancara",
     body: "Saya daftar jadi pengajar pendamping bulan lalu. Katanya akan dihubungi untuk wawancara, tapi sampai sekarang belum ada kabar.",
     reply:
       "Berkasnya sudah masuk daftar tunggu. Wawancara gelombang berikutnya minggu ketiga November; saya kabari lewat WA begitu jadwalnya keluar.",
+    priority: "normal" as const,
+    resolution:
+      "Berkas {name} masuk gelombang wawancara November dan dikabari lewat WA.",
   },
   {
     subject: "Karya yang saya pesan warnanya beda",
     body: "Nampannya sudah sampai, tapi warna dasarnya lebih gelap dari foto di etalase. Apakah memang begitu, atau ada kesalahan pewarnaan?",
     reply:
       "Warna alami memang bisa sedikit berbeda tergantung bilah. Kalau terlalu jauh dari foto, kirim foto dengan cahaya siang; kalau memang beda jauh, kami tawarkan penukaran.",
+    priority: "normal" as const,
+    resolution:
+      "Foto cahaya siang diminta; {name} mengirim ulang foto untuk pengecekan warna.",
   },
   {
     subject: "Tidak bisa unggah tugas dari HP",
     body: "Mau unggah foto tugas dari HP tapi terus gagal. Ukurannya 4 MB, katanya maksimal 5 MB. Sudah coba Chrome dan Safari.",
     reply:
       "Coba kecilkan ke 2 MB dulu atau unggah lewat laptop. Kalau masih gagal, kirim fotonya ke WA saya dan saya unggah atas nama Anda.",
+    priority: "high" as const,
+    resolution:
+      "Foto diperkecil ke 2 MB dan tugas {name} berhasil diunggah sebelum tenggat.",
   },
   {
     subject: "Refund belum masuk rekening",
     body: "Saya mengundurkan diri bulan lalu dan katanya refund disetujui. Sampai hari ini belum masuk ke rekening BCA saya.",
     reply:
       "Refund sudah diproses tanggal 12, biasanya masuk 3-5 hari kerja. Saya kirim bukti transfernya lewat email supaya bisa dicek ke bank.",
+    priority: "high" as const,
+    resolution:
+      "Refund {name} diproses 12 Oktober; bukti transfer dikirim lewat email.",
   },
   {
     subject: "Jadwal sesi bentrok dengan kerja",
     body: "Sesi ketiga jatuh di hari Selasa, padahal saya shift pagi. Apakah semua sesi wajib hadir langsung?",
     reply:
       "Tidak wajib. Sesi bisa disusul lewat rekaman, yang penting tugas praktik tetap dikumpulkan. Kalau butuh bantuan, saya bisa jadwalkan panggilan singkat.",
+    priority: "normal" as const,
+    resolution:
+      "{name} memakai rekaman sesi dan tetap mengumpulkan tugas praktik.",
   },
 ] as const
 
@@ -352,6 +400,7 @@ type PlanRow = {
   plannedStatus: EnrollmentStatus
   workPurchases: number
   sourceGlobalIndex?: number
+  leadIndex?: number
 }
 
 type CohortPlanRow = {
@@ -462,6 +511,7 @@ function assignCohorts(
 export function buildGrowthPlan(): PlanRow[] {
   const rows: PlanRow[] = []
   let globalIndex = 0
+  let leadIndex = 0
 
   for (let monthIndex = 0; monthIndex < GROWTH_MONTHS; monthIndex += 1) {
     const period = Math.floor(monthIndex / 3)
@@ -506,6 +556,7 @@ export function buildGrowthPlan(): PlanRow[] {
         cohortOrdinal: -1,
         plannedStatus: "active",
         workPurchases: 0,
+        leadIndex: leadIndex++,
       })
     }
   }
@@ -1160,26 +1211,32 @@ export const seedGrowthBatch = internalMutation({
         SUPPORT_SCENARIOS[0]
       if (!scenario) return
       const resolved = seed % 3 !== 0
+      const responseMinutes = 25 + ((seed * 7) % 70)
+      const assignedMinutes = 5 + ((seed * 3) % 15)
+      const resolveHours = 2 + (seed % 5)
       const ticketId = await ctx.db.insert("supportTickets", {
         code: `SUP-GRW-${String(seed + 1).padStart(3, "0")}`,
         requesterId: user._id,
         requesterName: user.name,
         requesterEmail: user.email,
         subject: scenario.subject,
-        priority: seed % 5 === 0 ? "high" : "normal",
+        priority: scenario.priority,
         status: resolved ? "resolved" : "pending",
         assigneeId: admin._id,
         channel: seed % 4 === 0 ? "whatsapp" : "chat",
         createdAt: ticketAt,
-        updatedAt: ticketAt + 3 * HOUR,
-        firstResponseAt: ticketAt + 50 * 60_000,
-        lastResponseAt: ticketAt + 3 * HOUR,
-        assignedAt: ticketAt + 20 * 60_000,
+        updatedAt: ticketAt + resolveHours * HOUR,
+        firstResponseAt: ticketAt + responseMinutes * 60_000,
+        lastResponseAt: ticketAt + resolveHours * HOUR,
+        assignedAt: ticketAt + assignedMinutes * 60_000,
         assignedBy: admin._id as string,
-        resolvedAt: resolved ? ticketAt + 3 * HOUR : undefined,
+        resolvedAt: resolved ? ticketAt + resolveHours * HOUR : undefined,
         resolvedBy: resolved ? (admin._id as string) : undefined,
         resolutionNote: resolved
-          ? "Sudah dijawab lewat chat dan dikonfirmasi peserta."
+          ? scenario.resolution.replace(
+              "{name}",
+              user.name.split(" ")[0] ?? user.name,
+            )
           : undefined,
         linkedRecords: [
           { type: "account", id: user._id as string, label: user.email },
@@ -1197,7 +1254,7 @@ export const seedGrowthBatch = internalMutation({
         authorId: admin._id,
         kind: "user",
         body: scenario.reply,
-        createdAt: ticketAt + 50 * 60_000,
+        createdAt: ticketAt + responseMinutes * 60_000,
       })
       if (resolved) {
         await ctx.db.insert("supportMessages", {
@@ -1208,7 +1265,7 @@ export const seedGrowthBatch = internalMutation({
             seed % 2 === 0
               ? "Oke, sudah bisa. Makasih ya kak."
               : "Siap, saya coba lagi nanti sore. Terima kasih.",
-          createdAt: ticketAt + 3 * HOUR,
+          createdAt: ticketAt + resolveHours * HOUR,
         })
       }
       void contextLabel
@@ -1244,7 +1301,7 @@ export const seedGrowthBatch = internalMutation({
           leadId,
           authorId: admin._id as string,
           kind: row.globalIndex % 3 === 0 ? "whatsapp" : "note",
-          body: LEAD_NOTES[row.globalIndex % LEAD_NOTES.length],
+          body: LEAD_NOTES[(row.leadIndex ?? 0) % LEAD_NOTES.length],
           followUpAt: leadAt + 2 * DAY,
           createdAt: leadAt + HOUR,
         })

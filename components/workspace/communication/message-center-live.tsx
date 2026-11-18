@@ -849,7 +849,7 @@ export function MessageCenterLive() {
           description={
             moderator
               ? "Percakapan akan muncul di sini ketika peserta, pengajar, atau dukungan membuka ruang."
-              : "Mulai percakapan dengan pengajar kohort atau buat permintaan dukungan. Data lokal tidak dipakai di sesi nyata."
+              : "Mulai percakapan dengan pengajar kohort atau buat permintaan dukungan. Percakapan tersimpan di ruang kerja."
           }
           action={
             moderator ? null : (
@@ -2176,7 +2176,7 @@ function NotificationPanel({
       {notifications.length === 0 ? (
         <p className="px-4 py-5 text-[11px] leading-relaxed text-ink-muted">
           Belum ada pemberitahuan. Pesan baru dan balasan dukungan muncul di sini
-          tanpa saluran surel atau WhatsApp pada fase ini.
+          tanpa saluran surel atau WhatsApp.
         </p>
       ) : (
         <ul className="max-h-72 divide-y divide-ink/10 overflow-y-auto">
