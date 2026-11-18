@@ -639,6 +639,16 @@ describe("seed growth / operating year", () => {
       }
     }
 
+    // A craft order paid months ago is not still sitting in the workshop.
+    for (const order of workOrders) {
+      const paidAt = order.paidAt ?? order.createdAt
+      if (NOW - paidAt <= 14 * 24 * 60 * 60 * 1000) continue
+      expect(
+        ["delivered", "completed", "refunded", "disputed"],
+        `${order.code} fulfilment`,
+      ).toContain(order.status)
+    }
+
     expect(pathTeachers.size).toBeGreaterThanOrEqual(3)
     expect(workMakers.size).toBeGreaterThanOrEqual(2)
     // Path earnings are real, not only craft.
