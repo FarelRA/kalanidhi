@@ -8,6 +8,7 @@ import {
   worksSeed,
 } from "../convex/seed/content/data"
 import { CURRICULUM_IMAGE_FILES } from "../convex/seed/domains/curriculum"
+import { MESSAGING_IMAGE_FILES } from "../convex/seed/domains/messaging"
 import { SEED_START } from "../convex/seed/lib/clock"
 import { createTestDb } from "./helpers/convex"
 
@@ -23,6 +24,7 @@ function seedFilenames(): string[] {
       ...teachersSeed.map((teacher) => teacher.imageFile),
       ...worksSeed.map((work) => work.imageFile),
       ...CURRICULUM_IMAGE_FILES,
+      ...MESSAGING_IMAGE_FILES,
     ]),
   )
 }
@@ -537,10 +539,10 @@ describe("seed realism", () => {
     const stats = await t.query(api.content.getPublicStats, {})
     expect(stats).toEqual({
       fields: 11,
-      teachers: 4,
+      teachers: 6,
       participants,
       submissions: assessedSubmissions,
-      works: 5,
+      works: 7,
     })
   })
 
@@ -763,6 +765,85 @@ describe("seed realism", () => {
     expect(preparingPublic?.comingSoon).toBe(true)
     expect(preparingPublic?.curriculum).toHaveLength(0)
     expect(preparingPublic?.lessons).toBe(0)
+  })
+
+  it("opens Tari Kreasi and Kuliner Nusantara with verified teachers", async () => {
+    const t = createTestDb()
+    await seedWorkspace(t)
+
+    const data = await t.run(async (ctx) => {
+      const paths = await ctx.db.query("paths").collect()
+      const modules = await ctx.db.query("pathModules").collect()
+      const lessons = await ctx.db.query("lessons").collect()
+      const teachers = await ctx.db.query("teachers").collect()
+      return { paths, modules, lessons, teachers }
+    })
+
+    for (const slug of ["tari-kreasi", "kuliner-nusantara"]) {
+      const path = data.paths.find((row) => row.slug === slug)
+      expect(path, `${slug} path`).toBeDefined()
+      expect(path?.status).toBe("open")
+      expect(path?.comingSoon).not.toBe(true)
+      expect(path?.price).toBeGreaterThan(0)
+      expect(path?.weeks).toBe(5)
+      expect(path?.tasks).toBe(5)
+
+      const modules = data.modules.filter((row) => row.pathId === slug)
+      expect(modules.length, `${slug} modules`).toBeGreaterThanOrEqual(5)
+      expect(modules.length, `${slug} modules`).toBeLessThanOrEqual(6)
+      expect(
+        modules.every((module) => module.status === "published"),
+        `${slug} published modules`,
+      ).toBe(true)
+
+      const lessons = data.lessons
+        .filter((row) => row.pathId === slug)
+        .sort((a, b) => {
+          const moduleA = modules.find((m) => m._id === a.moduleId)?.order ?? 0
+          const moduleB = modules.find((m) => m._id === b.moduleId)?.order ?? 0
+          return moduleA === moduleB ? a.order - b.order : moduleA - moduleB
+        })
+      expect(lessons.length, `${slug} lessons`).toBeGreaterThanOrEqual(25)
+      expect(lessons.length, `${slug} lessons`).toBeLessThanOrEqual(30)
+      expect(
+        lessons.every((lesson) => lesson.status === "published"),
+        `${slug} published lessons`,
+      ).toBe(true)
+      expect(
+        lessons.every((lesson) =>
+          ["public", "enrolled", "certified"].includes(lesson.accessLevel),
+        ),
+        `${slug} access levels`,
+      ).toBe(true)
+      expect(
+        lessons.some((lesson) => lesson.accessLevel === "public"),
+        `${slug} public teaser`,
+      ).toBe(true)
+      expect(
+        lessons.some((lesson) => lesson.accessLevel === "certified"),
+        `${slug} certified lesson`,
+      ).toBe(true)
+
+      for (const mod of modules) {
+        const orders = data.lessons
+          .filter((lesson) => lesson.moduleId === mod._id)
+          .map((lesson) => lesson.order)
+          .sort((a, b) => a - b)
+        expect(orders, `${slug} module ${mod.order} lesson order`).toEqual(
+          Array.from({ length: orders.length }, (_, index) => index + 1),
+        )
+      }
+
+      const teacher = data.teachers.find((row) =>
+        (row.pathIds ?? []).includes(slug),
+      )
+      expect(teacher, `${slug} teacher`).toBeDefined()
+      expect(teacher?.verified).toBe(true)
+      expect(teacher?.verificationStatus).toBe("verified")
+      expect(teacher?.published).toBe(true)
+      expect(teacher?.status).toBe("active")
+      expect(teacher?.experience).toMatch(/tahun/)
+    }
   })
 
   it("turns every batik work into a bamboo product", async () => {

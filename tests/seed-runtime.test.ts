@@ -9,6 +9,7 @@ import {
 } from "../convex/seed/content/data"
 import { SEED_VERSION } from "../convex/seed/run"
 import { CURRICULUM_IMAGE_FILES } from "../convex/seed/domains/curriculum"
+import { MESSAGING_IMAGE_FILES } from "../convex/seed/domains/messaging"
 import { createTestDb, type TestDb } from "./helpers/convex"
 
 /** A fixed instant: the seed must be reproducible from this alone. */
@@ -24,6 +25,7 @@ function seedFilenames(): string[] {
       ...teachersSeed.map((teacher) => teacher.imageFile),
       ...worksSeed.map((work) => work.imageFile),
       ...CURRICULUM_IMAGE_FILES,
+      ...MESSAGING_IMAGE_FILES,
     ]),
   )
 }
@@ -194,10 +196,10 @@ describe("seed runtime", () => {
     // Learning is split by cohort; messaging by conversation group. The totals
     // must match the pre-batching seed exactly.
     expect(counts.learning).toEqual({
-      cohorts: 8,
-      enrollments: 27,
-      submissions: 27,
-      assessments: 25,
+      cohorts: 10,
+      enrollments: 29,
+      submissions: 29,
+      assessments: 27,
     })
     expect(counts.messaging).toEqual({
       conversations: 10,
@@ -215,11 +217,11 @@ describe("seed runtime", () => {
     expect(growth.signups).toBe(129)
     expect(growth.enrollments).toBe(96)
     expect(growth.pathOrders).toBe(96)
-    expect(growth.workOrders).toBe(57)
+    expect(growth.workOrders).toBe(58)
     expect(growth.messaging).toEqual({
-      conversations: 35,
-      messages: 214,
-      calls: 8,
+      conversations: 38,
+      messages: 241,
+      calls: 10,
     })
 
     const integrity = await t.query(internal.seed.integrity.verify, {})

@@ -26,6 +26,8 @@ export const PATHS = {
   kriyaGerabahBantul: "kriya-gerabah-bantul",
   aksaraJawa: "aksara-jawa",
   batikTulisSoga: "batik-tulis-soga",
+  tariKreasi: "tari-kreasi",
+  kulinerNusantara: "kuliner-nusantara",
 } as const
 
 export type PathKey = keyof typeof PATHS
@@ -44,6 +46,8 @@ export const COHORT_KEYS = {
   bbm2026_04: "bbm-2026-04",
   pra2025_01: "pra-2025-01",
   aks2026_01: "aks-2026-01",
+  tari2026_01: "tari-2026-01",
+  kul2026_01: "kul-2026-01",
 } as const
 
 export type CohortKey = keyof typeof COHORT_KEYS
@@ -62,6 +66,8 @@ export const COHORT_CODES = {
   bbm2026_04: "BBM-2026-04",
   pra2025_01: "PRA-2026-00",
   aks2026_01: "AKS-2026-01",
+  tari2026_01: "TARI-2026-01",
+  kul2026_01: "KUL-2026-01",
 } as const
 
 export function cohortCode(key: CohortKey): string {
@@ -75,6 +81,8 @@ export const WORK_SLUGS = {
   hiasanDindingBatikBambu: "hiasan-dinding-batik-bambu",
   pranatacaraSiraman: "pranatacara-siraman",
   jasaTulisAksara: "jasa-tulis-aksara",
+  tariKreasiAcara: "tari-kreasi-acara-keluarga",
+  geblekRentengBeku: "geblek-renteng-beku",
 } as const
 
 export type WorkKey = keyof typeof WORK_SLUGS
@@ -115,6 +123,8 @@ export const CERTIFICATES = {
   galuh: { serial: "KN-2026-0005", publicCode: "KN-2026-0005" },
   arif: { serial: "KN-2026-0007", publicCode: "KN-2026-0007" },
   dwi: { serial: "KN-2026-0006", publicCode: "KN-2026-0006" },
+  sekar: { serial: "KN-2026-0008", publicCode: "KN-2026-0008" },
+  bimo: { serial: "KN-2026-0009", publicCode: "KN-2026-0009" },
 } as const
 
 export type CertificateKey = keyof typeof CERTIFICATES
@@ -162,6 +172,8 @@ export const SUBMISSION_KEYS = {
   galuhAksFinal: "galuh-aks-final",
   arifAks1: "arif-aks-1",
   arifAksFinal: "arif-aks-final",
+  sekarTariFinal: "sekar-tari-final",
+  bimoKulFinal: "bimo-kul-final",
 } as const
 
 export type SubmissionKey = keyof typeof SUBMISSION_KEYS

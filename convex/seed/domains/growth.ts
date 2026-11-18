@@ -412,8 +412,10 @@ type CohortPlanRow = {
 }
 
 /**
- * Twelve cohorts across four intake windows. Sizes sum to the path rows in
+ * Fifteen cohorts across four intake windows. Sizes sum to the path rows in
  * each window: 12, 23, 34 (30 new + 4 repeats), and 27 (20 new + 7 repeats).
+ * The last five slots in the later windows cover all five open paths, so the
+ * new Tari Kreasi and Kuliner Nusantara cohorts are real, not relabelled.
  */
 export const COHORT_PLAN: CohortPlanRow[] = [
   { index: 0, period: 0, pathIndex: 0, ordinal: 0, size: 6 },
@@ -421,13 +423,16 @@ export const COHORT_PLAN: CohortPlanRow[] = [
   { index: 2, period: 1, pathIndex: 0, ordinal: 0, size: 8 },
   { index: 3, period: 1, pathIndex: 1, ordinal: 0, size: 8 },
   { index: 4, period: 1, pathIndex: 2, ordinal: 0, size: 7 },
-  { index: 5, period: 2, pathIndex: 0, ordinal: 0, size: 9 },
-  { index: 6, period: 2, pathIndex: 1, ordinal: 0, size: 9 },
-  { index: 7, period: 2, pathIndex: 2, ordinal: 0, size: 8 },
-  { index: 8, period: 2, pathIndex: 0, ordinal: 1, size: 8 },
-  { index: 9, period: 3, pathIndex: 0, ordinal: 0, size: 9 },
-  { index: 10, period: 3, pathIndex: 1, ordinal: 0, size: 9 },
-  { index: 11, period: 3, pathIndex: 2, ordinal: 0, size: 9 },
+  { index: 5, period: 2, pathIndex: 0, ordinal: 0, size: 8 },
+  { index: 6, period: 2, pathIndex: 1, ordinal: 0, size: 7 },
+  { index: 7, period: 2, pathIndex: 2, ordinal: 0, size: 7 },
+  { index: 8, period: 2, pathIndex: 3, ordinal: 0, size: 6 },
+  { index: 9, period: 2, pathIndex: 4, ordinal: 0, size: 6 },
+  { index: 10, period: 3, pathIndex: 0, ordinal: 0, size: 6 },
+  { index: 11, period: 3, pathIndex: 1, ordinal: 0, size: 6 },
+  { index: 12, period: 3, pathIndex: 2, ordinal: 0, size: 5 },
+  { index: 13, period: 3, pathIndex: 3, ordinal: 0, size: 5 },
+  { index: 14, period: 3, pathIndex: 4, ordinal: 0, size: 5 },
 ]
 
 const COHORT_DAYS = 110
@@ -612,9 +617,9 @@ export function buildGrowthPlan(): PlanRow[] {
     const key = `${row.cohortIndex}:${row.cohortOrdinal}`
     if (cohort.period <= 2) {
       row.plannedStatus = withdrawnRows.has(key) ? "withdrawn" : "completed"
-    } else if (row.cohortOrdinal === 0 || row.cohortOrdinal === 1) {
+    } else if (row.cohortOrdinal === 0) {
       row.plannedStatus = "pending_payment"
-    } else if (row.cohortOrdinal === 3 || row.cohortOrdinal === 4) {
+    } else if (row.cohortOrdinal === 2) {
       row.plannedStatus = "withdrawn"
     } else {
       row.plannedStatus = "active"
@@ -1120,7 +1125,7 @@ export const seedGrowthBatch = internalMutation({
         (work) => (work.createdAt ?? SEED_START) <= purchaseAt,
       )
       if (available.length === 0) return
-      const work = available[(seed * 3 + 1) % available.length]
+      const work = available[(seed * 7 + 3) % available.length]
       if (!work?.makerId) return
       if ((work.makerId as string) === (user._id as string)) return
       const maker = userById.get(work.makerId)
@@ -1684,7 +1689,11 @@ export const seedGrowthBatch = internalMutation({
             ? "Ujian akhir: paragraf aksara Jawa"
             : path.slug === pathSlug("pranatacaraJawa")
               ? "Ujian akhir: susunan acara dan praktik"
-              : "Ujian akhir: kain batik bambu"
+              : path.slug === pathSlug("tariKreasi")
+                ? "Ujian akhir: kreasi tari dua menit"
+                : path.slug === pathSlug("kulinerNusantara")
+                  ? "Ujian akhir: masak dan dokumentasi hidangan"
+                  : "Ujian akhir: kain batik bambu"
         const submissionAtFinal = finalSubmissionAt as number
         const assessmentAt = submissionAtFinal + DAY + 3 * HOUR
         const score = 84 + ((row.globalIndex * 7) % 13)

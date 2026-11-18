@@ -16,7 +16,7 @@ import type {
 export const WORK_KINDS = ["product", "service"] as const
 export type WorkKind = (typeof WORK_KINDS)[number]
 
-export const WORK_CATEGORIES = ["batik", "layanan"] as const
+export const WORK_CATEGORIES = ["batik", "layanan", "kuliner"] as const
 export type WorkCategory = (typeof WORK_CATEGORIES)[number]
 
 export const WORK_KIND_LABELS: Record<WorkKind, string> = {
@@ -27,6 +27,7 @@ export const WORK_KIND_LABELS: Record<WorkKind, string> = {
 export const WORK_CATEGORY_LABELS: Record<WorkCategory, string> = {
   batik: "Batik",
   layanan: "Layanan",
+  kuliner: "Kuliner",
 }
 
 export const WORK_ACCESS_LEVELS = ["public", "community", "restricted"] as const

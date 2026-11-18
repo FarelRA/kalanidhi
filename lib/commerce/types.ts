@@ -37,7 +37,7 @@ export type WorkListingView = {
   slug: string
   title: string
   kind: "product" | "service"
-  category: "batik" | "layanan"
+  category: "batik" | "layanan" | "kuliner"
   maker: string
   makerId: string | null
   makerRole: string
@@ -75,7 +75,7 @@ export type PublicWorkView = {
   slug: string
   title: string
   kind: "product" | "service"
-  category: "batik" | "layanan"
+  category: "batik" | "layanan" | "kuliner"
   maker: string
   makerRole: string
   teacher: string

@@ -13,6 +13,7 @@ import {
   type SeedSnapshot,
 } from "../convex/seed/integrity"
 import { CURRICULUM_IMAGE_FILES } from "../convex/seed/domains/curriculum"
+import { MESSAGING_IMAGE_FILES } from "../convex/seed/domains/messaging"
 import { createTestDb, type TestDb } from "./helpers/convex"
 
 function seedFilenames(): string[] {
@@ -24,6 +25,7 @@ function seedFilenames(): string[] {
       ...teachersSeed.map((teacher) => teacher.imageFile),
       ...worksSeed.map((work) => work.imageFile),
       ...CURRICULUM_IMAGE_FILES,
+      ...MESSAGING_IMAGE_FILES,
     ]),
   )
 }

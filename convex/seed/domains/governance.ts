@@ -18,6 +18,8 @@ export const seedGovernance = internalMutation({
     const workNampan = await workBySlug(ctx, workSlug("nampanBatikBambu"))
     const workPranatacara = await workBySlug(ctx, workSlug("pranatacaraSiraman"))
     const workAksara = await workBySlug(ctx, workSlug("jasaTulisAksara"))
+    const workTari = await workBySlug(ctx, workSlug("tariKreasiAcara"))
+    const workKuliner = await workBySlug(ctx, workSlug("geblekRentengBeku"))
     const assets = await ctx.db.query("mediaAssets").collect()
     const imageAsset = assets.find((asset) => asset.kind === "image")
     const call = await ctx.db.query("callSessions").collect()
@@ -151,6 +153,42 @@ export const seedGovernance = internalMutation({
           "Dokumen sumber aksara Jawa dan tabel sandhangan dipegang pengelola platform, dipakai sebagai bahan ajar jalur ini.",
         notes:
           "Contoh tulisan memakai kalimat sumber; moral paragraf penutup tidak dipakai sebagai ajaran kursus.",
+        withdrawalStatus: "active" as const,
+        status: "active" as const,
+      },
+      {
+        community: "Arsip pengelola platform",
+        sourceName: "Materi Apresiasi Karya Seni Tari",
+        pathId: pathSlug("tariKreasi"),
+        workId: workTari._id,
+        permissionDocumentRef: "Arsip dokumen pengelola platform",
+        permissionDocumentUrl: undefined,
+        permissionDate: Date.UTC(2026, 10, 10),
+        recordedAt: Date.UTC(2026, 10, 10),
+        permissionStatus: "granted" as const,
+        accessLevel: "public" as const,
+        attribution:
+          "Materi jalur Tari Kreasi disusun dari laporan Apresiasi Karya Seni Tari yang mengutip Hadi (1990) untuk definisi tari, serta unsur gerak, ruang, waktu, tenaga, bentuk penyajian, dan fungsi tari. Laporan itu adalah laporan siswa, bukan rujukan primer.",
+        notes:
+          "Contoh Legong, Saman, dan Bedhaya dipakai sebagai contoh dari laporan; detail gerak tidak ditambahkan di luar catatan laporan.",
+        withdrawalStatus: "active" as const,
+        status: "active" as const,
+      },
+      {
+        community: "Arsip pengelola platform",
+        sourceName: "Laporan Gastronomi Nusantara",
+        pathId: pathSlug("kulinerNusantara"),
+        workId: workKuliner._id,
+        permissionDocumentRef: "Arsip dokumen pengelola platform",
+        permissionDocumentUrl: undefined,
+        permissionDate: Date.UTC(2026, 10, 11),
+        recordedAt: Date.UTC(2026, 10, 11),
+        permissionStatus: "granted" as const,
+        accessLevel: "public" as const,
+        attribution:
+          "Materi jalur Kuliner Nusantara disusun dari Laporan Gastronomi Nusantara, laporan siswa tentang filosofi, identitas, dan pelestarian makanan tradisional. Daftar pustakanya masih berupa rujukan awal, sehingga klaim sejarah diperlakukan sebagai bahan telusur.",
+        notes:
+          "Tafsiran geblek dan tumpeng ditulis sebagai interpretasi budaya, sesuai catatan laporan, bukan makna baku.",
         withdrawalStatus: "active" as const,
         status: "active" as const,
       },

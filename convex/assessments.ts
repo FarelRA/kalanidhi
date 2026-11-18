@@ -66,6 +66,22 @@ const GERABAH_RUBRIC: RubricCriterion[] = [
   { criterion: "Catatan proses", weight: 15 },
 ]
 
+const TARI_RUBRIC: RubricCriterion[] = [
+  { criterion: "Ketepatan gerak", weight: 25 },
+  { criterion: "Ruang, waktu, dan tenaga", weight: 25 },
+  { criterion: "Penghayatan", weight: 20 },
+  { criterion: "Skor gerak", weight: 15 },
+  { criterion: "Rekaman dan keselamatan", weight: 15 },
+]
+
+const KULINER_RUBRIC: RubricCriterion[] = [
+  { criterion: "Bahan dan takaran", weight: 25 },
+  { criterion: "Teknik dan keselamatan", weight: 25 },
+  { criterion: "Rasa dan penyajian", weight: 20 },
+  { criterion: "Dokumentasi resep", weight: 15 },
+  { criterion: "Cerita dan pelestarian", weight: 15 },
+]
+
 const DEFAULT_RUBRIC: RubricCriterion[] = [
   { criterion: "Ketepatan proses", weight: 40 },
   { criterion: "Kualitas hasil", weight: 30 },
@@ -77,6 +93,8 @@ export function rubricForPath(pathId: string): RubricCriterion[] {
   if (pathId === "pranatacara-jawa") return PRANATACARA_RUBRIC
   if (pathId === "aksara-jawa") return AKSARA_RUBRIC
   if (pathId === "kriya-gerabah-bantul") return GERABAH_RUBRIC
+  if (pathId === "tari-kreasi") return TARI_RUBRIC
+  if (pathId === "kuliner-nusantara") return KULINER_RUBRIC
   return DEFAULT_RUBRIC
 }
 

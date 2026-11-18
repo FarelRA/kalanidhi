@@ -78,7 +78,7 @@ export type Teacher = {
 export type Work = {
   slug: string
   title: string
-  category: "batik" | "layanan"
+  category: "batik" | "layanan" | "kuliner"
   kind: "product" | "service"
   maker: string
   makerRole: string

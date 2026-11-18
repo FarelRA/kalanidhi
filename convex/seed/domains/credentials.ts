@@ -76,6 +76,22 @@ export const seedCredentials = internalMutation({
         status: "issued" as const,
       },
       {
+        key: "sekar",
+        submissionKey: "sekar-tari-final",
+        pathSlug: pathSlug("tariKreasi"),
+        issuedDaysAgo: 112,
+        serial: certificateSerial("sekar"),
+        status: "issued" as const,
+      },
+      {
+        key: "bimo",
+        submissionKey: "bimo-kul-final",
+        pathSlug: pathSlug("kulinerNusantara"),
+        issuedDaysAgo: 106,
+        serial: certificateSerial("bimo"),
+        status: "issued" as const,
+      },
+      {
         key: "dwi",
         submissionKey: "dwi-bbm-final",
         pathSlug: pathSlug("batikBambu"),
@@ -157,7 +173,9 @@ export const seedCredentials = internalMutation({
         pathId: work.pathSlug,
         status: "published",
         permission: work.permission,
-        createdAt: clock.ago(323 - index * 55),
+        createdAt: clock.ago(
+          [323, 268, 213, 158, 103, 90, 60][index] ?? 60,
+        ),
       })
       await ctx.db.insert("workCards", {
         workId: workDoc._id,
@@ -171,12 +189,18 @@ export const seedCredentials = internalMutation({
             ? "Bambu petung, malam, pewarna, dan pelapis NC"
             : work.pathSlug === pathSlug("aksaraJawa")
               ? "Kertas, tinta, pena, dan penggaris"
-              : "Busana adat, perlengkapan acara",
+              : work.pathSlug === pathSlug("tariKreasi")
+                ? "Rekaman, iringan, properti ringan, dan busana latihan"
+                : work.pathSlug === pathSlug("kulinerNusantara")
+                  ? "Tapioka, bawang putih, minyak goreng, dan kemasan beku"
+                  : "Busana adat, perlengkapan acara",
         provenance: work.region,
         permission: work.permission,
         accessLevel: "public",
         status: "published",
-        createdAt: clock.ago(323 - index * 55),
+        createdAt: clock.ago(
+          [323, 268, 213, 158, 103, 90, 60][index] ?? 60,
+        ),
         updatedAt: clock.now,
       })
     }

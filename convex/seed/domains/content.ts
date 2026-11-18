@@ -167,7 +167,7 @@ export const seedContent = internalMutation({
         order,
         ...work,
         status: "published",
-        createdAt: clock.ago(320 - order * 55),
+        createdAt: clock.ago(320 - order * 45),
       })
     }
 

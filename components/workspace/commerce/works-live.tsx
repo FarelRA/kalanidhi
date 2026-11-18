@@ -165,7 +165,7 @@ type ReasonAction =
 type WorkFormValues = {
   title: string
   kind: "product" | "service"
-  category: "batik" | "layanan"
+  category: "batik" | "layanan" | "kuliner"
   pathId: string
   certificateId: string
   price: string
@@ -994,7 +994,7 @@ function WorkFormDialog({
                 onChange={(event) =>
                   update(
                     "category",
-                    event.target.value as "batik" | "layanan",
+                    event.target.value as "batik" | "layanan" | "kuliner",
                   )
                 }
                 className="mt-1.5 min-h-11 w-full border border-ink/25 bg-paper-2 px-2 text-[11px]"

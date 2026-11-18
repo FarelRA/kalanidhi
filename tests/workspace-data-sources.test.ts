@@ -98,7 +98,7 @@ const WORKSPACE_FILES = [
 describe("workspace data sources", () => {
   it("keeps the closed enums aligned with the Convex schema", () => {
     expect(WORK_KINDS).toEqual(["product", "service"])
-    expect(WORK_CATEGORIES).toEqual(["batik", "layanan"])
+    expect(WORK_CATEGORIES).toEqual(["batik", "layanan", "kuliner"])
     expect(WORK_STATUSES).toEqual([
       "draft",
       "review",

@@ -209,7 +209,11 @@ export const contentTables = {
     order: v.number(),
     slug: v.string(),
     title: v.string(),
-    category: v.union(v.literal("batik"), v.literal("layanan")),
+    category: v.union(
+      v.literal("batik"),
+      v.literal("layanan"),
+      v.literal("kuliner"),
+    ),
     kind: v.union(v.literal("product"), v.literal("service")),
     maker: v.string(),
     makerRole: v.string(),

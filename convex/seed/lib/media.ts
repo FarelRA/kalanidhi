@@ -38,6 +38,23 @@ export async function resolveMediaAsset(
   return asset._id
 }
 
+/** Storage id of one named seed image, for rows that attach a file. */
+export async function resolveMediaStorage(
+  ctx: Pick<MutationCtx, "db">,
+  filename: string,
+  kind: MediaKind = "image",
+): Promise<Id<"_storage">> {
+  const assetId = await resolveMediaAsset(ctx, filename, kind)
+  const asset = await ctx.db.get(assetId)
+  if (!asset?.storageId) {
+    throw new ConvexError({
+      code: "SEED_IMAGE_MISSING",
+      message: `Aset seed "${filename}" belum punya berkas penyimpanan.`,
+    })
+  }
+  return asset.storageId
+}
+
 /** The public URL of an asset, whether stored in Convex or external. */
 export async function mediaUrl(
   ctx: MediaCtx,

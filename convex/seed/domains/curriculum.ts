@@ -133,7 +133,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Nglowongi adalah pelilitan malam tahap pertama: mengikuti garis pensil dengan canting. Di kain, malam harus menembus sisi belakang; di bambu, malam menempel di permukaan dan ujung potong menyerap lebih banyak, sehingga pemeriksaan dilakukan dari kilap dan kerapatan garis, bukan dari tembusnya malam. Garis yang tipis atau terputus akan bocor saat diwarnai. Alat: canting, malam, wajan dan kompor, potongan bambu untuk uji, serta lampu yang bisa dimiringkan. Langkah: 1) panaskan malam dengan api kecil; 2) uji aliran pada potongan bambu sisa; 3) pegang canting seperti pensil dan mulai dari garis lurus pendek; 4) lanjutkan ke lengkung dengan kecepatan tetap; 5) periksa dari arah cahaya miring, tandai bagian yang tipis. Foto pada pelajaran ini adalah ilustrasi proses canting di atas kain; alat dan geraknya sama, tetapi permukaan bambu menerima malam dengan cara yang berbeda. Keselamatan: malam panas, api, dan uap; pakai sarung tangan dan kerjakan di ruang berangin. Kesalahan umum: malam terlalu panas sampai melebar, atau terlalu dingin sampai menggumpal dan putus. Perbaiki dengan menurunkan atau menaikkan api sedikit, lalu uji lagi di potongan sisa. Tugas: melilin garis lurus 20 cm dan satu lengkung, unggah foto dua arah cahaya. Kriteria: garis tidak putus, tidak melebar, dan tidak ada bagian mengkilap yang tipis.",
           estimatedMinutes: 25,
           accessLevel: "enrolled",
-          mediaFile: "hero-canting.jpg",
+          mediaFile: "lesson-canting.jpg",
         },
         {
           title: "Menutup celah garis",
@@ -747,6 +747,526 @@ const MODULES: Record<string, SeedModule[]> = {
       ],
     },
   ],
+  [pathSlug("tariKreasi")]: [
+    {
+      title: "Tari sebagai ekspresi",
+      summary:
+        "Modul pembuka tanpa prasyarat. Definisi tari, gerak murni dan maknawi, contoh dari laporan, dan latihan menirukan alam dengan ruang 2 x 2 meter.",
+      estimatedMinutes: 100,
+      lessons: [
+        {
+          title: "Apa yang disebut tari",
+          kind: "text",
+          body: "Tari adalah ekspresi jiwa manusia yang disampaikan lewat gerak tubuh yang indah dan ritmis; gerak itu juga membawa kekuatan komunikatif dari penciptanya (Hadi, 1990, dikutip laporan Apresiasi Karya Seni Tari). Materi jalur ini disusun dari laporan siswa tersebut, bukan dari buku Hadi secara langsung, jadi pakailah sebagai pengantar, bukan kutipan verbatim. Alat: buku catatan dan alat tulis. Langkah: 1) tulis definisi itu dengan kalimat sendiri; 2) sebut tiga hal yang membuat gerak menjadi tari, yaitu bentuk, ritme, dan maksud; 3) catat satu pertunjukan tari yang pernah kamu lihat; 4) tandai bagian yang menurutmu paling komunikatif. Keselamatan: belum ada gerak fisik di pelajaran ini. Kesalahan umum: menyamakan tari dengan gerak sehari-hari tanpa memperhatikan bentuk dan ritme. Tugas: tulis 100 kata tentang satu pengalaman menonton tari. Kriteria: definisi tepat, ada contoh nyata, dan alasan komunikatifnya jelas.",
+          estimatedMinutes: 20,
+          accessLevel: "public",
+        },
+        {
+          title: "Gerak murni dan gerak maknawi",
+          kind: "text",
+          body: "Laporan membagi gerak tari menjadi dua. Gerak murni, atau gerak wantah, dilakukan tanpa tujuan tertentu dan hanya untuk keindahan; contohnya memutar lengan, mengayun, melenggang, mengibas rambut, berputar, mengibas selendang, jalan di tempat, dan menggeleng kepala. Gerak maknawi membawa pesan tertentu dan sering dipakai dalam tari naratif. Alat: catatan dan ruang kosong 2 x 2 meter. Langkah: 1) tulis lima contoh gerak murni dari daftar; 2) pilih tiga gerak dan lakukan masing-masing delapan hitungan; 3) tulis satu gerak maknawi sederhana, misalnya menirukan pohon tertiup angin; 4) bedakan keduanya dalam dua kalimat. Keselamatan: pemanasan 10 menit dulu, bertelanjang kaki atau memakai kaus kaki anti-selip. Kesalahan umum: menganggap gerak murni tidak punya maksud sama sekali; yang tidak ada adalah cerita, bukan keindahannya. Tugas: rekam 30 detik berisi satu gerak murni dan satu gerak maknawi. Kriteria: perbedaan keduanya terbaca dari gerak, bukan hanya dari penjelasan lisan.",
+          estimatedMinutes: 20,
+          accessLevel: "public",
+        },
+        {
+          title: "Legong, Saman, dan Bedhaya menurut laporan",
+          kind: "text",
+          body: "Laporan menyebut tiga contoh gerak maknawi. Tari Legong dari Bali memakai gerakan tangan, jari, dan mata yang mencerminkan cerita mitologi dan kisah raja-raja Bali. Tari Saman dari Aceh menonjolkan gerak sinkron yang melambangkan kebersamaan, gotong royong, dan kekuatan komunitas. Tari Bedhaya dari Jawa mengandung makna spiritual yang dikaitkan dengan kosmologi Jawa. Laporan tidak merinci setiap ragam gerak, jadi jangan mengarang detail di luar tiga catatan itu. Alat: catatan. Langkah: 1) tulis satu kalimat untuk masing-masing tari; 2) tandai kata kunci laporan, bukan tafsiranmu; 3) tulis satu hal yang ingin kamu lihat langsung; 4) simpan catatan untuk tugas apresiasi. Keselamatan: tidak ada. Kesalahan umum: menambahkan nama raja atau aturan ritual yang tidak disebut laporan. Tugas: isi tabel tiga tari dengan asal, kata kunci makna, dan satu pertanyaan. Kriteria: semua isi bisa dilacak ke kalimat laporan.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Menirukan hewan dan pohon",
+          kind: "practice",
+          body: "Laporan menyebut gerak menirukan hewan dan pohon sebagai contoh gerak maknawi sederhana. Latihan ini mengubah pengamatan menjadi gerak, bukan meniru secara literal. Alat: ponsel untuk merekam, ruang 2 x 2 meter, kaus kaki anti-selip atau kaki telanjang. Langkah: 1) pemanasan 10 menit: putar leher, bahu, pinggang, dan pergelangan; 2) pilih satu hewan dan satu pohon; 3) ambil tiga ciri geraknya, misalnya lambat, berayun, atau tersentak; 4) ulangi tiap ciri delapan hitungan; 5) rekam satu menit tanpa berhenti. Keselamatan: hentikan bila pusing; jangan melompat di lantai licin. Kesalahan umum: meniru bentuk secara berlebihan sampai gerak kehilangan ritme. Tugas: unggah rekaman satu menit dan tiga catatan ciri gerak. Kriteria: tiga ciri terlihat, hitungan teratur, dan tidak ada gerak yang menyakitkan.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Latihan gerak murni delapan hitungan",
+          kind: "practice",
+          body: "Gerak murni butuh kejelasan bentuk. Latihan ini memakai delapan hitungan sebagai satuan supaya kamu bisa mengulang dan menilai sendiri. Alat: ponsel, penghitung waktu, ruang 2 x 2 meter. Langkah: 1) pilih empat gerak dari daftar gerak murni; 2) beri masing-masing dua hitungan; 3) ulangi rangkaian empat kali; 4) rekam dari depan dan dari samping; 5) tonton ulang dan tandai hitungan yang paling tidak rapi. Keselamatan: pemanasan 10 menit, pendinginan 5 menit, dan berhenti bila sendi terasa nyeri. Kesalahan umum: menambah gerakan baru di tengah hitungan sehingga rangkaian tidak bisa diulang. Tugas: unggah satu rangkaian delapan hitungan yang stabil. Kriteria: bentuk terbaca dari dua sudut, hitungan konsisten, dan rangkaian bisa diulang tanpa melihat contoh.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Tubuh sebagai alat",
+      summary:
+        "Prasyarat: modul 1. Wiraga, wirama, wisara, ruang pribadi dan publik, serta waktu dan tenaga.",
+      estimatedMinutes: 100,
+      lessons: [
+        {
+          title: "Wiraga: badan yang siap",
+          kind: "text",
+          body: "Wiraga adalah unsur fisik dalam penyajian tari. Laporan menyebutnya sebagai unsur utama bersama wirama dan wisara. Wiraga bukan hanya bentuk tubuh, tetapi kesiapan menahan, memindahkan, dan menghentikan gerak. Alat: ruang 2 x 2 meter dan ponsel. Langkah: 1) berdiri dengan berat badan terbagi; 2) lakukan delapan hitungan jalan di tempat; 3) ulangi dengan lutut sedikit ditekuk; 4) bandingkan mana yang lebih stabil; 5) catat tiga bagian tubuh yang perlu dikuatkan. Keselamatan: hentikan bila lutut atau punggung nyeri; jangan memaksa rentang sendi. Kesalahan umum: mengunci lutut sehingga tubuh kaku dan mudah kehilangan keseimbangan. Tugas: rekam 30 detik jalan di tempat dan tulis tiga catatan tubuh. Kriteria: berat badan stabil, lutut tidak terkunci, dan catatan spesifik.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Wirama: tempo dan ritme",
+          kind: "text",
+          body: "Wirama berhubungan dengan tempo dan ritme. Dalam laporan, wirama termasuk unsur utama penyajian tari. Latihan paling sederhana adalah bertepuk pada hitungan tetap lalu mengubah tempo tanpa mengubah urutan gerak. Alat: ponsel atau metronom sederhana, ruang kosong. Langkah: 1) pilih satu rangkaian delapan hitungan dari modul 1; 2) lakukan dengan hitungan lambat; 3) ulangi dengan tempo sedang; 4) ulangi cepat tanpa menambah gerakan; 5) rekam ketiganya. Keselamatan: pemanasan pergelangan dan bahu sebelum bertepuk cepat. Kesalahan umum: mempercepat gerakan dengan memotong bentuk, bukan dengan menjaga bentuk dalam tempo lebih cepat. Tugas: unggah tiga tempo dari rangkaian yang sama. Kriteria: urutan gerak tetap, tempo berubah jelas, dan tidak ada gerakan yang terlewat.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Wisara: perasaan dan penghayatan",
+          kind: "text",
+          body: "Wisara berhubungan dengan perasaan dan penghayatan. Laporan memasukkannya sebagai unsur utama, tetapi tidak memberi rumus tentang cara menghayati. Latihan ini memakai arah pandang dan napas sebagai pintu masuk, bukan meniru emosi orang lain. Alat: ponsel dan catatan. Langkah: 1) pilih satu gerak murni; 2) lakukan dengan pandangan ke bawah; 3) ulangi dengan pandangan ke depan; 4) ulangi dengan napas panjang di awal gerak; 5) tulis perbedaan yang kamu rasakan. Keselamatan: jangan menahan napas sampai pusing. Kesalahan umum: membuat ekspresi wajah berlebihan tanpa mengubah kualitas gerak. Tugas: unggah dua versi gerak yang sama dan tulis dua kalimat pembanding. Kriteria: perbedaan penghayatan terlihat dari tubuh dan napas, bukan hanya dari wajah.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Ruang pribadi dan ruang publik",
+          kind: "text",
+          body: "Laporan membedakan ruang pribadi dan ruang publik. Ruang pribadi adalah jarak paling jauh yang dapat dijangkau seluruh anggota tubuh; ruang publik adalah ruang yang terbentuk dari lintasan gerak penari. Di rumah, kamu bisa berlatih keduanya tanpa panggung. Alat: lakban kertas atau tali untuk menandai batas, ruang 2 x 2 meter. Langkah: 1) tandai batas 2 x 2 meter; 2) rentangkan tangan dan kaki untuk mengukur ruang pribadi; 3) buat lintasan lurus, diagonal, dan lingkaran untuk ruang publik; 4) ulangi satu motif sambil mengisi lintasan berbeda; 5) catat lintasan mana yang paling pas. Keselamatan: pastikan tidak ada meja atau kabel di area latihan. Kesalahan umum: selalu menari di titik yang sama sehingga lantai tidak terpakai. Tugas: unggah foto denah tiga lintasan dan rekaman 30 detik. Kriteria: tiga lintasan berbeda terlihat dan ruang pribadi tidak melewati batas dengan aman.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Waktu dan tenaga",
+          kind: "practice",
+          body: "Waktu berhubungan dengan kecepatan, durasi, dan tempo; tenaga berhubungan dengan kekuatan tubuh saat melakukan gerak. Dua penari bisa memakai gerak yang sama tetapi terasa berbeda karena waktu dan tenaganya. Alat: ponsel, ruang 2 x 2 meter. Langkah: 1) pilih satu gerak mengayun; 2) lakukan lambat dengan tenaga ringan; 3) ulangi cepat dengan tenaga kuat; 4) ulangi lambat dengan tenaga kuat; 5) rekam tiga versi dan beri nama. Keselamatan: pemanasan 10 menit, terutama bahu dan pinggang. Kesalahan umum: menganggap tenaga kuat selalu berarti gerak besar. Tugas: unggah tiga versi dan satu tabel waktu-tenaga. Kriteria: tiga kombinasi berbeda terbaca dan tidak ada gerakan yang berhenti mendadak tanpa alasan.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Bentuk penyajian",
+      summary:
+        "Prasyarat: modul 1 dan 2. Tunggal, duet, kelompok, masal, dan kolosal, serta cara memilih bentuk yang masuk akal untuk ruang dan jumlah penari.",
+      estimatedMinutes: 100,
+      lessons: [
+        {
+          title: "Tunggal dan duet",
+          kind: "text",
+          body: "Menurut laporan, tari tunggal atau solo dipentaskan oleh satu penari, sedangkan tari berpasangan atau duet dipentaskan oleh dua orang. Bentuk tunggal menuntut penari mengisi ruang sendiri; duet menuntut pembagian arah dan waktu yang jelas. Alat: catatan dan ruang 2 x 2 meter. Langkah: 1) tulis dua kelebihan bentuk tunggal; 2) tulis dua tantangan duet; 3) pilih satu motif delapan hitungan; 4) bayangkan pembagian gerak untuk dua penari; 5) catat siapa bergerak lebih dulu. Keselamatan: tidak ada gerak cepat di pelajaran ini. Kesalahan umum: membuat duet yang sebenarnya hanya dua orang melakukan gerakan tunggal secara bersamaan. Tugas: tulis pembagian gerak duet dalam empat baris. Kriteria: ada perbedaan peran dan urutan yang jelas.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Kelompok, masal, dan kolosal",
+          kind: "text",
+          body: "Laporan membedakan tiga bentuk lain. Kelompok berarti lebih dari dua penari. Masal berarti banyak penari dengan gerakan yang sama secara bersamaan. Kolosal dilakukan secara masal oleh banyak kelompok dengan gerakan berbeda tiap kelompok, biasanya dalam adegan cerita besar; laporan menyebut Kisah Ramayana dan Mahabarata sebagai contoh. Alat: catatan. Langkah: 1) tulis definisi ketiganya dengan kalimat sendiri; 2) beri satu contoh untuk tiap bentuk; 3) tandai bentuk yang paling mungkin kamu kerjakan di rumah; 4) tulis alasannya. Keselamatan: tidak ada. Kesalahan umum: menyebut kolosal hanya karena jumlah penarinya banyak, padahal pembeda utamanya adalah beberapa kelompok dengan gerak berbeda. Tugas: isi tabel bentuk, definisi, dan contoh. Kriteria: ketiga definisi tepat dan contoh tidak tertukar.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Memilih bentuk sesuai acara",
+          kind: "text",
+          body: "Bentuk penyajian bukan soal mana yang paling megah, tetapi mana yang cocok dengan ruang, jumlah penari, dan durasi. Laporan tidak memberi aturan pemilihan, jadi bagian ini adalah pertimbangan platform, bukan kutipan sumber. Alat: catatan. Langkah: 1) tulis tiga situasi acara: ruang tamu, halaman, dan panggung sekolah; 2) tentukan bentuk yang masuk akal untuk masing-masing; 3) tulis jumlah penari dan durasi; 4) periksa apakah bentuk itu masih bisa diulang. Keselamatan: tidak ada. Kesalahan umum: memilih kolosal untuk ruang kecil sehingga penari bertabrakan. Tugas: unggah tabel tiga situasi dan pilihan bentuk. Kriteria: pilihan masuk akal dengan ruang dan jumlah penari, serta alasannya ditulis.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Latihan duet tanpa partner",
+          kind: "practice",
+          body: "Duet bisa dilatih sendiri dengan merekam dua peran terpisah, lalu menontonnya berdampingan. Cara ini melatih kesadaran arah dan waktu tanpa harus selalu ada partner. Alat: ponsel, penyangga, ruang 2 x 2 meter. Langkah: 1) tentukan dua peran, A dan B; 2) rekam peran A delapan hitungan; 3) putar rekaman A dan lakukan peran B di sampingnya; 4) rekam hasilnya; 5) tandai bagian yang bertabrakan. Keselamatan: beri jarak setidaknya satu rentang lengan dari benda keras. Kesalahan umum: peran B menyalin semua gerak A sehingga tidak ada dialog gerak. Tugas: unggah rekaman gabungan 30 detik dan dua catatan perbaikan. Kriteria: dua peran berbeda, tidak bertabrakan, dan waktu tetap delapan hitungan.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Latihan kelompok kecil",
+          kind: "practice",
+          body: "Kelompok berarti lebih dari dua penari. Di rumah, kamu bisa melatih pola kelompok dengan tiga penanda lantai, misalnya tiga botol air, lalu memindahkan diri dari satu titik ke titik lain mengikuti pola. Alat: tiga penanda, ponsel, ruang 2 x 3 meter. Langkah: 1) letakkan tiga penanda membentuk segitiga; 2) tentukan urutan perpindahan; 3) lakukan delapan hitungan per posisi; 4) rekam dari atas bila memungkinkan; 5) periksa jarak antarposisi. Keselamatan: penanda tidak licin dan tidak mudah jatuh. Kesalahan umum: hanya menghafal urutan tanpa menjaga jarak sehingga pola berantakan. Tugas: unggah rekaman dan sketsa pola. Kriteria: urutan posisi benar, jarak terjaga, dan hitungan tidak terpotong.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Fungsi tari",
+      summary:
+        "Prasyarat: modul 1 sampai 3. Upacara, pertunjukan, pendidikan, dan hiburan, lalu membedakan apresiasi dari konsumsi.",
+      estimatedMinutes: 95,
+      lessons: [
+        {
+          title: "Upacara dan pertunjukan",
+          kind: "text",
+          body: "Laporan menyebut empat fungsi tari. Sebagai sarana upacara, tari menjadi koneksi dengan dunia spiritual. Sebagai sarana pertunjukan, tari menjadi media pengembangan kreativitas dan komunikasi. Dua fungsi ini bisa bertumpang tindih, tetapi tidak selalu sama. Alat: catatan. Langkah: 1) tulis dua fungsi itu dengan kalimat sendiri; 2) beri satu contoh untuk masing-masing; 3) tandai perbedaan suasana dan tujuan; 4) tulis satu pertanyaan yang masih tersisa. Keselamatan: tidak ada. Kesalahan umum: menganggap semua tari upacara juga harus menghibur. Tugas: tulis dua paragraf pendek tentang perbedaan fungsi. Kriteria: dua fungsi tepat dan contohnya tidak tertukar.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Pendidikan dan hiburan",
+          kind: "text",
+          body: "Laporan juga menyebut tari sebagai sarana pendidikan dan sarana hiburan. Sebagai pendidikan, tari mengembangkan pengetahuan, nilai, keterampilan fisik, dan emosi. Sebagai hiburan, tari menjadi penghilang penat dan ungkapan ekspresi jiwa. Alat: catatan. Langkah: 1) tulis tiga hal yang bisa dipelajari lewat tari; 2) tulis satu pengalaman menonton tari sebagai hiburan; 3) bandingkan keduanya; 4) catat mana yang lebih dekat dengan tujuanmu belajar. Keselamatan: tidak ada. Kesalahan umum: menganggap fungsi hiburan lebih rendah daripada fungsi pendidikan. Tugas: tulis 120 kata tentang dua fungsi itu dalam pengalamanmu. Kriteria: dua fungsi dijelaskan dan ada contoh pribadi.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Apresiasi bukan konsumsi",
+          kind: "text",
+          body: "Apresiasi berarti berusaha memahami bentuk, konteks, dan maksud sebuah karya. Konsumsi berarti menonton untuk dipakai sesaat lalu dilupakan. Laporan tidak memakai istilah ini, jadi pembedaan berikut adalah catatan platform. Alat: catatan. Langkah: 1) tulis satu pertunjukan yang kamu tonton; 2) tulis apa yang kamu pahami tentang bentuknya; 3) tulis apa yang kamu pahami tentang konteksnya; 4) tandai mana yang hanya kesan sesaat. Keselamatan: tidak ada. Kesalahan umum: menilai karya hanya dari suka atau tidak suka tanpa menyebut alasan bentuk. Tugas: tulis catatan apresiasi 150 kata. Kriteria: ada deskripsi bentuk, konteks, dan alasan penilaian.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Membaca pertunjukan",
+          kind: "practice",
+          body: "Latihan ini melatih mata sebelum kamu menilai. Pilih satu rekaman tari pendek, lalu tonton tiga kali dengan fokus berbeda. Alat: ponsel atau laptop, catatan. Langkah: 1) tonton sekali untuk kesan umum; 2) tonton ulang hanya untuk ruang dan lantai; 3) tonton ulang hanya untuk waktu dan tenaga; 4) tulis tiga pengamatan; 5) bandingkan dengan kesan pertama. Keselamatan: jeda mata setiap 20 menit. Kesalahan umum: menonton sambil mengerjakan hal lain sehingga tidak ada yang benar-benar diamati. Tugas: unggah tiga catatan pengamatan. Kriteria: tiga aspek berbeda dan setiap catatan menyebut bagian pertunjukan.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Menulis catatan apresiasi",
+          kind: "text",
+          body: "Catatan apresiasi yang berguna menyebut apa yang terlihat, apa yang mungkin dimaksud, dan apa yang masih tidak diketahui. Pisahkan pengamatan dari tafsiran. Alat: catatan dan pena. Langkah: 1) tulis tiga kalimat pengamatan; 2) tulis dua kalimat tafsiran; 3) beri tanda pada tafsiran; 4) tulis satu pertanyaan untuk pengajar; 5) rapikan menjadi satu paragraf. Keselamatan: tidak ada. Kesalahan umum: mencampur tafsiran ke dalam pengamatan tanpa penanda. Tugas: unggah catatan 200 kata. Kriteria: pengamatan dan tafsiran terpisah, dan pertanyaan jelas.",
+          estimatedMinutes: 15,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Menyusun kreasi",
+      summary:
+        "Prasyarat: modul 1 sampai 4. Motif delapan hitungan, transisi, pola lantai, musik, properti, dan keselamatan tubuh.",
+      estimatedMinutes: 120,
+      lessons: [
+        {
+          title: "Motif gerak delapan hitungan",
+          kind: "text",
+          body: "Motif adalah satuan gerak yang bisa diulang. Untuk kreasi pendek, mulailah dari satu motif delapan hitungan yang bisa kamu ulang tanpa ragu. Alat: catatan, ponsel, ruang 2 x 2 meter. Langkah: 1) pilih tiga gerak yang sudah dikuasai; 2) susun urutannya dalam delapan hitungan; 3) ulangi empat kali; 4) rekam dan tandai hitungan yang goyah; 5) sederhanakan bila terlalu padat. Keselamatan: pemanasan 10 menit sebelum menyusun gerak cepat. Kesalahan umum: memasukkan terlalu banyak gerak sampai motif tidak bisa diulang. Tugas: unggah rekaman motif dan skor delapan hitungan. Kriteria: motif bisa diulang empat kali tanpa berhenti dan skor cocok dengan rekaman.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Transisi antar motif",
+          kind: "text",
+          body: "Transisi adalah jembatan antara satu motif dan motif berikutnya. Transisi yang baik tidak harus rumit; yang penting arah dan waktunya jelas. Alat: ponsel dan catatan. Langkah: 1) siapkan dua motif delapan hitungan; 2) tentukan satu gerak transisi, misalnya melangkah atau memutar badan; 3) beri transisi empat hitungan; 4) ulangi rangkaian tiga kali; 5) rekam dan periksa apakah ada jeda canggung. Keselamatan: pastikan arah putaran tidak membuat pusing; berhenti bila perlu. Kesalahan umum: mengisi transisi dengan gerakan baru yang lebih sulit daripada motifnya. Tugas: unggah rangkaian dua motif dengan transisi. Kriteria: perpindahan terbaca, tidak ada jeda mati, dan hitungan transisi tetap.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Pola lantai",
+          kind: "text",
+          body: "Pola lantai adalah lintasan yang membentuk ruang publik penari. Laporan membedakan ruang pribadi dan ruang publik; pola lantai memakai keduanya. Alat: lakban kertas, ruang 2 x 2 meter, ponsel. Langkah: 1) gambar denah ruang di kertas; 2) tandai tiga titik utama; 3) buat lintasan lurus, diagonal, dan lengkung; 4) lakukan motif sambil mengikuti satu lintasan; 5) ulangi dengan lintasan lain dan bandingkan. Keselamatan: pastikan lintasan tidak melewati kabel atau sudut meja. Kesalahan umum: membuat lintasan yang tidak muat di ruang latihan. Tugas: unggah denah dan rekaman satu lintasan. Kriteria: denah berskala wajar, lintasan muat, dan gerak tetap terbaca saat berpindah.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Musik dan iringan",
+          kind: "text",
+          body: "Laporan menyebut musik atau iringan sebagai unsur pendukung tari. Iringan membantu menjaga tempo, tetapi tidak boleh menutupi hitungan penari. Alat: ponsel atau pemutar musik, pengeras suara kecil. Langkah: 1) pilih satu iringan dengan tempo stabil; 2) hitung delapan ketukan berulang; 3) lakukan motif mengikuti hitungan, bukan mengikuti lirik; 4) rekam; 5) ulangi dengan volume lebih kecil untuk memeriksa kejelasan gerak. Keselamatan: atur volume agar telinga tidak sakit. Kesalahan umum: memilih lagu cepat lalu memotong gerakan agar cocok. Tugas: unggah rekaman 30 detik dengan iringan dan tulis sumber iringan. Kriteria: gerak mengikuti hitungan, iringan tidak menutupi aksen, dan sumber tercatat.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Properti dan busana sederhana",
+          kind: "text",
+          body: "Properti, busana, dan rias adalah unsur pendukung menurut laporan. Untuk kreasi di rumah, properti harus ringan dan tidak membahayakan. Alat: satu properti sederhana, misalnya selendang ringan atau kipas kertas, dan pakaian yang tidak menghambat gerak. Langkah: 1) pilih properti yang bisa dikendalikan satu tangan; 2) uji gerak memutar dan mengayun; 3) pastikan properti tidak melintasi wajah tanpa arah; 4) rekam 30 detik; 5) catat satu alasan memakai properti itu. Keselamatan: hindari properti berat, tajam, atau mudah tersangkut. Kesalahan umum: menambah properti untuk menutupi gerak yang belum jelas. Tugas: unggah rekaman dengan properti dan catatan alasan. Kriteria: properti terkendali, gerak tetap terbaca, dan alasan masuk akal.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Pemanasan, pendinginan, dan keselamatan tubuh",
+          kind: "practice",
+          body: "Tari memakai sendi, otot, dan napas. Pemanasan 10 menit dan pendinginan 5 menit bukan formalitas. Alat: matras tipis bila lantai keras, air minum, ruang 2 x 2 meter. Langkah: 1) putar leher, bahu, pinggang, pinggul, lutut, dan pergelangan; 2) lakukan jalan di tempat tiga menit; 3) ulangi gerak utama dengan tempo lambat; 4) setelah latihan, lakukan peregangan ringan dan napas panjang; 5) catat bagian tubuh yang paling lelah. Keselamatan: hentikan bila nyeri tajam, pusing, atau sesak; jangan memaksa split atau lompatan di lantai keras. Kesalahan umum: langsung melakukan gerak cepat tanpa pemanasan, atau melewatkan pendinginan karena sudah lelah. Tugas: unggah daftar pemanasan dan pendinginan yang kamu lakukan. Kriteria: daftar lengkap, urutan masuk akal, dan ada catatan tubuh.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Panggung dan penilaian",
+      summary:
+        "Prasyarat: modul 1 sampai 5. Rehearsal, menghadap penonton, merekam, menulis skor, dan ujian akhir kreasi dua menit.",
+      estimatedMinutes: 95,
+      lessons: [
+        {
+          title: "Rehearsal di ruang 2 x 2 meter",
+          kind: "practice",
+          body: "Rehearsal adalah latihan utuh, bukan latihan bagian. Di ruang kecil, rehearsal melatih pengendalian arah dan jarak. Alat: ponsel, penanda lantai, air minum. Langkah: 1) tandai batas ruang; 2) pemanasan 10 menit; 3) jalankan seluruh kreasi tanpa berhenti; 4) tandai dua bagian yang paling sering goyah; 5) ulangi bagian itu saja, lalu jalankan utuh sekali lagi. Keselamatan: sisakan ruang aman dari dinding dan benda keras. Kesalahan umum: berhenti setiap kali salah sehingga tidak pernah merasakan alur utuh. Tugas: unggah rekaman rehearsal utuh dan dua catatan perbaikan. Kriteria: kreasi berjalan tanpa berhenti dan catatan perbaikan spesifik.",
+          estimatedMinutes: 25,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Menghadap penonton",
+          kind: "text",
+          body: "Menghadap penonton bukan berarti selalu melihat mata penonton. Yang penting adalah arah tubuh dan pandangan yang disengaja. Alat: kursi sebagai penanda penonton, ponsel. Langkah: 1) letakkan kursi di satu sisi ruang; 2) lakukan motif dengan dada menghadap kursi; 3) ulangi dengan pandangan sesekali ke kursi; 4) ulangi dengan punggung menghadap kursi pada bagian tertentu; 5) catat bagian mana yang terasa paling jelas. Keselamatan: jangan memutar leher mendadak. Kesalahan umum: menatap lantai sepanjang penampilan. Tugas: unggah rekaman 45 detik dan catatan arah pandang. Kriteria: arah tubuh jelas, pandangan disengaja, dan tidak ada gerak yang hanya menghadap cermin.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Merekam dengan ponsel",
+          kind: "practice",
+          body: "Rekaman yang baik cukup dengan ponsel: stabil, terang, dan seluruh tubuh masuk frame. Alat: ponsel, penyangga atau tumpukan buku, ruang 2 x 2 meter. Langkah: 1) letakkan ponsel setinggi pinggang; 2) pastikan seluruh tubuh terlihat dari depan; 3) rekam dari dua sudut, depan dan samping; 4) jangan memakai filter atau musik tambahan; 5) periksa suara dan gambar sebelum mengunggah. Keselamatan: penyangga ponsel harus stabil agar tidak jatuh. Kesalahan umum: merekam terlalu dekat sehingga kaki terpotong, atau memakai zoom digital sampai gambar pecah. Tugas: unggah dua sudut rekaman 30 detik. Kriteria: seluruh tubuh terlihat, gambar stabil, dan tidak ada potongan yang menyembunyikan gerak.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Ujian akhir: kreasi dua menit, skor gerak, evaluasi diri",
+          kind: "practice",
+          body: "Ujian akhir adalah satu kreasi dua menit untuk solo atau duet, rekaman pertunjukan, dan skor gerak tertulis. Skor memuat urutan motif, hitungan, arah lantai, dan iringan. Alat: ponsel, penyangga, ruang 2 x 2 meter, lembar skor, pakaian nyaman. Langkah: 1) pemanasan 10 menit; 2) rekam kreasi dua menit dari depan; 3) rekam ulang dari samping bila memungkinkan; 4) tulis skor gerak per delapan hitungan; 5) tulis evaluasi diri: dua hal yang sudah baik dan dua yang perlu diperbaiki. Keselamatan: hentikan bila nyeri atau pusing; pendinginan 5 menit setelah rekaman. Kesalahan umum: mengejar gerak sulit sampai kreasi tidak utuh, atau menulis skor setelah lupa urutan. Tugas: unggah rekaman dua menit, skor gerak, dan evaluasi diri. Kriteria: durasi dua menit, skor cocok dengan rekaman, gerak terbaca, dan evaluasi jujur.",
+          estimatedMinutes: 30,
+          accessLevel: "certified",
+        },
+      ],
+    },
+  ],
+  [pathSlug("kulinerNusantara")]: [
+    {
+      title: "Gastronomi dan identitas",
+      summary:
+        "Modul pembuka tanpa prasyarat. Definisi makanan tradisional dan gastronomi, mengapa makanan disebut warisan, dan cara membaca laporan sumber.",
+      estimatedMinutes: 100,
+      lessons: [
+        {
+          title: "Makanan tradisional dan gastronomi",
+          kind: "text",
+          body: "Laporan Gastronomi Nusantara mendefinisikan makanan tradisional sebagai makanan atau minuman yang berkembang dalam suatu masyarakat dan diwariskan lewat kebiasaan, pengetahuan, serta praktik pengolahan dari generasi ke generasi. Gastronomi adalah kajian tentang makanan dan hubungannya dengan manusia serta kebudayaannya, meliputi bahan, teknik, rasa, sejarah, kebiasaan makan, dan makna sosial. Laporan itu adalah laporan siswa, bukan rujukan primer, jadi istilah di sini dipakai sebagai pengantar. Alat: catatan dan alat tulis. Langkah: 1) tulis kedua definisi dengan kalimat sendiri; 2) sebut tiga hal yang termasuk kajian gastronomi; 3) tulis satu makanan tradisional dari daerahmu; 4) catat bahan dan cara pengolahannya. Keselamatan: tidak ada. Kesalahan umum: menyempitkan gastronomi menjadi sekadar selera atau review makanan. Tugas: tulis 120 kata tentang satu makanan tradisional dan konteksnya. Kriteria: definisi tepat, ada contoh, dan konteksnya disebut.",
+          estimatedMinutes: 20,
+          accessLevel: "public",
+        },
+        {
+          title: "Mengapa makanan disebut warisan",
+          kind: "text",
+          body: "Laporan menyebut makanan tradisional tidak hanya memenuhi kebutuhan pangan, tetapi juga menjadi penanda identitas kelompok, sarana pewarisan pengetahuan, serta bagian dari praktik adat dan keagamaan. Di balik hidangan tersimpan cerita asal-usul, nilai kebersamaan, cara masyarakat beradaptasi dengan lingkungan, dan pandangan hidup. Alat: catatan. Langkah: 1) tulis tiga fungsi makanan menurut laporan; 2) beri satu contoh untuk masing-masing; 3) tandai mana yang pernah kamu alami; 4) tulis satu pertanyaan tentang asal sebuah hidangan. Keselamatan: tidak ada. Kesalahan umum: menganggap semua cerita asal hidangan sudah pasti fakta sejarah. Tugas: tulis tiga fungsi dan satu contoh pribadi. Kriteria: tiga fungsi tepat dan contohnya nyata.",
+          estimatedMinutes: 20,
+          accessLevel: "public",
+        },
+        {
+          title: "Membaca laporan gastronomi",
+          kind: "text",
+          body: "Laporan ini menyusun pembahasan dari beberapa rujukan awal: Badan Pusat Statistik, Basis Data Warisan Budaya Takbenda Kemendikbudristek, Kemenparekraf, UNESCO, dan Pemerintah Kabupaten Kulon Progo. Daftar pustakanya sendiri mencantumkan catatan bahwa judul, tahun, dan tanggal akses perlu dilengkapi. Artinya, laporan ini berguna sebagai peta, bukan sebagai sumber akhir. Alat: catatan. Langkah: 1) tulis lima rujukan yang disebut; 2) tandai mana yang berupa data dan mana yang berupa lembaga; 3) tulis satu klaim yang perlu diverifikasi; 4) cari satu istilah yang belum jelas. Keselamatan: tidak ada. Kesalahan umum: mengutip laporan siswa sebagai bukti sejarah tanpa memeriksa sumbernya. Tugas: tulis catatan sumber 150 kata. Kriteria: lima rujukan tercatat dan satu klaim ditandai untuk verifikasi.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Identitas dari bahan lokal",
+          kind: "text",
+          body: "Laporan menghubungkan keragaman kuliner dengan kondisi geografis, ketersediaan sumber daya alam, sejarah, dan kehidupan sosial masyarakat setempat. Bahan lokal karena itu bukan hanya soal murah, tetapi juga soal apa yang tumbuh dan tersedia di suatu tempat. Alat: catatan. Langkah: 1) daftar lima bahan yang mudah ditemukan di pasar terdekat; 2) catat asal daerah bahan itu bila diketahui; 3) pilih satu bahan dan tulis satu hidangan yang memakainya; 4) bandingkan dengan bahan yang harus didatangkan dari luar. Keselamatan: tidak ada. Kesalahan umum: menyamakan bahan lokal dengan bahan murah tanpa melihat konteks lingkungan. Tugas: unggah daftar lima bahan dan satu catatan asal. Kriteria: lima bahan nyata, asal dicatat, dan satu hidangan disebut.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Menulis catatan rasa",
+          kind: "practice",
+          body: "Catatan rasa yang berguna menyebut bahan, tekstur, suhu, dan kesan, bukan hanya enak atau tidak enak. Latihan ini memakai satu makanan yang ada di rumah. Alat: satu makanan, air minum, catatan. Langkah: 1) amati warna dan bentuk; 2) cium aromanya; 3) rasakan teksturnya; 4) tulis tiga kata rasa dan satu kata tekstur; 5) tulis satu dugaan bahan. Keselamatan: tanyakan bahan dan alergen sebelum mencicipi. Kesalahan umum: menulis kesimpulan suka atau tidak suka tanpa deskripsi. Tugas: unggah catatan rasa 120 kata. Kriteria: ada warna, aroma, tekstur, rasa, dan dugaan bahan.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Bahan dan lingkungan",
+      summary:
+        "Prasyarat: modul 1. Bahan lokal, belanja pasar, substitusi, keamanan pangan, halal dan non-halal sebagai konteks, serta alergi.",
+      estimatedMinutes: 105,
+      lessons: [
+        {
+          title: "Bahan lokal Yogyakarta",
+          kind: "text",
+          body: "Laporan menekankan bahan yang tersedia di lingkungan setempat. Di Yogyakarta, itu berarti pasar dan produsen lokal, bukan daftar bahan yang diseragamkan dari buku resep. Alat: catatan dan kantong belanja. Langkah: 1) pilih tiga bahan pokok, misalnya tapioka, bawang putih, dan kelapa; 2) catat tempat membeli dan harga per satuan; 3) tulis bentuk dan kondisi yang layak; 4) catat satu bahan pengganti bila barang tidak ada. Keselamatan: cuci tangan sebelum menangani bahan. Kesalahan umum: membeli bahan tanpa memeriksa tanggal dan kondisi kemasan. Tugas: unggah tabel tiga bahan dengan asal dan harga. Kriteria: tiga bahan nyata, harga satuan, dan kondisi dicatat.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Belanja di pasar",
+          kind: "practice",
+          body: "Pasar adalah tempat membaca ketersediaan dan musim. Belanja dengan daftar membuat kamu bisa membandingkan harga dan kualitas tanpa tergoda membeli berlebihan. Alat: daftar belanja, uang tunai secukupnya, kantong sendiri. Langkah: 1) tulis daftar bahan dan jumlah; 2) bandingkan dua pedagang untuk satu bahan; 3) tanya asal bahan bila pedagang mengetahuinya; 4) catat harga dan berat; 5) periksa kembali daftar sebelum pulang. Keselamatan: bawa uang secukupnya, jaga barang bawaan, dan cuci tangan setelah dari pasar. Kesalahan umum: membeli tanpa menimbang sehingga biaya per porsi tidak diketahui. Tugas: unggah foto daftar belanja dan catatan harga. Kriteria: daftar lengkap, harga dan berat tercatat, dan tidak ada pembelian di luar daftar tanpa alasan.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Substitusi bahan",
+          kind: "text",
+          body: "Substitusi berarti mengganti bahan karena tidak tersedia, lebih murah, atau kebutuhan diet. Penggantian mengubah tekstur dan rasa, jadi catat hasilnya. Alat: catatan. Langkah: 1) pilih satu bahan dari resep; 2) tentukan satu pengganti yang masuk akal; 3) tulis perkiraan perubahan tekstur; 4) uji dalam porsi kecil; 5) catat hasilnya. Keselamatan: periksa alergen pada bahan pengganti. Kesalahan umum: mengganti bahan utama tanpa menyesuaikan jumlah cairan atau waktu masak. Tugas: unggah catatan uji substitusi satu bahan. Kriteria: alasan penggantian jelas, hasil dicatat, dan tidak ada klaim yang berlebihan.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Keamanan pangan dan alergi",
+          kind: "text",
+          body: "Keamanan pangan dimulai dari tangan, alat, dan suhu. Alergi perlu ditanyakan sebelum menyajikan makanan kepada orang lain. Alat: sabun, air bersih, talenan terpisah untuk bahan mentah, dan catatan. Langkah: 1) cuci tangan sebelum dan sesudah memegang bahan mentah; 2) pisahkan talenan daging dan sayur; 3) masak bahan sampai matang; 4) simpan makanan dingin pada suhu yang tepat; 5) tulis daftar alergen yang mungkin ada. Keselamatan: jangan mencicipi adonan yang mengandung telur mentah; hentikan bila muncul gatal atau bengkak. Kesalahan umum: mencampur alat mentah dan matang tanpa dicuci. Tugas: unggah daftar periksa kebersihan dan alergen. Kriteria: lima butir kebersihan dan tiga alergen umum tercatat.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Halal dan non-halal sebagai konteks",
+          kind: "text",
+          body: "Laporan menyebut lawar dan babi guling sebagai hidangan Bali yang dapat hadir dalam konteks sosial maupun upacara tertentu, dengan ketentuan yang mengikuti adat setempat. Babi guling tentu non-halal bagi muslim, dan itu adalah konteks budaya, bukan penilaian. Alat: catatan. Langkah: 1) tulis dua hidangan yang bahan utamanya babi; 2) catat daerah dan konteks yang disebut laporan; 3) tulis satu hidangan halal sebagai pembanding; 4) tulis satu kalimat yang menghormati perbedaan. Keselamatan: tidak ada. Kesalahan umum: menyamakan non-halal dengan tidak layak dimakan bagi semua orang. Tugas: tulis 120 kata tentang konteks halal dan non-halal. Kriteria: dua contoh tepat, konteks disebut, dan tidak ada klaim normatif.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Teknik memasak",
+      summary:
+        "Prasyarat: modul 2. Rebus, bakar, asap, kukus, goreng, serta suhu, api, dan keselamatan dapur.",
+      estimatedMinutes: 110,
+      lessons: [
+        {
+          title: "Merebus: rawon dan soto",
+          kind: "text",
+          body: "Laporan menyebut merebus dipakai dalam hidangan seperti rawon dan soto. Perebusan memindahkan panas lewat air dan membuat bahan matang merata. Alat: panci, air, sumber api, sendok, dan penutup. Langkah: 1) didihkan air secukupnya; 2) masukkan bahan yang lebih keras lebih dulu; 3) kecilkan api setelah mendidih; 4) buang kotoran yang mengapung; 5) masak sampai bahan empuk dan catat waktunya. Keselamatan: uap panas, jangan membuka tutup dengan wajah tepat di atas panci. Kesalahan umum: api terlalu besar sampai air habis sebelum bahan matang. Tugas: unggah catatan satu kali merebus dengan waktu dan suhu api. Kriteria: waktu, jumlah air, dan kondisi bahan tercatat.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Membakar: sate dan iga",
+          kind: "text",
+          body: "Laporan menyebut membakar diterapkan pada sate dan iga bakar. Membakar memberi aroma dan warna permukaan, tetapi mudah gosong bila api terlalu dekat. Alat: panggangan, penjepit, kuas, dan alas tahan panas. Langkah: 1) siapkan bahan dengan ukuran seragam; 2) panaskan panggangan; 3) letakkan bahan dengan jarak; 4) balik berkala dan olesi; 5) angkat saat matang dan catat waktu. Keselamatan: jauhkan dari bahan mudah terbakar, pakai penjepit panjang, dan siapkan penutup untuk memadamkan api kecil. Kesalahan umum: mengolesi saus manis terlalu awal sehingga cepat gosong. Tugas: unggah catatan membakar dan foto hasil. Kriteria: tidak gosong, matang merata, dan waktu dicatat.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Mengasap: se'i",
+          kind: "text",
+          body: "Laporan menyebut pengasapan dikenal dalam pengolahan se'i sapi dari Nusa Tenggara Timur. Asap memberi aroma dan membantu pengawetan, tetapi perlu ruang berventilasi. Alat: wadah pengasap sederhana, bahan bakar asap, penutup, dan ventilasi. Langkah: 1) siapkan bahan yang sudah dibumbui; 2) panaskan alat pengasap; 3) letakkan bahan di rak; 4) tutup dan jaga asap tetap keluar; 5) catat waktu dan kondisi bahan. Keselamatan: kerjakan di luar ruangan atau dengan ventilasi paksa, jauhkan dari anak-anak. Kesalahan umum: ruangan tertutup penuh asap sehingga tidak terlihat dan berbahaya. Tugas: unggah catatan pengasapan dan satu foto. Kriteria: ventilasi jelas, waktu dicatat, dan bahan tidak gosong.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Mengukus dan menggoreng",
+          kind: "text",
+          body: "Mengukus memakai uap, menggoreng memakai minyak panas. Keduanya memerlukan kendali suhu. Geblek di modul berikut memakai menggoreng, sedangkan tumpeng memakai mengukus nasi. Alat: kukusan, wajan, minyak, termometer dapur bila ada, dan penjepit. Langkah: 1) panaskan air kukusan sebelum bahan masuk; 2) jaga air tidak menyentuh bahan; 3) untuk menggoreng, panaskan minyak dengan api sedang; 4) uji dengan sepotong kecil; 5) goreng sedikit-sedikit agar suhu tidak turun. Keselamatan: minyak panas, jangan memasukkan bahan basah ke minyak; jauhkan wajah dan tangan. Kesalahan umum: menggoreng terlalu banyak sekaligus sehingga bahan menyerap minyak. Tugas: unggah catatan satu kali mengukus atau menggoreng. Kriteria: suhu api, waktu, dan jumlah bahan tercatat.",
+          estimatedMinutes: 25,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Suhu, api, dan keselamatan dapur",
+          kind: "text",
+          body: "Keselamatan dapur mencakup minyak panas, uap, api, talenan, dan kebersihan. Minyak panas memercik bila ada air; uap bisa membakar wajah; api bisa menjalar ke kain; talenan mentah harus dipisah; tangan harus dicuci. Alat: penutup wajan, penjepit panjang, talenan terpisah, kain kering, dan pemadam api dapur. Langkah: 1) keringkan bahan sebelum menggoreng; 2) letakkan gagang wajan menjauh dari tepi; 3) jangan tinggalkan minyak panas tanpa pengawasan; 4) tutup wajan bila minyak terbakar, jangan disiram air; 5) bersihkan permukaan setelah selesai. Keselamatan: untuk luka bakar ringan, alirkan air dingin; hentikan memasak bila ruangan berasap. Kesalahan umum: menuang air ke minyak panas atau memakai satu talenan untuk daging mentah dan sayur. Tugas: unggah daftar periksa keselamatan dapur 12 butir. Kriteria: 12 dari 12 butir terpenuhi dan foto dapur ditambahkan.",
+          estimatedMinutes: 25,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Geblek Kulon Progo",
+      summary:
+        "Prasyarat: modul 3. Bahan, adonan, bentuk angka delapan, menggoreng, serta makna dan motif Geblek Renteng.",
+      estimatedMinutes: 110,
+      lessons: [
+        {
+          title: "Geblek: bahan dan bentuk",
+          kind: "text",
+          body: "Laporan menyebut geblek sebagai makanan tradisional Kulon Progo yang umumnya dibuat dari pati singkong atau tapioka dengan bumbu seperti bawang putih, dan berbentuk seperti angka delapan atau dua lingkaran yang saling terhubung. Alat: catatan dan bahan. Langkah: 1) tulis tiga bahan yang disebut laporan; 2) catat satu bahan yang tidak disebut tetapi lazim, lalu tandai sebagai tambahan; 3) gambar bentuk angka delapan; 4) tulis perkiraan tekstur. Keselamatan: tidak ada bahan panas. Kesalahan umum: menambahkan bahan yang tidak ada di sumber lalu menganggapnya bagian resep asli. Tugas: unggah catatan bahan dan sketsa bentuk. Kriteria: bahan sumber dan tambahan dibedakan dengan jelas.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Membuat adonan geblek",
+          kind: "practice",
+          body: "Adonan geblek memakai tapioka dan bawang putih. Perbandingan tidak disebut laporan, jadi catat versimu sendiri dan ulangi sebelum menilai. Alat: mangkuk, timbangan, bawang putih, tapioka, air, dan sendok. Langkah: 1) timbang tapioka; 2) haluskan bawang putih dan campurkan; 3) tambahkan air sedikit-sedikit sampai adonan bisa dipulung; 4) uleni sampai rata; 5) catat berat dan jumlah air. Keselamatan: cuci tangan dan alat sebelum dan sesudah. Kesalahan umum: menuang air sekaligus sehingga adonan terlalu lembap dan lengket. Tugas: unggah catatan takaran dan foto adonan. Kriteria: takaran tercatat, adonan bisa dipulung, dan tidak ada bahan yang tidak dicatat.",
+          estimatedMinutes: 25,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Membentuk angka delapan",
+          kind: "practice",
+          body: "Bentuk khas geblek adalah angka delapan atau dua lingkaran yang saling terhubung. Membentuk dengan tangan melatih kendali ukuran. Alat: adonan, talenan, dan sedikit tepung untuk taburan. Langkah: 1) ambil adonan sebesar ibu jari; 2) gulung memanjang; 3) lengkungkan menjadi dua lingkaran; 4) pertemukan ujungnya; 5) letakkan di talenan dan ulangi sepuluh kali. Keselamatan: jangan memakai talenan bekas daging mentah tanpa dicuci. Kesalahan umum: membuat lingkaran terlalu tipis sehingga putus saat digoreng. Tugas: unggah foto sepuluh geblek mentah dengan ukuran seragam. Kriteria: bentuk terbaca sebagai angka delapan dan ketebalan cukup.",
+          estimatedMinutes: 25,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Menggoreng dan menilai tekstur",
+          kind: "practice",
+          body: "Geblek digoreng sampai bagian luar renyah dan bagian dalam kenyal. Laporan menyebut tekstur kenyal sebagai ciri, jadi jangan menilai hanya dari warna. Alat: wajan, minyak, penjepit, piring beralas kertas. Langkah: 1) panaskan minyak dengan api sedang; 2) uji satu geblek; 3) goreng beberapa sekaligus tanpa menumpuk; 4) balik bila sisi bawah sudah kekuningan; 5) tiriskan dan catat waktu. Keselamatan: minyak panas, keringkan permukaan geblek sebelum masuk wajan, dan jangan tinggalkan wajan. Kesalahan umum: api terlalu besar sehingga luar gosong tetapi dalam masih mentah. Tugas: unggah foto hasil goreng dan catatan waktu. Kriteria: tidak gosong, tekstur kenyal, dan waktu dicatat.",
+          estimatedMinutes: 25,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Makna dan motif Geblek Renteng",
+          kind: "text",
+          body: "Laporan menyebut penafsiran budaya yang berkembang: warna putih dimaknai ketulusan dan kesucian, tekstur kenyal sebagai keluwesan menghadapi perubahan, rasa gurih sebagai pengingat keharmonisan, dan bentuk terhubung sebagai persatuan dan gotong royong. Laporan sendiri menegaskan bahwa itu narasi atau interpretasi budaya, bukan makna baku. Kulon Progo juga dikenal dengan motif batik Geblek Renteng yang mengangkat bentuk geblek sebagai identitas daerah. Alat: catatan. Langkah: 1) tulis empat unsur dan tafsirannya; 2) tandai kata interpretasi; 3) tulis satu kalimat yang menyebut sumber; 4) tulis satu contoh motif batik lain yang terinspirasi makanan. Keselamatan: tidak ada. Kesalahan umum: menulis tafsiran sebagai fakta sejarah. Tugas: tulis 150 kata dengan kata interpretasi dan sumber. Kriteria: empat tafsiran tepat dan status interpretasi jelas.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Hidangan dan upacara",
+      summary:
+        "Prasyarat: modul 1 sampai 4. Tumpeng, ketupat, lawar dan babi guling, rewang, makan bajamba, rendang, serta biaya dan porsi.",
+      estimatedMinutes: 120,
+      lessons: [
+        {
+          title: "Tumpeng",
+          kind: "text",
+          body: "Laporan menyebut tumpeng sebagai sajian nasi berbentuk kerucut dengan aneka lauk, sering hadir dalam selamatan dan peristiwa penting. Bentuk kerucut kerap dikaitkan dengan gunung dalam kosmologi Jawa; dalam tradisi tertentu tumpeng menjadi simbol syukur, harapan keselamatan, dan hubungan manusia dengan Tuhan, sesama, dan alam. Kata kerap dan tradisi tertentu menandakan tafsiran, bukan aturan baku. Alat: catatan. Langkah: 1) tulis bentuk dan bahan utama; 2) tulis dua makna yang disebut; 3) tandai kata yang menunjukkan tafsiran; 4) tulis satu pertanyaan tentang tradisi keluargamu. Keselamatan: tidak ada. Kesalahan umum: menganggap semua tumpeng wajib memakai lauk yang sama. Tugas: tulis 120 kata tentang tumpeng dan status tafsirannya. Kriteria: bentuk, makna, dan status interpretasi tepat.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Ketupat dan Idulfitri",
+          kind: "text",
+          body: "Laporan menyebut ketupat lekat dengan perayaan Idulfitri di berbagai wilayah Indonesia dan sering dihubungkan dengan silaturahmi serta saling memaafkan. Laporan tidak merinci asal-usul sejarahnya, jadi jangan menambah klaim yang tidak ada. Alat: catatan. Langkah: 1) tulis bahan dan bentuk ketupat; 2) tulis dua nilai yang dihubungkan dengannya; 3) catat satu hidangan pendamping; 4) tulis satu pengalaman Idulfitri. Keselamatan: tidak ada. Kesalahan umum: mengarang tahun atau tokoh asal ketupat. Tugas: tulis 100 kata tentang ketupat dan konteksnya. Kriteria: dua nilai disebut dan tidak ada klaim sejarah tambahan.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Lawar dan babi guling Bali",
+          kind: "text",
+          body: "Laporan menyebut lawar dan babi guling dikenal dalam tradisi kuliner Bali dan dapat hadir dalam konteks sosial maupun upacara tertentu, dengan ketentuan yang mengikuti adat setempat. Keduanya berbahan babi, sehingga non-halal bagi muslim. Alat: catatan. Langkah: 1) tulis dua hidangan dan daerahnya; 2) tulis dua konteks yang disebut; 3) catat satu ketentuan yang mengikuti adat; 4) tulis satu kalimat pembanding dengan hidangan di daerahmu. Keselamatan: tidak ada. Kesalahan umum: menyebut semua lawar berbahan babi; laporan tidak merinci variasi. Tugas: tulis 120 kata. Kriteria: dua hidangan tepat, konteks disebut, dan tidak ada generalisasi.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Rewang dan makan bajamba",
+          kind: "text",
+          body: "Laporan menyebut rewang di Jawa sebagai tradisi membantu tuan rumah menyiapkan keperluan hajatan, dan makan bajamba di Minangkabau sebagai tradisi makan bersama. Keduanya menumbuhkan kerja sama, rasa saling membantu, dan ikatan kekeluargaan. Alat: catatan. Langkah: 1) tulis dua tradisi dan daerahnya; 2) tulis tiga nilai yang disebut; 3) catat satu pengalaman kerja bersama; 4) tulis satu perbedaan suasana keduanya. Keselamatan: tidak ada. Kesalahan umum: menyamakan rewang dengan katering berbayar. Tugas: tulis 120 kata tentang satu tradisi memasak bersama. Kriteria: dua tradisi tepat dan tiga nilai disebut.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Rendang dan narasi kesabaran",
+          kind: "text",
+          body: "Laporan menyebut rendang dari Sumatra Barat sebagai hidangan yang proses pengolahannya memerlukan waktu dan perhatian. Dalam narasi budaya Minangkabau, rendang kerap dihubungkan dengan nilai kesabaran, ketekunan, musyawarah, dan kebersamaan. Laporan mengingatkan bahwa pemaknaan filosofis perlu dilihat berdasarkan sumber dan konteks budaya yang menjelaskannya. Alat: catatan. Langkah: 1) tulis asal rendang; 2) tulis empat nilai yang dihubungkan; 3) tandai kata kerap; 4) tulis satu kalimat yang menyebut status narasi. Keselamatan: tidak ada. Kesalahan umum: menulis rendang sebagai simbol resmi tunggal Minangkabau. Tugas: tulis 150 kata dengan sumber dan status narasi. Kriteria: empat nilai tepat dan status narasi jelas.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Biaya dan porsi",
+          kind: "text",
+          body: "Hidangan yang enak tetapi tidak terukur sulit diulang. Hitung biaya per porsi dari bahan, energi, dan kemasan bila ada. Alat: nota belanja, timbangan, kalkulator, dan catatan. Langkah: 1) daftar bahan untuk satu kali masak; 2) catat harga satuan dan jumlah yang dipakai; 3) timbang hasil jadi; 4) bagi hasil menjadi porsi; 5) hitung biaya per porsi dan bandingkan dengan harga jual bila kamu menjual. Keselamatan: tidak ada. Kesalahan umum: lupa menghitung minyak, gas, dan kemasan. Tugas: unggah tabel biaya dan jumlah porsi. Kriteria: semua bahan tercatat, ada harga satuan, dan biaya per porsi dihitung.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+      ],
+    },
+    {
+      title: "Eksistensi dan pelestarian",
+      summary:
+        "Prasyarat: modul 1 sampai 5. Kategori eksistensi, dokumentasi resep, inovasi, wisata, storynomics, dan ujian akhir.",
+      estimatedMinutes: 100,
+      lessons: [
+        {
+          title: "Tiga kategori eksistensi",
+          kind: "text",
+          body: "Laporan mengelompokkan makanan tradisional untuk kepentingan pembelajaran, bukan sebagai klasifikasi resmi. Kategori pertama adalah makanan yang mulai jarang ditemukan, dengan contoh karangan, cethot, dan entog-entog; laporan meminta status kelangkaan tiap contoh diverifikasi menurut daerahnya. Kategori kedua kurang populer, dengan contoh kethak, adrem, wedang tahu, dan lemet. Kategori ketiga tetap populer, dengan contoh gudeg, sate klathak, emping melinjo, dan tiwul. Alat: catatan. Langkah: 1) tulis tiga kategori; 2) tulis contohnya; 3) tandai satu contoh yang perlu diverifikasi; 4) tulis satu makanan di daerahmu untuk tiap kategori bila ada. Keselamatan: tidak ada. Kesalahan umum: menganggap kategori ini berlaku sama di semua daerah. Tugas: unggah tabel tiga kategori dan contoh. Kriteria: kategori dan contoh tepat, serta status nonresmi disebut.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Dokumentasi resep",
+          kind: "practice",
+          body: "Dokumentasi membuat pengetahuan tidak hilang bersama pembuatnya. Catat bahan, takaran, teknik, waktu, dan cerita singkat dari pembuat resep. Alat: catatan, timbangan, ponsel. Langkah: 1) tulis nama hidangan dan daerah; 2) catat bahan dan takaran; 3) tulis langkah berurutan; 4) catat sumber resep, misalnya keluarga atau tetangga; 5) foto bahan dan hasil. Keselamatan: minta izin sebelum memotret orang dan menuliskan namanya. Kesalahan umum: menulis resep tanpa sumber sehingga sulit ditelusuri. Tugas: unggah satu kartu resep lengkap. Kriteria: bahan, takaran, langkah, sumber, dan foto ada.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Inovasi, wisata, dan storynomics",
+          kind: "text",
+          body: "Laporan menyebut beberapa upaya pelestarian: edukasi gastronomi, dokumentasi dan digitalisasi, inovasi produk dan kemasan, pengembangan wisata gastronomi, dan pemberdayaan masyarakat. Pendekatan storynomics dipakai untuk menyampaikan cerita dan konteks budaya, dengan catatan agar cerita disampaikan secara bertanggung jawab, menghormati pemilik tradisi, serta membedakan fakta sejarah dari interpretasi atau legenda. Alat: catatan. Langkah: 1) tulis lima upaya pelestarian; 2) pilih satu yang bisa kamu lakukan; 3) tulis satu ide inovasi kemasan; 4) tulis satu kalimat cerita yang tidak mengarang fakta. Keselamatan: tidak ada. Kesalahan umum: memakai cerita rakyat sebagai klaim sejarah. Tugas: tulis 150 kata tentang satu upaya pelestarian. Kriteria: lima upaya disebut dan satu ide nyata dijelaskan.",
+          estimatedMinutes: 20,
+          accessLevel: "enrolled",
+        },
+        {
+          title: "Ujian akhir: masak, dokumentasi, cerita, pelestarian",
+          kind: "practice",
+          body: "Ujian akhir menggabungkan seluruh modul. Pilih geblek atau tumpeng mini, masak di dapur rumah, dokumentasikan bahan dan teknik, lalu tulis cerita 300-500 kata dan satu langkah pelestarian. Alat: bahan, alat dapur, timbangan, ponsel, dan catatan. Langkah: 1) tulis rencana menu dan daftar bahan; 2) masak dengan mencatat takaran, suhu api, dan waktu; 3) foto bahan, proses, dan hasil; 4) hitung biaya dan porsi; 5) tulis cerita 300-500 kata yang membedakan fakta dan interpretasi; 6) tulis satu langkah pelestarian yang bisa dilakukan. Keselamatan: protokol keselamatan dapur modul 3 berlaku penuh; hentikan bila minyak terbakar atau ruangan berasap. Kesalahan umum: hanya memotret hasil akhir, atau menulis cerita tanpa sumber. Tugas: unggah foto proses, kartu resep, tabel biaya, cerita, dan catatan pelestarian. Kriteria: hidangan jadi, dokumentasi lengkap, cerita sesuai panjang, dan langkah pelestarian nyata.",
+          estimatedMinutes: 30,
+          accessLevel: "certified",
+        },
+      ],
+    },
+  ],
 }
 
 /** Lesson media filenames the seed expects to find in `mediaAssets`. */
@@ -780,7 +1300,7 @@ export const seedCurriculum = internalMutation({
       let publishedModules = 0
       for (const [moduleIndex, module] of modules.entries()) {
         const moduleCreatedAt = clock.ago(
-          372 - curriculumOrder * 68 - moduleIndex * 9,
+          372 - curriculumOrder * 30 - moduleIndex * 9,
         )
         const moduleId = await ctx.db.insert("pathModules", {
           order: moduleIndex + 1,

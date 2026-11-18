@@ -12,25 +12,28 @@ import {
   userByEmail,
 } from "../lib/lookup"
 import { seedEmail } from "../content/identities"
+import { resolveMediaStorage } from "../lib/media"
+
+export const MESSAGING_IMAGE_FILES = [
+  "hasil-latihan.jpg",
+  "panduan-perawatan-produk-bambu.jpg",
+] as const
 
 function pairKey(a: string, b: string): string {
   return [a, b].sort().join("|")
 }
 
-/** Stores the three shared blobs once per run, before any batch uses them. */
+/** Stores the two shared audio blobs once per run, before any batch uses them. */
 export const seedMessagingStorage = internalMutation({
   args: {},
   handler: async (ctx) => {
     const voiceStorage = await ctx.storage.store(
       new Blob(["KalaNidhi seed voice note"], { type: "audio/webm" }),
     )
-    const imageStorage = await ctx.storage.store(
-      new Blob(["KalaNidhi seed image"], { type: "image/jpeg" }),
-    )
     const recordingStorage = await ctx.storage.store(
       new Blob(["KalaNidhi seed call recording"], { type: "audio/webm" }),
     )
-    return { voiceStorage, imageStorage, recordingStorage }
+    return { voiceStorage, recordingStorage }
   },
 })
 
@@ -49,7 +52,6 @@ export const seedMessagingBatch = internalMutation({
     now: v.number(),
     group: messagingGroup,
     voiceStorage: v.id("_storage"),
-    imageStorage: v.id("_storage"),
     recordingStorage: v.id("_storage"),
   },
   handler: async (ctx, args) => {
@@ -171,7 +173,7 @@ export const seedMessagingBatch = internalMutation({
         if (message.kind === "image") {
           const assetId = await ctx.db.insert("messageAssets", {
             messageId,
-            storageId: args.imageStorage,
+            storageId: await resolveMediaStorage(ctx, "hasil-latihan.jpg", "image"),
             senderId: message.senderId,
             kind: "image",
             filename: "hasil-latihan.jpg",
@@ -415,7 +417,11 @@ export const seedMessagingBatch = internalMutation({
         if (message.kind === "image") {
           const assetId = await ctx.db.insert("messageAssets", {
             messageId,
-            storageId: args.imageStorage,
+            storageId: await resolveMediaStorage(
+              ctx,
+              "panduan-perawatan-produk-bambu.jpg",
+              "image",
+            ),
             senderId: message.senderId,
             kind: "image",
             filename: "panduan-perawatan-produk-bambu.jpg",
@@ -1099,7 +1105,6 @@ export const seedMessaging = internalAction({
           now: args.now,
           group,
           voiceStorage: storage.voiceStorage,
-          imageStorage: storage.imageStorage,
           recordingStorage: storage.recordingStorage,
         },
       )
@@ -1191,6 +1196,38 @@ function cohortLines(pathId: string): PathLines {
         "Saya sudah latihan tempo di rumah. Pas bagian midodareni masih suka kecepatan sendiri.",
         "Besok saya bawa catatan yang sudah ditandai. Bagian sambutan tamu saya belum hafal.",
         "Siap pak. Saya rekam latihan tadi, nanti saya kirim buat dicek.",
+      ],
+    }
+  }
+  if (pathId === pathSlug("tariKreasi")) {
+    return {
+      teacher: [
+        "Untuk sesi besok, ukur dulu ruang 2 x 2 meter di rumah. Tandai batasnya, jangan sampai kaki keluar area saat berputar.",
+        "Transisi antara motif satu dan dua masih terasa tergesa. Tenangkan empat hitungannya, jangan tambah gerakan baru.",
+        "Rekaman dari samping sudah saya tonton. Bagian lantai sudah terpakai, tinggal jaga pandangan agar tidak selalu ke bawah.",
+        "Yang belum unggah skor gerak, kirim malam ini ya. Saya cocokkan dengan rekaman dua menitnya.",
+      ],
+      student: [
+        "Bu, ruang di rumah cuma 2 x 2 meter. Kalau lintasan diagonal, masih muat atau sebaiknya lingkaran saja?",
+        "Saya sudah rekam ulang transisinya. Masih terasa cepat, tapi belum tahu harus ditahan di hitungan berapa.",
+        "Skor gerak saya tulis per delapan hitungan. Bagian transisi saya tandai, nanti mohon dicek.",
+        "Bu, pendinginan setelah latihan dua menit itu cukup lima menit atau perlu lebih lama?",
+      ],
+    }
+  }
+  if (pathId === pathSlug("kulinerNusantara")) {
+    return {
+      teacher: [
+        "Untuk geblek, timbang tapiokanya dulu. Jangan menuang air sekaligus; tambahkan sedikit-sedikit sampai adonan bisa dipulung.",
+        "Minyak terlalu panas kalau geblek langsung gelap di luar. Turunkan api, uji satu keping dulu.",
+        "Catatan biaya jangan lupa menghitung minyak dan gas. Biaya per porsi baru masuk akal kalau semua bahan tercatat.",
+        "Cerita rendang boleh memakai narasi kesabaran, tapi tulis bahwa itu narasi budaya, bukan aturan baku.",
+      ],
+      student: [
+        "Pak, adonan saya masih lengket. Kalau ditambah tapioka sedikit-sedikit, teksturnya masih bisa diselamatkan?",
+        "Geblek pertama gosong di luar tapi dalamnya masih lembek. Api saya kecilkan, tapi jadi lama matangnya.",
+        "Tabel biaya saya sudah jadi. Minyak dan gas saya hitung per sekali masak, bukan per porsi, apakah boleh?",
+        "Untuk cerita 300-500 kata, bagian asal-usul cukup menyebut laporan atau perlu cari sumber lain dulu?",
       ],
     }
   }
@@ -1411,18 +1448,30 @@ export const seedGrowthMessagingBatch = internalMutation({
         teacher: Doc<"users">
         enrollment: Doc<"enrollments">
       }> = []
-      for (const enrollment of enrollments) {
-        if (picked.length >= 9) break
+      const pickedPaths = new Set<string>()
+      const consider = (enrollment: Doc<"enrollments">) => {
+        if (picked.length >= 9) return
         const student = userById.get(enrollment.studentId as string)
         const path = pathById.get(enrollment.pathId)
         const teacher = path?.teacherId
           ? userById.get(path.teacherId as string)
           : undefined
-        if (!student || !teacher) continue
+        if (!student || !teacher) return
         const pair = growthPairKey(student._id as string, teacher._id as string)
-        if (usedPairs.has(pair)) continue
+        if (usedPairs.has(pair)) return
         usedPairs.add(pair)
         picked.push({ student, teacher, enrollment })
+        pickedPaths.add(enrollment.pathId)
+      }
+      // One thread per open path first, so a new path gets a human voice even
+      // when its enrollments are the most recent.
+      for (const enrollment of enrollments) {
+        if (pickedPaths.has(enrollment.pathId)) continue
+        consider(enrollment)
+      }
+      for (const enrollment of enrollments) {
+        if (picked.length >= 9) break
+        consider(enrollment)
       }
       for (const [index, row] of picked.entries()) {
         const createdAt = Math.max(
@@ -1651,6 +1700,8 @@ export const seedGrowthCalls = internalMutation({
       cohorts[5],
       cohorts[6],
       cohorts[9],
+      cohorts[12],
+      cohorts[14],
     ].filter((cohort): cohort is Doc<"cohorts"> => cohort !== undefined)
 
     for (const [index, cohort] of selected.entries()) {
@@ -1793,6 +1844,7 @@ export const seedGrowthMessaging = internalAction({
       ["cohort", 0, 4],
       ["cohort", 4, 8],
       ["cohort", 8, 12],
+      ["cohort", 12, 16],
       ["direct", 0, 9],
       ["order", 0, 8],
       ["support", 0, 6],

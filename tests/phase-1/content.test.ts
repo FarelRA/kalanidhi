@@ -537,14 +537,14 @@ describe("content CMS / computed public data", () => {
 
     const stats = await t.query(api.content.getPublicStats, {})
     expect(stats.fields).toBe(11)
-    expect(stats.teachers).toBe(4)
-    expect(stats.participants).toBe(5)
-    expect(stats.submissions).toBe(5)
-    expect(stats.works).toBe(5)
+    expect(stats.teachers).toBe(6)
+    expect(stats.participants).toBe(7)
+    expect(stats.submissions).toBe(7)
+    expect(stats.works).toBe(7)
 
     const site = await t.query(api.content.getSite, {})
     const values = site?.traction.figures.map((figure) => figure.value)
-    expect(values).toEqual(["11", "4", "5", "5", "5"])
+    expect(values).toEqual(["11", "6", "7", "7", "7"])
   })
 
   it("[P1-CMS-37] public attribution reads culturalSources rows", async () => {

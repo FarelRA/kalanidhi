@@ -114,6 +114,28 @@ function cohortsFor(clock: SeedClock) {
       capacity: 12,
       status: "completed" as const,
     },
+    {
+      key: cohortKey("tari2026_01"),
+      code: cohortCode("tari2026_01"),
+      pathSlug: pathSlug("tariKreasi"),
+      teacherKey: "retno",
+      title: "Tari Kreasi, Angkatan 1",
+      start: clock.ago(150),
+      end: clock.ago(115),
+      capacity: 10,
+      status: "completed" as const,
+    },
+    {
+      key: cohortKey("kul2026_01"),
+      code: cohortCode("kul2026_01"),
+      pathSlug: pathSlug("kulinerNusantara"),
+      teacherKey: "joko",
+      title: "Kuliner Nusantara, Angkatan 1",
+      start: clock.ago(148),
+      end: clock.ago(113),
+      capacity: 10,
+      status: "completed" as const,
+    },
   ]
 }
 
@@ -164,6 +186,8 @@ const ENROLLMENTS: {
   // Melati left the aksara cohort before the final assessment, so her
   // enrollment is not completed and she holds no certificate.
   { studentKey: "melati", cohortKey: cohortKey("aks2026_01"), status: "withdrawn" },
+  { studentKey: "sekar", cohortKey: cohortKey("tari2026_01"), status: "completed" },
+  { studentKey: "bimo", cohortKey: cohortKey("kul2026_01"), status: "completed" },
 ]
 type SeedSubmission = {
   key: string
@@ -520,6 +544,36 @@ const SUBMISSIONS: SeedSubmission[] = [
     revisionCount: 0,
     evidenceText:
       "Transkripsi 26 kata, rekaman baca satu paragraf, dan lima kalimat yang dibetulkan.",
+  },
+  {
+    key: "sekar-tari-final",
+    studentKey: "sekar",
+    cohortKey: cohortKey("tari2026_01"),
+    taskTitle: "Ujian akhir: kreasi dua menit, skor gerak, evaluasi diri",
+    status: "approved",
+    score: 91,
+    feedback:
+      "Kreasi utuh dua menit dan skor cocok dengan rekaman. Bagian transisi masih bisa dibuat lebih tenang, bukan lebih cepat.",
+    submittedDaysAgo: 128,
+    assessedDaysAgo: 123,
+    revisionCount: 1,
+    evidenceText:
+      "Rekaman kreasi dua menit dari depan dan samping, skor gerak per delapan hitungan, serta evaluasi diri.",
+  },
+  {
+    key: "bimo-kul-final",
+    studentKey: "bimo",
+    cohortKey: cohortKey("kul2026_01"),
+    taskTitle: "Ujian akhir: masak, dokumentasi, cerita, pelestarian",
+    status: "approved",
+    score: 89,
+    feedback:
+      "Takaran dan waktu dicatat rapi. Cerita sudah membedakan fakta dan tafsiran; perbaiki satu klaim asal-usul pada paragraf kedua.",
+    submittedDaysAgo: 130,
+    assessedDaysAgo: 125,
+    revisionCount: 0,
+    evidenceText:
+      "Foto bahan, proses, dan hasil geblek; kartu resep; tabel biaya dan porsi; cerita 420 kata; catatan pelestarian.",
   },
 ]
 /** Turns a task title into the kind of filename a participant would upload. */

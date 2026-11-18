@@ -92,6 +92,20 @@ async function seedGrowthWorld(t: TestDb) {
       phone: "6281294736508",
       roles: ["teacher"],
     })
+    const teacherFour = await insertUser({
+      authUserId: "growth-teacher-4",
+      name: "Retno Wulandari",
+      email: "retno.wulandari74@gmail.com",
+      phone: "6281296743205",
+      roles: ["teacher"],
+    })
+    const teacherFive = await insertUser({
+      authUserId: "growth-teacher-5",
+      name: "Joko Santosa",
+      email: "joko.santosa68@gmail.com",
+      phone: "6282137596408",
+      roles: ["teacher"],
+    })
     const makerOne = await insertUser({
       authUserId: "growth-maker-1",
       name: "Anisa Rahmawati",
@@ -178,11 +192,55 @@ async function seedGrowthWorld(t: TestDb) {
         status: "open" as const,
         createdAt: SEED_START,
       },
+      {
+        order: 3,
+        slug: "tari-kreasi",
+        code: "Jalur 06",
+        title: "Tari Kreasi",
+        subtitle: "Gerak dan komposisi",
+        teacher: "Retno Wulandari",
+        teacherRole: "Pengajar tari",
+        region: "Sleman, D.I. Yogyakarta",
+        level: "Pemula",
+        modules: 2,
+        weeks: 14,
+        tasks: 2,
+        price: 850_000,
+        tags: ["Tari"],
+        outcome: "Kreasi dua menit.",
+        includes: ["Dua modul"],
+        teacherId: teacherFour,
+        status: "open" as const,
+        createdAt: SEED_START,
+      },
+      {
+        order: 4,
+        slug: "kuliner-nusantara",
+        code: "Jalur 07",
+        title: "Kuliner Nusantara",
+        subtitle: "Gastronomi dan pelestarian",
+        teacher: "Joko Santosa",
+        teacherRole: "Pengajar kuliner",
+        region: "Kulon Progo, D.I. Yogyakarta",
+        level: "Pemula",
+        modules: 2,
+        weeks: 14,
+        tasks: 2,
+        price: 750_000,
+        tags: ["Kuliner"],
+        outcome: "Menu terdokumentasi.",
+        includes: ["Dua modul"],
+        teacherId: teacherFive,
+        status: "open" as const,
+        createdAt: SEED_START,
+      },
     ]
     const lessonCounts: Record<string, number> = {
       "batik-bambu": 30,
       "pranatacara-jawa": 15,
       "aksara-jawa": 25,
+      "tari-kreasi": 30,
+      "kuliner-nusantara": 30,
     }
     for (const path of paths) {
       await ctx.db.insert("paths", path)
@@ -304,6 +362,48 @@ async function seedGrowthWorld(t: TestDb) {
         status: "published" as const,
         createdAt: SEED_START + 60 * DAY,
       },
+      {
+        order: 4,
+        slug: "tari-kreasi-acara-keluarga",
+        title: "Tari Kreasi untuk Acara Keluarga",
+        category: "layanan" as const,
+        kind: "service" as const,
+        maker: "Anisa Rahmawati",
+        makerRole: "Lulusan",
+        teacher: "Retno Wulandari",
+        region: "Sleman",
+        price: 1_500_000,
+        unit: "1 penari, 1 acara",
+        technique: "Layanan",
+        techniqueNote: "Tari kreasi",
+        workCard: "KN-UJI-5",
+        description: "Jasa tari uji.",
+        makerId: makerOne,
+        pathId: "tari-kreasi",
+        status: "published" as const,
+        createdAt: SEED_START + 30 * DAY,
+      },
+      {
+        order: 5,
+        slug: "geblek-renteng-beku",
+        title: "Geblek Renteng Beku",
+        category: "kuliner" as const,
+        kind: "product" as const,
+        maker: "Dimas Yoga Pratama",
+        makerRole: "Lulusan",
+        teacher: "Joko Santosa",
+        region: "Kulon Progo",
+        price: 45_000,
+        unit: "1 paket",
+        technique: "Goreng",
+        techniqueNote: "Geblek",
+        workCard: "KN-UJI-6",
+        description: "Geblek uji.",
+        makerId: makerTwo,
+        pathId: "kuliner-nusantara",
+        status: "published" as const,
+        createdAt: SEED_START + 45 * DAY,
+      },
     ]
     for (const work of works) {
       await ctx.db.insert("works", work)
@@ -324,7 +424,7 @@ async function seedGrowthWorld(t: TestDb) {
       createdAt: SEED_START,
     })
 
-    return { adminId, teacherOne, teacherTwo, teacherThree, makerOne }
+    return { adminId, teacherOne, teacherTwo, teacherThree, teacherFour, teacherFive, makerOne }
   })
 }
 
@@ -369,6 +469,7 @@ async function loadGrowth(t: TestDb) {
     const assessmentEvents = await ctx.db.query("assessmentEvents").collect()
     const certificates = await ctx.db.query("certificates").collect()
     const certificateEvents = await ctx.db.query("certificateEvents").collect()
+    const works = await ctx.db.query("works").collect()
     const progress = (
       await ctx.db.query("lessonProgress").collect()
     ).filter((row) => growthIds.has(row.userId as string))
@@ -403,6 +504,7 @@ async function loadGrowth(t: TestDb) {
       assessmentEvents,
       certificates,
       certificateEvents,
+      works,
       progress,
       supportTickets,
       supportMessages,
@@ -733,6 +835,62 @@ describe("seed growth / operating year", () => {
     expect(new Set(codes).size).toBe(codes.length)
   })
 
+  it("gives Tari Kreasi and Kuliner Nusantara real cohorts, learners, and works", async () => {
+    const t = createTestDb()
+    const { data } = await runGrowth(t)
+
+    for (const slug of ["tari-kreasi", "kuliner-nusantara"]) {
+      const path = data.paths.find((row) => row.slug === slug)
+      expect(path, `${slug} path`).toBeDefined()
+      expect(path?.teacherId).toBeTruthy()
+
+      const cohort = data.cohorts.find(
+        (row) => row.code.startsWith("GRW-") && row.pathId === slug,
+      )
+      expect(cohort, `${slug} growth cohort`).toBeDefined()
+      const members = data.enrollments.filter(
+        (row) => row.cohortId === cohort?._id,
+      )
+      expect(members.length, `${slug} cohort fill`).toBeGreaterThanOrEqual(5)
+
+      const pathOrders = data.orders.filter(
+        (row) => row.pathId === slug && row.workId === undefined,
+      )
+      expect(pathOrders.length, `${slug} path orders`).toBeGreaterThan(0)
+      expect(
+        pathOrders.some((row) => row.paidAt !== undefined),
+        `${slug} paid path order`,
+      ).toBe(true)
+
+      const enrollments = data.enrollments.filter(
+        (row) => row.pathId === slug,
+      )
+      expect(enrollments.length, `${slug} enrollments`).toBeGreaterThanOrEqual(5)
+      const completed = enrollments.filter((row) => row.status === "completed")
+      expect(completed.length, `${slug} completions`).toBeGreaterThan(0)
+      for (const enrollment of completed) {
+        expect(enrollment.certificateId, `${slug} certificate`).toBeTruthy()
+      }
+
+      const works = data.works.filter((row) => row.pathId === slug)
+      expect(works.length, `${slug} works`).toBeGreaterThan(0)
+      const workIds = new Set(works.map((row) => row._id as string))
+      const workOrders = data.orders.filter(
+        (row) => row.workId !== undefined && workIds.has(row.workId as string),
+      )
+      expect(workOrders.length, `${slug} work orders`).toBeGreaterThan(0)
+      for (const order of workOrders) {
+        expect(
+          data.payouts.some(
+            (payout) =>
+              payout.orderId === order._id && payout.kind === "sale",
+          ),
+          `${slug} work payout`,
+        ).toBe(true)
+      }
+    }
+  })
+
   it("documents withdrawals and keeps pending payments progress-free", async () => {
     const t = createTestDb()
     const { data } = await runGrowth(t)
@@ -806,7 +964,7 @@ describe("seed growth / operating year", () => {
     const { data } = await runGrowth(t)
 
     expect(data.progress.length).toBeGreaterThanOrEqual(1000)
-    expect(data.progress.length).toBeLessThanOrEqual(1600)
+    expect(data.progress.length).toBeLessThanOrEqual(1900)
 
     const lessonById = new Map(
       data.lessons.map((lesson) => [lesson._id as string, lesson]),
@@ -885,15 +1043,15 @@ describe("seed growth / operating year", () => {
     }
   })
 
-  it("fills 10-14 cohorts with 5-9 learners and 3-4 sessions", async () => {
+  it("fills 14-18 cohorts with 5-9 learners and 3-4 sessions", async () => {
     const t = createTestDb()
     const { data } = await runGrowth(t)
 
     const growthCohorts = data.cohorts.filter((cohort) =>
       cohort.code.startsWith("GRW-"),
     )
-    expect(growthCohorts.length).toBeGreaterThanOrEqual(10)
-    expect(growthCohorts.length).toBeLessThanOrEqual(14)
+    expect(growthCohorts.length).toBeGreaterThanOrEqual(14)
+    expect(growthCohorts.length).toBeLessThanOrEqual(18)
 
     for (const cohort of growthCohorts) {
       const members = data.enrollments.filter(

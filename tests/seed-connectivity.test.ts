@@ -8,6 +8,7 @@ import {
   worksSeed,
 } from "../convex/seed/content/data"
 import { CURRICULUM_IMAGE_FILES } from "../convex/seed/domains/curriculum"
+import { MESSAGING_IMAGE_FILES } from "../convex/seed/domains/messaging"
 import { createTestDb } from "./helpers/convex"
 
 const NOW = 1_760_000_000_000
@@ -21,6 +22,7 @@ function seedFilenames(): string[] {
       ...teachersSeed.map((teacher) => teacher.imageFile),
       ...worksSeed.map((work) => work.imageFile),
       ...CURRICULUM_IMAGE_FILES,
+      ...MESSAGING_IMAGE_FILES,
     ]),
   )
 }
