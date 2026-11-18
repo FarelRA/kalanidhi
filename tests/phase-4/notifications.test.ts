@@ -143,6 +143,14 @@ describe("in-app notifications", () => {
     expect(unread).toBeGreaterThanOrEqual(1)
   })
 
+  it("[P4-NOT-04b] an unauthenticated shell reads an empty inbox instead of throwing", async () => {
+    const t = createDb()
+    await seedWorld(t)
+
+    expect(await t.query(api.notifications.list, {})).toEqual([])
+    expect(await t.query(api.notifications.unreadCount, {})).toBe(0)
+  })
+
   it("[P4-NOT-05] notifications stay in-app; no email or WhatsApp provider is used", async () => {
     const source = await readFile(
       path.join(process.cwd(), "convex/notifications.ts"),

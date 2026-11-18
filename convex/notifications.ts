@@ -127,7 +127,10 @@ export async function createInAppNotification(
 export const list = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args): Promise<NotificationView[]> => {
-    const { user } = await requireViewer(ctx)
+    const account = await currentAccount(ctx)
+    if (!account) return []
+    requireCapability(account.viewer, "messages.read.own")
+    const { user } = account
     const limit = Math.min(Math.max(args.limit ?? 20, 1), 100)
     const rows = await ctx.db
       .query("notificationOutbox")
@@ -185,7 +188,10 @@ export const listDeliveries = query({
 export const unreadCount = query({
   args: {},
   handler: async (ctx): Promise<number> => {
-    const { user } = await requireViewer(ctx)
+    const account = await currentAccount(ctx)
+    if (!account) return 0
+    requireCapability(account.viewer, "messages.read.own")
+    const { user } = account
     const rows = await ctx.db
       .query("notificationOutbox")
       .withIndex("by_recipientId", (q) => q.eq("recipientId", user._id))

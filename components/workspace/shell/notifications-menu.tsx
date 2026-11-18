@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Bell, CheckCheck } from "lucide-react"
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui"
 import { toast } from "sonner"
-import { useMutation, useQuery } from "convex/react"
+import { useConvexAuth, useMutation, useQuery } from "convex/react"
 import { cn } from "cn"
 
 import { api } from "@/convex/_generated/api"
@@ -59,8 +59,15 @@ function itemFromLive(notification: NotificationView): NotificationItem {
 }
 
 export function NotificationsMenu() {
-  const liveNotifications = useQuery(api.notifications.list, { limit: 8 })
-  const liveUnread = useQuery(api.notifications.unreadCount, {})
+  const { isAuthenticated } = useConvexAuth()
+  const liveNotifications = useQuery(
+    api.notifications.list,
+    isAuthenticated ? { limit: 8 } : "skip",
+  )
+  const liveUnread = useQuery(
+    api.notifications.unreadCount,
+    isAuthenticated ? {} : "skip",
+  )
   const markRead = useMutation(api.notifications.markRead)
   const markAllRead = useMutation(api.notifications.markAllRead)
 
