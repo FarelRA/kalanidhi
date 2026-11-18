@@ -16,6 +16,7 @@ import {
   createSeedClock,
   DAY,
   HOUR,
+  jakartaDayStart,
   SEED_START,
   type SeedClock,
 } from "../lib/clock"
@@ -568,8 +569,11 @@ export const seedLearningBatch = internalMutation({
     for (let index = 0; index < sessionCount; index += 1) {
       // Sessions sit inside the cohort window for every status, including
       // cohorts that have not opened yet.
-      const startsAt =
+      const sessionDay =
         seed.start + Math.round((sessionSpan * (index + 1)) / (sessionCount + 1))
+      // A class belongs to a morning slot, not to whatever hour the cohort
+      // window happens to start at.
+      const startsAt = jakartaDayStart(sessionDay) + 9 * HOUR
       await ctx.db.insert("cohortSessions", {
         cohortId,
         title:

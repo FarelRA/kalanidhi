@@ -786,8 +786,10 @@ type PaidOrderInput = {
   baseAmount: number
   createdAt: number
   paidAt: number
-  status: "paid" | "refunded" | "cancelled"
+  status: "paid" | "delivered" | "completed" | "refunded" | "cancelled"
   gatewayFee: number
+  deliveredAt?: number
+  completedAt?: number
   note?: string
 }
 
@@ -1084,6 +1086,8 @@ export const seedGrowthBatch = internalMutation({
         createdAt: input.createdAt,
         paidAt: input.paidAt,
         status: input.status,
+        deliveredAt: input.deliveredAt,
+        completedAt: input.completedAt,
         gatewayFee: input.gatewayFee,
         note: input.note,
         tokenSeed: `seed-order-token-${input.code}`,
@@ -1129,6 +1133,12 @@ export const seedGrowthBatch = internalMutation({
       const workPaidAt = Math.min(now - HOUR, workCreatedAt + 7 * 60_000)
       const workCode = nextOrderCode(context, usedCodes)
       const gatewayFee = Math.round(work.price * 0.01)
+      const age = now - workPaidAt
+      const status: "paid" | "delivered" | "completed" =
+        age > 14 * DAY ? "completed" : age > 7 * DAY ? "delivered" : "paid"
+      const deliveredAt = status === "paid" ? undefined : workPaidAt + 4 * DAY
+      const completedAt =
+        status === "completed" ? workPaidAt + 9 * DAY : undefined
       const { orderId, paymentId } = await insertPaidOrder({
         code: workCode,
         buyer: user,
@@ -1140,7 +1150,9 @@ export const seedGrowthBatch = internalMutation({
         baseAmount: work.price,
         createdAt: workCreatedAt,
         paidAt: workPaidAt,
-        status: "paid",
+        status,
+        deliveredAt,
+        completedAt,
         gatewayFee,
         note: "Pesanan dikirim setelah kelas selesai.",
       })
