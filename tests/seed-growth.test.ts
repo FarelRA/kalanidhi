@@ -906,6 +906,15 @@ describe("seed growth / operating year", () => {
       for (const session of sessions) {
         expect(session.startsAt).toBeGreaterThanOrEqual(cohort.startDate)
         expect(session.endsAt).toBeLessThanOrEqual(cohort.endDate)
+        const hour = Number(
+          new Intl.DateTimeFormat("en-GB", {
+            timeZone: "Asia/Jakarta",
+            hour: "2-digit",
+            hour12: false,
+          }).format(new Date(session.startsAt)),
+        )
+        expect(hour, `${cohort.code} session hour`).toBeGreaterThanOrEqual(7)
+        expect(hour, `${cohort.code} session hour`).toBeLessThanOrEqual(18)
       }
     }
   })

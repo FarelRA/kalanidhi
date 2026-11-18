@@ -16,7 +16,7 @@ import {
   internalMutation,
   type MutationCtx,
 } from "../../_generated/server"
-import { DAY, HOUR, SEED_START } from "../lib/clock"
+import { DAY, HOUR, jakartaDayStart, SEED_START } from "../lib/clock"
 import { insertSeedUser } from "../lib/identity"
 import { openPaths, type OpenPath } from "../lib/lookup"
 import { evidenceStorageId } from "../lib/media"
@@ -1024,10 +1024,12 @@ export const seedGrowthBatch = internalMutation({
         updatedAt: now,
       })
       for (let sessionIndex = 0; sessionIndex < 4; sessionIndex += 1) {
-        const startsAt =
+        const sessionDay =
           sessionIndex === 3
             ? endDate - 6 * DAY
             : startDate + (7 + sessionIndex * 28) * DAY
+        // Classes run in the morning; the day comes from the cohort window.
+        const startsAt = jakartaDayStart(sessionDay) + 9 * HOUR
         await ctx.db.insert("cohortSessions", {
           cohortId,
           title:
