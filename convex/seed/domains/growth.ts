@@ -26,33 +26,62 @@ import { pathSlug } from "../lib/codes"
  * Growth intake for the workspace.
  *
  * The base seed describes a studio that opened in January 2026 with a handful
- * of people. This module fills the same calendar with a plausible stream of
- * signups: every person is created, verified, and then either leaves a lead or
- * walks the full learning journey — order, payment, enrollment, lessons,
- * submission, assessment, certificate, and occasionally a craft purchase.
+ * of people. This module fills the same calendar with a real operating year:
+ * a rising stream of signups, buyers who only buy craft, learners who repeat a
+ * path, cohorts that finish, withdrawals with and without refunds, and a
+ * support queue that reads like it was written by people.
  *
- * Everything is driven by a seeded PRNG and the calendar, so reseeding
- * reproduces the same people and the same monthly numbers. Work is split into
- * small batches because Convex caps a mutation at one second.
+ * The plan is deterministic: every monthly count is a constant below, every
+ * identity is derived from the row index, and every timestamp is computed from
+ * the seed clock. Reseeding reproduces the same people and the same curve.
  */
 
 export const GROWTH_MONTHS = 11
 
-/** Signups per month, January through November 2026. */
-export const GROWTH_SIGNUPS = [6, 7, 6, 6, 7, 6, 7, 6, 6, 6, 6] as const
+/**
+ * New buyers per month: a person who pays for a path or a work for the first
+ * time. January is small, March crosses five, and the year rises.
+ */
+export const GROWTH_MONTHLY_BUYERS = [2, 3, 8, 9, 10, 10, 11, 12, 13, 13, 14] as const
 
-/** Of those signups, how many only leave a lead and never enroll. */
-export const GROWTH_LEADS = [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1] as const
+/** Buyers who never enroll; they buy one to three craft works over time. */
+export const GROWTH_MONTHLY_WORK_ONLY = [0, 0, 1, 2, 2, 2, 2, 2, 2, 3, 4] as const
 
-export const GROWTH_ENROLLED = GROWTH_SIGNUPS.map(
-  (signups, month) => signups - (GROWTH_LEADS[month] as number),
+/** Path buyers = buyers minus work-only customers. */
+export const GROWTH_MONTHLY_PATH = GROWTH_MONTHLY_BUYERS.map(
+  (buyers, month) => buyers - (GROWTH_MONTHLY_WORK_ONLY[month] as number),
 )
 
-export const GROWTH_TOTAL_SIGNUPS = GROWTH_SIGNUPS.reduce(
+/** Browsers who leave a lead and never pay. */
+export const GROWTH_MONTHLY_LEADS = [2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 3] as const
+
+/** All new accounts in a month. */
+export const GROWTH_MONTHLY_SIGNUPS = GROWTH_MONTHLY_BUYERS.map(
+  (buyers, month) => buyers + (GROWTH_MONTHLY_LEADS[month] as number),
+)
+
+/** Backwards-compatible names used by older seed tooling. */
+export const GROWTH_SIGNUPS = GROWTH_MONTHLY_SIGNUPS
+export const GROWTH_LEADS = GROWTH_MONTHLY_LEADS
+export const GROWTH_ENROLLED = GROWTH_MONTHLY_PATH
+
+export const GROWTH_TOTAL_SIGNUPS = GROWTH_MONTHLY_SIGNUPS.reduce(
   (total, count) => total + count,
   0,
 )
-export const GROWTH_TOTAL_ENROLLED = GROWTH_ENROLLED.reduce(
+export const GROWTH_TOTAL_BUYERS = GROWTH_MONTHLY_BUYERS.reduce(
+  (total, count) => total + count,
+  0,
+)
+export const GROWTH_TOTAL_WORK_ONLY = GROWTH_MONTHLY_WORK_ONLY.reduce<number>(
+  (total, count) => total + count,
+  0,
+)
+export const GROWTH_TOTAL_PATH_BUYERS = GROWTH_MONTHLY_PATH.reduce(
+  (total, count) => total + count,
+  0,
+)
+export const GROWTH_TOTAL_LEADS = GROWTH_MONTHLY_LEADS.reduce(
   (total, count) => total + count,
   0,
 )
@@ -121,6 +150,9 @@ const FIRST_NAMES = [
   "Sari",
   "Bambang",
   "Retno",
+  "Galih",
+  "Sekar",
+  "Bagas",
 ] as const
 
 const LAST_NAMES = [
@@ -149,9 +181,15 @@ const LAST_NAMES = [
   "Rahmawati",
   "Prabowo",
   "Utami",
+  "Ningsih",
+  "Sulistyowati",
+  "Wardani",
+  "Pamungkas",
+  "Kusumawati",
 ] as const
 
 const EMAIL_DOMAINS = [
+  "gmail.com",
   "gmail.com",
   "gmail.com",
   "gmail.com",
@@ -168,6 +206,8 @@ const PHONE_PREFIXES = [
   "62857",
   "62877",
   "62881",
+  "62895",
+  "62856",
 ] as const
 
 const REGIONS = [
@@ -179,18 +219,118 @@ const REGIONS = [
 ] as const
 
 const WITHDRAW_REASONS = [
-  "Jadwal kerja berubah; peserta menunda ke angkatan berikutnya.",
-  "Keperluan keluarga di luar kota selama satu bulan.",
-  "Tempo kelas terasa terlalu cepat dan peserta memilih angkatan berikutnya.",
+  "Kerjaan lagi padat, jadi saya pilih angkatan berikutnya saja.",
+  "Ada urusan keluarga di luar kota hampir sebulan, takut ketinggalan jauh.",
+  "Tempo kelasnya kerasa cepat buat saya yang baru pertama kali pegang canting.",
+  "Saya pindah domisili ke Magelang, jadwal sesi jadi bentrok.",
 ] as const
 
 const NO_REFUND_REASON =
-  "Peserta mengundurkan diri setelah sesi kedua; biaya angkatan tidak dikembalikan sesuai kebijakan."
+  "Mengundurkan diri setelah sesi kedua; biaya angkatan tidak dikembalikan sesuai ketentuan yang disetujui saat mendaftar."
 
 const LEAD_MESSAGES = [
-  "Saya ingin ikut angkatan berikutnya, tolong kabari jadwalnya.",
-  "Apakah kelas bisa diikuti sambil bekerja? Saya hanya libur akhir pekan.",
-  "Saya tertarik untuk sanggar kami, ingin tahu syarat paket bahan.",
+  "Saya lihat jadwal angkatan Juli di halaman jalur. Masih ada tempat untuk yang kerja kantor?",
+  "Bu, kalau belum pernah megang canting sama sekali, boleh langsung ikut jalur batik bambu?",
+  "Saya guru SD di Bantul. Kalau bawa 12 anak, bisa dibuat kelas sendiri?",
+  "Kak, rekaman sesi kemarin katanya bisa diputar ulang. Berlaku sampai kapan ya?",
+  "Tertarik jalur aksara, tapi saya lebih nyaman kelas malam. Ada pilihan jam?",
+  "Saya mau tanya paket bahan. Kalau ikut dari luar kota, alatnya dikirim juga?",
+  "Undangan saya sudah dicetak, tinggal aksara Jawa-nya. Bisa dibantu cek ejaan dulu?",
+  "Angkatan Oktober masih buka? Saya baru tahu dari teman di Sleman.",
+  "Untuk pranatacara, apakah harus sudah pernah jadi MC sebelumnya?",
+  "Saya ikut kelas batik di kampung, mau lanjut ke level yang dinilai sertifikat.",
+  "Apakah bisa cicil? Saya lihat nominalnya cukup besar untuk ukuran saya.",
+  "Mau daftar untuk dua orang, saya dan adik. Bisa satu formulir?",
+] as const
+
+const LEAD_NOTES = [
+  "Sudah dibalas lewat WA. Dia minta dihubungi lagi awal September setelah urusan keluarga selesai.",
+  "Tanya soal jadwal kelas malam. Saya kirim tautan angkatan Oktober dan bilang rekaman tersedia 30 hari.",
+  "Guru SD, minta penawaran rombongan. Sudah saya teruskan ke pengelola institusi, tunggu balasan.",
+  "Baru tanya-tanya, belum yakin. Saya catat minat aksara dan janji kabari kalau ada kelas Sabtu.",
+  "Sudah dihubungi dua kali, belum dijawab. Terakhir online kemarin sore.",
+  "Minta contoh hasil karya sebelum memutuskan. Sudah saya kirim tiga Kartu Karya dari angkatan lalu.",
+  "Dia sudah pernah ikut kelas batik di kampung, jadi saya arahkan langsung ke angkatan lanjutan.",
+  "Tanya soal cicilan. Saya jelaskan belum ada skema cicilan, tapi bisa bayar QRIS penuh.",
+  "Mau daftar bareng adiknya. Saya kirim dua tautan pendaftaran dan catat keduanya.",
+  "Tinggal di luar kota, tanya paket bahan. Sudah saya cek ongkir ke Magelang.",
+  "Minta dihubungi setelah gajian tanggal 25. Saya pasang pengingat.",
+  "Masih membandingkan dua jalur. Saya sarankan datang ke sesi terbuka dulu.",
+] as const
+
+const SUPPORT_SCENARIOS = [
+  {
+    subject: "Canting bocor di menit terakhir",
+    body: "Bu, canting saya bocor waktu latihan lengkung. Malamnya netes ke bagian yang sudah diwarnai, jadi ada bercak di tengah motif. Harus diulang dari nol atau bisa ditambal?",
+    reply:
+      "Bercaknya masih bisa ditutup kalau belum difiksasi. Keringkan dulu semalaman, lalu tutup tipis dengan malam dingin. Jangan dipanaskan lagi di bagian yang sudah berwarna.",
+  },
+  {
+    subject: "Video sesi kemarin tidak bisa diputar",
+    body: "Sesi 2 kemarin saya buka ulang tapi muter terus. Sudah coba pakai WiFi kantor dan data HP, sama saja. Rekaman yang lain normal.",
+    reply:
+      "Rekaman sesi 2 sedang diproses ulang, biasanya selesai 2x24 jam. Sementara itu catatan sesi dan foto papan sudah saya taruh di materi modul.",
+  },
+  {
+    subject: "Paket bahan belum sampai",
+    body: "Paket bahan untuk angkatan Juli belum saya terima. Kurir bilang alamat tidak ditemukan, padahal rumah saya di Jalan Imogiri Timur, patokannya masjid Al-Huda.",
+    reply:
+      "Sudah saya teruskan ke gudang, alamat akan dikirim ulang besok pagi. Kalau kurir menelepon lagi, minta antar ke masjid Al-Huda saja.",
+  },
+  {
+    subject: "Sertifikat belum muncul di akun",
+    body: "Tugas akhir saya sudah dinilai Bu Sri minggu lalu, tapi sertifikat belum ada di halaman akun. Apakah ada yang kurang?",
+    reply:
+      "Sudah saya cek, penilaiannya masuk dan sertifikat terbit hari ini. Coba muat ulang halaman verifikasi; kalau masih kosong, kirim tangkapan layarnya ke sini.",
+  },
+  {
+    subject: "Nominal transfer beda 37 rupiah",
+    body: "Saya transfer 1.250.037 tapi di invoice tertulis 1.250.000. Yang 37 rupiah itu buat apa ya? Takutnya nanti statusnya belum lunas.",
+    reply:
+      "Tiga puluh tujuh rupiah itu kode unik untuk mencocokkan mutasi, bukan biaya tambahan. Statusnya sudah lunas, tidak perlu transfer lagi.",
+  },
+  {
+    subject: "Mau pindah jadwal sesi",
+    body: "Sabtu ini saya ada acara keluarga di Kulon Progo. Bisa ikut sesi susulan atau minta rekamannya saja?",
+    reply:
+      "Bisa ikut sesi susulan minggu depan, atau pakai rekaman kalau lebih pas. Saya catat izinnya, tugas tetap dikumpulkan sesuai tenggat.",
+  },
+  {
+    subject: "Aksara di undangan kebalik",
+    body: "Mas, saya baru sadar pasangan aksara di nama mempelai perempuan kebalik. Undangan sudah dicetak 200 lembar. Ada cara cepat membetulkannya?",
+    reply:
+      "Kalau yang salah cuma satu blok, bisa ditambal dengan stiker kertas bebas asam. Saya kirim versi aksara yang benar malam ini, sekalian ejaan Latin-nya.",
+  },
+  {
+    subject: "Belum dapat kabar jadwal wawancara",
+    body: "Saya daftar jadi pengajar pendamping bulan lalu. Katanya akan dihubungi untuk wawancara, tapi sampai sekarang belum ada kabar.",
+    reply:
+      "Berkasnya sudah masuk daftar tunggu. Wawancara gelombang berikutnya minggu ketiga November; saya kabari lewat WA begitu jadwalnya keluar.",
+  },
+  {
+    subject: "Karya yang saya pesan warnanya beda",
+    body: "Nampannya sudah sampai, tapi warna dasarnya lebih gelap dari foto di etalase. Apakah memang begitu, atau ada kesalahan pewarnaan?",
+    reply:
+      "Warna alami memang bisa sedikit berbeda tergantung bilah. Kalau terlalu jauh dari foto, kirim foto dengan cahaya siang; kalau memang beda jauh, kami tawarkan penukaran.",
+  },
+  {
+    subject: "Tidak bisa unggah tugas dari HP",
+    body: "Mau unggah foto tugas dari HP tapi terus gagal. Ukurannya 4 MB, katanya maksimal 5 MB. Sudah coba Chrome dan Safari.",
+    reply:
+      "Coba kecilkan ke 2 MB dulu atau unggah lewat laptop. Kalau masih gagal, kirim fotonya ke WA saya dan saya unggah atas nama Anda.",
+  },
+  {
+    subject: "Refund belum masuk rekening",
+    body: "Saya mengundurkan diri bulan lalu dan katanya refund disetujui. Sampai hari ini belum masuk ke rekening BCA saya.",
+    reply:
+      "Refund sudah diproses tanggal 12, biasanya masuk 3-5 hari kerja. Saya kirim bukti transfernya lewat email supaya bisa dicek ke bank.",
+  },
+  {
+    subject: "Jadwal sesi bentrok dengan kerja",
+    body: "Sesi ketiga jatuh di hari Selasa, padahal saya shift pagi. Apakah semua sesi wajib hadir langsung?",
+    reply:
+      "Tidak wajib. Sesi bisa disusul lewat rekaman, yang penting tugas praktik tetap dikumpulkan. Kalau butuh bantuan, saya bisa jadwalkan panggilan singkat.",
+  },
 ] as const
 
 type EnrollmentStatus =
@@ -198,46 +338,59 @@ type EnrollmentStatus =
   | "active"
   | "withdrawn"
   | "pending_payment"
-  | "lead"
+
+type RowKind = "lead" | "path" | "work-only" | "repeat"
 
 type PlanRow = {
   monthIndex: number
   rowIndex: number
   globalIndex: number
-  isLead: boolean
+  kind: RowKind
   period: number
-  indexInPeriod: number
+  cohortIndex: number
+  cohortOrdinal: number
   plannedStatus: EnrollmentStatus
-  completedIndex: number
-  activeIndex: number
   workPurchases: number
+  sourceGlobalIndex?: number
 }
 
-const WITHDRAWN_BY_PERIOD: Record<number, number[]> = {
-  0: [4],
-  1: [2, 11],
-  2: [6, 13],
-  3: [0],
+type CohortPlanRow = {
+  index: number
+  period: number
+  pathIndex: number
+  ordinal: number
+  size: number
 }
 
-const PENDING_BY_PERIOD: Record<number, number[]> = {
-  3: [1, 2, 3],
-}
+/**
+ * Twelve cohorts across four intake windows. Sizes sum to the path rows in
+ * each window: 12, 23, 34 (30 new + 4 repeats), and 27 (20 new + 7 repeats).
+ */
+export const COHORT_PLAN: CohortPlanRow[] = [
+  { index: 0, period: 0, pathIndex: 0, ordinal: 0, size: 6 },
+  { index: 1, period: 0, pathIndex: 1, ordinal: 0, size: 6 },
+  { index: 2, period: 1, pathIndex: 0, ordinal: 0, size: 8 },
+  { index: 3, period: 1, pathIndex: 1, ordinal: 0, size: 8 },
+  { index: 4, period: 1, pathIndex: 2, ordinal: 0, size: 7 },
+  { index: 5, period: 2, pathIndex: 0, ordinal: 0, size: 9 },
+  { index: 6, period: 2, pathIndex: 1, ordinal: 0, size: 9 },
+  { index: 7, period: 2, pathIndex: 2, ordinal: 0, size: 8 },
+  { index: 8, period: 2, pathIndex: 0, ordinal: 1, size: 8 },
+  { index: 9, period: 3, pathIndex: 0, ordinal: 0, size: 9 },
+  { index: 10, period: 3, pathIndex: 1, ordinal: 0, size: 9 },
+  { index: 11, period: 3, pathIndex: 2, ordinal: 0, size: 9 },
+]
+
+const COHORT_DAYS = 110
 
 function monthStart(monthIndex: number): number {
   return monthIndex === 0 ? SEED_START : Date.UTC(2026, monthIndex, 1, 8, 0, 0)
 }
 
-function monthEnd(monthIndex: number): number {
-  return Date.UTC(2026, monthIndex + 1, 1, 8, 0, 0)
-}
-
-/** Cohort periods start every three months; a window runs 110 days. */
+/** Cohort windows start in January, April, July, and October. */
 function periodStart(period: number): number {
   return period === 0 ? SEED_START + 3 * DAY : Date.UTC(2026, period * 3, 5, 9)
 }
-
-const COHORT_DAYS = 110
 
 /** mulberry32, seeded from (month, row) so every reseed is identical. */
 function rngFor(monthIndex: number, rowIndex: number): () => number {
@@ -251,87 +404,187 @@ function rngFor(monthIndex: number, rowIndex: number): () => number {
   }
 }
 
-function globalIndexFor(monthIndex: number, rowIndex: number): number {
-  let total = 0
-  for (let month = 0; month < monthIndex; month += 1) {
-    total += GROWTH_SIGNUPS[month] as number
-  }
-  return total + rowIndex + 1
+function signupDay(monthIndex: number, rowIndex: number, count: number): number {
+  const span = 18
+  const step = span / Math.max(1, count)
+  return 2 + Math.min(span - 1, Math.floor(rowIndex * step + 0.5))
 }
 
-/** Builds the whole lifecycle plan; the batch only slices it by month. */
-function buildPlan(): PlanRow[] {
+function signupTimestamp(
+  monthIndex: number,
+  rowIndex: number,
+  count: number,
+  now: number,
+): number {
+  const day = signupDay(monthIndex, rowIndex, count)
+  const rng = rngFor(monthIndex, rowIndex)
+  const hour = 7 + Math.floor(rng() * 14)
+  const minute = Math.floor(rng() * 60)
+  const candidate = Date.UTC(2026, monthIndex, day, hour, minute)
+  return Math.min(now - 4 * DAY, Math.max(monthStart(monthIndex), candidate))
+}
+
+/** Path rows for one intake window, filled into the pre-sized cohorts. */
+function assignCohorts(
+  rows: PlanRow[],
+  period: number,
+): void {
+  const slots = COHORT_PLAN.filter((cohort) => cohort.period === period)
+  const remaining = new Map(slots.map((slot) => [slot.index, slot.size]))
+  const ordered = rows
+    .filter(
+      (row) =>
+        row.period === period &&
+        (row.kind === "path" || row.kind === "repeat"),
+    )
+    .sort((a, b) =>
+      a.monthIndex === b.monthIndex
+        ? a.rowIndex - b.rowIndex
+        : a.monthIndex - b.monthIndex,
+    )
+  let cursor = 0
+  for (const row of ordered) {
+    while (
+      cursor < slots.length &&
+      (remaining.get(slots[cursor]?.index as number) ?? 0) <= 0
+    ) {
+      cursor += 1
+    }
+    const slot = slots[cursor]
+    if (!slot) break
+    row.cohortIndex = slot.index
+    row.cohortOrdinal = slot.size - (remaining.get(slot.index) ?? 0)
+    remaining.set(slot.index, (remaining.get(slot.index) ?? 0) - 1)
+  }
+}
+
+/** Builds the whole lifecycle plan; each batch only slices it by month. */
+export function buildGrowthPlan(): PlanRow[] {
   const rows: PlanRow[] = []
-  const periodCounters = new Map<number, number>()
-  let completedIndex = 0
-  let activeIndex = 0
+  let globalIndex = 0
 
   for (let monthIndex = 0; monthIndex < GROWTH_MONTHS; monthIndex += 1) {
-    const signups = GROWTH_SIGNUPS[monthIndex] as number
-    const enrolled = GROWTH_ENROLLED[monthIndex] as number
     const period = Math.floor(monthIndex / 3)
-
-    for (let rowIndex = 0; rowIndex < signups; rowIndex += 1) {
-      const globalIndex = globalIndexFor(monthIndex, rowIndex)
-      const isLead = rowIndex >= enrolled
-      if (isLead) {
-        rows.push({
-          monthIndex,
-          rowIndex,
-          globalIndex,
-          isLead: true,
-          period,
-          indexInPeriod: -1,
-          plannedStatus: "lead",
-          completedIndex: -1,
-          activeIndex: -1,
-          workPurchases: 0,
-        })
-        continue
-      }
-
-      const indexInPeriod = periodCounters.get(period) ?? 0
-      periodCounters.set(period, indexInPeriod + 1)
-
-      const pending = PENDING_BY_PERIOD[period] ?? []
-      const withdrawn = WITHDRAWN_BY_PERIOD[period] ?? []
-      let plannedStatus: EnrollmentStatus
-      if (pending.includes(indexInPeriod)) plannedStatus = "pending_payment"
-      else if (withdrawn.includes(indexInPeriod)) plannedStatus = "withdrawn"
-      else if (period < 3) plannedStatus = "completed"
-      else plannedStatus = "active"
-
-      let rowCompleted = -1
-      let rowActive = -1
-      let workPurchases = 0
-      if (plannedStatus === "completed") {
-        rowCompleted = completedIndex
-        completedIndex += 1
-        if (rowCompleted % 4 === 0) {
-          workPurchases = rowCompleted === 0 ? 2 : 1
-        }
-      }
-      if (plannedStatus === "active") {
-        rowActive = activeIndex
-        activeIndex += 1
-        if (rowActive === 1 || rowActive === 4) workPurchases = 1
-      }
-
+    let rowIndex = 0
+    for (let i = 0; i < (GROWTH_MONTHLY_PATH[monthIndex] as number); i += 1) {
+      globalIndex += 1
       rows.push({
         monthIndex,
-        rowIndex,
+        rowIndex: rowIndex++,
         globalIndex,
-        isLead: false,
+        kind: "path",
         period,
-        indexInPeriod,
-        plannedStatus,
-        completedIndex: rowCompleted,
-        activeIndex: rowActive,
-        workPurchases,
+        cohortIndex: -1,
+        cohortOrdinal: -1,
+        plannedStatus: "active",
+        workPurchases: 0,
+      })
+    }
+    for (let i = 0; i < (GROWTH_MONTHLY_WORK_ONLY[monthIndex] as number); i += 1) {
+      globalIndex += 1
+      rows.push({
+        monthIndex,
+        rowIndex: rowIndex++,
+        globalIndex,
+        kind: "work-only",
+        period,
+        cohortIndex: -1,
+        cohortOrdinal: -1,
+        plannedStatus: "active",
+        workPurchases: 1 + ((globalIndex * 3 + i) % 3),
+      })
+    }
+    for (let i = 0; i < (GROWTH_MONTHLY_LEADS[monthIndex] as number); i += 1) {
+      globalIndex += 1
+      rows.push({
+        monthIndex,
+        rowIndex: rowIndex++,
+        globalIndex,
+        kind: "lead",
+        period,
+        cohortIndex: -1,
+        cohortOrdinal: -1,
+        plannedStatus: "active",
+        workPurchases: 0,
       })
     }
   }
-  return rows
+
+  for (let period = 0; period < 4; period += 1) {
+    assignCohorts(rows, period)
+  }
+
+  // Repeat purchases: learners who already finished take another path.
+  const graduates = rows
+    .filter(
+      (row) =>
+        row.kind === "path" &&
+        row.period <= 1 &&
+        row.cohortOrdinal >= 0,
+    )
+    .sort((a, b) => a.globalIndex - b.globalIndex)
+  const repeatSources = graduates.filter((_, index) => index % 3 === 1).slice(0, 11)
+  const repeatMonths = [7, 7, 8, 8, 9, 9, 9, 10, 10, 10, 10]
+  const repeats: PlanRow[] = []
+  for (const [index, source] of repeatSources.entries()) {
+    const monthIndex = repeatMonths[index] ?? 10
+    repeats.push({
+      monthIndex,
+      rowIndex: 900 + index,
+      globalIndex: source.globalIndex,
+      kind: "repeat",
+      period: Math.floor(monthIndex / 3),
+      cohortIndex: -1,
+      cohortOrdinal: -1,
+      plannedStatus: "active",
+      workPurchases: 0,
+      sourceGlobalIndex: source.globalIndex,
+    })
+  }
+  rows.push(...repeats)
+  assignCohorts(rows, 2)
+  assignCohorts(rows, 3)
+
+  // Statuses are keyed by cohort and position so they stay stable.
+  const withdrawnRows = new Set([
+    "0:0",
+    "1:0",
+    "2:0",
+    "3:0",
+    "5:0",
+    "6:0",
+  ])
+  for (const row of rows) {
+    if (row.kind !== "path" && row.kind !== "repeat") continue
+    const cohort = COHORT_PLAN[row.cohortIndex]
+    if (!cohort) continue
+    const key = `${row.cohortIndex}:${row.cohortOrdinal}`
+    if (cohort.period <= 2) {
+      row.plannedStatus = withdrawnRows.has(key) ? "withdrawn" : "completed"
+    } else if (row.cohortOrdinal === 0 || row.cohortOrdinal === 1) {
+      row.plannedStatus = "pending_payment"
+    } else if (row.cohortOrdinal === 3 || row.cohortOrdinal === 4) {
+      row.plannedStatus = "withdrawn"
+    } else {
+      row.plannedStatus = "active"
+    }
+  }
+
+  // A subset of learners also buys a craft work after their certificate.
+  for (const row of rows) {
+    if (row.kind !== "path" && row.kind !== "repeat") continue
+    if (row.plannedStatus === "completed" && row.globalIndex % 4 === 1) {
+      row.workPurchases = row.globalIndex % 12 === 1 ? 2 : 1
+    } else if (row.plannedStatus === "active" && row.globalIndex % 7 === 0) {
+      row.workPurchases = 1
+    }
+  }
+
+  return rows.sort((a, b) =>
+    a.monthIndex === b.monthIndex
+      ? a.rowIndex - b.rowIndex
+      : a.monthIndex - b.monthIndex,
+  )
 }
 
 function growthName(globalIndex: number): string {
@@ -354,9 +607,8 @@ function initialsFor(name: string): string {
 export function growthEmail(globalIndex: number): string {
   const name = growthName(globalIndex)
   const [first, last] = name.toLowerCase().split(" ")
-  const suffix = 10 + ((globalIndex * 7) % 89)
   const domain = EMAIL_DOMAINS[globalIndex % EMAIL_DOMAINS.length]
-  return `${first}.${last}${suffix}@${domain}`
+  return `${first}.${last}${100 + globalIndex}@${domain}`
 }
 
 export function growthPhone(globalIndex: number): string {
@@ -369,20 +621,6 @@ export function growthPhone(globalIndex: number): string {
 
 export function growthAuthId(globalIndex: number): string {
   return `seed-growth-${String(globalIndex).padStart(3, "0")}`
-}
-
-function signupTimestamp(
-  monthIndex: number,
-  rowIndex: number,
-  now: number,
-): number {
-  const start = monthStart(monthIndex)
-  const end = Math.min(monthEnd(monthIndex), now - 4 * DAY)
-  const span = Math.max(DAY, end - start)
-  const step = span / (GROWTH_SIGNUPS[monthIndex] as number)
-  const rng = rngFor(monthIndex, rowIndex)
-  const base = start + step * (rowIndex + 0.2) + rng() * step * 0.3
-  return Math.min(now - 4 * DAY, Math.max(start, Math.round(base)))
 }
 
 function pathSlugToken(slug: string): string {
@@ -416,10 +654,7 @@ function anchoredCode(
   used: Set<string>,
   prefixLength: number,
 ): string {
-  const minutes = Math.max(
-    1,
-    Math.floor((timestamp - SEED_START) / 60_000),
-  )
+  const minutes = Math.max(1, Math.floor((timestamp - SEED_START) / 60_000))
   let candidate = minutes
   let code = `${anchor}G${String(candidate).padStart(7, "0")}`
   while (used.has(code)) {
@@ -520,6 +755,7 @@ type BatchResult = {
   completed: number
   certificates: number
   workOrders: number
+  pathOrders: number
 }
 
 type PaidOrderInput = {
@@ -634,31 +870,23 @@ export const seedGrowthBatch = internalMutation({
       completed: 0,
       certificates: 0,
       workOrders: 0,
+      pathOrders: 0,
     }
-    const signupCount = GROWTH_SIGNUPS[args.monthIndex]
-    if (signupCount === undefined) return result
-
-    const plan = buildPlan().filter(
-      (row) =>
-        row.monthIndex === args.monthIndex &&
-        row.rowIndex >= args.rowStart &&
-        row.rowIndex < args.rowEnd,
-    )
+    const plan = buildGrowthPlan()
+      .filter((row) => row.monthIndex === args.monthIndex)
+      .slice(args.rowStart, args.rowEnd)
     if (plan.length === 0) return result
 
     const context = await loadGrowthContext(ctx, args.cacheKey)
-    const { paths, users, cohorts, works } = context
+    const { paths, users, works } = context
     if (paths.length === 0) return result
     const admin = users.find(
       (user) => user.roles.includes("admin") && user.status === "active",
     )
     if (!admin) throw new Error("Seed admin missing")
 
-    const takenEmails = new Set(users.map((user) => user.email))
-    const takenAuthIds = new Set(users.map((user) => user.authUserId))
     const takenPhones = new Set(users.map((user) => user.phone))
-
-    const cohortCodes = new Set(cohorts.map((cohort) => cohort.code))
+    const cohortByCode = new Map(context.cohorts.map((cohort) => [cohort.code, cohort]))
     const cohortLoad = new Map<string, number>()
     for (const enrollment of context.enrollments) {
       if (!enrollment.cohortId) continue
@@ -677,15 +905,21 @@ export const seedGrowthBatch = internalMutation({
     }))
 
     const lessonCache = new Map<string, Doc<"lessons">[]>()
-    const userByEmail = new Map(users.map((user) => [user.email, user]))
+    const userByAuthId = new Map(
+      users.map((user) => [user.authUserId, user]),
+    )
     const userById = new Map(users.map((user) => [user._id, user]))
     let evidenceId: Id<"_storage"> | undefined
 
     const insertUser = async (row: PlanRow): Promise<Doc<"users">> => {
+      if (row.kind === "repeat" && row.sourceGlobalIndex !== undefined) {
+        const source = userByAuthId.get(growthAuthId(row.sourceGlobalIndex))
+        if (source) return source
+      }
       const name = growthName(row.globalIndex)
       const email = growthEmail(row.globalIndex)
       const authUserId = growthAuthId(row.globalIndex)
-      const existing = userByEmail.get(email)
+      const existing = userByAuthId.get(authUserId)
       if (existing) return existing
 
       let phone = growthPhone(row.globalIndex)
@@ -699,6 +933,7 @@ export const seedGrowthBatch = internalMutation({
       const createdAt = signupTimestamp(
         row.monthIndex,
         row.rowIndex,
+        GROWTH_MONTHLY_SIGNUPS[row.monthIndex] as number,
         now,
       )
       const { user } = await insertSeedUser(
@@ -718,8 +953,7 @@ export const seedGrowthBatch = internalMutation({
           authUserId,
           projection: "growth",
           index: row.globalIndex,
-          whatsappVerifiedAt:
-            createdAt + (2 + (row.globalIndex % 4)) * HOUR,
+          whatsappVerifiedAt: createdAt + (2 + (row.globalIndex % 4)) * HOUR,
           roleActorId: "system",
           authLog: {
             ipHash: `seed-ip-growth-${row.globalIndex}`,
@@ -728,61 +962,59 @@ export const seedGrowthBatch = internalMutation({
         },
         now,
       )
-      takenEmails.add(email)
-      takenAuthIds.add(authUserId)
-      userByEmail.set(email, user)
+      userByAuthId.set(authUserId, user)
       userById.set(user._id, user)
       context.users.push(user)
       result.signups += 1
       return user
     }
 
-    const createCohort = async (
-      path: OpenPath,
-      pathIndex: number,
-      period: number,
-    ): Promise<Doc<"cohorts">> => {
-      const rng = rngFor(period, pathIndex)
-      const startDate = periodStart(period) + (pathIndex % 3) * DAY
+    const ensureCohort = async (index: number): Promise<Doc<"cohorts">> => {
+      const spec = COHORT_PLAN[index]
+      if (!spec) throw new Error(`Seed growth: cohort slot ${index} missing`)
+      const path = paths[spec.pathIndex % paths.length] as OpenPath
+      const code = `GRW-26${String(spec.period + 1).padStart(2, "0")}-${pathSlugToken(
+        path.slug,
+      )}-${spec.ordinal + 1}`
+      const cached = cohortByCode.get(code)
+      if (cached) return cached
+
+      const rng = rngFor(spec.period, spec.pathIndex)
+      const startDate = periodStart(spec.period) + spec.pathIndex * DAY
       const endDate = startDate + COHORT_DAYS * DAY
       const status = cohortStatusFor(startDate, endDate, now)
-      const baseCode = `GRW-${String(2026).slice(2)}${String(
-        period * 3 + 1,
-      ).padStart(2, "0")}-${pathSlugToken(path.slug)}`
-      let code = baseCode
-      let suffix = 2
-      while (cohortCodes.has(code)) {
-        code = `${baseCode}-${suffix}`
-        suffix += 1
-      }
-      cohortCodes.add(code)
+      const title = `${path.title} — Angkatan ${MONTH_LABELS[spec.period * 3]} 2026${
+        spec.ordinal > 0 ? ` (${spec.ordinal + 1})` : ""
+      }`
       const cohortId = await ctx.db.insert("cohorts", {
         code,
         pathId: path.slug,
-        teacherId: path.teacherId as Id<"users">,
-        title: `${path.title} — Angkatan ${MONTH_LABELS[period * 3]} 2026`,
+        teacherId: path.teacherId,
+        title,
         startDate,
         endDate,
-        capacity: 8 + (Math.floor(rng() * 5) % 5),
+        capacity: Math.max(9, spec.size + 1 + Math.floor(rng() * 2)),
         timezone: "Asia/Jakarta",
         status,
         createdAt: Math.max(SEED_START, startDate - 21 * DAY),
         updatedAt: now,
       })
-      for (let index = 0; index < 4; index += 1) {
+      for (let sessionIndex = 0; sessionIndex < 4; sessionIndex += 1) {
         const startsAt =
-          index === 3 ? endDate - 6 * DAY : startDate + (7 + index * 28) * DAY
+          sessionIndex === 3
+            ? endDate - 6 * DAY
+            : startDate + (7 + sessionIndex * 28) * DAY
         await ctx.db.insert("cohortSessions", {
           cohortId,
           title:
-            index === 3
+            sessionIndex === 3
               ? "Penilaian akhir dan umpan balik"
-              : `Sesi ${index + 1}: praktik terbimbing`,
-          kind: index === 3 ? "assessment" : "session",
+              : `Sesi ${sessionIndex + 1}: praktik terbimbing`,
+          kind: sessionIndex === 3 ? "assessment" : "session",
           startsAt,
           endsAt: startsAt + 2 * HOUR,
           timezone: "Asia/Jakarta",
-          roomId: `kalanidhi-${code.toLowerCase()}-${index + 1}`,
+          roomId: `kalanidhi-${code.toLowerCase()}-${sessionIndex + 1}`,
           status:
             startsAt + 2 * HOUR < now
               ? "ended"
@@ -793,35 +1025,10 @@ export const seedGrowthBatch = internalMutation({
         })
       }
       const cohort = (await ctx.db.get(cohortId)) as Doc<"cohorts">
-      cohorts.push(cohort)
+      context.cohorts.push(cohort)
+      cohortByCode.set(code, cohort)
       cohortLoad.set(cohortId as string, 0)
       return cohort
-    }
-
-    const resolveCohort = async (
-      path: OpenPath,
-      pathIndex: number,
-      period: number,
-    ): Promise<Doc<"cohorts">> => {
-      const targetStart = periodStart(period)
-      const candidates = cohorts
-        .filter(
-          (cohort) =>
-            cohort.pathId === path.slug &&
-            cohort.status !== "cancelled" &&
-            cohort.status !== "draft" &&
-            Math.abs(cohort.startDate - targetStart) <= 14 * DAY &&
-            cohort.endDate >= targetStart + 85 * DAY,
-        )
-        .sort((a, b) => a.startDate - b.startDate)
-      for (const cohort of candidates) {
-        const load = cohortLoad.get(cohort._id as string) ?? 0
-        if (load < cohort.capacity) {
-          cohortLoad.set(cohort._id as string, load + 1)
-          return cohort
-        }
-      }
-      return await createCohort(path, pathIndex, period)
     }
 
     const insertPaidOrder = async (
@@ -836,7 +1043,7 @@ export const seedGrowthBatch = internalMutation({
         usedAmounts,
         input.createdAt + input.baseAmount,
       )
-      const result = await buildPaidOrder(ctx, {
+      const order = await buildPaidOrder(ctx, {
         now,
         code: input.code,
         buyer: input.buyer,
@@ -865,22 +1072,154 @@ export const seedGrowthBatch = internalMutation({
             : undefined,
         updatedAt: now,
       })
-      context.paymentAmounts.push(result.uniqueAmount)
+      context.paymentAmounts.push(order.uniqueAmount)
       context.orders.push({ code: input.code, createdAt: input.createdAt })
       return {
-        orderId: result.orderId,
-        paymentId: result.paymentId,
-        amount: result.uniqueAmount,
+        orderId: order.orderId,
+        paymentId: order.paymentId,
+        amount: order.uniqueAmount,
       }
+    }
+
+    const workPurchase = async (
+      user: Doc<"users">,
+      purchaseAt: number,
+      seed: number,
+    ): Promise<void> => {
+      const available = works.filter(
+        (work) => (work.createdAt ?? SEED_START) <= purchaseAt,
+      )
+      if (available.length === 0) return
+      const work = available[(seed * 3 + 1) % available.length]
+      if (!work?.makerId) return
+      if ((work.makerId as string) === (user._id as string)) return
+      const maker = userById.get(work.makerId)
+      if (!maker || maker.status !== "active") return
+      const workCreatedAt = Math.max(
+        purchaseAt,
+        work.createdAt ?? SEED_START,
+      )
+      if (workCreatedAt > now - HOUR) return
+      const workPaidAt = Math.min(now - HOUR, workCreatedAt + 7 * 60_000)
+      const workCode = nextOrderCode(orderTimeline, usedCodes, workCreatedAt)
+      const gatewayFee = Math.round(work.price * 0.01)
+      const { orderId, paymentId } = await insertPaidOrder({
+        code: workCode,
+        buyer: user,
+        sellerId: maker._id,
+        workId: work._id,
+        workKind: work.kind === "service" ? "service" : "work",
+        pathId: work.pathId as string,
+        title: work.title,
+        baseAmount: work.price,
+        createdAt: workCreatedAt,
+        paidAt: workPaidAt,
+        status: "paid",
+        gatewayFee,
+        note: "Pesanan dikirim setelah kelas selesai.",
+      })
+      result.workOrders += 1
+
+      const canPay = workPaidAt + 7 * DAY < now
+      const cycle = (seed + workCreatedAt) % 3
+      const payoutStatus: "pending" | "approved" | "paid" =
+        cycle === 0 ? "pending" : cycle === 1 || !canPay ? "approved" : "paid"
+      const payoutPaidAt =
+        payoutStatus === "paid" ? workPaidAt + 5 * DAY : undefined
+      await buildPayoutAllocation(ctx, {
+        now,
+        orderId,
+        paymentId,
+        teacherId: maker._id,
+        baseAmount: work.price,
+        gatewayFee,
+        orderPaidAt: workPaidAt,
+        status: payoutStatus,
+        payoutPaidAt,
+        dueAt: workPaidAt + 7 * DAY,
+        createdAt: Math.min(now - HOUR, workCreatedAt + DAY),
+        updatedAt: now,
+        approvedBy:
+          payoutStatus === "approved" || payoutStatus === "paid"
+            ? admin._id
+            : undefined,
+        reference: `PAYOUT-${workCode}`,
+        periodStart: workCreatedAt,
+        periodEnd: workCreatedAt + 7 * DAY,
+      })
+    }
+
+    const createSupportTicket = async (
+      user: Doc<"users">,
+      contextLabel: string,
+      ticketAt: number,
+      seed: number,
+    ): Promise<void> => {
+      const scenario =
+        SUPPORT_SCENARIOS[seed % SUPPORT_SCENARIOS.length] ??
+        SUPPORT_SCENARIOS[0]
+      if (!scenario) return
+      const resolved = seed % 3 !== 0
+      const ticketId = await ctx.db.insert("supportTickets", {
+        code: `SUP-GRW-${String(seed + 1).padStart(3, "0")}`,
+        requesterId: user._id,
+        requesterName: user.name,
+        requesterEmail: user.email,
+        subject: scenario.subject,
+        priority: seed % 5 === 0 ? "high" : "normal",
+        status: resolved ? "resolved" : "pending",
+        assigneeId: admin._id,
+        channel: seed % 4 === 0 ? "whatsapp" : "chat",
+        createdAt: ticketAt,
+        updatedAt: ticketAt + 3 * HOUR,
+        firstResponseAt: ticketAt + 50 * 60_000,
+        lastResponseAt: ticketAt + 3 * HOUR,
+        assignedAt: ticketAt + 20 * 60_000,
+        assignedBy: admin._id as string,
+        resolvedAt: resolved ? ticketAt + 3 * HOUR : undefined,
+        resolvedBy: resolved ? (admin._id as string) : undefined,
+        resolutionNote: resolved
+          ? "Sudah dijawab lewat chat dan dikonfirmasi peserta."
+          : undefined,
+        linkedRecords: [
+          { type: "account", id: user._id as string, label: user.email },
+        ],
+      })
+      await ctx.db.insert("supportMessages", {
+        ticketId,
+        authorId: user._id,
+        kind: "user",
+        body: scenario.body,
+        createdAt: ticketAt,
+      })
+      await ctx.db.insert("supportMessages", {
+        ticketId,
+        authorId: admin._id,
+        kind: "user",
+        body: scenario.reply,
+        createdAt: ticketAt + 50 * 60_000,
+      })
+      if (resolved) {
+        await ctx.db.insert("supportMessages", {
+          ticketId,
+          authorId: user._id,
+          kind: "user",
+          body:
+            seed % 2 === 0
+              ? "Oke, sudah bisa. Makasih ya kak."
+              : "Siap, saya coba lagi nanti sore. Terima kasih.",
+          createdAt: ticketAt + 3 * HOUR,
+        })
+      }
+      void contextLabel
     }
 
     for (const row of plan) {
       const user = await insertUser(row)
-      const createdAt = user.createdAt
       const rng = rngFor(row.monthIndex, row.rowIndex)
 
-      if (row.isLead) {
-        const leadAt = createdAt + (1 + (row.globalIndex % 5)) * HOUR
+      if (row.kind === "lead") {
+        const leadAt = user.createdAt + (1 + (row.globalIndex % 5)) * HOUR
         const path = paths[row.globalIndex % paths.length] as OpenPath
         const leadId = await ctx.db.insert("leads", {
           intent: "student",
@@ -889,24 +1228,24 @@ export const seedGrowthBatch = internalMutation({
           whatsapp: user.phone,
           interest: path.title,
           message: LEAD_MESSAGES[row.globalIndex % LEAD_MESSAGES.length],
-          source: "landing",
+          source: row.globalIndex % 4 === 0 ? "instagram" : "landing",
           consent: true,
-          status: "new",
+          status: row.globalIndex % 5 === 0 ? "contacted" : "new",
           createdAt: leadAt,
-          updatedAt: leadAt,
+          updatedAt: leadAt + DAY,
         })
         await ctx.db.insert("leadAssignments", {
           leadId,
           ownerId: admin._id,
-          assignedBy: admin._id,
+          assignedBy: admin._id as string,
           createdAt: leadAt,
         })
         await ctx.db.insert("leadNotes", {
           leadId,
-          authorId: admin._id,
-          kind: "whatsapp",
-          body: "Pesan masuk dari halaman jalur; menunggu balasan peserta.",
-          followUpAt: leadAt + DAY,
+          authorId: admin._id as string,
+          kind: row.globalIndex % 3 === 0 ? "whatsapp" : "note",
+          body: LEAD_NOTES[row.globalIndex % LEAD_NOTES.length],
+          followUpAt: leadAt + 2 * DAY,
           createdAt: leadAt + HOUR,
         })
         await ctx.db.patch(user._id, { lastActiveAt: leadAt })
@@ -914,16 +1253,36 @@ export const seedGrowthBatch = internalMutation({
         continue
       }
 
-      const pathIndex = row.indexInPeriod % paths.length
-      const path = paths[pathIndex] as OpenPath
+      if (row.kind === "work-only") {
+        const firstPurchaseAt = Math.min(
+          now - HOUR,
+          user.createdAt + (1 + (row.globalIndex % 3)) * DAY,
+        )
+        const purchases = row.workPurchases
+        for (let purchase = 0; purchase < purchases; purchase += 1) {
+          const at = Math.min(
+            now - HOUR,
+            firstPurchaseAt + purchase * (38 + (row.globalIndex % 17)) * DAY,
+          )
+          await workPurchase(user, at, row.globalIndex + purchase)
+        }
+        await ctx.db.patch(user._id, {
+          lastActiveAt: Math.min(now - HOUR, firstPurchaseAt + 2 * HOUR),
+        })
+        continue
+      }
+
+      const cohortSpec = COHORT_PLAN[row.cohortIndex]
+      if (!cohortSpec) continue
+      const path = paths[cohortSpec.pathIndex % paths.length] as OpenPath
       const teacher =
-        userById.get(path.teacherId as Id<"users">) ??
-        ((await ctx.db.get(path.teacherId as Id<"users">)) as Doc<"users">)
-      const cohort = await resolveCohort(path, pathIndex, row.period)
+        userById.get(path.teacherId) ??
+        ((await ctx.db.get(path.teacherId)) as Doc<"users">)
+      const cohort = await ensureCohort(row.cohortIndex)
 
       const orderCreatedAt = Math.min(
         now - 2 * HOUR,
-        createdAt + (8 + Math.floor(rng() * 32)) * HOUR,
+        user.createdAt + (6 + Math.floor(rng() * 18)) * HOUR,
       )
       const paidAt = Math.min(
         now - HOUR,
@@ -942,7 +1301,7 @@ export const seedGrowthBatch = internalMutation({
           now,
           code,
           buyer: user,
-          sellerId: path.teacherId as Id<"users">,
+          sellerId: path.teacherId,
           itemKind: "path",
           pathId: path.slug,
           title: path.title,
@@ -985,17 +1344,32 @@ export const seedGrowthBatch = internalMutation({
         await ctx.db.patch(user._id, {
           lastActiveAt: pendingEnrolledAt + 2 * HOUR,
         })
+        await ctx.db.insert("notificationOutbox", {
+          channel: "in_app",
+          recipient: user.email,
+          recipientId: user._id,
+          template: "payment_reminder",
+          payload: { path: path.title, code },
+          status: "sent",
+          attempts: 1,
+          scheduledAt: orderCreatedAt + 2 * HOUR,
+          sentAt: orderCreatedAt + 2 * HOUR,
+          title: "Pembayaran belum selesai",
+          body: `Pendaftaran ${path.title} masih menunggu pembayaran. Kode pesanan ${code}.`,
+          entityType: "order",
+          entityId: code,
+          createdAt: orderCreatedAt + 2 * HOUR,
+          updatedAt: orderCreatedAt + 2 * HOUR,
+        })
         result.enrollments += 1
+        result.pathOrders += 1
         continue
       }
 
       const code = nextOrderCode(orderTimeline, usedCodes, orderCreatedAt)
       const gatewayFee = Math.round(path.price * 0.01)
-      const withdrawnRank = (WITHDRAWN_BY_PERIOD[row.period] ?? []).indexOf(
-        row.indexInPeriod,
-      )
       const refunded =
-        row.plannedStatus === "withdrawn" && withdrawnRank % 2 === 0
+        row.plannedStatus === "withdrawn" && row.globalIndex % 2 === 0
       const orderStatus: "paid" | "refunded" | "cancelled" =
         row.plannedStatus === "withdrawn"
           ? refunded
@@ -1005,7 +1379,7 @@ export const seedGrowthBatch = internalMutation({
       const { orderId, paymentId } = await insertPaidOrder({
         code,
         buyer: user,
-        sellerId: path.teacherId as Id<"users">,
+        sellerId: path.teacherId,
         pathId: path.slug,
         title: path.title,
         baseAmount: path.price,
@@ -1015,12 +1389,12 @@ export const seedGrowthBatch = internalMutation({
         gatewayFee,
         note: "Pendaftaran jalur melalui halaman publik.",
       })
+      result.pathOrders += 1
 
-      const cohortEnded = cohort.endDate < now - DAY
       const status: EnrollmentStatus =
         row.plannedStatus === "withdrawn"
           ? "withdrawn"
-          : row.plannedStatus === "completed" && cohortEnded
+          : row.plannedStatus === "completed"
             ? "completed"
             : "active"
 
@@ -1032,10 +1406,7 @@ export const seedGrowthBatch = internalMutation({
       )
       const submissionAt = Math.min(
         now - 4 * DAY,
-        Math.max(
-          enrolledAt + 10 * DAY,
-          cohort.endDate - 4 * DAY,
-        ),
+        Math.max(enrolledAt + 10 * DAY, cohort.endDate - 4 * DAY),
       )
       const withdrawnAt =
         status === "withdrawn"
@@ -1081,17 +1452,20 @@ export const seedGrowthBatch = internalMutation({
       })
       result.enrollments += 1
 
-      // Payout allocation for the path order (every settled order allocates).
-      const payoutPaid =
-        status === "completed" && paidAt + 30 * DAY < now
+      // Every settled path order allocates to the teacher, not only craft.
+      const payoutPaid = status === "completed" && paidAt + 30 * DAY < now
       const payoutStatus: "pending" | "approved" | "paid" =
-        payoutPaid ? "paid" : status === "completed" ? "approved" : "pending"
+        status === "completed"
+          ? payoutPaid
+            ? "paid"
+            : "approved"
+          : "pending"
       const payoutPaidAt = payoutPaid ? paidAt + 7 * DAY : undefined
       const allocation = await buildPayoutAllocation(ctx, {
         now,
         orderId,
         paymentId,
-        teacherId: path.teacherId as Id<"users">,
+        teacherId: path.teacherId,
         baseAmount: path.price,
         gatewayFee,
         orderPaidAt: paidAt,
@@ -1113,7 +1487,7 @@ export const seedGrowthBatch = internalMutation({
       if (status === "withdrawn") {
         if (refunded) {
           const refundAmount =
-            row.globalIndex % 2 === 0
+            row.globalIndex % 3 === 0
               ? path.price
               : Math.round(path.price * 0.4)
           await buildRefundReversal(ctx, {
@@ -1125,8 +1499,9 @@ export const seedGrowthBatch = internalMutation({
             requestedBy: user._id,
             reason: "Peserta mengundurkan diri sebelum akhir angkatan.",
             status: "paid",
-            decidedBy: admin._id,
-            decisionReason: "Pengunduran diri diterima; pengembalian disetujui.",
+            decidedBy: admin._id as string,
+            decisionReason:
+              "Pengunduran diri diterima; pengembalian disetujui.",
             evidence: "Percakapan WhatsApp dan formulir pengunduran diri.",
             reviewedAt: (withdrawnAt as number) + DAY,
             paidAt: (withdrawnAt as number) + 2 * DAY,
@@ -1165,24 +1540,35 @@ export const seedGrowthBatch = internalMutation({
             )
           : undefined
 
+      const midSubmissionAt =
+        status === "active" && row.globalIndex % 3 === 0
+          ? Math.min(
+              now - 2 * DAY,
+              enrolledAt + (12 + Math.floor(rng() * 10)) * DAY,
+            )
+          : undefined
+
       // Lesson progress in lesson order, spread across the learning window.
       const lessons = await publishedLessons(ctx, path.slug, lessonCache)
+      const recorded = lessons
       const rawWindowStart = Math.min(
         now - HOUR,
         Math.max(enrolledAt + HOUR, cohort.startDate),
       )
       const progressCap =
         status === "completed"
-          ? Math.min(
-              now - 2 * HOUR,
-              cohort.endDate,
-              finalSubmissionAt as number,
-            )
-          : Math.min(
-              now - 2 * DAY,
-              cohort.endDate,
-              enrolledAt + 12 * DAY,
-            )
+          ? Math.min(now - 2 * HOUR, cohort.endDate, finalSubmissionAt as number)
+          : status === "withdrawn"
+            ? Math.min(
+                now - 2 * DAY,
+                cohort.endDate,
+                (withdrawnAt as number) - HOUR,
+              )
+            : Math.min(
+                now - 2 * DAY,
+                cohort.endDate,
+                midSubmissionAt ?? now,
+              )
       const windowStart = Math.max(
         enrolledAt,
         Math.min(rawWindowStart, progressCap - HOUR),
@@ -1190,26 +1576,27 @@ export const seedGrowthBatch = internalMutation({
       const windowEnd = Math.max(windowStart + HOUR, progressCap)
       const fraction =
         status === "completed"
-          ? 1
+          ? 0.8 + rng() * 0.15
           : status === "withdrawn"
-            ? 0.2 + rng() * 0.3
-            : 0.35 + rng() * 0.4
+            ? 0.1 + rng() * 0.2
+            : 0.2 + rng() * 0.5
       const completedCount =
-        lessons.length === 0
+        recorded.length === 0
           ? 0
-          : status === "completed"
-            ? lessons.length
-            : Math.max(
-                1,
-                Math.min(lessons.length, Math.round(lessons.length * fraction)),
-              )
+          : Math.max(
+              1,
+              Math.min(recorded.length, Math.round(recorded.length * fraction)),
+            )
+      const rowCount =
+        completedCount +
+        (status === "active" && completedCount < recorded.length ? 1 : 0)
       const gap =
         completedCount > 0
           ? (windowEnd - windowStart) / (completedCount + 1)
           : 0
       let cursor = windowStart
       let lastProgressAt = enrolledAt
-      for (const [index, lesson] of lessons.entries()) {
+      for (const [index, lesson] of recorded.slice(0, rowCount).entries()) {
         const target = windowStart + gap * (index + 1)
         const hourOfDay = 8 + ((row.globalIndex + index * 3) % 11)
         const dayStart = Math.floor(target / DAY) * DAY
@@ -1229,7 +1616,7 @@ export const seedGrowthBatch = internalMutation({
           state:
             index < completedCount
               ? "completed"
-              : index === completedCount
+              : index === completedCount && status !== "completed"
                 ? "in_progress"
                 : "not_started",
           attendance:
@@ -1266,7 +1653,9 @@ export const seedGrowthBatch = internalMutation({
         }))
         const resultRow = await buildSubmissionAssessment(ctx, {
           now,
-          code: `TUG-GRW-${String(row.globalIndex).padStart(3, "0")}`,
+          code: `TUG-GRW-${String(row.globalIndex).padStart(3, "0")}${
+            row.kind === "repeat" ? "-R" : ""
+          }`,
           studentId: user._id,
           enrollmentId,
           cohortId: cohort._id,
@@ -1329,7 +1718,9 @@ export const seedGrowthBatch = internalMutation({
           assessmentId,
           enrollmentId,
           serial,
-          publicCode: `kn-grw${String(row.globalIndex).padStart(3, "0")}`,
+          publicCode: `kn-grw${String(row.globalIndex).padStart(3, "0")}${
+            row.kind === "repeat" ? "r" : ""
+          }`,
           issuedAt,
           actorId: teacher._id,
           auditReason: "Penilaian akhir disetujui",
@@ -1359,17 +1750,13 @@ export const seedGrowthBatch = internalMutation({
       // A mid-course submission for some active learners keeps the board alive.
       if (
         status === "active" &&
-        row.activeIndex >= 0 &&
-        row.activeIndex % 3 === 1 &&
+        midSubmissionAt !== undefined &&
         lessons.length > 0
       ) {
         if (evidenceId === undefined) {
           evidenceId = await evidenceStorageId(ctx)
         }
-        const midAt = Math.min(
-          now - 2 * DAY,
-          enrolledAt + (12 + Math.floor(rng() * 10)) * DAY,
-        )
+        const midAt = midSubmissionAt
         await buildSubmissionAssessment(ctx, {
           now,
           code: `TUG-GRW-${String(row.globalIndex).padStart(3, "0")}-MID`,
@@ -1396,130 +1783,34 @@ export const seedGrowthBatch = internalMutation({
         })
       }
 
-      // Craft purchases: a quarter of completed learners, plus a few active.
-      if (row.workPurchases > 0 && works.length > 0) {
+      if (row.workPurchases > 0) {
         const anchorAt =
           status === "completed" && certificateIssuedAt !== undefined
             ? certificateIssuedAt
             : enrolledAt
         for (let purchase = 0; purchase < row.workPurchases; purchase += 1) {
-          const work =
-            works[(row.globalIndex * 3 + purchase) % works.length]
-          if (!work?.makerId) continue
-          if ((work.makerId as string) === (user._id as string)) continue
-          const maker = userById.get(work.makerId)
-          if (!maker || maker.status !== "active") continue
-          const workCreatedAt = Math.max(
-            anchorAt + (4 + purchase * 6) * DAY,
-            (work.createdAt ?? SEED_START) + 2 * DAY,
-          )
-          if (workCreatedAt > now - HOUR) continue
-          const workPaidAt = Math.min(
+          const purchaseAt = Math.min(
             now - HOUR,
-            workCreatedAt + (4 + purchase * 3) * 60_000,
+            anchorAt + (6 + purchase * 9 + (row.globalIndex % 5)) * DAY,
           )
-          const workCode = nextOrderCode(
-            orderTimeline,
-            usedCodes,
-            workCreatedAt,
-          )
-          const workGatewayFee = Math.round(work.price * 0.01)
-          const { orderId, paymentId } = await insertPaidOrder({
-            code: workCode,
-            buyer: user,
-            sellerId: maker._id,
-            workId: work._id,
-            workKind: work.kind === "service" ? "service" : "work",
-            pathId: work.pathId as string,
-            title: work.title,
-            baseAmount: work.price,
-            createdAt: workCreatedAt,
-            paidAt: workPaidAt,
-            status: "paid",
-            gatewayFee: workGatewayFee,
-            note: "Pesanan dikirim setelah kelas selesai.",
-          })
-          result.workOrders += 1
-
-          const canPay = workPaidAt + 7 * DAY < now
-          const cycle = (row.globalIndex + purchase) % 3
-          const payoutStatus: "pending" | "approved" | "paid" =
-            cycle === 0 ? "pending" : cycle === 1 || !canPay ? "approved" : "paid"
-          const payoutPaidAt =
-            payoutStatus === "paid" ? workPaidAt + 5 * DAY : undefined
-          await buildPayoutAllocation(ctx, {
-            now,
-            orderId,
-            paymentId,
-            teacherId: maker._id,
-            baseAmount: work.price,
-            gatewayFee: workGatewayFee,
-            orderPaidAt: workPaidAt,
-            status: payoutStatus,
-            payoutPaidAt,
-            dueAt: workPaidAt + 7 * DAY,
-            createdAt: Math.min(now - HOUR, workCreatedAt + DAY),
-            updatedAt: now,
-            approvedBy:
-              payoutStatus === "approved" || payoutStatus === "paid"
-                ? admin._id
-                : undefined,
-            reference: `PAYOUT-${workCode}`,
-            periodStart: workCreatedAt,
-            periodEnd: workCreatedAt + 7 * DAY,
-          })
+          await workPurchase(user, purchaseAt, row.globalIndex + purchase)
         }
       }
 
-      // A couple of learners ask a question through support.
       if (
-        (status === "completed" && row.completedIndex === 5) ||
-        (status === "completed" && row.completedIndex === 17) ||
-        (status === "active" && row.activeIndex === 2)
+        row.globalIndex % 5 === 3 ||
+        (status === "active" && row.globalIndex % 13 === 4)
       ) {
         const ticketAt = Math.min(
           now - DAY,
           paidAt + (5 + (row.globalIndex % 7)) * DAY,
         )
-        const ticketId = await ctx.db.insert("supportTickets", {
-          code: `SUP-GRW-${String(row.globalIndex).padStart(3, "0")}`,
-          requesterId: user._id,
-          requesterName: user.name,
-          requesterEmail: user.email,
-          subject:
-            row.globalIndex % 2 === 0
-              ? "Jadwal sesi berikutnya"
-              : "Paket bahan belum sampai",
-          priority: "normal",
-          status: "resolved",
-          assigneeId: admin._id,
-          channel: "chat",
-          createdAt: ticketAt,
-          updatedAt: ticketAt + 2 * HOUR,
-          firstResponseAt: ticketAt + HOUR,
-          assignedAt: ticketAt + HOUR,
-          assignedBy: admin._id,
-          resolvedAt: ticketAt + 2 * HOUR,
-          resolvedBy: admin._id,
-          resolutionNote: "Sudah dijawab dan dikonfirmasi peserta.",
-        })
-        await ctx.db.insert("supportMessages", {
-          ticketId,
-          authorId: user._id,
-          kind: "user",
-          body:
-            row.globalIndex % 2 === 0
-              ? "Selamat pagi, sesi berikutnya tanggal berapa ya?"
-              : "Paket bahan saya belum sampai, mohon dicek.",
-          createdAt: ticketAt,
-        })
-        await ctx.db.insert("supportMessages", {
-          ticketId,
-          authorId: admin._id,
-          kind: "internal",
-          body: "Sudah dihubungi lewat WhatsApp dan dikonfirmasi peserta.",
-          createdAt: ticketAt + HOUR,
-        })
+        await createSupportTicket(
+          user,
+          path.title,
+          ticketAt,
+          row.globalIndex * 2 + (row.kind === "repeat" ? 1 : 0),
+        )
       }
     }
 
@@ -1534,8 +1825,8 @@ export const seedGrowthBatch = internalMutation({
           reason: `Pendaftaran baru gelombang ${MONTH_LABELS[args.monthIndex]} 2026.`,
           after: {
             month: MONTH_LABELS[args.monthIndex],
-            signups: signupCount,
-            leads: GROWTH_LEADS[args.monthIndex],
+            signups: GROWTH_MONTHLY_SIGNUPS[args.monthIndex],
+            leads: GROWTH_MONTHLY_LEADS[args.monthIndex],
           },
         })
       }
@@ -1548,7 +1839,25 @@ export const seedGrowthBatch = internalMutation({
 /** Drives the monthly batches; keeps every mutation under the time budget. */
 export const seedGrowth = internalAction({
   args: { now: v.number() },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{
+    monthly: Array<{
+      month: string
+      signups: number
+      buyers: number
+      pathBuyers: number
+      workOnly: number
+      leads: number
+      enrolled: number
+    }>
+    signups: number
+    leads: number
+    enrollments: number
+    completed: number
+    certificates: number
+    workOrders: number
+    pathOrders: number
+    messaging: { conversations: number; messages: number; calls: number }
+  }> => {
     const now = args.now
     // A fresh cache key per action run keeps reruns from reading stale rows.
     const cacheKey = `${now}:${Math.random().toString(36).slice(2)}`
@@ -1558,21 +1867,40 @@ export const seedGrowth = internalAction({
     let completed = 0
     let certificates = 0
     let workOrders = 0
-    const monthly: Array<{ month: string; signups: number; enrolled: number }> = []
+    let pathOrders = 0
+    const monthly: Array<{
+      month: string
+      signups: number
+      buyers: number
+      pathBuyers: number
+      workOnly: number
+      leads: number
+      enrolled: number
+    }> = []
+    const plan = buildGrowthPlan()
 
     for (let monthIndex = 0; monthIndex < GROWTH_MONTHS; monthIndex += 1) {
       if (monthStart(monthIndex) > now) break
-      const count = GROWTH_SIGNUPS[monthIndex] as number
+      const rows = plan.filter((row) => row.monthIndex === monthIndex)
       monthly.push({
-        month: MONTH_LABELS[monthIndex],
-        signups: count,
-        enrolled: GROWTH_ENROLLED[monthIndex] as number,
+        month: MONTH_LABELS[monthIndex] as string,
+        signups: GROWTH_MONTHLY_SIGNUPS[monthIndex] as number,
+        buyers: GROWTH_MONTHLY_BUYERS[monthIndex] as number,
+        pathBuyers: GROWTH_MONTHLY_PATH[monthIndex] as number,
+        workOnly: GROWTH_MONTHLY_WORK_ONLY[monthIndex] as number,
+        leads: GROWTH_MONTHLY_LEADS[monthIndex] as number,
+        enrolled: GROWTH_MONTHLY_PATH[monthIndex] as number,
       })
-      for (let rowStart = 0; rowStart < count; rowStart += 2) {
-        const rowEnd = Math.min(count, rowStart + 2)
+      for (let rowStart = 0; rowStart < rows.length; rowStart += 2) {
         const batch = await ctx.runMutation(
           internal.seed.domains.growth.seedGrowthBatch,
-          { monthIndex, rowStart, rowEnd, now, cacheKey },
+          {
+            monthIndex,
+            rowStart,
+            rowEnd: Math.min(rows.length, rowStart + 2),
+            now,
+            cacheKey,
+          },
         )
         signups += batch.signups
         leads += batch.leads
@@ -1580,8 +1908,15 @@ export const seedGrowth = internalAction({
         completed += batch.completed
         certificates += batch.certificates
         workOrders += batch.workOrders
+        pathOrders += batch.pathOrders
       }
     }
+
+    // The activity layer reads the relationships the batches just created.
+    const messaging = await ctx.runAction(
+      internal.seed.domains.messaging.seedGrowthMessaging,
+      { now },
+    )
 
     return {
       monthly,
@@ -1591,6 +1926,8 @@ export const seedGrowth = internalAction({
       completed,
       certificates,
       workOrders,
+      pathOrders,
+      messaging,
     }
   },
 })

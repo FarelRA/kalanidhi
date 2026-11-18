@@ -201,8 +201,25 @@ describe("seed runtime", () => {
     })
     expect(counts.messaging).toEqual({
       conversations: 10,
-      messages: 48,
+      messages: 49,
       calls: 4,
+    })
+    expect(counts.auth).toEqual({ accounts: 0, unavailable: true })
+    const growth = counts.growth as {
+      signups: number
+      enrollments: number
+      pathOrders: number
+      workOrders: number
+      messaging: { conversations: number; messages: number; calls: number }
+    }
+    expect(growth.signups).toBe(129)
+    expect(growth.enrollments).toBe(96)
+    expect(growth.pathOrders).toBe(96)
+    expect(growth.workOrders).toBe(57)
+    expect(growth.messaging).toEqual({
+      conversations: 35,
+      messages: 214,
+      calls: 8,
     })
 
     const integrity = await t.query(internal.seed.integrity.verify, {})

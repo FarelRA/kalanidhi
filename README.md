@@ -125,6 +125,31 @@ Untuk mengisi deployment produksi, jalankan
 landing selalu membaca `content.getSite` dari Convex. Jika deployment belum di-seed,
 build gagal dengan pesan yang jelas.
 
+### Akun seed dan login
+
+Seed membuat akun peserta, pengajar, pembuat karya, dan pengelola dengan Better Auth,
+bukan lagi `authUserId` placeholder. Setiap alamat didaftarkan sekali lewat
+`signUpEmail`, lalu baris aplikasi asli dihubungkan ke subjek Better Auth yang asli;
+baris duplikat yang dibuat trigger dihapus bersama role, consent, session, dan auth log
+miliknya. Pemetaan email → subjek disimpan di `seedAuthAccounts`, di luar tabel yang
+dibersihkan saat reseed, sehingga menjalankan ulang seed tidak gagal dengan
+`USER_ALREADY_EXISTS`.
+
+Kata sandi seed-only untuk akun yang dibuat seed: **`KalaNidhi2026!`**. Admin yang sudah
+ada sebelum seed memakai kata sandinya sendiri. Jangan pakai kata sandi seed untuk akun
+nyata. Contoh login peserta:
+
+```bash
+curl -X POST https://kalanidhi.site/api/auth/sign-in/email \
+  -H 'content-type: application/json' \
+  -H 'origin: https://kalanidhi.site' \
+  -d '{"email":"sari.wulandari95@gmail.com","password":"KalaNidhi2026!"}'
+```
+
+Langkah `auth` berjalan setelah `audit` dan sebelum `integrity`; jika komponen Better
+Auth tidak tersedia (misalnya di `convex-test`), seed tetap selesai dengan
+`auth.unavailable: true` dan placeholder dipertahankan untuk pemeriksaan lokal.
+
 ## Struktur
 
 ```

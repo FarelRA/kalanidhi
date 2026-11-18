@@ -10,7 +10,7 @@ import {
 import { DAY, jakartaDayStart, SEED_START } from "./lib/clock"
 
 /** Bumped whenever the seed's shape changes; stored on every run row. */
-export const SEED_VERSION = "2026-11-seed-v2"
+export const SEED_VERSION = "2026-11-seed-v3"
 
 /** A run younger than this still owns the lock. */
 const LOCK_TTL_MS = 10 * 60_000
@@ -188,6 +188,10 @@ export const run = internalAction({
       const audit = await step("audit", () =>
         ctx.runMutation(internal.seed.domains.audit.seedAudit, { now }),
       )
+      // Provision Better Auth subjects before integrity checks the final users.
+      const auth = await step("auth", () =>
+        ctx.runAction(internal.seed.domains.auth.seedAuthAccounts, {}),
+      )
       // A broken seed must be `failed`, never `complete`.
       const integrity = await step("integrity", () =>
         ctx.runMutation(internal.seed.integrity.assert),
@@ -206,6 +210,7 @@ export const run = internalAction({
         growth,
         metrics,
         audit,
+        auth: { accounts: auth.accounts, unavailable: auth.unavailable },
         integrity,
       }
       await ctx.runMutation(internal.seed.run.markComplete, {

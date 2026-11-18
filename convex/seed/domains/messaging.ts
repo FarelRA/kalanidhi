@@ -1,9 +1,10 @@
 import { v } from "convex/values"
 
 import { internal } from "../../_generated/api"
-import { internalAction, internalMutation } from "../../_generated/server"
+import type { Doc, Id } from "../../_generated/dataModel"
+import { internalAction, internalMutation, type MutationCtx } from "../../_generated/server"
 import { cohortCode, pathSlug } from "../lib/codes"
-import { createSeedClock, HOUR } from "../lib/clock"
+import { createSeedClock, DAY, HOUR } from "../lib/clock"
 import {
   cohortByCode,
   conversationByTitle,
@@ -545,6 +546,15 @@ export const seedMessagingBatch = internalMutation({
         createdAt: clock.ago(8),
       })
       messages += 1
+      const flaggedReplyId = await ctx.db.insert("messages", {
+        conversationId: blockedConversationId,
+        senderId: nanda._id,
+        kind: "text",
+        body: "Grup apa ini? Saya sudah daftar lewat halaman jalur, kok diajak ke tempat lain.",
+        createdAt: clock.ago(7.8),
+      })
+      messages += 1
+      void flaggedReplyId
       await ctx.db.insert("messageFlags", {
         messageId: flaggedMessageId,
         reportedBy: nanda._id,
@@ -1097,6 +1107,708 @@ export const seedMessaging = internalAction({
       totals.messages += batch.messages
       totals.calls += batch.calls
     }
+    return totals
+  },
+})
+
+/* -------------------------------------------------------------------------
+ * Growth-driven activity
+ *
+ * The growth intake creates learners, cohorts, orders, and support tickets.
+ * These batches turn those relationships into conversations and calls. Every
+ * message sender is a conversation member, every timestamp sits after the
+ * relationship started, and the copy is written per path instead of repeated
+ * from one template.
+ * ---------------------------------------------------------------------- */
+
+const growthGroup = v.union(
+  v.literal("cohort"),
+  v.literal("direct"),
+  v.literal("order"),
+  v.literal("support"),
+)
+
+function growthPairKey(a: string, b: string): string {
+  return [a, b].sort().join("|")
+}
+
+function activityTimes(
+  start: number,
+  end: number,
+  count: number,
+  seed: number,
+): number[] {
+  const span = Math.max(HOUR, end - start)
+  const times: number[] = []
+  for (let index = 0; index < count; index += 1) {
+    const fraction = (index + 1) / (count + 1)
+    const target = start + span * fraction
+    const dayStart = Math.floor(target / DAY) * DAY
+    const hour = 8 + ((seed + index * 5) % 13)
+    const minute = (seed * 7 + index * 13) % 60
+    times.push(
+      Math.min(
+        end,
+        Math.max(start, dayStart + hour * HOUR + minute * 60_000),
+      ),
+    )
+  }
+  return times.sort((a, b) => a - b)
+}
+
+type PathLines = {
+  teacher: string[]
+  student: string[]
+}
+
+function cohortLines(pathId: string): PathLines {
+  if (pathId === pathSlug("aksaraJawa")) {
+    return {
+      teacher: [
+        "Untuk Sabtu, coba tulis ulang kalimat ketiga tanpa spasi. Bagian pasangan ra masih sering kelewat.",
+        "Rekaman sesi 2 sudah saya taruh di Jadwal. Yang perlu didengar ulang itu bagian taling dan pepet, menit 14 ke atas.",
+        "Jangan buru-buru naik ke kalimat panjang. Selesaikan dulu satu baris yang bersih, besok kita lanjut.",
+        "Yang kemarin belum unggah, kirim foto lembarnya malam ini ya. Saya cek satu per satu.",
+      ],
+      student: [
+        "Pak, saya sudah coba tulis ulang. Spasi di akhir kalimat masih suka muncul sendiri, itu kenapa ya?",
+        "Rekaman sesi 2 muter terus di HP saya, tapi di laptop bisa. Nanti saya catat dari laptop.",
+        "Punya saya masih kebalik pasangan ha dan na. Sudah saya tandai di buku, nanti saya tanya pas sesi.",
+        "Siap pak, malam ini saya kirim. Aksaranya masih agak miring soalnya.",
+      ],
+    }
+  }
+  if (pathId === pathSlug("pranatacaraJawa")) {
+    return {
+      teacher: [
+        "Rundown siraman sudah saya baca. Bagian penyerahan ke keluarga perlu satu kalimat lagi, jangan terlalu cepat.",
+        "Besok latihan tempo. Bawa catatan urutan acara yang sudah ditandai, kita potong bagian yang terlalu panjang.",
+        "Untuk sesi 3, coba hafalkan pembuka tanpa membaca. Sisanya boleh bawa catatan.",
+        "Yang mau saya dengar besok itu kejelasan suku kata, bukan hafalan cepat.",
+      ],
+      student: [
+        "Pak, kalimat penyerahan saya tambah satu baris, tapi jadi kepanjangan. Dipotong di mana enaknya?",
+        "Saya sudah latihan tempo di rumah. Pas bagian midodareni masih suka kecepatan sendiri.",
+        "Besok saya bawa catatan yang sudah ditandai. Bagian sambutan tamu saya belum hafal.",
+        "Siap pak. Saya rekam latihan tadi, nanti saya kirim buat dicek.",
+      ],
+    }
+  }
+  return {
+    teacher: [
+      "Untuk Sabtu bawa bilah 40 cm yang sudah direbus. Kalau belum sempat, pakai yang kemarin dulu, nanti kita ulang di sesi 3.",
+      "Garis lengkung kanan masih terlalu tebal. Turunkan sedikit suhu malam, jangan tambah tekanan.",
+      "Rekaman sesi 2 ada di menu Jadwal. Bagian nembok menit 18 ke atas yang penting untuk tugas akhir.",
+      "Yang fotonya kurang fokus, ambil ulang dari arah cahaya miring. Saya perlu lihat garisnya, bukan cuma hasil akhir.",
+    ],
+    student: [
+      "Bu, punya saya masih ada getah di ujung. Direbus lagi atau diamplas aja?",
+      "Sudah saya turunkan suhunya, Bu. Tapi malah ada bagian yang putus, apa terlalu dingin?",
+      "Rekaman sesi 2 saya catat ulang. Bagian fiksasi warna masih belum saya pahami.",
+      "Bu, malamnya netes ke kain yang sudah diwarnai. Masih bisa ditambal atau diulang dari awal?",
+    ],
+  }
+}
+
+const DIRECT_TITLES = [
+  "Catatan garis dan tekanan",
+  "Tanya tugas akhir",
+  "Jadwal susulan",
+  "Koreksi latihan minggu ini",
+  "Bahan untuk sesi berikutnya",
+  "Rekaman yang belum sempat diputar",
+  "Tanda tangan di Kartu Karya",
+  "Latihan tempo dan suara",
+] as const
+
+const DIRECT_TEACHER_LINES = [
+  "Sudah saya lihat fotonya. Bagian lengkung kanan masih goyang; coba mulai dari garis lurus pendek dulu.",
+  "Untuk tugas akhir, unggah prosesnya per tahap. Saya tidak perlu hasil yang sempurna, yang penting langkahnya kelihatan.",
+  "Besok saya buka jam 16.00 kalau mau latihan tambahan. Bawa hasil yang kemarin, kita bedah bareng.",
+  "Catatan saya sudah saya kirim di menu tugas. Poin utamanya ada di dua kalimat terakhir.",
+  "Jangan lupa istirahat. Tangan yang capek biasanya bikin garis jadi tidak rata.",
+  "Kalau rekamannya belum bisa diputar, pakai catatan sesi dulu. Nanti saya cek ulang.",
+] as const
+
+const DIRECT_STUDENT_LINES = [
+  "Bu, ini foto latihan saya yang terbaru. Masih ada bagian yang belum rapi di ujung.",
+  "Tugas akhir saya sudah saya unggah tadi malam. Takutnya fotonya kurang jelas.",
+  "Besok saya bisa datang lebih awal. Mau saya bawa alat sendiri atau pakai yang di sanggar?",
+  "Catatannya sudah saya baca. Bagian yang kedua masih belum saya mengerti.",
+  "Saya coba latihan lagi sore ini. Kalau masih sama, saya kirim video pendek ya Bu.",
+  "Rekamannya sudah bisa diputar. Saya catat bagian nembok dan fiksasi.",
+] as const
+
+const ORDER_LINES = [
+  {
+    buyer: "Mbak, nampannya masih ada? Yang motif parang kemarin.",
+    maker: "Masih, tinggal satu. Bisa saya kirim Jumat kalau alamatnya masih yang di Bantul.",
+  },
+  {
+    buyer: "Sudah sampai, Mbak. Motifnya rapi, tapi box-nya agak lembap di sudut.",
+    maker: "Itu dari pengemasan, bukan bahannya. Jemur sebentar di tempat teduh, jangan kena matahari langsung.",
+  },
+  {
+    buyer: "Untuk undangan 50 lembar, masih bisa selesai sebelum tanggal 20?",
+    maker: "Bisa, asal teks Latin-nya masuk minggu ini. Saya tulis tangan, jadi tidak bisa dikebut di akhir.",
+  },
+  {
+    buyer: "Jasanya untuk acara Sabtu pagi, bisa datang jam 6?",
+    maker: "Bisa. Saya biasanya datang satu jam lebih awal untuk cek sound dan urutan.",
+  },
+  {
+    buyer: "Warnanya lebih gelap dari foto. Apakah memang begitu?",
+    maker: "Bilahnya beda, jadi hasilnya ikut beda. Kalau terlalu jauh, saya bisa tukar dengan yang lebih terang.",
+  },
+  {
+    buyer: "Pak, hiasan dindingnya sudah saya gantung. Tamu banyak yang tanya.",
+    maker: "Senang mendengar itu. Kalau mau, saya bisa buat ukuran yang lebih kecil untuk hadiah.",
+  },
+] as const
+
+async function addMessage(
+  ctx: MutationCtx,
+  conversationId: Id<"conversations">,
+  senderId: Id<"users"> | undefined,
+  body: string | undefined,
+  createdAt: number,
+  kind: "text" | "system" = "text",
+): Promise<Id<"messages">> {
+  return await ctx.db.insert("messages", {
+    conversationId,
+    senderId,
+    kind,
+    body,
+    createdAt,
+  })
+}
+
+export const seedGrowthMessagingBatch = internalMutation({
+  args: {
+    now: v.number(),
+    group: growthGroup,
+    start: v.number(),
+    end: v.number(),
+  },
+  handler: async (ctx, args) => {
+    let conversations = 0
+    let messages = 0
+    const users = await ctx.db.query("users").collect()
+    const growthUsers = users.filter((user) =>
+      user.authUserId.startsWith("seed-growth-"),
+    )
+    const growthIds = new Set(growthUsers.map((user) => user._id as string))
+    const userById = new Map(users.map((user) => [user._id as string, user]))
+    const admin = users.find(
+      (user) => user.roles.includes("admin") && user.status === "active",
+    )
+    if (!admin) return { conversations, messages }
+
+    if (args.group === "cohort") {
+      const cohorts = (await ctx.db.query("cohorts").collect())
+        .filter((cohort) => cohort.code.startsWith("GRW-"))
+        .sort((a, b) => a.code.localeCompare(b.code))
+        .slice(args.start, args.end)
+      const enrollments = await ctx.db.query("enrollments").collect()
+      for (const [index, cohort] of cohorts.entries()) {
+        const members = enrollments
+          .filter(
+            (row) =>
+              row.cohortId === cohort._id &&
+              growthIds.has(row.studentId as string) &&
+              row.status !== "pending_payment",
+          )
+          .sort((a, b) => a.enrolledAt - b.enrolledAt)
+        if (members.length === 0) continue
+        const teacher = userById.get(cohort.teacherId as string)
+        if (!teacher) continue
+        const createdAt = Math.max(
+          cohort.startDate - 3 * DAY,
+          cohort.createdAt,
+        )
+        const lastMessageAt = Math.min(
+          args.now - HOUR,
+          cohort.endDate - HOUR,
+        )
+        const conversationId = await ctx.db.insert("conversations", {
+          kind: "cohort",
+          title: `${cohort.title} • ${cohort.code}`,
+          pathId: cohort.pathId,
+          cohortId: cohort._id,
+          createdBy: teacher._id,
+          status: cohort.status === "completed" ? "archived" : "open",
+          lastMessageAt,
+          createdAt,
+          updatedAt: lastMessageAt,
+        })
+        conversations += 1
+        for (const member of [teacher, ...members.map((row) => userById.get(row.studentId as string))]) {
+          if (!member) continue
+          await ctx.db.insert("conversationMembers", {
+            conversationId,
+            userId: member._id,
+            role: member._id === teacher._id ? "owner" : "member",
+            lastReadAt: lastMessageAt,
+            lastSeenAt: lastMessageAt,
+            joinedAt: createdAt,
+          })
+        }
+        const lines = cohortLines(cohort.pathId ?? "")
+        const studentUsers = members
+          .map((row) => userById.get(row.studentId as string))
+          .filter((row): row is Doc<"users"> => row !== undefined)
+        if (studentUsers.length === 0) continue
+        const count = 7 + (index % 3)
+        const times = activityTimes(
+          createdAt + DAY,
+          Math.max(createdAt + DAY + HOUR, lastMessageAt),
+          count,
+          index + cohort.startDate / DAY,
+        )
+        for (let messageIndex = 0; messageIndex < count; messageIndex += 1) {
+          const isTeacher = messageIndex % 3 === 0 || messageIndex === count - 1
+          const sender = isTeacher
+            ? teacher
+            : (studentUsers[messageIndex % studentUsers.length] as Doc<"users">)
+          const pool = isTeacher ? lines.teacher : lines.student
+          const body = pool[(index + messageIndex) % pool.length]
+          await addMessage(
+            ctx,
+            conversationId,
+            sender._id,
+            body,
+            times[messageIndex] as number,
+          )
+          messages += 1
+        }
+        await ctx.db.insert("messages", {
+          conversationId,
+          kind: "system",
+          body:
+            cohort.status === "completed"
+              ? "Angkatan selesai. Rekaman dan nilai akhir tetap tersedia di menu Jadwal."
+              : "Angkatan berjalan. Sesi berikutnya bisa dilihat di menu Jadwal.",
+          createdAt: createdAt + 30 * 60_000,
+        })
+        messages += 1
+      }
+      return { conversations, messages }
+    }
+
+    if (args.group === "direct") {
+      const enrollments = (await ctx.db.query("enrollments").collect())
+        .filter(
+          (row) =>
+            growthIds.has(row.studentId as string) &&
+            (row.status === "completed" || row.status === "active"),
+        )
+        .sort((a, b) => a.createdAt - b.createdAt)
+      const paths = await ctx.db.query("paths").collect()
+      const pathById = new Map(paths.map((path) => [path.slug, path]))
+      const usedPairs = new Set<string>()
+      const picked: Array<{
+        student: Doc<"users">
+        teacher: Doc<"users">
+        enrollment: Doc<"enrollments">
+      }> = []
+      for (const enrollment of enrollments) {
+        if (picked.length >= 9) break
+        const student = userById.get(enrollment.studentId as string)
+        const path = pathById.get(enrollment.pathId)
+        const teacher = path?.teacherId
+          ? userById.get(path.teacherId as string)
+          : undefined
+        if (!student || !teacher) continue
+        const pair = growthPairKey(student._id as string, teacher._id as string)
+        if (usedPairs.has(pair)) continue
+        usedPairs.add(pair)
+        picked.push({ student, teacher, enrollment })
+      }
+      for (const [index, row] of picked.entries()) {
+        const createdAt = Math.max(
+          row.enrollment.createdAt + 2 * DAY,
+          row.enrollment.enrolledAt,
+        )
+        const lastMessageAt = Math.min(
+          args.now - HOUR,
+          createdAt + 25 * DAY,
+        )
+        const conversationId = await ctx.db.insert("conversations", {
+          kind: "direct",
+          title: `${DIRECT_TITLES[index % DIRECT_TITLES.length]} — ${row.student.name.split(" ")[0]}`,
+          pathId: row.enrollment.pathId,
+          createdBy: row.teacher._id,
+          status: "open",
+          pairKey: growthPairKey(
+            row.student._id as string,
+            row.teacher._id as string,
+          ),
+          lastMessageAt,
+          createdAt,
+          updatedAt: lastMessageAt,
+        })
+        conversations += 1
+        for (const member of [row.teacher, row.student]) {
+          await ctx.db.insert("conversationMembers", {
+            conversationId,
+            userId: member._id,
+            role: member._id === row.teacher._id ? "owner" : "member",
+            lastReadAt: lastMessageAt,
+            lastSeenAt: lastMessageAt,
+            joinedAt: createdAt,
+          })
+        }
+        const count = 5 + (index % 3)
+        const times = activityTimes(
+          createdAt + 2 * HOUR,
+          Math.max(createdAt + 3 * HOUR, lastMessageAt),
+          count,
+          index + 3,
+        )
+        for (let messageIndex = 0; messageIndex < count; messageIndex += 1) {
+          const isTeacher = messageIndex % 2 === 0
+          const pool = isTeacher ? DIRECT_TEACHER_LINES : DIRECT_STUDENT_LINES
+          await addMessage(
+            ctx,
+            conversationId,
+            isTeacher ? row.teacher._id : row.student._id,
+            pool[(index + messageIndex) % pool.length],
+            times[messageIndex] as number,
+          )
+          messages += 1
+        }
+      }
+      return { conversations, messages }
+    }
+
+    if (args.group === "order") {
+      const orders = (await ctx.db.query("orders").collect())
+        .filter(
+          (order) =>
+            order.workId !== undefined &&
+            order.buyerUserId !== undefined &&
+            growthIds.has(order.buyerUserId as string) &&
+            order.paidAt !== undefined,
+        )
+        .sort((a, b) => (a.paidAt ?? 0) - (b.paidAt ?? 0))
+      const works = await ctx.db.query("works").collect()
+      const workById = new Map(works.map((work) => [work._id as string, work]))
+      const usedBuyers = new Set<string>()
+      const picked: Array<{
+        order: Doc<"orders">
+        buyer: Doc<"users">
+        maker: Doc<"users">
+        work: Doc<"works">
+      }> = []
+      for (const order of orders) {
+        if (picked.length >= 8) break
+        const buyer = userById.get(order.buyerUserId as string)
+        const maker = userById.get(order.sellerId as string)
+        const work = order.workId ? workById.get(order.workId as string) : undefined
+        if (!buyer || !maker || !work) continue
+        if (usedBuyers.has(buyer._id as string)) continue
+        usedBuyers.add(buyer._id as string)
+        picked.push({ order, buyer, maker, work })
+      }
+      for (const [index, row] of picked.entries()) {
+        const createdAt = row.order.createdAt
+        const lastMessageAt = Math.min(
+          args.now - HOUR,
+          createdAt + 6 * DAY,
+        )
+        const conversationId = await ctx.db.insert("conversations", {
+          kind: "direct",
+          title: `Pesanan ${row.work.title} • ${row.order.code}`,
+          pathId: row.work.pathId,
+          createdBy: row.maker._id,
+          status: "open",
+          pairKey: growthPairKey(
+            row.buyer._id as string,
+            row.maker._id as string,
+          ),
+          lastMessageAt,
+          createdAt,
+          updatedAt: lastMessageAt,
+        })
+        conversations += 1
+        for (const member of [row.buyer, row.maker]) {
+          await ctx.db.insert("conversationMembers", {
+            conversationId,
+            userId: member._id,
+            role: member._id === row.maker._id ? "owner" : "member",
+            lastReadAt: lastMessageAt,
+            lastSeenAt: lastMessageAt,
+            joinedAt: createdAt,
+          })
+        }
+        const count = 4 + (index % 3)
+        const times = activityTimes(
+          createdAt + 3 * HOUR,
+          Math.max(createdAt + 4 * HOUR, lastMessageAt),
+          count,
+          index + 7,
+        )
+        for (let messageIndex = 0; messageIndex < count; messageIndex += 1) {
+          const isBuyer = messageIndex % 2 === 0
+          const line = ORDER_LINES[(index + messageIndex) % ORDER_LINES.length]
+          if (!line) continue
+          await addMessage(
+            ctx,
+            conversationId,
+            isBuyer ? row.buyer._id : row.maker._id,
+            isBuyer ? line.buyer : line.maker,
+            times[messageIndex] as number,
+          )
+          messages += 1
+        }
+      }
+      return { conversations, messages }
+    }
+
+    const tickets = (await ctx.db.query("supportTickets").collect())
+      .filter((ticket) => ticket.code.startsWith("SUP-GRW-"))
+      .sort((a, b) => a.code.localeCompare(b.code))
+      .slice(args.start, args.end)
+    for (const ticket of tickets) {
+      if (!ticket.requesterId) continue
+      const requester = userById.get(ticket.requesterId as string)
+      if (!requester) continue
+      const ticketMessages = await ctx.db
+        .query("supportMessages")
+        .withIndex("by_ticketId", (q) => q.eq("ticketId", ticket._id))
+        .collect()
+      if (ticketMessages.length < 2) continue
+      const createdAt = ticket.createdAt - 10 * 60_000
+      const lastMessageAt = Math.min(
+        args.now - HOUR,
+        ticket.updatedAt,
+      )
+      const conversationId = await ctx.db.insert("conversations", {
+        kind: "support",
+        title: `Bantuan: ${ticket.subject} • ${ticket.code}`,
+        createdBy: requester._id,
+        status:
+          ticket.status === "resolved" || ticket.status === "closed"
+            ? "archived"
+            : "open",
+        supportRequestedBy: requester._id,
+        supportConsentAt: createdAt,
+        lastMessageAt,
+        createdAt,
+        updatedAt: lastMessageAt,
+      })
+      conversations += 1
+      for (const member of [requester, admin]) {
+        await ctx.db.insert("conversationMembers", {
+          conversationId,
+          userId: member._id,
+          role: member._id === admin._id ? "support" : "member",
+          lastReadAt: lastMessageAt,
+          lastSeenAt: lastMessageAt,
+          joinedAt: createdAt,
+        })
+      }
+      for (const [index, message] of ticketMessages
+        .sort((a, b) => a.createdAt - b.createdAt)
+        .entries()) {
+        await addMessage(
+          ctx,
+          conversationId,
+          message.authorId ?? admin._id,
+          message.body,
+          Math.min(lastMessageAt, createdAt + (index + 1) * 20 * 60_000),
+        )
+        messages += 1
+      }
+    }
+    return { conversations, messages }
+  },
+})
+
+/** Calls follow the cohort schedule: one ended review per finished window. */
+export const seedGrowthCalls = internalMutation({
+  args: { now: v.number() },
+  handler: async (ctx, args) => {
+    const users = await ctx.db.query("users").collect()
+    const userById = new Map(users.map((user) => [user._id as string, user]))
+    const growthIds = new Set(
+      users
+        .filter((user) => user.authUserId.startsWith("seed-growth-"))
+        .map((user) => user._id as string),
+    )
+    const cohorts = (await ctx.db.query("cohorts").collect())
+      .filter((cohort) => cohort.code.startsWith("GRW-"))
+      .sort((a, b) => a.code.localeCompare(b.code))
+    const enrollments = await ctx.db.query("enrollments").collect()
+    const sessions = await ctx.db.query("cohortSessions").collect()
+    let calls = 0
+
+    const selected = [
+      cohorts[0],
+      cohorts[1],
+      cohorts[2],
+      cohorts[3],
+      cohorts[5],
+      cohorts[6],
+      cohorts[9],
+    ].filter((cohort): cohort is Doc<"cohorts"> => cohort !== undefined)
+
+    for (const [index, cohort] of selected.entries()) {
+      const teacher = userById.get(cohort.teacherId as string)
+      if (!teacher) continue
+      const students = enrollments
+        .filter(
+          (row) =>
+            row.cohortId === cohort._id &&
+            growthIds.has(row.studentId as string) &&
+            row.status !== "pending_payment",
+        )
+        .slice(0, 2)
+        .map((row) => userById.get(row.studentId as string))
+        .filter((row): row is Doc<"users"> => row !== undefined)
+      if (students.length === 0) continue
+      const cohortSessions = sessions
+        .filter((session) => session.cohortId === cohort._id)
+        .sort((a, b) => a.startsAt - b.startsAt)
+      const scheduled = cohortSessions.find(
+        (session) => session.status === "scheduled",
+      )
+      const ended = [...cohortSessions]
+        .reverse()
+        .find((session) => session.status === "ended")
+      const session = scheduled ?? ended ?? cohortSessions[0]
+      if (!session) continue
+      const isEnded = scheduled === undefined
+      const startedAt = session.startsAt
+      const endedAt = startedAt + 45 * 60_000
+      const roomName = `kalanidhi-${cohort.code.toLowerCase()}-${index + 1}`
+      const callId = await ctx.db.insert("callSessions", {
+        roomName,
+        kind: "cohort",
+        initiatorId: teacher._id,
+        hostId: teacher._id,
+        cohortId: cohort._id,
+        cohortSessionId: session._id,
+        title: isEnded
+          ? `Tinjauan ${session.title.toLowerCase()}`
+          : `${session.title} — panggilan kelas`,
+        status: isEnded ? "ended" : "scheduled",
+        startedAt: isEnded ? startedAt : undefined,
+        endedAt: isEnded ? endedAt : undefined,
+        endedBy: isEnded ? teacher._id : undefined,
+        endReason: isEnded ? "Sesi selesai" : undefined,
+        durationMs: isEnded ? 45 * 60_000 : undefined,
+        qualitySummary: isEnded ? "Kualitas baik, sempat putus sekali." : undefined,
+        scheduledAt: isEnded ? undefined : startedAt,
+        scheduledEndsAt: isEnded ? undefined : startedAt + 2 * HOUR,
+        recordingConsent: "pending",
+        createdAt: Math.max(cohort.createdAt, startedAt - 3 * DAY),
+      })
+      calls += 1
+      for (const [member, role] of [
+        [teacher, "host"] as const,
+        ...students.map((student) => [student, "guest"] as const),
+      ]) {
+        await ctx.db.insert("callParticipants", {
+          callId,
+          userId: member._id,
+          role,
+          status: isEnded ? "left" : "invited",
+          invitedAt: startedAt - 2 * DAY,
+          joinedAt: isEnded ? startedAt : undefined,
+          leftAt: isEnded ? endedAt : undefined,
+          quality: isEnded ? "good" : undefined,
+        })
+      }
+      await ctx.db.insert("callEvents", {
+        callId,
+        kind: isEnded ? "ended" : "scheduled",
+        actorId: teacher._id,
+        payload: { source: "seed", cohort: cohort.code },
+        createdAt: isEnded ? endedAt : startedAt - 3 * DAY,
+      })
+    }
+
+    // A scheduled review for the active window, so the call board has a future.
+    const active = cohorts.find((cohort) => cohort.status === "active")
+    if (active) {
+      const teacher = userById.get(active.teacherId as string)
+      const student = enrollments
+        .filter(
+          (row) =>
+            row.cohortId === active._id &&
+            growthIds.has(row.studentId as string) &&
+            row.status === "active",
+        )
+        .map((row) => userById.get(row.studentId as string))
+        .find((row): row is Doc<"users"> => row !== undefined)
+      if (teacher && student) {
+        const at = args.now + 3 * DAY
+        const callId = await ctx.db.insert("callSessions", {
+          roomName: `kalanidhi-${active.code.toLowerCase()}-review`,
+          kind: "voice",
+          initiatorId: teacher._id,
+          hostId: teacher._id,
+          cohortId: active._id,
+          title: "Konsultasi tugas akhir",
+          status: "scheduled",
+          scheduledAt: at,
+          scheduledEndsAt: at + 30 * 60_000,
+          recordingConsent: "pending",
+          createdAt: args.now - 2 * HOUR,
+        })
+        calls += 1
+        for (const [member, role] of [
+          [teacher, "host"] as const,
+          [student, "guest"] as const,
+        ]) {
+          await ctx.db.insert("callParticipants", {
+            callId,
+            userId: member._id,
+            role,
+            status: "invited",
+            invitedAt: args.now - 2 * HOUR,
+          })
+        }
+        await ctx.db.insert("callEvents", {
+          callId,
+          kind: "scheduled",
+          actorId: teacher._id,
+          payload: { source: "seed", cohort: active.code },
+          createdAt: args.now - 2 * HOUR,
+        })
+      }
+    }
+
+    return { calls }
+  },
+})
+
+/** Drives the growth activity batches after the intake has run. */
+export const seedGrowthMessaging = internalAction({
+  args: { now: v.number() },
+  handler: async (ctx, args) => {
+    const totals = { conversations: 0, messages: 0, calls: 0 }
+    for (const [group, start, end] of [
+      ["cohort", 0, 4],
+      ["cohort", 4, 8],
+      ["cohort", 8, 12],
+      ["direct", 0, 9],
+      ["order", 0, 8],
+      ["support", 0, 6],
+    ] as const) {
+      const batch = await ctx.runMutation(
+        internal.seed.domains.messaging.seedGrowthMessagingBatch,
+        { now: args.now, group, start, end },
+      )
+      totals.conversations += batch.conversations
+      totals.messages += batch.messages
+    }
+    const calls = await ctx.runMutation(
+      internal.seed.domains.messaging.seedGrowthCalls,
+      { now: args.now },
+    )
+    totals.calls += calls.calls
     return totals
   },
 })
