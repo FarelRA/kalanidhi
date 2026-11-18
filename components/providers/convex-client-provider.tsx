@@ -24,10 +24,12 @@ export function ConvexClientProvider({
   children,
   url,
   authEnabled = false,
+  initialToken,
 }: {
   children: ReactNode
   url?: string
   authEnabled?: boolean
+  initialToken?: string
 }) {
   const [client] = useState<ConvexReactClient | null>(() =>
     url ? clientFor(url) : null,
@@ -37,7 +39,11 @@ export function ConvexClientProvider({
 
   if (authEnabled) {
     return (
-      <ConvexBetterAuthProvider client={client} authClient={authClient}>
+      <ConvexBetterAuthProvider
+        client={client}
+        authClient={authClient}
+        initialToken={initialToken}
+      >
         {children}
       </ConvexBetterAuthProvider>
     )

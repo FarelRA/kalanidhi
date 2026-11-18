@@ -6,6 +6,7 @@ import { ConvexClientProvider } from "@/components/providers/convex-client-provi
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { getSiteData } from "@/lib/convex/server"
+import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
 
 import "./globals.css"
 
@@ -77,11 +78,23 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-export default function RootLayout({
+async function authToken(): Promise<string | undefined> {
+  if (!isAuthConfigured()) return undefined
+  try {
+    return await getAuthServer().getToken()
+  } catch (error) {
+    console.error("[auth] Could not mint the initial Convex token.", error)
+    return undefined
+  }
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const initialToken = await authToken()
+
   return (
     <html
       lang="id"
@@ -97,6 +110,7 @@ export default function RootLayout({
           authEnabled={Boolean(
             process.env.CONVEX_SITE_URL ?? process.env.NEXT_PUBLIC_CONVEX_SITE_URL,
           )}
+          initialToken={initialToken}
         >
           <TooltipProvider delayDuration={150}>
             {children}
