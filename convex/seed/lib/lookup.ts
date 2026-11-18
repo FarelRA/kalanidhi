@@ -53,6 +53,18 @@ export async function cohortByCode(
   return cohort
 }
 
+export async function orderByIdempotency(
+  ctx: LookupCtx,
+  idempotencyKey: string,
+): Promise<Doc<"orders">> {
+  const row = await ctx.db
+    .query("orders")
+    .withIndex("by_idempotencyKey", (q) => q.eq("idempotencyKey", idempotencyKey))
+    .first()
+  if (!row) throw new Error(`SEED_ORDER_MISSING: ${idempotencyKey}`)
+  return row
+}
+
 export async function orderByCode(
   ctx: LookupCtx,
   code: string,

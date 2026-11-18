@@ -38,6 +38,7 @@ import type * as seed_content_identities from "../seed/content/identities.js";
 import type * as seed_domains_audit from "../seed/domains/audit.js";
 import type * as seed_domains_auth from "../seed/domains/auth.js";
 import type * as seed_domains_clear from "../seed/domains/clear.js";
+import type * as seed_domains_codes from "../seed/domains/codes.js";
 import type * as seed_domains_commerce from "../seed/domains/commerce.js";
 import type * as seed_domains_content from "../seed/domains/content.js";
 import type * as seed_domains_credentials from "../seed/domains/credentials.js";
@@ -110,6 +111,7 @@ declare const fullApi: ApiFromModules<{
   "seed/domains/audit": typeof seed_domains_audit;
   "seed/domains/auth": typeof seed_domains_auth;
   "seed/domains/clear": typeof seed_domains_clear;
+  "seed/domains/codes": typeof seed_domains_codes;
   "seed/domains/commerce": typeof seed_domains_commerce;
   "seed/domains/content": typeof seed_domains_content;
   "seed/domains/credentials": typeof seed_domains_credentials;

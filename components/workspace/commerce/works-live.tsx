@@ -245,6 +245,14 @@ export function WorksLive() {
   )
   const pathTitle = (pathId: string) => pathTitles.get(pathId) ?? pathId
   const myWorks = rows.filter((work) => work.makerId === viewer?.userId)
+  const participantWorks =
+    can("works.review") && !can("works.moderate")
+      ? rows.filter(
+          (work) =>
+            work.pathId !== null &&
+            (viewer?.teachScopes ?? []).includes(work.pathId),
+        )
+      : myWorks
   const reviewWorks = rows.filter((work) =>
     can("works.moderate")
       ? (work.cardStatus !== null &&
@@ -266,7 +274,7 @@ export function WorksLive() {
     (can("works.own") || can("works.review")) && {
       id: "mine",
       label: can("works.review") ? "Karya peserta" : "Karya saya",
-      count: myWorks.length,
+      count: participantWorks.length,
     },
     (can("works.review") || can("works.moderate")) && {
       id: "review",
@@ -282,7 +290,11 @@ export function WorksLive() {
 
   const active = tabs.some((item) => item.id === tab) ? tab : tabs[0]?.id ?? "mine"
   const visible =
-    active === "mine" ? myWorks : active === "review" ? reviewWorks : rows
+    active === "mine"
+      ? participantWorks
+      : active === "review"
+        ? reviewWorks
+        : rows
 
   async function run(task: () => Promise<unknown>, message: string): Promise<boolean> {
     setPending(true)
@@ -391,9 +403,11 @@ export function WorksLive() {
             description={
               active === "review"
                 ? "Karya yang diajukan penjual akan muncul di sini."
-                : eligible
-                  ? "Sertifikatmu membuka ruang jual untuk jalur tertentu. Mulai dari satu karya lengkap dengan izin sumber."
-                  : "Karya muncul setelah sertifikat platform terbit dan profil penjual aktif."
+                : can("works.review")
+                  ? "Karya peserta dari jalur yang kamu ampu muncul di sini setelah Kartu Karya diajukan."
+                  : eligible
+                    ? "Sertifikatmu membuka ruang jual untuk jalur tertentu. Mulai dari satu karya lengkap dengan izin sumber."
+                    : "Karya muncul setelah sertifikat platform terbit dan profil penjual aktif."
             }
             action={
               eligible && active === "mine" ? (

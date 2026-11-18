@@ -1064,8 +1064,20 @@ describe("seed growth / operating year", () => {
 
     const orderCodes = data.orders.map((order) => order.code)
     expect(new Set(orderCodes).size).toBe(orderCodes.length)
+    for (const code of orderCodes) {
+      expect(code).toMatch(/^KN-\d{4}-\d{6}$/)
+    }
     const amounts = data.payments.map((payment) => payment.uniqueAmount)
     expect(new Set(amounts).size).toBe(amounts.length)
+
+    const certificateCodes = data.certificates.map(
+      (certificate) => certificate.publicCode,
+    )
+    expect(new Set(certificateCodes).size).toBe(certificateCodes.length)
+    for (const certificate of data.certificates) {
+      expect(certificate.serial).toMatch(/^KN-\d{4}-\d{4}$/)
+      expect(certificate.publicCode).toBe(certificate.serial)
+    }
 
     const leadEmails = new Set(
       data.leads

@@ -5,13 +5,12 @@ import {
   certificatePublicCode,
   cohortCode,
   evidenceCode,
-  orderCode,
   workSlug,
 } from "../lib/codes"
 import { createSeedClock } from "../lib/clock"
 import {
   certificateByCode,
-  orderByCode,
+  orderByIdempotency,
   seedAdmin,
   submissionByCode,
   userByEmail,
@@ -31,7 +30,9 @@ export const seedOps = internalMutation({
     const anisa = await userByEmail(ctx, seedEmail("anisa"))
     const rani = await userByEmail(ctx, seedEmail("rani"))
     const purnomo = await userByEmail(ctx, seedEmail("purnomo"))
-    const order1 = await orderByCode(ctx, orderCode("order1"))
+    const order1 = await orderByIdempotency(ctx, "seed-idem-order-1")
+    const order3 = await orderByIdempotency(ctx, "seed-idem-order-3")
+    const order9 = await orderByIdempotency(ctx, "seed-idem-order-9")
     const payoutForOrder1 = (
       await ctx.db
         .query("payouts")
@@ -243,7 +244,7 @@ export const seedOps = internalMutation({
           {
             authorId: sari._id,
             kind: "user" as const,
-            body: "Saya sudah transfer untuk pesanan KN-2026-000108, tetapi statusnya belum berubah.",
+            body: "Saya sudah transfer untuk pesanan nampan batik, tetapi statusnya belum berubah.",
             daysAgo: 24,
           },
           {
@@ -503,7 +504,7 @@ export const seedOps = internalMutation({
         channel: "in_app" as const,
         template: "order.paid",
         title: "Pesanan diterima",
-        body: "Pesanan KN-2026-000108 sudah dibayar dan sedang disiapkan.",
+        body: "Pesanan nampan batik sudah dibayar dan sedang disiapkan.",
         entityType: "orders",
         entityId: order1._id,
         readAt: clock.ago(20),
@@ -514,7 +515,7 @@ export const seedOps = internalMutation({
         channel: "in_app" as const,
         template: "payout.released",
         title: "Payout disetujui",
-        body: "Payout untuk pesanan KN-2026-000108 sudah disetujui.",
+        body: "Payout untuk pesanan nampan batik sudah disetujui.",
         entityType: "payouts",
         entityId: payoutForOrder1?._id,
         readAt: clock.ago(5),
@@ -547,7 +548,7 @@ export const seedOps = internalMutation({
         channel: "whatsapp" as const,
         template: "order.paid",
         title: "Pesanan diterima",
-        body: "Pesanan KN-2026-000108 sudah dibayar.",
+        body: "Pesanan nampan batik sudah dibayar.",
         entityType: "orders",
         entityId: order1._id,
         readAt: undefined,
@@ -613,9 +614,9 @@ export const seedOps = internalMutation({
         channel: "in_app" as const,
         template: "order.paid",
         title: "Pesanan dibayar",
-        body: "Pesanan KN-2026-000103 sudah dibayar. Mohon siapkan gladi resik sehari sebelum acara.",
+        body: `Pesanan ${order9.code} sudah dibayar. Mohon siapkan gladi resik sehari sebelum acara.`,
         entityType: "orders",
-        entityId: orderCode("order9"),
+        entityId: order9.code,
         readAt: clock.ago(152),
         daysAgo: 154,
       },
@@ -624,9 +625,9 @@ export const seedOps = internalMutation({
         channel: "email" as const,
         template: "payout.held",
         title: "Payout ditahan",
-        body: "Payout untuk pesanan KN-2026-000111 ditahan sampai pesanan selesai. Pengajar sudah diberi tahu.",
+        body: `Payout untuk pesanan ${order3.code} ditahan sampai pesanan selesai. Pengajar sudah diberi tahu.`,
         entityType: "payouts",
-        entityId: orderCode("order3"),
+        entityId: order3.code,
         readAt: clock.ago(4),
         daysAgo: 5,
       },

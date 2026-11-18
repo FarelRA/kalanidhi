@@ -4,13 +4,12 @@ import { internalMutation } from "../../_generated/server"
 import {
   certificatePublicCode,
   evidenceCode,
-  orderCode,
   workSlug,
 } from "../lib/codes"
 import { createSeedClock } from "../lib/clock"
 import {
   certificateByCode,
-  orderByCode,
+  orderByIdempotency,
   seedAdmin,
   submissionByCode,
   userByEmail,
@@ -27,7 +26,7 @@ export const seedAudit = internalMutation({
     const sri = await userByEmail(ctx, seedEmail("sri"))
     const sari = await userByEmail(ctx, seedEmail("sari"))
     const anisa = await userByEmail(ctx, seedEmail("anisa"))
-    const order1 = await orderByCode(ctx, orderCode("order1"))
+    const order1 = await orderByIdempotency(ctx, "seed-idem-order-1")
     const work = await workBySlug(ctx, workSlug("nampanBatikBambu"))
     const certificate = await certificateByCode(ctx, certificatePublicCode("anisa"))
     const aksaraCertificate = await certificateByCode(ctx, certificatePublicCode("galuh"))

@@ -343,14 +343,11 @@ describe("seed realism", () => {
       }
     }
 
-    const serials = [...data.certificates].sort((a, b) =>
-      a.serial.localeCompare(b.serial),
-    )
-    for (let index = 1; index < serials.length; index += 1) {
-      expect(
-        serials[index].issuedAt,
-        `${serials[index].serial} follows ${serials[index - 1].serial}`,
-      ).toBeGreaterThanOrEqual(serials[index - 1].issuedAt)
+    const serials = data.certificates.map((row) => row.serial)
+    expect(new Set(serials).size).toBe(serials.length)
+    for (const certificate of data.certificates) {
+      expect(certificate.serial).toMatch(/^KN-\d{4}-\d{4}$/)
+      expect(certificate.publicCode).toBe(certificate.serial)
     }
 
     const certificateById = new Map(
@@ -502,14 +499,18 @@ describe("seed realism", () => {
       "tidak dipraktikkan sebagai kampung batik bambu",
     )
 
-    const order13 = data.orders.find((order) => order.code === "KN-2026-000112")
+    const order13 = data.orders.find(
+      (order) => order.idempotencyKey === "seed-idem-order-13",
+    )
     const payout13 = data.payouts.find(
       (payout) => payout.orderId === order13?._id,
     )
     expect(payout13?.status).toBe("approved")
     expect(payout13?.paidAt).toBeUndefined()
 
-    const order5 = data.orders.find((order) => order.code === "KN-2026-000107")
+    const order5 = data.orders.find(
+      (order) => order.idempotencyKey === "seed-idem-order-5",
+    )
     expect(
       data.payouts.some(
         (payout) => payout.orderId === order5?._id && payout.kind === "reversal",

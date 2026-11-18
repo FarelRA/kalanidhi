@@ -787,7 +787,7 @@ export const seedMessagingBatch = internalMutation({
       for (const message of [
         {
           senderId: sari._id,
-          body: "Saya sudah transfer untuk pesanan KN-2026-000108, tetapi statusnya belum berubah.",
+          body: "Saya sudah transfer untuk pesanan nampan batik, tetapi statusnya belum berubah.",
           createdAt: clock.ago(24),
         },
         {

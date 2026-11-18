@@ -156,9 +156,6 @@ export const run = internalAction({
       const settings = await step("settings", () =>
         ctx.runMutation(internal.seed.domains.settings.seedSettings, { now }),
       )
-      const ops = await step("ops", () =>
-        ctx.runMutation(internal.seed.domains.ops.seedOps, { now }),
-      )
       const governance = await step("governance", () =>
         ctx.runMutation(internal.seed.domains.governance.seedGovernance, { now }),
       )
@@ -169,6 +166,13 @@ export const run = internalAction({
       // slices, so daily GMV, activation, and cohort fill include it.
       const growth = await step("growth", () =>
         ctx.runAction(internal.seed.domains.growth.seedGrowth, { now }),
+      )
+      const codes = await step("codes", () =>
+        ctx.runMutation(internal.seed.domains.codes.renumberOrders),
+      )
+      // Ops and the audit trail read the final order codes.
+      const ops = await step("ops", () =>
+        ctx.runMutation(internal.seed.domains.ops.seedOps, { now }),
       )
       const metrics = await step("metrics", async () => {
         let metricStart = jakartaDayStart(SEED_START)
@@ -208,6 +212,7 @@ export const run = internalAction({
         ops,
         governance,
         growth,
+        codes,
         metrics,
         audit,
         auth: { accounts: auth.accounts, unavailable: auth.unavailable },

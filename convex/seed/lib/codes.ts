@@ -85,19 +85,19 @@ export function workSlug(key: WorkKey): string {
 
 /** Order codes, used by commerce and the audit trail. */
 export const ORDER_CODES = {
-  order1: "KN-2026-000108",
-  order2: "KN-2026-000109",
-  order3: "KN-2026-000111",
-  order4: "KN-2026-000113",
-  order5: "KN-2026-000107",
-  order6: "KN-2026-000110",
-  order7: "KN-2026-000101",
-  order8: "KN-2026-000102",
-  order9: "KN-2026-000103",
-  order10: "KN-2026-000104",
-  order11: "KN-2026-000105",
-  order12: "KN-2026-000106",
-  order13: "KN-2026-000112",
+  order1: "KN-2026-000008",
+  order2: "KN-2026-000009",
+  order3: "KN-2026-000011",
+  order4: "KN-2026-000013",
+  order5: "KN-2026-000007",
+  order6: "KN-2026-000010",
+  order7: "KN-2026-000001",
+  order8: "KN-2026-000002",
+  order9: "KN-2026-000003",
+  order10: "KN-2026-000004",
+  order11: "KN-2026-000005",
+  order12: "KN-2026-000006",
+  order13: "KN-2026-000012",
 } as const
 
 export type OrderKey = keyof typeof ORDER_CODES
@@ -106,15 +106,15 @@ export function orderCode(key: OrderKey): string {
   return requireCode(ORDER_CODES, key, "orderCodes")
 }
 
-/** Certificate serials and public verification codes. */
+/** Certificate serials double as the public verification code. */
 export const CERTIFICATES = {
-  anisa: { serial: "KN-2026-0001", publicCode: "KN-ANISA-2026" },
-  dimas: { serial: "KN-2026-0002", publicCode: "KN-DIMAS-2026" },
-  purnomo: { serial: "KN-2026-0003", publicCode: "KN-PURNOMO-2026" },
-  rani: { serial: "KN-2026-0004", publicCode: "KN-RANI-2026" },
-  galuh: { serial: "KN-2026-0005", publicCode: "KN-GALUH-2026" },
-  arif: { serial: "KN-2026-0007", publicCode: "KN-ARIF-2026" },
-  dwi: { serial: "KN-2026-0006", publicCode: "KN-DWI-2026" },
+  anisa: { serial: "KN-2026-0001", publicCode: "KN-2026-0001" },
+  dimas: { serial: "KN-2026-0002", publicCode: "KN-2026-0002" },
+  purnomo: { serial: "KN-2026-0003", publicCode: "KN-2026-0003" },
+  rani: { serial: "KN-2026-0004", publicCode: "KN-2026-0004" },
+  galuh: { serial: "KN-2026-0005", publicCode: "KN-2026-0005" },
+  arif: { serial: "KN-2026-0007", publicCode: "KN-2026-0007" },
+  dwi: { serial: "KN-2026-0006", publicCode: "KN-2026-0006" },
 } as const
 
 export type CertificateKey = keyof typeof CERTIFICATES

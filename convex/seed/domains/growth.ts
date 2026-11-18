@@ -688,67 +688,33 @@ function cohortStatusFor(
   return "enrolling"
 }
 
-/** Root code, without the growth suffix: `KN-2026-000108`. */
-function rootOrderCode(code: string): string {
-  const match = /^(KN-\d{4}-\d{6})/.exec(code)
-  return match ? match[1] : code
+/** Sequential, well-formed codes; the counter lives in the growth context. */
+function formatCode(prefix: string, serial: number, width: number): string {
+  return `${prefix}${String(serial).padStart(width, "0")}`
 }
 
-function rootSerial(code: string): string {
-  const match = /^(KN-\d{4}-\d{4})/.exec(code)
-  return match ? match[1] : code
-}
-
-function anchoredCode(
-  anchor: string,
-  timestamp: number,
-  used: Set<string>,
-  prefixLength: number,
-): string {
-  const minutes = Math.max(1, Math.floor((timestamp - SEED_START) / 60_000))
-  let candidate = minutes
-  let code = `${anchor}G${String(candidate).padStart(7, "0")}`
+function nextOrderCode(context: GrowthContext, used: Set<string>): string {
+  let serial = context.nextOrderSerial
+  let code = formatCode("KN-2026-", serial, 6)
   while (used.has(code)) {
-    candidate += 1
-    code = `${anchor}G${String(candidate).padStart(7, "0")}`
+    serial += 1
+    code = formatCode("KN-2026-", serial, 6)
   }
-  void prefixLength
+  context.nextOrderSerial = serial + 1
   used.add(code)
   return code
 }
 
-function nextOrderCode(
-  timeline: Array<{ code: string; createdAt: number }>,
-  used: Set<string>,
-  createdAt: number,
-): string {
-  let anchor = "KN-2026-000000"
-  let best = Number.NEGATIVE_INFINITY
-  for (const row of timeline) {
-    if (row.createdAt <= createdAt && row.createdAt >= best) {
-      best = row.createdAt
-      anchor = rootOrderCode(row.code)
-    }
+function nextSerial(context: GrowthContext, used: Set<string>): string {
+  let serial = context.nextCertificateSerial
+  let code = formatCode("KN-2026-", serial, 4)
+  while (used.has(code)) {
+    serial += 1
+    code = formatCode("KN-2026-", serial, 4)
   }
-  const code = anchoredCode(anchor, createdAt, used, 6)
-  timeline.push({ code, createdAt })
+  context.nextCertificateSerial = serial + 1
+  used.add(code)
   return code
-}
-
-function nextSerial(
-  timeline: Array<{ code: string; createdAt: number }>,
-  used: Set<string>,
-  issuedAt: number,
-): string {
-  let anchor = "KN-2026-0000"
-  let best = Number.NEGATIVE_INFINITY
-  for (const row of timeline) {
-    if (row.createdAt <= issuedAt && row.createdAt >= best) {
-      best = row.createdAt
-      anchor = rootSerial(row.code)
-    }
-  }
-  return anchoredCode(anchor, issuedAt, used, 4)
 }
 
 /** 1..999 offset that is unique across the whole payments table. */
@@ -839,6 +805,8 @@ type GrowthContext = {
   paymentAmounts: number[]
   orders: Array<{ code: string; createdAt: number }>
   certificates: Array<{ serial: string; issuedAt: number }>
+  nextOrderSerial: number
+  nextCertificateSerial: number
 }
 
 /**
@@ -893,6 +861,16 @@ async function loadGrowthContext(
     certificates: certificates
       .map((row) => ({ serial: row.serial, issuedAt: row.issuedAt }))
       .sort((a, b) => a.issuedAt - b.issuedAt),
+    nextOrderSerial:
+      Math.max(
+        0,
+        ...orders.map((order) => Number(order.code.slice(-6)) || 0),
+      ) + 1,
+    nextCertificateSerial:
+      Math.max(
+        0,
+        ...certificates.map((certificate) => Number(certificate.serial.slice(-4)) || 0),
+      ) + 1,
   }
   if (key !== undefined) growthContext = context
   return context
@@ -947,13 +925,8 @@ export const seedGrowthBatch = internalMutation({
 
     const usedAmounts = new Set(context.paymentAmounts)
     const usedCodes = new Set(context.orders.map((order) => order.code))
-    const orderTimeline = [...context.orders]
 
     const usedSerials = new Set(context.certificates.map((row) => row.serial))
-    const certificateTimeline = context.certificates.map((row) => ({
-      code: row.serial,
-      createdAt: row.issuedAt,
-    }))
 
     const lessonCache = new Map<string, Doc<"lessons">[]>()
     const userByAuthId = new Map(
@@ -1152,7 +1125,7 @@ export const seedGrowthBatch = internalMutation({
       )
       if (workCreatedAt > now - HOUR) return
       const workPaidAt = Math.min(now - HOUR, workCreatedAt + 7 * 60_000)
-      const workCode = nextOrderCode(orderTimeline, usedCodes, workCreatedAt)
+      const workCode = nextOrderCode(context, usedCodes)
       const gatewayFee = Math.round(work.price * 0.01)
       const { orderId, paymentId } = await insertPaidOrder({
         code: workCode,
@@ -1352,7 +1325,7 @@ export const seedGrowthBatch = internalMutation({
           usedAmounts,
           orderCreatedAt + path.price,
         )
-        const code = nextOrderCode(orderTimeline, usedCodes, orderCreatedAt)
+        const code = nextOrderCode(context, usedCodes)
         const expiresAt = orderCreatedAt + 15 * 60_000
         await buildPaidOrder(ctx, {
           now,
@@ -1423,7 +1396,7 @@ export const seedGrowthBatch = internalMutation({
         continue
       }
 
-      const code = nextOrderCode(orderTimeline, usedCodes, orderCreatedAt)
+      const code = nextOrderCode(context, usedCodes)
       const gatewayFee = Math.round(path.price * 0.01)
       const refunded =
         row.plannedStatus === "withdrawn" && row.globalIndex % 2 === 0
@@ -1769,21 +1742,18 @@ export const seedGrowthBatch = internalMutation({
           now - HOUR,
           Math.max(cohort.endDate + HOUR, assessmentAt + DAY + 4 * HOUR),
         )
-        const serial = nextSerial(certificateTimeline, usedSerials, issuedAt)
+        const serial = nextSerial(context, usedSerials)
         await buildCertificateChain(ctx, {
           now,
           assessmentId,
           enrollmentId,
           serial,
-          publicCode: `kn-grw${String(row.globalIndex).padStart(3, "0")}${
-            row.kind === "repeat" ? "r" : ""
-          }`,
+          publicCode: serial,
           issuedAt,
           actorId: teacher._id,
           auditReason: "Penilaian akhir disetujui",
           updatedAt: now,
         })
-        certificateTimeline.push({ code: serial, createdAt: issuedAt })
         context.certificates.push({ serial, issuedAt })
         certificateIssuedAt = issuedAt
         result.certificates += 1
