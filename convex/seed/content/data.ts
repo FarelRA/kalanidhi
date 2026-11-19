@@ -1,8 +1,5 @@
 import { SPLIT_PERCENTAGES } from "../../../lib/commerce/money"
-import {
-  ABOUT_LOOP_HREF,
-  PUBLIC_ROUTES,
-} from "../../../lib/content/routes"
+import { PUBLIC_ROUTES } from "../../../lib/content/routes"
 import type {
   CatalogField,
   Faq,
@@ -390,7 +387,7 @@ export const siteSeed: SeedSiteCopy = {
       {
         title: "Isi platform",
         links: [
-          { label: "Tentang", href: ABOUT_LOOP_HREF },
+          { label: "Tentang", href: PUBLIC_ROUTES.about },
           { label: "Bidang", href: PUBLIC_ROUTES.fields },
           { label: "Kelas belajar", href: PUBLIC_ROUTES.paths },
           { label: "Pengajar", href: PUBLIC_ROUTES.teachers },
@@ -439,7 +436,7 @@ export const siteSeed: SeedSiteCopy = {
     },
   },
   navigation: [
-    { label: "Tentang", href: ABOUT_LOOP_HREF },
+    { label: "Tentang", href: PUBLIC_ROUTES.about },
     { label: "Bidang", href: PUBLIC_ROUTES.fields },
     { label: "Kelas", href: PUBLIC_ROUTES.paths },
     { label: "Pengajar", href: PUBLIC_ROUTES.teachers },

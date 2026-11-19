@@ -61,6 +61,15 @@ export function SiteFooter({ footer }: { footer: FooterContent }) {
                 <p className="mt-1 text-[12.5px] leading-relaxed text-paper/70">
                   {footer.secretariat.value}
                 </p>
+                <div className="mt-3 overflow-hidden border border-paper/20">
+                  <iframe
+                    title="Peta lokasi sekretariat KalaNidhi Digital"
+                    src="https://www.openstreetmap.org/export/embed.html?bbox=110.2385%2C-7.9533%2C110.2685%2C-7.9233&layer=mapnik&marker=-7.9383247%2C110.2535166"
+                    className="h-36 w-full"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                </div>
               </div>
             </div>
           </div>

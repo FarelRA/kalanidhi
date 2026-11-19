@@ -253,11 +253,7 @@ function WorkPurchaseView({
             {signedIn ? "Beli karya ini" : "Masuk untuk membeli"}
             <ArrowRight aria-hidden="true" className="size-4" />
           </Link>
-        ) : (
-          <p className="max-w-56 border border-ink/20 bg-panel/40 px-3 py-2 text-[10px] leading-relaxed text-ink-muted">
-            Karya kurasi platform. Hubungi pengelola untuk pembelian.
-          </p>
-        )}
+        ) : null}
       </div>
     </div>
   )
