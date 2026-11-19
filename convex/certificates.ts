@@ -490,7 +490,7 @@ export const reissue = mutation({
       certificateId: replacementId,
       kind: "issue",
       actorId: viewer.userId,
-      reason: `Pengganti ${certificate.serial}: ${args.reason}`,
+      reason: `Pengganti ${certificate.serial}, ${args.reason}`,
       createdAt: timestamp,
     })
     await writeAudit(ctx, {

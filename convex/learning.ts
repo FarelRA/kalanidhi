@@ -1120,7 +1120,7 @@ export const createEnrollment = mutation({
       if (counts.enrolled >= cohort.capacity) {
         throw new ConvexError({
           code: "COHORT_FULL",
-          message: "Kursi kohort sudah penuh.",
+          message: "Kelas kohort sudah penuh.",
         })
       }
     }
@@ -1177,7 +1177,7 @@ export const activateEnrollment = mutation({
         if (counts.enrolled >= cohort.capacity) {
           throw new ConvexError({
             code: "COHORT_FULL",
-            message: "Kursi kohort sudah penuh.",
+            message: "Kelas kohort sudah penuh.",
           })
         }
       }
@@ -1312,7 +1312,7 @@ export const completeEnrollment = mutation({
     ) {
       throw new ConvexError({
         code: "INCOMPLETE",
-        message: `Penyelesaian mengikuti aturan jalur: ${completed} dari ${total} pelajaran selesai.`,
+        message: `Penyelesaian mengikuti aturan jalur, ${completed} dari ${total} pelajaran selesai.`,
       })
     }
 

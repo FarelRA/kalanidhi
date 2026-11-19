@@ -80,7 +80,7 @@ export function FeaturedPanel() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Landing"
+        eyebrow="Halaman depan"
         title="Pilih yang tampil, bukan mengetik ulang."
         description="Jalur, pengajar, karya, testimoni, bidang katalog, dan FAQ diambil langsung dari tabel Convex. Pilihan di sini hanya menentukan mana yang tampil, urutannya, dan karya untuk Kartu Karya hero. Tidak ada data entitas yang diketik di sini."
         actions={
@@ -173,7 +173,7 @@ export function FeaturedPanel() {
           </ul>
         </Panel>
 
-        <Panel eyebrow="Testimoni" title="Suara yang tampil">
+        <Panel eyebrow="Testimoni" title="Testimoni yang tampil">
           <ul className="space-y-2">
             {data.testimonials.map((item) => (
               <li key={item.id}>
@@ -269,7 +269,7 @@ export function FeaturedPanel() {
           </ul>
         </Panel>
 
-        <Panel eyebrow="Hero" title="Kartu Karya hero" className="lg:col-span-2">
+        <Panel eyebrow="Hero" title="Kartu Karya di bagian utama" className="lg:col-span-2">
           <fieldset>
             <legend className="sr-only">Pilih karya untuk Kartu Karya hero</legend>
             <div className="grid gap-2 sm:grid-cols-2">
@@ -321,7 +321,7 @@ export function FeaturedPanel() {
             value={reason}
             onChange={(event) => setReason(event.target.value)}
             className="mt-1.5"
-            placeholder="Misalnya: kurasi rilis November."
+            placeholder="Misalnya, kurasi rilis November."
           />
           <p className="mt-1 text-[10px] text-ink-muted">
             Minimal 4 karakter. Tersimpan di log audit.

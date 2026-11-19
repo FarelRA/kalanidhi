@@ -56,61 +56,61 @@ const token = process.env.SEED_UPLOAD_SECRET
 /** Descriptive alt text for the typographic plates the seed displays. */
 const ALT_BY_FILENAME = {
   "hero-canting.jpg":
-    "Plat tipografi KalaNidhi Digital di atas kertas krem: nama platform, ajakan belajar praktik budaya Nusantara, dan keterangan Yogyakarta",
+    "Plat tipografi KalaNidhi Digital di atas kertas krem, nama platform, ajakan belajar praktik budaya Nusantara, dan keterangan Yogyakarta",
   "og-kalanidhi.jpg":
-    "Kartu pratinjau sosial KalaNidhi Digital: label platform, judul Belajar praktik budaya Nusantara, dan keterangan Yogyakarta dengan batik, aksara, pranatacara, tari, kuliner",
+    "Kartu pratinjau sosial KalaNidhi Digital, label platform, judul Belajar praktik budaya Nusantara, dan keterangan Yogyakarta dengan batik, aksara, pranatacara, tari, kuliner",
   "hasil-latihan.jpg":
-    "Plat lembar latihan peserta: label Latihan Peserta, judul Garis canting, latihan 3, keterangan Batik Bambu, Krebet, Bantul, dan garis tembaga",
+    "Plat lembar latihan peserta, label Latihan Peserta, judul Garis canting, latihan 3, keterangan Batik Bambu, Krebet, Bantul, dan garis tembaga",
   "panduan-perawatan-produk-bambu.jpg":
-    "Plat panduan perawatan produk bambu batik: empat langkah merawat, yaitu lap dengan kain kering, jangan rendam, hindari panas langsung, dan simpan di tempat kering",
+    "Plat panduan perawatan produk bambu batik, empat langkah merawat, yaitu lap dengan kain kering, jangan rendam, hindari panas langsung, dan simpan di tempat kering",
   "path-batik-bambu.jpg":
-    "Plat tipografi jalur Batik Bambu: judul besar, keterangan Krebet, Sendangsari, Pajangan, Bantul, dan garis tembaga di atas kertas krem",
+    "Plat tipografi jalur Batik Bambu, judul besar, keterangan Krebet, Sendangsari, Pajangan, Bantul, dan garis tembaga di atas kertas krem",
   "path-pranatacara.jpg":
-    "Plat tipografi jalur Seni Pembawa Acara Tradisi Jawa: tata wicara, urutan acara, dan etiket panggung, dengan garis tembaga",
+    "Plat tipografi jalur Seni Pembawa Acara Tradisi Jawa, tata wicara, urutan acara, dan etiket panggung, dengan garis tembaga",
   "path-gerabah-bantul.jpg":
-    "Plat tipografi jalur Kriya Gerabah Bantul: membentuk, mengeringkan, dan membakar gerabah Kasongan",
+    "Plat tipografi jalur Kriya Gerabah Bantul, membentuk, mengeringkan, dan membakar gerabah Kasongan",
   "path-aksara-jawa.jpg":
-    "Plat tipografi jalur Aksara Jawa: dari hanacaraka sampai kalimat utuh tanpa spasi, Kota Yogyakarta",
+    "Plat tipografi jalur Aksara Jawa, dari hanacaraka sampai kalimat utuh tanpa spasi, Kota Yogyakarta",
   "path-batik-tulis-giriloyo.jpg":
-    "Plat tipografi jalur Batik Tulis: materi batik tulis di atas kain sedang disiapkan, Giriloyo, Wukirsari, Imogiri, Bantul",
+    "Plat tipografi jalur Batik Tulis, materi batik tulis di atas kain sedang disiapkan, Giriloyo, Wukirsari, Imogiri, Bantul",
   "path-tari-kreasi.jpg":
-    "Plat tipografi jalur Tari Kreasi: gerak murni dan maknawi, ruang-waktu-tenaga, Kota Yogyakarta dan Sleman",
+    "Plat tipografi jalur Tari Kreasi, gerak murni dan maknawi, ruang-waktu-tenaga, Kota Yogyakarta dan Sleman",
   "path-kuliner-nusantara.jpg":
-    "Plat tipografi jalur Kuliner Nusantara: gastronomi, identitas, dan pelestarian makanan, Kota Yogyakarta dan Kulon Progo",
+    "Plat tipografi jalur Kuliner Nusantara, gastronomi, identitas, dan pelestarian makanan, Kota Yogyakarta dan Kulon Progo",
   "teacher-hardjono.jpg":
-    "Plat tipografi pengajar Bambang Hardjono: label pengajar, nama besar, dan keterangan pengajar batik halus Giriloyo",
+    "Plat tipografi pengajar Bambang Hardjono, label pengajar, nama besar, dan keterangan pengajar batik halus Giriloyo",
   "teacher-sriningsih.jpg":
-    "Plat tipografi pengajar Sri Sriningsih: perajin batik bambu dan pewarna alami, Krebet, Sendangsari, Pajangan, Bantul",
+    "Plat tipografi pengajar Sri Sriningsih, perajin batik bambu dan pewarna alami, Krebet, Sendangsari, Pajangan, Bantul",
   "teacher-sudarsono.jpg":
-    "Plat tipografi pengajar Widagdo Saputra: pembina pembawa acara adat, Kota Yogyakarta",
+    "Plat tipografi pengajar Widagdo Saputra, pembina pembawa acara adat, Kota Yogyakarta",
   "teacher-suwardi.jpg":
-    "Plat tipografi pengajar Suwardi Pratama: pengajar aksara Jawa, Kota Yogyakarta",
+    "Plat tipografi pengajar Suwardi Pratama, pengajar aksara Jawa, Kota Yogyakarta",
   "teacher-gerabah.jpg":
-    "Plat tipografi perajin Sutrisno Wibowo: pengrajin gerabah Kasongan, Kasihan, Bantul",
+    "Plat tipografi perajin Sutrisno Wibowo, pengrajin gerabah Kasongan, Kasihan, Bantul",
   "teacher-tari-kreasi.jpg":
-    "Plat tipografi pengajar Retno Wulandari: pengajar tari dan koreografer, Sleman",
+    "Plat tipografi pengajar Retno Wulandari, pengajar tari dan koreografer, Sleman",
   "teacher-kuliner-nusantara.jpg":
-    "Plat tipografi pengajar Joko Santosa: pengajar kuliner rumahan dan pendamping UMKM, Kulon Progo",
+    "Plat tipografi pengajar Joko Santosa, pengajar kuliner rumahan dan pendamping UMKM, Kulon Progo",
   "work-bambu-nampan.jpg":
-    "Plat Kartu Karya KN-8821 Nampan Batik Bambu: bingkai tipis, judul, garis tembaga, dan keterangan pembuat Anisa Rahmawati",
+    "Plat Kartu Karya KN-8821 Nampan Batik Bambu, bingkai tipis, judul, garis tembaga, dan keterangan pembuat Anisa Rahmawati",
   "work-bambu-box-tisu.jpg":
-    "Plat Kartu Karya KN-9014 Box Tisu Batik Bambu: bingkai tipis, judul, dan keterangan pembuat Dimas Yoga Pratama",
+    "Plat Kartu Karya KN-9014 Box Tisu Batik Bambu, bingkai tipis, judul, dan keterangan pembuat Dimas Yoga Pratama",
   "work-bambu-hiasan.jpg":
-    "Plat Kartu Karya KN-9147 Hiasan Dinding Batik Bambu: bingkai tipis, judul, dan keterangan pembuat Bambang Purnomo",
+    "Plat Kartu Karya KN-9147 Hiasan Dinding Batik Bambu, bingkai tipis, judul, dan keterangan pembuat Bambang Purnomo",
   "work-pranatacara.jpg":
-    "Plat Kartu Karya KN-JS-014 Pembawa Acara Siraman dan Midodareni: bingkai tipis dan keterangan praktisi Rani Wikaningsih",
+    "Plat Kartu Karya KN-JS-014 Pembawa Acara Siraman dan Midodareni, bingkai tipis dan keterangan praktisi Rani Wikaningsih",
   "work-aksara.jpg":
-    "Plat Kartu Karya KN-AKS-021 Jasa Tulis Aksara untuk Undangan dan Papan Nama: bingkai tipis dan keterangan Galuh Puspita",
+    "Plat Kartu Karya KN-AKS-021 Jasa Tulis Aksara untuk Undangan dan Papan Nama, bingkai tipis dan keterangan Galuh Puspita",
   "work-tari-kreasi.jpg":
-    "Plat Kartu Karya KN-TRI-031 Tari Kreasi untuk Acara Keluarga: bingkai tipis dan keterangan Sekar Ayuningtyas",
+    "Plat Kartu Karya KN-TRI-031 Tari Kreasi untuk Acara Keluarga, bingkai tipis dan keterangan Sekar Ayuningtyas",
   "work-kuliner-nusantara.jpg":
-    "Plat Kartu Karya KN-KUL-042 Geblek Renteng Beku: bingkai tipis dan keterangan Bimo Prakoso, Kulon Progo",
+    "Plat Kartu Karya KN-KUL-042 Geblek Renteng Beku, bingkai tipis dan keterangan Bimo Prakoso, Kulon Progo",
   "lesson-mola.jpg":
-    "Plat pelajaran Mola: memindahkan pola, dengan keterangan Batik Bambu, Krebet, Bantul, dan garis tembaga",
+    "Plat pelajaran Mola, memindahkan pola, dengan keterangan Batik Bambu, Krebet, Bantul, dan garis tembaga",
   "lesson-canting.jpg":
-    "Plat pelajaran Canting: memegang dan meneteskan malam, dengan keterangan tekanan, suhu, dan jarak titik pada jalur Batik Bambu",
+    "Plat pelajaran Canting, memegang dan meneteskan malam, dengan keterangan tekanan, suhu, dan jarak titik pada jalur Batik Bambu",
   "motif-larangan-yogyakarta-1.jpg":
-    "Plat lembar Motif Larangan Yogyakarta: delapan kotak bergaris tembaga berlabel Parang, Kawung, Ceplok, Mega Mendung, Lereng, Semen, Truntum, dan Sido Mukti",
+    "Plat lembar Motif Larangan Yogyakarta, delapan kotak bergaris tembaga berlabel Parang, Kawung, Ceplok, Mega Mendung, Lereng, Semen, Truntum, dan Sido Mukti",
 }
 
 function altFor(filename) {

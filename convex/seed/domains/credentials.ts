@@ -112,14 +112,14 @@ export const seedCredentials = internalMutation({
         )
         .unique()
       if (!submission) {
-        throw new Error(`Seed submission missing: ${final.submissionKey}`)
+        throw new Error(`Seed submission missing, ${final.submissionKey}`)
       }
       const assessment = await latestAssessmentForSubmission(
         ctx,
         submission._id,
       )
       if (!assessment) {
-        throw new Error(`Seed assessment missing: ${final.submissionKey}`)
+        throw new Error(`Seed assessment missing, ${final.submissionKey}`)
       }
       const completed = (
         await ctx.db
@@ -130,7 +130,7 @@ export const seedCredentials = internalMutation({
         (item) => item.pathId === path.slug && item.status === "completed",
       )
       if (!completed) {
-        throw new Error(`Seed completed enrollment missing: ${final.key}`)
+        throw new Error(`Seed completed enrollment missing, ${final.key}`)
       }
 
       const issuedAt = clock.ago(final.issuedDaysAgo)
@@ -165,7 +165,7 @@ export const seedCredentials = internalMutation({
       const maker = await userByEmail(ctx, seedEmail(work.makerKey))
       const certificateId = certificateIds.get(work.certificateKey)
       if (!certificateId) {
-        throw new Error(`Seed certificate missing: ${work.certificateKey}`)
+        throw new Error(`Seed certificate missing, ${work.certificateKey}`)
       }
       await ctx.db.patch(workDoc._id, {
         certificateId,

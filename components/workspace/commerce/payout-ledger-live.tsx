@@ -128,7 +128,7 @@ export function PayoutLedgerLive() {
         title={release ? `Ledger ${SPLIT_LABEL}.` : "Pendapatan dan statement."}
         description={
           release
-            ? "Ledger append-only. Tahan, setujui, bayar, atau balik dengan entri baru — tidak pernah mengedit baris yang sudah dibayar."
+            ? "Catatan hanya tambah. Tahan, setujui, bayar, atau balik dengan entri baru. Baris yang sudah dibayar tidak pernah diedit."
             : `Bagian pengajar ${TEACHER_SHARE_LABEL} dari setiap pesanan, status pencairan, dan statement dari ledger.`
         }
         actions={
@@ -163,7 +163,7 @@ export function PayoutLedgerLive() {
       </div>
 
       {!release && statement ? (
-        <Panel eyebrow="Statement" title={`Ringkasan ${statement.teacherName}`}>
+        <Panel eyebrow="Rekap" title={`Ringkasan ${statement.teacherName}`}>
           <dl className="grid gap-3 sm:grid-cols-3">
             {[
               ["Penjualan bruto", formatIDR(statement.grossSales)],
@@ -200,7 +200,7 @@ export function PayoutLedgerLive() {
 
       {tab === "payouts" ? (
         payouts === undefined ? (
-          <Panel eyebrow="Ledger" title="Memuat payout">
+          <Panel eyebrow="Catatan" title="Memuat payout">
             <p className="text-[11.5px] text-ink-soft">Mengambil data Convex…</p>
           </Panel>
         ) : rows.length === 0 ? (
@@ -209,7 +209,7 @@ export function PayoutLedgerLive() {
             description={`Payout dibuat otomatis dari setiap pesanan yang lunas, dengan pembagian ${SPLIT_LABEL}.`}
           />
         ) : (
-          <Panel eyebrow="Ledger" title="Baris payout" bodyClassName="p-0">
+          <Panel eyebrow="Catatan" title="Baris pencairan" bodyClassName="p-0">
             <DataTable
               rows={rows}
               columns={payoutColumns(setSelected, release, setAction)}
@@ -248,11 +248,11 @@ export function PayoutLedgerLive() {
       ) : null}
 
       {tab === "ledger" ? (
-        <Panel eyebrow="Append-only" title="Semua entri ledger" bodyClassName="p-0">
+        <Panel eyebrow="Hanya tambah" title="Semua entri ledger" bodyClassName="p-0">
           <DataTable
             rows={entries}
             columns={ledgerColumns}
-            caption="Entri ledger append-only dengan akun, arah, jenis, dan nominal"
+            caption="Entri catatan hanya tambah dengan akun, arah, jenis, dan nominal"
             searchPlaceholder="Cari kode pesanan atau alasan"
             getSearchText={(row) =>
               `${row.orderCode ?? ""} ${row.account} ${row.entryType} ${row.reason}`
@@ -326,7 +326,7 @@ export function PayoutLedgerLive() {
             <DetailGrid
               items={[
                 { label: "Pengrajin", value: selected.teacherName },
-                { label: "Pesanan", value: selected.orderCode ?? "—" },
+                { label: "Pesanan", value: selected.orderCode ?? "-" },
                 { label: "Jenis", value: PAYOUT_KIND_LABELS[selected.kind] },
                 { label: "Bruto", value: formatIDR(selected.gross) },
                 { label: "Bagian pengrajin", value: formatIDR(selected.teacherShare) },
@@ -344,7 +344,7 @@ export function PayoutLedgerLive() {
                   label: "Nilai dibayar",
                   value: selected.paidAmount
                     ? formatIDR(selected.paidAmount)
-                    : "—",
+                    : "-",
                 },
               ]}
             />
@@ -355,7 +355,7 @@ export function PayoutLedgerLive() {
                 </p>
               </DrawerSection>
             ) : null}
-            <DrawerSection title="Jejak ledger">
+            <DrawerSection title="Riwayat ledger">
               <ul className="space-y-2">
                 <li className="flex items-center justify-between gap-2 text-[10.5px]">
                   <span className="text-ink-muted">Dihitung otomatis</span>
@@ -398,7 +398,7 @@ export function PayoutLedgerLive() {
             </DialogTitle>
             <DialogDescription>
               {action?.kind === "release"
-                ? "Payout masuk antrean transfer. Rekening harus terverifikasi; perubahan rekening memblokir pencairan sampai diverifikasi ulang."
+                ? "Payout masuk antrean transfer. Rekening harus terverifikasi. Perubahan rekening memblokir pencairan sampai diverifikasi ulang."
                 : action?.kind === "hold"
                   ? "Payout ditahan sampai alasan selesai. Tidak ada perubahan pada baris ledger."
                   : action?.kind === "reverse"
@@ -414,7 +414,7 @@ export function PayoutLedgerLive() {
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
                 className="mt-2 min-h-24"
-                placeholder="Misalnya: sengketa pesanan masih terbuka atau refund sudah disetujui."
+                placeholder="Misalnya, sengketa pesanan masih terbuka atau refund sudah disetujui."
               />
             </div>
           ) : null}
@@ -476,7 +476,7 @@ function payoutColumns(
       header: "Payout",
       cell: (row) => (
         <div>
-          <p className="font-semibold text-ink">{row.orderCode ?? row.reference ?? "—"}</p>
+          <p className="font-semibold text-ink">{row.orderCode ?? row.reference ?? "-"}</p>
           <p className="mt-0.5 text-[10px] text-ink-muted">
             {PAYOUT_KIND_LABELS[row.kind]}
           </p>
@@ -582,7 +582,7 @@ const ledgerColumns: Column<LedgerEntryView>[] = [
     id: "order",
     header: "Pesanan",
     cell: (row) => (
-      <span className="text-[11px] tabular-nums">{row.orderCode ?? "—"}</span>
+      <span className="text-[11px] tabular-nums">{row.orderCode ?? "-"}</span>
     ),
   },
   {

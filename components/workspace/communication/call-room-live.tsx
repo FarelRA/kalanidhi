@@ -374,7 +374,7 @@ export function CallRoomLive({
         <PageHeader
           eyebrow="Panggilan"
           title={call.title}
-          description="Pemeriksaan perangkat sebelum masuk. Suara adalah jalur utama; video dapat dimatikan kapan saja."
+          description="Pemeriksaan perangkat sebelum masuk. Suara adalah jalur utama. Video dapat dimatikan kapan saja."
           meta={<CallMeta call={call} />}
           actions={
             <Button asChild variant="outline">
@@ -444,7 +444,7 @@ export function CallRoomLive({
       <PageHeader
         eyebrow="Panggilan · LiveKit"
         title="Ruang panggilan."
-        description="Panggilan suara atau video dari percakapan dan sesi kohort. Panggilan selalu berasal dari percakapan atau jadwal yang diizinkan; tidak ada panggilan tanpa asal."
+        description="Panggilan suara atau video dari percakapan dan sesi kohort. Panggilan selalu berasal dari percakapan atau jadwal yang diizinkan. Tidak ada panggilan tanpa asal."
         meta={
           <div className="flex flex-wrap items-center gap-2">
             <StatusStamp
@@ -533,7 +533,7 @@ export function CallRoomLive({
           <Panel eyebrow="Mulai" title="Dari percakapan">
             <p className="text-[11.5px] leading-relaxed text-ink-soft">
               Tombol panggilan muncul di percakapan yang mengizinkan panggilan.
-              Panggilan 1:1 memakai percakapan pengajar–peserta; panggilan kohort
+              Panggilan satu lawan satu memakai percakapan pengajar dan peserta. Panggilan kohort
               dimulai pengajar dari percakapan kohort atau sesi terjadwal.
             </p>
             <Button asChild variant="outline" className="mt-3 w-full">
@@ -742,7 +742,7 @@ function CallPrejoin({
         </div>
         <p className="text-[9.5px] leading-relaxed text-ink-muted">
           Rekaman tidak diaktifkan untuk panggilan ini. Persetujuan hanya dicatat
-          sebagai metadata; tidak ada egress atau berkas rekaman.
+          sebagai metadata. Tidak ada egress atau berkas rekaman.
         </p>
       </div>
     </div>
@@ -871,7 +871,7 @@ function CallRoomStage({
     await local.localParticipant.setCameraEnabled(false)
     onAudioOnlyChange(true)
     toast("Beralih ke suara saja", {
-      description: "Kamera dimatikan; panggilan tetap berjalan.",
+      description: "Kamera dimatikan, panggilan tetap berjalan.",
     })
   }
 
@@ -1123,7 +1123,7 @@ function CallConsentPanel({
     <Panel eyebrow="Konsen" title="Sebelum merekam">
       <p className="text-[10.5px] leading-relaxed text-ink-soft">
         Rekaman hanya untuk sengketa penilaian, atas persetujuan semua pihak, dan
-        disimpan 30 hari. Saat ini hanya persetujuan yang dicatat; belum ada rekaman
+        disimpan 30 hari. Saat ini hanya persetujuan yang dicatat. Belum ada rekaman
         yang dibuat.
       </p>
       <div className="mt-3 space-y-1.5">
@@ -1221,8 +1221,8 @@ function CallSafetyPanel({ call }: { call: CallDetail }) {
     <Panel eyebrow="Keamanan" title="Peserta dan laporan">
       <p className="text-[10.5px] leading-relaxed text-ink-soft">
         {direct
-          ? "Panggilan 1:1 dengan peserta di bawah umur memerlukan pendampingan wali. Sistem belum menyimpan data usia/wali, jadi panggilan tetap dibatasi pada percakapan ini. Kohort lebih disarankan untuk peserta di bawah umur."
-          : "Panggilan kohort lebih disarankan untuk peserta di bawah umur. Pengelola hanya melihat metadata; tidak ada yang bergabung diam-diam ke media."}
+          ? "Panggilan satu lawan satu dengan peserta di bawah umur memerlukan pendampingan wali. Sistem belum menyimpan data usia/wali, jadi panggilan tetap dibatasi pada percakapan ini. Kohort lebih disarankan untuk peserta di bawah umur."
+          : "Panggilan kohort lebih disarankan untuk peserta di bawah umur. Pengelola hanya melihat metadata. Tidak ada yang bergabung diam-diam ke media."}
       </p>
       <div className="mt-3 grid gap-1.5">
         <Button size="sm" variant="outline" className="justify-start" onClick={() => void handleBlock()} disabled={!direct || !peer}>
@@ -1253,7 +1253,7 @@ function CallSafetyPanel({ call }: { call: CallDetail }) {
               value={reportReason}
               onChange={(event) => setReportReason(event.target.value)}
               className="mt-2 min-h-24"
-              placeholder="Alasan: peserta meminta data pribadi di luar konteks belajar."
+              placeholder="Alasan, peserta meminta data pribadi di luar konteks belajar."
             />
           </div>
           <DialogFooter>
@@ -1501,10 +1501,10 @@ function CallLandingSafety() {
     <Panel eyebrow="Keamanan" title="Sebelum memanggil">
       <ul className="space-y-2 text-[10.5px] leading-relaxed text-ink-soft">
         <li>Panggilan hanya dari percakapan atau jadwal yang diizinkan.</li>
-        <li>Rekaman tidak aktif secara bawaan; tidak ada egress.</li>
+        <li>Rekaman tidak aktif secara bawaan. Tidak ada egress.</li>
         <li>Panggilan kohort maksimal 25 peserta.</li>
         <li>
-          Peserta di bawah umur: panggilan 1:1 memerlukan pendampingan wali;
+          Peserta di bawah umur, panggilan satu lawan satu memerlukan pendampingan wali.
           kohort lebih disarankan. Sistem belum menyimpan data usia/wali.
         </li>
         <li>Blokir dan laporan tetap tersedia dari percakapan dan ruang panggilan.</li>

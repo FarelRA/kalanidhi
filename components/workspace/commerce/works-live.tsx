@@ -126,7 +126,7 @@ function sellerBlockReason(viewer: Viewer | null): string | null {
     return "Profil penjual sedang ditangguhkan. Hubungi pengelola."
   }
   if (viewer.sellScopes.length === 0) {
-    return "Belum ada sertifikat terbit atau cakupan pengajar yang membuka ruang jual."
+    return "Belum ada sertifikat terbit atau cakupan pengajar yang membuka penjualan."
   }
   return null
 }
@@ -308,7 +308,7 @@ export function WorksLive() {
       const data = errorData(error)
       toast("Tindakan belum dapat dijalankan", {
         description: data?.missing?.length
-          ? `Lengkapi: ${data.missing.join(", ")}.`
+          ? `Lengkapi ${data.missing.join(", ")}.`
           : data?.message ?? "Periksa status karya dan coba lagi.",
       })
       return false
@@ -370,7 +370,7 @@ export function WorksLive() {
       />
 
       {active === "mine" && !eligible && can("works.own") ? (
-        <Panel eyebrow="Ruang jual" title="Ruang jual belum terbuka">
+        <Panel eyebrow="Penjualan" title="Penjualan belum dibuka">
           <div className="flex items-start gap-2.5">
             <AlertTriangle
               className="mt-0.5 size-4 shrink-0 text-[#9a3423]"
@@ -406,7 +406,7 @@ export function WorksLive() {
                 : can("works.review")
                   ? "Karya peserta dari jalur yang kamu ampu muncul di sini setelah Kartu Karya diajukan."
                   : eligible
-                    ? "Sertifikatmu membuka ruang jual untuk jalur tertentu. Mulai dari satu karya lengkap dengan izin sumber."
+                    ? "Sertifikatmu membuka penjualan untuk jalur tertentu. Mulai dari satu karya lengkap dengan izin sumber."
                     : "Karya muncul setelah sertifikat platform terbit dan profil penjual aktif."
             }
             action={
@@ -597,7 +597,7 @@ export function WorksLive() {
             <DialogDescription>
               {action?.kind === "pause" && !can("works.moderate")
                 ? "Karya yang dijeda tidak dapat dipesan. Pesanan yang sudah dibayar tetap diproses."
-                : "Tindakan moderasi memerlukan alasan, aktor, dan waktu. Karya yang dijeda tidak dapat dipesan; pesanan yang sudah dibayar tetap diproses."}
+                : "Tindakan moderasi memerlukan alasan, aktor, dan waktu. Karya yang dijeda tidak dapat dipesan. Pesanan yang sudah dibayar tetap diproses."}
             </DialogDescription>
           </DialogHeader>
           {action?.kind === "bulk" ? (
@@ -643,7 +643,7 @@ export function WorksLive() {
               value={reason}
               onChange={(event) => setReason(event.target.value)}
               className="mt-1.5 min-h-24"
-              placeholder="Misalnya: dokumen izin sumber budaya perlu diperbarui."
+              placeholder="Misalnya, dokumen izin sumber budaya perlu diperbarui."
             />
           </div>
           <DialogFooter>
@@ -871,7 +871,7 @@ function WorkFormDialog({
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (blockReason) {
-      toast("Ruang jual belum terbuka", { description: blockReason })
+      toast("Penjualan belum dibuka", { description: blockReason })
       return
     }
     const nextErrors = validate()
@@ -916,7 +916,7 @@ function WorkFormDialog({
       const data = errorData(error)
       toast("Karya belum dapat disimpan", {
         description: data?.missing?.length
-          ? `Lengkapi: ${data.missing.join(", ")}.`
+          ? `Lengkapi ${data.missing.join(", ")}.`
           : data?.message ?? "Periksa kembali formulir.",
       })
     } finally {
@@ -944,7 +944,7 @@ function WorkFormDialog({
         {blockReason ? (
           <div className="border border-[#9a3423]/40 bg-[#9a3423]/5 p-3">
             <p className="text-[11px] font-semibold text-[#9a3423]">
-              Ruang jual belum terbuka
+              Penjualan belum dibuka
             </p>
             <p className="mt-1 text-[10.5px] leading-relaxed text-ink-soft">
               {blockReason}
@@ -1337,7 +1337,7 @@ function WorkDrawerActions({
           title={
             work.readiness.ready
               ? undefined
-              : `Lengkapi: ${work.readiness.missing.join(", ")}`
+              : `Lengkapi ${work.readiness.missing.join(", ")}`
           }
           onClick={onSubmit}
         >
@@ -1362,7 +1362,7 @@ function WorkDrawerActions({
           title={
             work.readiness.ready
               ? undefined
-              : `Lengkapi: ${work.readiness.missing.join(", ")}`
+              : `Lengkapi ${work.readiness.missing.join(", ")}`
           }
           onClick={onPublish}
         >
@@ -1400,7 +1400,7 @@ function WorkDetail({ work }: { work: WorkListingView }) {
       <DrawerSection title="Status alur">
         <WorkStatusFlow work={work} />
         <p className="mt-2 text-[10.5px] text-ink-muted">
-          Langkah berikutnya: {nextActionLabel(work)}
+          Langkah berikutnya, {nextActionLabel(work)}
         </p>
       </DrawerSection>
 
@@ -1581,7 +1581,7 @@ function WorkStatusFlow({ work }: { work: WorkListingView }) {
       </ol>
       {special ? (
         <p className="mt-2 text-[10.5px] font-semibold text-[#8a5a16]">
-          Status khusus:{" "}
+          Status khusus,{" "}
           {work.status
             ? WORK_STATUS_LABELS[work.status]
             : "Tidak diketahui"}
@@ -1657,7 +1657,7 @@ function workColumns(
         <div>
           <p className="text-[11.5px]">{row.maker}</p>
           <p className="mt-0.5 text-[10px] text-ink-muted">
-            {row.pathId ?? "—"}
+            {row.pathId ?? "-"}
           </p>
         </div>
       ),
@@ -1697,7 +1697,7 @@ function workColumns(
               title={
                 row.readiness.ready
                   ? undefined
-                  : `Lengkapi: ${row.readiness.missing.join(", ")}`
+                  : `Lengkapi ${row.readiness.missing.join(", ")}`
               }
               onClick={() => actions.submit(row)}
             >
@@ -1722,7 +1722,7 @@ function workColumns(
               title={
                 row.readiness.ready
                   ? undefined
-                  : `Lengkapi: ${row.readiness.missing.join(", ")}`
+                  : `Lengkapi ${row.readiness.missing.join(", ")}`
               }
               onClick={() => actions.publish(row)}
             >

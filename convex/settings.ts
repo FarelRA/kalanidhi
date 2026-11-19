@@ -541,7 +541,7 @@ export const adminState = query({
         message:
           typeof maintenanceValue.message === "string"
             ? maintenanceValue.message
-            : "Ruang kerja tetap terbuka; situs publik menampilkan pemberitahuan.",
+            : "Ruang kerja tetap terbuka. Situs publik menampilkan pemberitahuan.",
       },
       banner: {
         enabled: Boolean(bannerValue.enabled),

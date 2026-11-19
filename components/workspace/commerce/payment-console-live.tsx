@@ -207,7 +207,7 @@ export function PaymentConsoleLive() {
 
       <SegmentedTabs
         tabs={[
-          { id: "intents", label: "Payment intents", count: intents.length },
+          { id: "intents", label: "Permintaan pembayaran", count: intents.length },
           { id: "reconcile", label: "Rekonsiliasi", count: unmatched.length },
           { id: "health", label: "Kesehatan gerbang" },
           { id: "events", label: "Peristiwa provider", count: events?.length },
@@ -218,11 +218,11 @@ export function PaymentConsoleLive() {
       />
 
       {tab === "intents" ? (
-        <Panel eyebrow="Intent" title="Semua payment intent" bodyClassName="p-0">
+        <Panel eyebrow="Intent" title="Semua permintaan pembayaran" bodyClassName="p-0">
           <DataTable
             rows={intents}
             columns={intentColumns(setSelected, (intent) => setMatch(intent), true)}
-            caption="Payment intent dengan order, provider, nilai unik, kedaluwarsa, dan status"
+            caption="Permintaan pembayaran dengan order, provider, nilai unik, kedaluwarsa, dan status"
             searchPlaceholder="Cari order, referensi, atau provider"
             getSearchText={(row) =>
               `${row.orderCode} ${row.providerReference ?? ""} ${row.provider} ${row.status}`
@@ -340,7 +340,7 @@ export function PaymentConsoleLive() {
             {
               label: "Terakhir diperiksa",
               status: formatCommerceDateTime(health?.checkedAt),
-              note: `Latensi ${health?.latencyMs ?? "—"} ms`,
+              note: `Latensi ${health?.latencyMs ?? "-"} ms`,
               done: Boolean(health?.checkedAt),
             },
             {
@@ -397,7 +397,7 @@ export function PaymentConsoleLive() {
         onOpenChange={(open) => {
           if (!open) setSelected(null)
         }}
-        eyebrow="Payment intent"
+        eyebrow="Permintaan pembayaran"
         title={selected?.orderCode ?? ""}
         stamp={selected ? intentLabel(selected) : undefined}
         tone={selected ? intentTone(selected) : undefined}
@@ -437,7 +437,7 @@ export function PaymentConsoleLive() {
                 { label: "Order", value: selected.orderCode },
                 { label: "Pembeli", value: selected.buyerName },
                 { label: "Provider", value: selected.provider },
-                { label: "Referensi", value: selected.providerReference ?? "—" },
+                { label: "Referensi", value: selected.providerReference ?? "-" },
                 { label: "Nominal dasar", value: formatIDR(selected.baseAmount) },
                 { label: "Nilai unik", value: formatIDR(selected.uniqueAmount) },
                 {
@@ -529,7 +529,7 @@ export function PaymentConsoleLive() {
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
                 className="mt-1.5 min-h-24"
-                placeholder="Misalnya: mutasi BCA 1.450.037 pukul 09.18, nama pengirim cocok."
+                placeholder="Misalnya, mutasi BCA 1.450.037 pukul 09.18, nama pengirim cocok."
               />
             </div>
           </div>
@@ -579,7 +579,7 @@ export function PaymentConsoleLive() {
             <DialogTitle>Catat biaya gerbang</DialogTitle>
             <DialogDescription>
               Isi biaya MDR sebenarnya dari laporan settlement. Biaya diserap
-              bagian platform; porsi guru dan komunitas tidak berubah.
+              bagian platform. Porsi guru dan komunitas tidak berubah.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -603,7 +603,7 @@ export function PaymentConsoleLive() {
                 value={feeReason}
                 onChange={(event) => setFeeReason(event.target.value)}
                 className="mt-1.5 min-h-20"
-                placeholder="Misalnya: laporan settlement GoBiz 12 Nov, MDR QRIS 0,7%."
+                placeholder="Misalnya, laporan settlement GoBiz 12 Nov, MDR QRIS 0,7%."
               />
             </div>
           </div>
@@ -664,7 +664,7 @@ function intentColumns(
         <div>
           <p className="text-[11.5px] font-medium">{row.provider}</p>
           <p className="mt-0.5 max-w-44 truncate text-[9.5px] text-ink-muted">
-            {row.providerReference ?? row.providerTransactionId ?? "—"}
+            {row.providerReference ?? row.providerTransactionId ?? "-"}
           </p>
         </div>
       ),
@@ -744,14 +744,14 @@ const eventColumns: Column<PaymentEventView>[] = [
   {
     id: "order",
     header: "Pesanan",
-    cell: (row) => <span className="text-[11px]">{row.orderCode ?? "—"}</span>,
+    cell: (row) => <span className="text-[11px]">{row.orderCode ?? "-"}</span>,
   },
   {
     id: "amount",
     header: "Nominal",
     cell: (row) => (
       <span className="text-[11px] tabular-nums">
-        {row.amount ? formatIDR(row.amount) : "—"}
+        {row.amount ? formatIDR(row.amount) : "-"}
       </span>
     ),
     align: "right",

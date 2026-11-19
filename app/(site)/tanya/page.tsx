@@ -109,14 +109,14 @@ export default async function ConsultPage({
   const derivedInterest = (
     interestParam ??
     path?.title ??
-    (teacher ? `Profil pengajar: ${teacher.name}` : undefined) ??
+    (teacher ? `Profil pengajar, ${teacher.name}` : undefined) ??
     work?.title
   )?.slice(0, 120)
 
   const interestOptions = Array.from(
     new Set([
       ...paths.map((item) => item.title),
-      ...teachers.map((item) => `Profil pengajar: ${item.name}`),
+      ...teachers.map((item) => `Profil pengajar, ${item.name}`),
       ...works.map((item) => item.title),
       "Belum tahu, minta rekomendasi",
     ]),

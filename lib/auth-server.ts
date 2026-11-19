@@ -20,7 +20,7 @@ let helpers: AuthServer | null = null
 export function getAuthServer(): AuthServer {
   if (!isAuthConfigured()) {
     throw new Error(
-      "Better Auth is not configured: set CONVEX_URL and CONVEX_SITE_URL.",
+      "Better Auth is not configured, set CONVEX_URL and CONVEX_SITE_URL.",
     )
   }
   helpers ??= convexBetterAuthNextJs({

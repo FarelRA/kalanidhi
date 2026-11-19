@@ -254,7 +254,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "dwi-bbm-2",
     studentKey: "dwi",
     cohortKey: cohortKey("bbm2026_01"),
-    taskTitle: "Mbabar: warna pertama pada bambu",
+    taskTitle: "Mbabar, warna pertama pada bambu",
     status: "revision_requested",
     score: 70,
     feedback:
@@ -391,7 +391,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "rani-pra-final",
     studentKey: "rani",
     cohortKey: cohortKey("pra2025_01"),
-    taskTitle: "Praktik akhir: siraman dan midodareni",
+    taskTitle: "Praktik akhir, siraman dan midodareni",
     status: "approved",
     score: 90,
     feedback:
@@ -549,7 +549,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "sekar-tari-final",
     studentKey: "sekar",
     cohortKey: cohortKey("tari2026_01"),
-    taskTitle: "Ujian akhir: kreasi dua menit, skor gerak, evaluasi diri",
+    taskTitle: "Ujian akhir, kreasi dua menit, skor gerak, evaluasi diri",
     status: "approved",
     score: 91,
     feedback:
@@ -564,16 +564,16 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "bimo-kul-final",
     studentKey: "bimo",
     cohortKey: cohortKey("kul2026_01"),
-    taskTitle: "Ujian akhir: masak, dokumentasi, cerita, pelestarian",
+    taskTitle: "Ujian akhir, masak, dokumentasi, cerita, pelestarian",
     status: "approved",
     score: 89,
     feedback:
-      "Takaran dan waktu dicatat rapi. Cerita sudah membedakan fakta dan tafsiran; perbaiki satu klaim asal-usul pada paragraf kedua.",
+      "Takaran dan waktu dicatat rapi. Cerita sudah membedakan fakta dan tafsiran, perbaiki satu klaim asal-usul pada paragraf kedua.",
     submittedDaysAgo: 130,
     assessedDaysAgo: 125,
     revisionCount: 0,
     evidenceText:
-      "Foto bahan, proses, dan hasil geblek; kartu resep; tabel biaya dan porsi; cerita 420 kata; catatan pelestarian.",
+      "Foto bahan, proses, dan hasil geblek, kartu resep, tabel biaya dan porsi, cerita 420 kata, catatan pelestarian.",
   },
 ]
 /** Turns a task title into the kind of filename a participant would upload. */
@@ -597,7 +597,7 @@ export const seedLearningBatch = internalMutation({
     const clock = createSeedClock(args.now)
     const admin = await seedAdmin(ctx)
     const seed = cohortsFor(clock).find((row) => row.key === args.cohortKey)
-    if (!seed) throw new Error(`Seed cohort key missing: ${args.cohortKey}`)
+    if (!seed) throw new Error(`Seed cohort key missing, ${args.cohortKey}`)
 
     const path = await pathBySlug(ctx, seed.pathSlug)
     const teacher = await userByEmail(ctx, seedEmail(seed.teacherKey))
@@ -695,7 +695,7 @@ export const seedLearningBatch = internalMutation({
     }
 
     const cohort = await ctx.db.get(cohortId)
-    if (!cohort) throw new Error(`Seed cohort missing after insert: ${seed.key}`)
+    if (!cohort) throw new Error(`Seed cohort missing after insert, ${seed.key}`)
 
     const enrollmentIds = new Map<string, Id<"enrollments">>()
     for (const enrollment of ENROLLMENTS) {
@@ -728,7 +728,7 @@ export const seedLearningBatch = internalMutation({
             : undefined,
         withdrawReason:
           enrollment.status === "withdrawn"
-            ? "Jadwal kerja berubah; peserta menunda ke angkatan berikutnya."
+            ? "Jadwal kerja berubah, peserta menunda ke angkatan berikutnya."
             : undefined,
         lastActivityAt:
           enrollment.status === "completed"
@@ -806,7 +806,7 @@ export const seedLearningBatch = internalMutation({
       const enrollmentId = enrollmentIds.get(submissionSeed.studentKey)
       if (!enrollmentId) {
         throw new Error(
-          `Seed enrollment missing: ${submissionSeed.studentKey}:${submissionSeed.cohortKey}`,
+          `Seed enrollment missing, ${submissionSeed.studentKey}:${submissionSeed.cohortKey}`,
         )
       }
       const submittedAt =
@@ -818,7 +818,7 @@ export const seedLearningBatch = internalMutation({
           ? null
           : await ctx.db.get(cohort.teacherId)
       if (submissionSeed.status !== "draft" && !pondokTeacher) {
-        throw new Error(`Seed cohort teacher missing: ${submissionSeed.cohortKey}`)
+        throw new Error(`Seed cohort teacher missing, ${submissionSeed.cohortKey}`)
       }
       const assessor = pondokTeacher
       const assessedAt =
@@ -858,7 +858,7 @@ export const seedLearningBatch = internalMutation({
           submissionSeed.key === SUBMISSION_KEYS.bayuBbm1 ? admin._id : undefined,
         escalationReason:
           submissionSeed.key === SUBMISSION_KEYS.bayuBbm1
-            ? "Melewati SLA penilaian 3 hari kerja; dinaikkan ke pengajar senior."
+            ? "Melewati SLA penilaian 3 hari kerja, dinaikkan ke pengajar senior."
             : undefined,
         asset:
           submissionSeed.status !== "draft" && storageId
@@ -882,7 +882,7 @@ export const seedLearningBatch = internalMutation({
                   const revisionNote =
                     criterion.criterion === "Kualitas garis malam" ||
                     criterion.criterion === "Warna dan kebersihan"
-                      ? "Hasil belum konsisten di bagian tepi; ulangi dengan takaran yang sama."
+                      ? "Hasil belum konsisten di bagian tepi, ulangi dengan takaran yang sama."
                       : `Bagian ${label} perlu diulang sebelum dinilai lagi.`
                   const doneNote =
                     criterion.criterion === "Dokumentasi" ||

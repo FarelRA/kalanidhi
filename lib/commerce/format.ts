@@ -15,12 +15,12 @@ const dateFormatter = new Intl.DateTimeFormat("id-ID", {
 })
 
 export function formatCommerceDateTime(value: number | null | undefined): string {
-  if (!value) return "—"
+  if (!value) return "-"
   return dateTimeFormatter.format(new Date(value))
 }
 
 export function formatCommerceDate(value: number | null | undefined): string {
-  if (!value) return "—"
+  if (!value) return "-"
   return dateFormatter.format(new Date(value))
 }
 

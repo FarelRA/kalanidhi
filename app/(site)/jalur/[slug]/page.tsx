@@ -308,7 +308,7 @@ export default async function PathDetailPage({
                             {cohort.title}
                           </p>
                           <p className="mt-1 text-[10.5px] text-ink-muted">
-                            {cohort.code} · {formatDate(cohort.startDate)} –{" "}
+                            {cohort.code} · {formatDate(cohort.startDate)} sampai{" "}
                             {formatDate(cohort.endDate)}
                           </p>
                         </div>
@@ -317,7 +317,7 @@ export default async function PathDetailPage({
                         </span>
                       </div>
                       <p className="mt-1 text-[10px] text-ink-muted">
-                        {cohort.capacity} kursi · {cohort.timezone}
+                        {cohort.capacity} peserta · {cohort.timezone}
                       </p>
                     </li>
                   ))}

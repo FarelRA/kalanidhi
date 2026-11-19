@@ -442,7 +442,7 @@ export const verifyTeacher = mutation({
             role: "teacher",
             action: "grant",
             actorId: viewer.userId,
-            reason: "Peran pengajar mengikuti verifikasi dossier.",
+            reason: "Peran pengajar mengikuti verifikasi berkas.",
             createdAt: timestamp,
           })
         }
@@ -710,7 +710,7 @@ export const activateSeller = mutation({
       throw new ConvexError({
         code: "SELLER_SCOPE_EMPTY",
         message:
-          "Aktifkan dossier pengajar atau terbitkan sertifikat sebelum mengaktifkan penjual.",
+          "Aktifkan berkas pengajar atau terbitkan sertifikat sebelum mengaktifkan penjual.",
       })
     }
 

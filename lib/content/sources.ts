@@ -30,7 +30,7 @@ export type CulturalSourceReferenceKind = keyof typeof CULTURAL_SOURCE_REFERENCE
 export const CULTURAL_SOURCE_CARD_LABEL = "Kartu Sumber Budaya"
 
 export const CULTURAL_SOURCE_NOTE_PREFIX =
-  "Beberapa sumber budaya; rincian izin dan atribusi ada di "
+  "Beberapa sumber budaya, rincian izin dan atribusi ada di "
 
 export const CULTURAL_SOURCE_NOTE = `${CULTURAL_SOURCE_NOTE_PREFIX}${CULTURAL_SOURCE_CARD_LABEL}.`
 

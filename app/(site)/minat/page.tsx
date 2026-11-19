@@ -132,7 +132,7 @@ function InterestCatalog({
         <PublicPageIntro
           eyebrow="Daftar minat"
           title="Pilih jalur atau karya."
-          description="Daftar minat langsung membuka halaman checkout. WhatsApp adalah identitas utama; email opsional untuk salinan."
+          description="Daftar minat langsung membuka halaman checkout. WhatsApp adalah identitas utama, email opsional untuk salinan."
         />
 
         <div className="mt-8 flex flex-wrap items-center gap-3 border border-ink/20 bg-paper-2 p-4">

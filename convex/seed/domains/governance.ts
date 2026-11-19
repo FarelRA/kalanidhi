@@ -47,13 +47,13 @@ export const seedGovernance = internalMutation({
         attribution:
           "Materi Batik Giriloyo disusun Paguyuban Batik Tulis Giriloyo (Koperasi Jasa Kampung Batik Giriloyo), Desa Wukirsari, Bantul, untuk batik tulis di atas kain. Materi yang kami pegang hanya mencakup kain, lalu diadaptasi untuk media bambu.",
         notes:
-          "Motif geometris disusun ulang; motif sakral tidak dipakai. Langkah khusus kain diganti dengan proses bambu.",
+          "Motif geometris disusun ulang, motif sakral tidak dipakai. Langkah khusus kain diganti dengan proses bambu.",
         withdrawalStatus: "active" as const,
         status: "active" as const,
       },
       {
         community: "Fitinline",
-        sourceName: "Batik Bambu: Inovasi Teknik Membatik pada Media Bambu",
+        sourceName: "Batik Bambu, Inovasi Teknik Membatik pada Media Bambu",
         pathId: pathSlug("batikBambu"),
         workId: undefined,
         permissionDocumentRef: "https://fitinline.com/article/read/batik-bambu/",
@@ -63,7 +63,7 @@ export const seedGovernance = internalMutation({
         permissionStatus: "public_reference" as const,
         accessLevel: "public" as const,
         attribution:
-          "Rujukan publik Fitinline, 8 November 2013, memuat urutan bambu: pilih bambu, rebus, jemur kering, amplas, beri pola, batik, warna, tutup motif dengan malam, warna dasar, rebus untuk melepas malam, jemur, lalu finishing.",
+          "Rujukan publik Fitinline, 8 November 2013, memuat urutan bambu, pilih bambu, rebus, jemur kering, amplas, beri pola, batik, warna, tutup motif dengan malam, warna dasar, rebus untuk melepas malam, jemur, lalu finishing.",
         notes:
           "Artikel juga menyebut Krebet dan Lopati sebagai sentra batik bambu serta pelapisan NC.",
         withdrawalStatus: "active" as const,
@@ -83,7 +83,7 @@ export const seedGovernance = internalMutation({
         attribution:
           "Profil resmi Desa Wisata Krebet di Jadesta Kementerian Pariwisata menempatkan Krebet di Sendangsari, Pajangan, Bantul, sebagai desa wisata batik kayu dan menampilkan nampan bambu batik sebagai suvenir.",
         notes:
-          "Jadesta juga mencatat alat batik yang disiapkan untuk kunjungan: canting, kompor, lilin, celemek, pensil, dan obat keselamatan.",
+          "Jadesta juga mencatat alat batik yang disiapkan untuk kunjungan, canting, kompor, lilin, celemek, pensil, dan obat keselamatan.",
         withdrawalStatus: "active" as const,
         status: "active" as const,
       },
@@ -99,7 +99,7 @@ export const seedGovernance = internalMutation({
         permissionStatus: "granted" as const,
         accessLevel: "community" as const,
         attribution:
-          "Catatan pewarna alami dari lingkungan perajin Pleret, Bantul. Bahan dan takaran dibagikan untuk pelajar terdaftar; dokumen sumber diarsipkan pengelola platform.",
+          "Catatan pewarna alami dari lingkungan perajin Pleret, Bantul. Bahan dan takaran dibagikan untuk pelajar terdaftar, dokumen sumber diarsipkan pengelola platform.",
         notes: "Sebagian takaran hanya untuk pelajar terdaftar.",
         withdrawalStatus: "active" as const,
         status: "active" as const,
@@ -117,7 +117,7 @@ export const seedGovernance = internalMutation({
         accessLevel: "public" as const,
         attribution:
           "Rundown disusun ulang untuk konteks kelas dari urutan siraman dan midodareni yang lazim di Yogyakarta, dengan rujukan publik Wikipedia bahasa Indonesia dan Marverial (2020) di Jurnal Desain Komunikasi Visual Universitas Bhayangkara Jakarta Raya.",
-        notes: "Rundown tidak memuat data keluarga nyata; kebiasaan tiap keluarga dapat berbeda.",
+        notes: "Rundown tidak memuat data keluarga nyata, kebiasaan tiap keluarga dapat berbeda.",
         withdrawalStatus: "active" as const,
         status: "active" as const,
       },
@@ -152,7 +152,7 @@ export const seedGovernance = internalMutation({
         attribution:
           "Dokumen sumber aksara Jawa dan tabel sandhangan dipegang pengelola platform, dipakai sebagai bahan ajar jalur ini.",
         notes:
-          "Contoh tulisan memakai kalimat sumber; moral paragraf penutup tidak dipakai sebagai ajaran kursus.",
+          "Contoh tulisan memakai kalimat sumber, moral paragraf penutup tidak dipakai sebagai ajaran kursus.",
         withdrawalStatus: "active" as const,
         status: "active" as const,
       },
@@ -170,7 +170,7 @@ export const seedGovernance = internalMutation({
         attribution:
           "Materi jalur Tari Kreasi disusun dari laporan Apresiasi Karya Seni Tari yang mengutip Hadi (1990) untuk definisi tari, serta unsur gerak, ruang, waktu, tenaga, bentuk penyajian, dan fungsi tari. Laporan itu adalah laporan siswa, bukan rujukan primer.",
         notes:
-          "Contoh Legong, Saman, dan Bedhaya dipakai sebagai contoh dari laporan; detail gerak tidak ditambahkan di luar catatan laporan.",
+          "Contoh Legong, Saman, dan Bedhaya dipakai sebagai contoh dari laporan, detail gerak tidak ditambahkan di luar catatan laporan.",
         withdrawalStatus: "active" as const,
         status: "active" as const,
       },

@@ -73,7 +73,7 @@ export function LiveScheduleBoard() {
         <div className="text-[11px] leading-snug">
           <p>{formatWorkspaceDate(iso(row.startsAt))}</p>
           <p className="mt-0.5 text-ink-muted">
-            {formatWorkspaceTime(iso(row.startsAt))}–
+            {formatWorkspaceTime(iso(row.startsAt))} sampai{" "}
             {formatWorkspaceTime(iso(row.endsAt))}
           </p>
         </div>

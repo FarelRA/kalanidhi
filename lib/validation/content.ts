@@ -597,6 +597,6 @@ export function contentIssuesToMessage(issues: ContentIssue[]): string {
   if (issues.length === 0) return "Konten siap diterbitkan."
   return issues
     .slice(0, 4)
-    .map((issue) => `${issue.path}: ${issue.message}`)
+    .map((issue) => `${issue.path}, ${issue.message}`)
     .join(" ")
 }

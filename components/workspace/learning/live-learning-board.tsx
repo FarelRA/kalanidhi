@@ -337,7 +337,7 @@ function CohortTable({
     },
     {
       id: "seats",
-      header: "Kursi",
+      header: "Peserta",
       cell: (row) => (
         <div className="w-28">
           <p className="text-[11px] tabular-nums text-ink">
@@ -372,7 +372,7 @@ function CohortTable({
         row.atRisk ? (
           <StatusStamp label={`${row.atRisk} peserta`} tone="danger" />
         ) : (
-          <span className="text-[11px] text-ink-muted">—</span>
+          <span className="text-[11px] text-ink-muted">-</span>
         ),
       className: "hidden lg:table-cell",
       headClassName: "hidden lg:table-cell",
@@ -779,7 +779,7 @@ function CohortDrawer({
       tone={cohort ? cohortTone(cohort.status) : "muted"}
       description={
         cohort
-          ? `${cohort.teacherName} · ${cohort.enrolled} dari ${cohort.capacity} kursi terisi`
+          ? `${cohort.teacherName} · ${cohort.enrolled} dari ${cohort.capacity} peserta terisi`
           : undefined
       }
     >
@@ -792,7 +792,7 @@ function CohortDrawer({
               { label: "Pengajar", value: cohort.teacherName },
               { label: "Mulai", value: formatWorkspaceDate(iso(cohort.startDate)) },
               { label: "Selesai", value: formatWorkspaceDate(iso(cohort.endDate)) },
-              { label: "Kursi", value: `${cohort.enrolled} / ${cohort.capacity}` },
+              { label: "Peserta", value: `${cohort.enrolled} / ${cohort.capacity}` },
               { label: "Selesai", value: `${cohort.completed} peserta` },
               { label: "Berisiko", value: `${cohort.atRisk} peserta` },
               {

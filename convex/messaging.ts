@@ -1031,7 +1031,7 @@ const conversations = {
       await notifyAdmins(ctx, {
         template: "support.requested",
         title: "Permintaan dukungan baru",
-        body: `${user.name}: ${subject || "Permintaan dukungan"}`,
+        body: `${user.name}, ${subject || "Permintaan dukungan"}`,
         payload: { conversationId },
       })
       return conversationId

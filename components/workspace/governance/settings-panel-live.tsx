@@ -244,7 +244,7 @@ export function SettingsPanelLive() {
           </Panel>
 
           <div className="space-y-4 lg:col-span-5">
-            <Panel eyebrow="Konsen" title="Izin yang kamu beri">
+            <Panel eyebrow="Persetujuan" title="Izin yang kamu beri">
               <ul className="space-y-2.5">
                 {CONSENT_KINDS.map((kind) => {
                   const latest = profile.consents.find((consent) => consent.kind === kind)
@@ -434,7 +434,7 @@ export function SettingsPanelLive() {
               </Button>
               {inviteToken ? (
                 <p className="mt-2 break-all border border-brass/40 bg-brass/10 p-2 text-[9px] text-ink-soft">
-                  Token undangan: {inviteToken}
+                  Token undangan {inviteToken}
                 </p>
               ) : null}
             </Panel>
@@ -519,7 +519,7 @@ export function SettingsPanelLive() {
 
       {admin && activeTab === "slas" && adminState ? (
         <div className="grid gap-4 lg:grid-cols-2">
-          <Panel eyebrow="Ambang" title="SLA operasi">
+          <Panel eyebrow="Ambang" title="Batas waktu operasi">
             <div className="grid gap-3">
               {adminState.slas.map((sla) => (
                 <SlaRow
@@ -667,7 +667,7 @@ export function SettingsPanelLive() {
           {issuedKey ? (
             <div className="mt-3 border border-brass/40 bg-brass/10 p-3">
               <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                Token baru — salin sekarang, tidak ditampilkan lagi
+                Token baru, salin sekarang, tidak ditampilkan lagi
               </p>
               <p className="mt-1 break-all font-mono text-[10px] text-ink">{issuedKey}</p>
               <Button
@@ -762,7 +762,7 @@ export function SettingsPanelLive() {
           {issuedSecret ? (
             <div className="mt-3 border border-brass/40 bg-brass/10 p-3">
               <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-                Rahasia penandatanganan — salin sekarang
+                Rahasia penandatanganan, salin sekarang
               </p>
               <p className="mt-1 break-all font-mono text-[10px] text-ink">{issuedSecret}</p>
             </div>
@@ -929,7 +929,7 @@ export function SettingsPanelLive() {
           </Panel>
           <Panel eyebrow="Wilayah" title="Wilayah dan zona waktu">
             <p className="text-[10.5px] leading-relaxed text-ink-soft">
-              Basis layanan: {adminState.regions.join(", ")}. Zona waktu {adminState.timezone}.
+              Basis layanan, {adminState.regions.join(", ")}. Zona waktu {adminState.timezone}.
             </p>
             <p className="mt-2 text-[9.5px] leading-relaxed text-ink-muted">
               Klaim cakupan nasional tidak dipakai. Praktisi dari wilayah lain dapat

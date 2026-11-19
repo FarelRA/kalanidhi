@@ -188,7 +188,7 @@ export function PeopleLive() {
             </p>
           </div>
         ) : (
-          <span className="text-[10px] text-ink-muted">—</span>
+          <span className="text-[10px] text-ink-muted">-</span>
         ),
       className: "hidden xl:table-cell",
       headClassName: "hidden xl:table-cell",
@@ -197,7 +197,7 @@ export function PeopleLive() {
       id: "region",
       header: "Wilayah",
       cell: (row) => (
-        <span className="text-[10.5px] text-ink-soft">{row.region || "—"}</span>
+        <span className="text-[10.5px] text-ink-soft">{row.region || "-"}</span>
       ),
       className: "hidden xl:table-cell",
       headClassName: "hidden xl:table-cell",
@@ -253,7 +253,7 @@ export function PeopleLive() {
         ariaLabel="Pilih tab orang"
       />
 
-      <Panel eyebrow="Direktori" title="Semua akun" bodyClassName="p-0">
+      <Panel eyebrow="Daftar" title="Semua akun" bodyClassName="p-0">
         <DataTable
           rows={rows ?? []}
           columns={columns}
@@ -318,7 +318,7 @@ export function PeopleLive() {
             <DialogTitle>Undang akun</DialogTitle>
             <DialogDescription>
               Pendaftaran peserta tetap publik. Undangan hanya untuk pengajar
-              atau pengelola; token ditampilkan sekali.
+              atau pengelola. Token ditampilkan sekali.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -356,7 +356,7 @@ export function PeopleLive() {
                 value={inviteReason}
                 onChange={(event) => setInviteReason(event.target.value)}
                 className="mt-1.5"
-                placeholder="Dossier atau kebutuhan operasional"
+                placeholder="Berkas pengajar atau kebutuhan operasional"
               />
             </div>
             {inviteToken ? (
@@ -471,7 +471,7 @@ function PersonDrawer({
               onClick={() =>
                 onReasonAction({
                   title: "Simpan peran",
-                  description: "Peran yang berubah dicatat sebagai grant atau revoke append-only.",
+                  description: "Peran yang berubah dicatat sebagai pemberian atau pencabutan yang hanya ditambah.",
                   label: "Simpan peran",
                   run: async (reason) => {
                     await setRolesMutation({
@@ -493,7 +493,7 @@ function PersonDrawer({
                 onClick={() =>
                   onReasonAction({
                     title: "Aktifkan akun",
-                    description: "Akses ruang kerja dipulihkan; sesi lama tidak dihidupkan kembali.",
+                    description: "Akses ruang kerja dipulihkan. Sesi lama tidak dihidupkan kembali.",
                     label: "Aktifkan",
                     run: async (reason) => {
                       await reactivate({ userId, reason })
@@ -546,7 +546,7 @@ function PersonDrawer({
           <DetailGrid
             items={[
               { label: "Status", value: <StatusStamp label={ACCOUNT_STATUS_LABELS[detail.user.status]} tone={roleTone(detail.user.status)} /> },
-              { label: "Wilayah", value: detail.user.region || "—" },
+              { label: "Wilayah", value: detail.user.region || "-" },
               { label: "Peran", value: detail.user.roles.map((role) => WORKSPACE_ROLE_LABELS[role]).join(", ") },
               { label: "Label", value: detail.user.roleLabel },
               {
@@ -588,14 +588,14 @@ function PersonDrawer({
               ))}
             </div>
             <p className="mt-2 text-[10px] leading-relaxed text-ink-muted">
-              Perubahan peran append-only. Pengelola tidak mewarisi penilaian
+              Perubahan peran hanya ditambah. Pengelola tidak mewarisi penilaian
               atau penjualan.
             </p>
           </DrawerSection>
 
           {detail.teacher ? (
             <DrawerSection
-              title="Dossier pengajar"
+              title="Berkas pengajar"
               aside={
                 <StatusStamp
                   label={
@@ -622,7 +622,7 @@ function PersonDrawer({
                 <div className="flex justify-between gap-3">
                   <dt className="text-ink-muted">Jalur</dt>
                   <dd className="text-right text-ink">
-                    {detail.teacher.pathIds.join(", ") || "—"}
+                    {detail.teacher.pathIds.join(", ") || "-"}
                   </dd>
                 </div>
                 <div className="flex justify-between gap-3">
@@ -658,7 +658,7 @@ function PersonDrawer({
                   onClick={() =>
                     onReasonAction({
                       title: "Tolak pengajuan",
-                      description: "Profil tetap draf; pengaju dapat memperbaiki dossier.",
+                      description: "Profil tetap draf, pengaju dapat memperbaiki berkas.",
                       label: "Tolak",
                       run: async (reason) => {
                         await verifyTeacher({
@@ -678,7 +678,7 @@ function PersonDrawer({
                   onClick={() =>
                     onReasonAction({
                       title: "Tangguhkan pengajar",
-                      description: "Profil tidak tampil; sertifikat yang sudah terbit tetap valid.",
+                      description: "Profil tidak tampil, sertifikat yang sudah terbit tetap valid.",
                       label: "Tangguhkan",
                       run: async (reason) => {
                         await verifyTeacher({
@@ -747,7 +747,7 @@ function PersonDrawer({
             ) : (
               <>
                 <p className="text-[11.5px] leading-relaxed text-ink-soft">
-                  Penjual aktif hanya setelah dossier pengajar terverifikasi atau
+                  Penjual aktif hanya setelah berkas pengajar terverifikasi atau
                   sertifikat terbit, dan seluruh checklist onboarding lengkap.
                 </p>
                 <Button
@@ -768,12 +768,12 @@ function PersonDrawer({
 
           {!detail.teacher && detail.user.roles.includes("teacher") ? (
             <DrawerSection
-              title="Dossier pengajar"
+              title="Berkas pengajar"
               aside={<StatusStamp label="Belum ada" tone="muted" />}
             >
               <p className="text-[11.5px] leading-relaxed text-ink-soft">
-                Akun ini sudah berperan pengajar tetapi belum punya dossier.
-                Lengkapi dossier agar jalur dan verifikasinya tercatat.
+                Akun ini sudah berperan pengajar tetapi belum punya berkas.
+                Lengkapi berkas agar jalur dan verifikasinya tercatat.
               </p>
               <Button
                 size="sm"
@@ -997,7 +997,7 @@ function PersonDrawer({
           <DialogHeader>
             <DialogTitle>Buat profil pengajar</DialogTitle>
             <DialogDescription>
-              Dossier dibuat sebagai draf. Verifikasi tetap keputusan terpisah.
+              Berkas dibuat sebagai draf. Verifikasi tetap keputusan terpisah.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -1112,7 +1112,7 @@ function PersonDrawer({
                 value={teacherReason}
                 onChange={(event) => setTeacherReason(event.target.value)}
                 className="mt-1.5"
-                placeholder="Dasar pembuatan dossier, tercatat di audit."
+                placeholder="Dasar pembuatan berkas, tercatat di audit."
               />
             </div>
           </div>
@@ -1134,17 +1134,17 @@ function PersonDrawer({
                     pathIds: teacherDraft.pathId ? [teacherDraft.pathId] : [],
                     reason: teacherReason,
                   })
-                  toast("Dossier pengajar dibuat")
+                  toast("Berkas pengajar dibuat")
                   setTeacherOpen(false)
                 } catch (error) {
-                  toast("Dossier gagal dibuat", {
+                  toast("Berkas gagal dibuat", {
                     description:
                       error instanceof Error ? error.message : "Periksa isian.",
                   })
                 }
               }}
             >
-              Simpan dossier
+              Simpan berkas
             </Button>
           </DialogFooter>
         </DialogContent>

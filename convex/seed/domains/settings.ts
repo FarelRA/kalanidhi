@@ -177,7 +177,7 @@ export const seedSettings = internalMutation({
         key: "verification",
         channel: "whatsapp" as const,
         subject: undefined,
-        body: "Kode verifikasi KalaNidhi: {{token}}. Berlaku 15 menit.",
+        body: "Kode verifikasi KalaNidhi, {{token}}. Berlaku 15 menit.",
       },
       {
         key: "order.paid",

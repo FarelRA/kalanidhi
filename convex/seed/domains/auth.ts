@@ -146,19 +146,19 @@ export const seedAuthAccounts = internalAction({
             }
           }
           throw new Error(
-            `Seed auth: gagal mendaftarkan ${candidate.email}: ${message}`,
+            `Seed auth, gagal mendaftarkan ${candidate.email}: ${message}`,
           )
         }
         authUserId = await findAuthUserByEmail(ctx, candidate.email)
         if (!authUserId) {
           throw new Error(
-            `Seed auth: ${candidate.email} sudah ada di Better Auth tetapi id-nya tidak ditemukan. Jalankan ulang setelah memeriksa komponen betterAuth.`,
+            `Seed auth, ${candidate.email} sudah ada di Better Auth tetapi id-nya tidak ditemukan. Jalankan ulang setelah memeriksa komponen betterAuth.`,
           )
         }
       }
       if (!authUserId) {
         throw new Error(
-          `Seed auth: Better Auth tidak mengembalikan id untuk ${candidate.email}.`,
+          `Seed auth, Better Auth tidak mengembalikan id untuk ${candidate.email}.`,
         )
       }
       links.push({

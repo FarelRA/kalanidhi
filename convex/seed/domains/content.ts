@@ -145,7 +145,7 @@ export const seedContent = internalMutation({
 
     for (const [order, teacher] of seededTeachers.entries()) {
       const user = users.get(teacher.name)
-      if (!user) throw new Error(`Seed user missing: ${teacher.name}`)
+      if (!user) throw new Error(`Seed user missing, ${teacher.name}`)
       const isReview = !teacher.verified
       const path = pathForTeacher(teacher)
       await ctx.db.insert("teachers", {
@@ -233,7 +233,7 @@ export const seedContent = internalMutation({
     >
     const draftHero = draftCopy.hero as { title: string[] }
     draftHero.title = [
-      "Duduk di bangku ini.",
+      "Mulai dari kelas ini.",
       "Nanti kamu yang mengajari.",
     ]
     const scheduledCopy = JSON.parse(JSON.stringify(revisionCopy)) as Record<
@@ -292,22 +292,22 @@ export const seedContent = internalMutation({
     const seoRoutes = [
       {
         route: PUBLIC_ROUTES.home,
-        title: `${siteName} — Belajar praktik budaya Nusantara`,
+        title: `${siteName} | Belajar praktik budaya Nusantara`,
         description: siteSeed.metadata.description,
       },
       ...seededPaths.map((path) => ({
         route: pathHref(path.slug),
-        title: `${path.title} — ${siteName}`,
+        title: `${path.title} | ${siteName}`,
         description: path.subtitle,
       })),
       ...seededWorks.map((work) => ({
         route: workHref(work.slug),
-        title: `${work.title} — ${siteName}`,
+        title: `${work.title} | ${siteName}`,
         description: work.description,
       })),
       {
         route: PUBLIC_ROUTES.verify,
-        title: `Verifikasi sertifikat — ${siteName}`,
+        title: `Verifikasi sertifikat | ${siteName}`,
         description:
           "Periksa status sertifikat platform dan Kartu Karya KalaNidhi Digital.",
       },

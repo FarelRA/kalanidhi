@@ -55,7 +55,7 @@ export function WhatsappGate({ viewer }: { viewer: Viewer }) {
           Nomor WhatsApp adalah identitas utama akun KalaNidhi. Ruang kerja
           terbuka setelah nomor{" "}
           <span className="font-semibold text-ink">
-            {viewer.phone || state?.phone || "—"}
+            {viewer.phone || state?.phone || "-"}
           </span>{" "}
           mengirim pesan verifikasi.
         </p>

@@ -135,7 +135,7 @@ export function CheckoutForm({
           />
           <span>
             Saya setuju dihubungi melalui email atau WhatsApp hanya untuk
-            keperluan pesanan ini: pembayaran, pengiriman, dan penyelesaian.
+            keperluan pesanan ini, yaitu pembayaran, pengiriman, dan penyelesaian.
           </span>
         </label>
       </div>
@@ -211,7 +211,7 @@ export function CheckoutForm({
 
       <p className="mt-3 flex items-start gap-2 text-[10px] leading-relaxed text-ink-muted">
         <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-moss" aria-hidden="true" />
-        Nominal akhir dapat berbeda 1–999 rupiah sebagai penanda rekonsiliasi.
+        Nominal akhir dapat berbeda 1 sampai 999 rupiah sebagai penanda rekonsiliasi.
         Nominal itu bukan pendapatan platform dan akan ditampilkan sebelum
         membayar. Baca{" "}
         <Link href="/" className="underline underline-offset-2 hover:text-copper-dark">

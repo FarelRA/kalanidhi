@@ -114,7 +114,7 @@ export default async function OrderStatusPage({
         </h1>
         <p className="body-copy mt-3 max-w-2xl">
           Halaman ini diperbarui dari catatan pesanan, bukan dari laporan
-          peramban. Jangan bagikan tautannya; siapa pun yang memegang tautan dapat
+          peramban. Jangan bagikan tautannya. Siapa pun yang punya tautan dapat
           melihat status pesanan ini.
         </p>
 

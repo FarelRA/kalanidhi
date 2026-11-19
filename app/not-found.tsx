@@ -11,7 +11,7 @@ export default function NotFound() {
         halaman tidak ditemukan
       </p>
       <h1 className="heading-section mt-4 max-w-xl">
-        Bangku ini belum tersambung.
+        Halaman ini belum tersambung.
       </h1>
       <p className="body-copy mt-4 max-w-md">
         Alamat yang kamu buka mungkin sudah berpindah. Kembali ke beranda untuk

@@ -138,7 +138,7 @@ export default async function TeacherDetailPage({
                   href={interestHref({
                     teacher: teacher.slug,
                     intent: "consultation",
-                    interest: `Profil pengajar: ${teacher.name}`,
+                    interest: `Profil pengajar, ${teacher.name}`,
                   })}
                 >
                   {copy.askCta}

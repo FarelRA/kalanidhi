@@ -115,7 +115,7 @@ describe("lesson reader rendering", () => {
       createElement(LessonReaderView, { lesson: locked }),
     )
 
-    expect(html).toContain("Pelajaran terkunci")
+    expect(html).toContain("Pelajaran belum terbuka")
     expect(html).toContain("terdaftar pada jalur ini")
     expect(html).toContain("Paragraf pertama menjelaskan garis pensil.")
     expect(html).not.toContain("Paragraf kedua menjelaskan lilin panas.")

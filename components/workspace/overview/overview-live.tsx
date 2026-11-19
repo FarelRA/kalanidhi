@@ -182,7 +182,7 @@ function AdminLiveOverview({ data }: { data: AdminOverview }) {
                 <dt className="text-[10.5px] text-ink-muted">Umur terbit</dt>
                 <dd className="text-[11px] tabular-nums text-ink">
                   {data.content.freshnessDays === null
-                    ? "—"
+                    ? "-"
                     : `${data.content.freshnessDays} hari`}
                 </dd>
               </div>
@@ -192,7 +192,7 @@ function AdminLiveOverview({ data }: { data: AdminOverview }) {
             </Button>
           </Panel>
 
-          <Panel eyebrow="Jejak audit" title="Aktivitas terakhir">
+          <Panel eyebrow="Riwayat audit" title="Aktivitas terakhir">
             {data.activity.length > 0 ? (
               <ActivityFeed
                 items={data.activity.map((row, index) => activityItem(row, index))}
@@ -574,7 +574,7 @@ function StudentOverviewLive({ data }: { data: ViewerOverview }) {
                     {enrollment.totalLessons === 0
                       ? "Kurikulum jalur ini belum diterbitkan."
                       : enrollment.nextLesson
-                        ? `Berikutnya: ${enrollment.nextLesson}`
+                        ? `Berikutnya, ${enrollment.nextLesson}`
                         : "Semua pelajaran selesai."}
                     {enrollment.deadlineAt
                       ? ` · Batas ${formatWorkspaceDate(iso(enrollment.deadlineAt))}`
@@ -1032,7 +1032,7 @@ function AdminOverviewLive() {
   if (data === undefined) {
     return (
       <div className="space-y-6">
-        <PageHeader eyebrow="Hari ini" title="Memuat meja kerja." />
+        <PageHeader eyebrow="Hari ini" title="Memuat ringkasan." />
         <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, index) => (
             <div
@@ -1049,7 +1049,7 @@ function AdminOverviewLive() {
     <div className="space-y-6">
       <PageHeader
         eyebrow={`${formatJakarta(data.generatedAt)} · ${profile.user.region}`}
-        title="Hari ini di bangku."
+        title="Ringkasan hari ini."
         description="Antrean keputusan, kesehatan integrasi, dan aktivitas terakhir dari catatan nyata. Modul yang belum terhubung ditandai eksplisit."
         meta={
           <div className="flex flex-wrap items-center gap-2">

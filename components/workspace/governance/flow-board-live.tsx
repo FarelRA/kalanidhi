@@ -71,7 +71,7 @@ export function FlowBoardLive() {
     return (
       <EmptyState
         title="Belum ada definisi alur"
-        description="Definisi bawaan tersedia di modul alur; muat ulang atau periksa konfigurasi deployment."
+        description="Definisi bawaan tersedia di modul alur. Muat ulang atau periksa konfigurasi deployment."
       />
     )
   }
@@ -88,7 +88,7 @@ export function FlowBoardLive() {
         owner: active.sla.owner,
       })
       toast("Ambang SLA disimpan", {
-        description: "Berlaku untuk antrean dan statistik berikutnya; perubahan masuk audit.",
+        description: "Berlaku untuk antrean dan statistik berikutnya. Perubahan masuk audit.",
       })
     } catch (error) {
       toast("SLA gagal disimpan", {
@@ -220,7 +220,7 @@ export function FlowBoardLive() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Alur"
-        title="Mesin keadaan yang menjaga janji."
+        title="Alur status dan perubahannya."
         description="Definisi alur, penjaga transisi, SLA, otomasi, dan catatan macet dari tabel nyata. Override memerlukan alasan dan selalu masuk audit."
         actions={
           <Button variant="outline" onClick={exportDefinitions}>
@@ -275,7 +275,7 @@ export function FlowBoardLive() {
 
         <div className="space-y-4 xl:col-span-8">
           <Panel
-            eyebrow="Mesin keadaan"
+            eyebrow="Alur status"
             title={active?.name ?? ""}
             bodyClassName="p-4"
             action={<StatusStamp label={`${active?.transitions.length ?? 0} transisi`} tone="progress" />}
@@ -395,7 +395,7 @@ export function FlowBoardLive() {
               getSearchText={(row) => `${row.label} ${row.flowName} ${row.ownerName ?? ""}`}
               minWidth={720}
               emptyTitle="Tidak ada catatan macet"
-              emptyDescription="Antrean bersih pada definisi dan SLA saat ini."
+              emptyDescription="Tidak ada catatan macet pada definisi dan SLA saat ini."
             />
           </Panel>
         </div>
@@ -451,7 +451,7 @@ export function FlowBoardLive() {
                     <option value="">Pilih transisi yang sah</option>
                     {overrideTransitions.map((transition) => (
                       <option key={transition.to} value={transition.to}>
-                        {transition.to} — {transition.guard}
+                        {transition.to}, {transition.guard}
                       </option>
                     ))}
                   </select>

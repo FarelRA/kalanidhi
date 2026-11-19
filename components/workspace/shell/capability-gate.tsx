@@ -22,10 +22,10 @@ export function CapabilityGate({ children }: { children: React.ReactNode }) {
         <LockKeyhole className="size-5" aria-hidden="true" />
       </span>
       <p className="mt-5 text-[9.5px] font-bold uppercase tracking-[0.14em] text-copper-dark">
-        Ruang terkunci
+        Akses belum terbuka
       </p>
       <h1 className="heading-section mt-2 text-[clamp(1.8rem,4vw,2.7rem)]">
-        Peran ini belum membuka ruang tersebut.
+        Peran ini belum memberi akses ke halaman ini.
       </h1>
       <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-ink-soft">
         Anda masuk sebagai <strong>{profile.user.roleLabel}</strong>. Navigasi

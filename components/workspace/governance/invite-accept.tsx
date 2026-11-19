@@ -30,7 +30,7 @@ export function InviteAccept() {
     try {
       const next = await accept({ token: token.trim() })
       toast("Undangan diterima", {
-        description: `Peran aktif: ${next.roles.join(", ")}.`,
+        description: `Peran aktif, ${next.roles.join(", ")}.`,
       })
       setToken("")
       router.refresh()

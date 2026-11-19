@@ -241,7 +241,7 @@ export function MessageCenterLive() {
     const timer = setTimeout(
       () => {
         setBreakGlass(null)
-        toast("Akses break-glass berakhir", {
+        toast("Akses darurat berakhir", {
           description: "Buka kembali dengan alasan bila masih diperlukan.",
         })
       },
@@ -773,10 +773,10 @@ export function MessageCenterLive() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Pesan"
-        title={moderator ? "Percakapan dan moderasi." : "Percakapan di sekitar bangku."}
+        title={moderator ? "Percakapan dan moderasi." : "Percakapan seputar kelas."}
         description={
           moderator
-            ? "Metadata percakapan terlihat untuk operasi. Konten pesan memerlukan break-glass dengan alasan dan tercatat di audit."
+            ? "Metadata percakapan terlihat untuk operasi. Konten pesan memerlukan akses darurat dengan alasan dan tercatat di audit."
             : "Pesan dengan pengajar dan kohort, catatan suara, serta pemberitahuan dalam aplikasi. Tautan luar ditandai tanpa pratinjau."
         }
         actions={
@@ -816,7 +816,7 @@ export function MessageCenterLive() {
           <p className="min-w-0 flex-1">
             <strong className="text-ink">Mode pengelola.</strong> Metadata
             percakapan terlihat. Konten pesan dan lampiran dilindungi
-            break-glass dengan alasan dan audit.
+            akses darurat dengan alasan dan audit.
           </p>
           <StatusStamp
             label={breakGlass ? "Akses tercatat" : "Belum dibuka"}
@@ -848,7 +848,7 @@ export function MessageCenterLive() {
           title="Belum ada percakapan."
           description={
             moderator
-              ? "Percakapan akan muncul di sini ketika peserta, pengajar, atau dukungan membuka ruang."
+              ? "Percakapan akan muncul di sini ketika peserta, pengajar, atau dukungan memulai percakapan."
               : "Mulai percakapan dengan pengajar kohort atau buat permintaan dukungan. Percakapan tersimpan di ruang kerja."
           }
           action={
@@ -1153,7 +1153,7 @@ export function MessageCenterLive() {
                 </>
               ) : (
                 <p className="text-[11px] text-ink-muted">
-                  Konten dilindungi break-glass. Buka dengan alasan untuk membaca.
+                  Konten dilindungi akses darurat. Buka dengan alasan untuk membaca.
                 </p>
               )}
             </div>
@@ -1424,7 +1424,7 @@ export function MessageCenterLive() {
               value={gateReason}
               onChange={(event) => setGateReason(event.target.value)}
               className="mt-2 min-h-24"
-              placeholder="Alasan: meninjau laporan tautan luar pada percakapan ini."
+              placeholder="Alasan, meninjau laporan tautan luar pada percakapan ini."
             />
           </div>
           <DialogFooter>
@@ -1465,7 +1465,7 @@ export function MessageCenterLive() {
               value={reportReason}
               onChange={(event) => setReportReason(event.target.value)}
               className="mt-2 min-h-24"
-              placeholder="Alasan: tautan luar tidak diminta dan berulang."
+              placeholder="Alasan, tautan luar tidak diminta dan berulang."
             />
           </div>
           <DialogFooter>
@@ -1555,7 +1555,7 @@ export function MessageCenterLive() {
               value={moderationReason}
               onChange={(event) => setModerationReason(event.target.value)}
               className="mt-2 min-h-24"
-              placeholder="Alasan: pesan berulang setelah peringatan."
+              placeholder="Alasan, pesan berulang setelah peringatan."
             />
           </div>
           <DialogFooter>
@@ -1583,7 +1583,7 @@ export function MessageCenterLive() {
             <DialogTitle>Tinjau laporan</DialogTitle>
             <DialogDescription>
               {flagTarget
-                ? `${flagTarget.reporterName}: ${flagTarget.reason}`
+                ? `${flagTarget.reporterName}, ${flagTarget.reason}`
                 : "Laporan pesan"}
             </DialogDescription>
           </DialogHeader>
@@ -1595,7 +1595,7 @@ export function MessageCenterLive() {
                 value={flagResolution}
                 onChange={(event) => setFlagResolution(event.target.value)}
                 className="mt-2 min-h-24"
-                placeholder="Alasan: pesan dihapus karena tautan berulang."
+                placeholder="Alasan, pesan dihapus karena tautan berulang."
               />
             </div>
             <label className="flex items-center gap-2 text-[12px] text-ink-soft">
@@ -1710,7 +1710,7 @@ function ConversationRow({
         </span>
         <span className="mt-1 line-clamp-2 block text-[10px] leading-snug text-ink-muted">
           {conversation.contentLocked
-            ? "Konten dilindungi break-glass"
+            ? "Konten dilindungi akses darurat"
             : (conversation.lastMessagePreview ?? "Belum ada pesan")}
         </span>
       </span>
@@ -1731,7 +1731,7 @@ function LockedContent({
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-cream/85 p-5 text-center backdrop-blur-[2px]">
       <LockKeyhole className="size-6 text-copper-dark" aria-hidden="true" />
       <p className="mt-3 font-heading text-lg text-ink">
-        Konten dilindungi break-glass
+        Konten dilindungi akses darurat
       </p>
       <p className="mt-1 max-w-xs text-[11px] leading-relaxed text-ink-muted">
         Buka dengan alasan untuk membaca pesan, memutar catatan suara, atau
@@ -1789,7 +1789,7 @@ function MessageBubble({
       <div className={cn("flex", mine ? "justify-end" : "justify-start")}>
         <div className="max-w-[86%] border border-dashed border-ink/25 bg-paper/50 px-3 py-2 text-[10.5px] text-ink-muted sm:max-w-[74%]">
           {message.removedBy
-            ? `Pesan dihapus moderator${message.removalReason ? `: ${message.removalReason}` : "."}`
+            ? `Pesan dihapus moderator${message.removalReason ? `, ${message.removalReason}` : "."}`
             : "Pesan dihapus."}
         </div>
       </div>
@@ -1859,7 +1859,7 @@ function MessageBubble({
             {message.containsExternalLink ? (
               <p className="mt-1.5 flex items-center gap-1 text-[9px] text-[#8a5a16]">
                 <AlertTriangle className="size-3" aria-hidden="true" />
-                Tautan luar. Pratinjau dimatikan; periksa sebelum membuka.
+                Tautan luar. Pratinjau dimatikan. Periksa sebelum membuka.
               </p>
             ) : null}
           </>
@@ -2228,7 +2228,7 @@ function ModerationPanel({
     <Panel eyebrow="Moderasi" title="Laporan pesan">
       {flags.length === 0 ? (
         <p className="text-[11px] leading-relaxed text-ink-muted">
-          Belum ada laporan terbuka. Konten pesan tetap memerlukan break-glass.
+          Belum ada laporan terbuka. Konten pesan tetap memerlukan akses darurat.
         </p>
       ) : (
         <ul className="space-y-2">

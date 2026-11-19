@@ -92,7 +92,7 @@ export const authComponent: ReturnType<typeof createClient<DataModel>> =
             action: "grant",
             actorId: invite?.invitedBy ?? "system",
             reason: invite
-              ? `Invitation accepted: ${invite.reason}`
+              ? `Invitation accepted, ${invite.reason}`
               : "Student registration",
             createdAt: timestamp,
           })

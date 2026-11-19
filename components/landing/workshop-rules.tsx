@@ -81,7 +81,7 @@ export function WorkshopRules({
                   {ethics.card.sourceTitle}
                 </span>
                 <span className="stamp border-moss bg-moss text-cream-2">
-                  {sources.length > 0 ? `${sources.length} sumber` : "—"}
+                  {sources.length > 0 ? `${sources.length} sumber` : "-"}
                 </span>
               </div>
               {sources.length === 0 ? (

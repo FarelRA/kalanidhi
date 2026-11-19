@@ -52,14 +52,14 @@ export const siteSeed: SeedSiteCopy = {
     siteName: "KalaNidhi Digital",
     siteUrl: "https://kalanidhi.site",
     areaServed: "Daerah Istimewa Yogyakarta",
-    title: "KalaNidhi Digital: belajar sampai bisa, bisa sampai mengajari",
+    title: "KalaNidhi Digital | Belajar sampai bisa, bisa sampai mengajari",
     description:
       "Platform belajar praktik budaya Nusantara. Tugas dinilai pengajar, sertifikat platform bisa diverifikasi, karya punya Kartu Karya. Lulusan dapat kembali sebagai pengajar, penilai, atau pemasok.",
-    ogTitle: "KalaNidhi Digital: belajar sampai bisa, bisa sampai mengajari",
+    ogTitle: "KalaNidhi Digital | Belajar sampai bisa, bisa sampai mengajari",
     ogDescription:
       "Bidang budaya dipetakan, jalur belajar dibuka bertahap. Belajar langsung dari pengajar, dinilai manusia, lalu berkarya dengan Kartu Karya.",
     twitterTitle:
-      "KalaNidhi Digital: belajar sampai bisa, bisa sampai mengajari",
+      "KalaNidhi Digital | Belajar sampai bisa, bisa sampai mengajari",
     twitterDescription:
       "Jalur belajar praktik budaya Nusantara dengan penilaian pengajar dan sertifikat platform.",
     keywords: [
@@ -85,11 +85,11 @@ export const siteSeed: SeedSiteCopy = {
       imageFile: "og-kalanidhi.jpg",
       width: 1200,
       height: 630,
-      alt: "Plat KalaNidhi Digital: belajar praktik budaya Nusantara",
+      alt: "Plat KalaNidhi Digital, belajar praktik budaya Nusantara",
     },
   },
   header: {
-    brandAria: "KalaNidhi Digital: kembali ke atas",
+    brandAria: "KalaNidhi Digital, kembali ke atas",
     mainNavAria: "Navigasi utama",
     mobileNavAria: "Navigasi mobile",
     searchAria: "Cari jalur, pengajar, bidang, atau karya",
@@ -106,11 +106,11 @@ export const siteSeed: SeedSiteCopy = {
     homeLabel: "Beranda",
   },
   hero: {
-    title: ["Duduk di bangku ini.", "Nanti kamu yang mengajari."],
+    title: ["Mulai dari kelas ini.", "Nanti kamu yang mengajari."],
     description:
       "KalaNidhi Digital mempertemukan pelajar dengan pengajar batik bambu, aksara Jawa, pranatacara, gerabah, karawitan, tari, dan praktik hidup lain di Yogyakarta. Kerjakan tugas dengan tangan atau suara, kirim hasilnya, terima koreksi pengajar, lalu bawa karya atau jasamu ke pembeli. Lulusan yang siap kembali mengajar dan membuka jalur untuk pelajar berikutnya.",
     primaryCta: "Pilih jalur yang terbuka",
-    secondaryCta: "Lihat lingkarannya",
+    secondaryCta: "Lihat alurnya",
     plate: {
       imageFile: "hero-canting.jpg",
       alt: "Tangan membatik dengan canting di atas kain",
@@ -123,7 +123,7 @@ export const siteSeed: SeedSiteCopy = {
   },
   traction: {
     label: "Capaian 2026",
-    note: "Angka dihitung dari catatan platform: bidang, pengajar terbit, peserta aktif, tugas yang dinilai, dan karya terbit.",
+    note: "Angka dihitung dari catatan platform, bidang, pengajar terbit, peserta aktif, tugas yang dinilai, dan karya terbit.",
     figures: [
       { metric: "fields", label: "bidang budaya dipetakan" },
       { metric: "teachers", label: "pengajar dan praktisi" },
@@ -134,14 +134,14 @@ export const siteSeed: SeedSiteCopy = {
   },
   loop: {
     label: "Cara kerja",
-    title: "Satu bangku, lima langkah, lalu kembali ke awal.",
+    title: "Satu alur, lima langkah, lalu kembali ke awal.",
     description:
-      "Belajar, dinilai, tersertifikasi, berkarya. Empat langkah inti itu berputar di bangku yang sama. Langkah kelima membuka jalur kembali: lulusan bisa menjadi pengajar pendamping, penilai, atau pemasok. Dari situ jalur baru dibuka, dan pelajar baru masuk.",
+      "Belajar, dinilai, tersertifikasi, berkarya. Empat langkah inti itu terjadi berurutan. Langkah kelima membuka jalur kembali, lulusan bisa menjadi pengajar pendamping, penilai, atau pemasok. Dari situ jalur baru dibuka, dan pelajar baru masuk.",
     returnLabel: "jalur kembali",
     returnNote:
-      "Karya yang selesai dibawa kembali ke bangku pertama. Lulusan yang mengajar menaruh alatnya di rak, dan pelajar berikutnya duduk.",
+      "Lulusan dapat kembali sebagai pengajar pendamping, penilai, atau pemasok. Peran itu membuka kelas berikutnya.",
     returnCaveat:
-      "Jalur kembali tidak menjanjikan semua lulusan mengajar. Pintu ini disiapkan untuk pengajar pendamping, penilai tugas, atau pemasok bahan. Setiap pintu yang terisi membuka jalur baru.",
+      "Jalur kembali tidak menjanjikan semua lulusan mengajar. Peran ini disiapkan untuk pengajar pendamping, penilai tugas, atau pemasok bahan. Setiap peran yang terisi membuka jalur baru.",
     stages: [
       {
         code: "01",
@@ -171,20 +171,20 @@ export const siteSeed: SeedSiteCopy = {
         code: "05",
         title: "Kembali mengajar",
         description:
-          "Lulusan dapat mengajukan diri sebagai pengajar pendamping, penilai, atau pemasok. Pasokan dan jalur baru tumbuh dari sini.",
+          "Lulusan dapat mengajukan diri sebagai pengajar pendamping, penilai, atau pemasok. Pasokan dan jalur baru dibuka dari sini.",
       },
     ],
   },
   catalog: {
     label: "Peta bidang",
-    title: "Bidang ini tumbuh satu per satu, bersama pengajarnya.",
+    title: "Bidang ini dibuka bertahap, bersama pengajarnya.",
     description:
-      "Katalog tumbuh dari pengajar yang masuk. Peta di bawah menunjukkan mana yang sudah bisa dikerjakan sekarang, mana yang sedang disiapkan, dan mana yang masih menunggu pengajar.",
+      "Katalog bertambah dari pengajar yang masuk. Peta di bawah menunjukkan mana yang sudah bisa dikerjakan sekarang, mana yang sedang disiapkan, dan mana yang masih menunggu pengajar.",
     cta: "Lihat jalur yang terbuka",
     groups: [
       {
         status: "Terbuka",
-        title: "Sudah di bangku",
+        title: "Sudah terbuka",
         blurb:
           "Bisa dimulai sekarang, dengan pengajar dan kurikulum yang siap.",
       },
@@ -205,9 +205,9 @@ export const siteSeed: SeedSiteCopy = {
   sections: {
     paths: {
       label: "Jalur belajar",
-      title: "Jalur yang sudah terbuka, satu per satu.",
+      title: "Jalur yang sudah terbuka.",
       description:
-        "Setiap jalur punya pengajar, modul, dan tugas praktik yang dinilai manusia. Pilih yang paling dekat dengan tanganmu sekarang.",
+        "Setiap jalur punya pengajar, modul, dan tugas praktik yang dinilai manusia. Pilih yang paling dekat dengan minatmu sekarang.",
       detailCta: "Buka rincian",
       openCta: "Daftar minat",
       plannedCta: "Catat minat",
@@ -224,9 +224,9 @@ export const siteSeed: SeedSiteCopy = {
     },
     teachers: {
       label: "Pengajar",
-      title: "Tangan yang mengajari.",
+      title: "Pengajar yang masih berkarya.",
       description:
-        "Mereka masih mengerjakan praktiknya. Itu sebabnya koreksinya spesifik: tekanan canting, arah jarum, napas kalimat.",
+        "Mereka masih mengerjakan praktiknya. Itu sebabnya koreksinya spesifik, tekanan canting, arah jarum, jeda kalimat.",
       profileCta: "Baca profil",
       dialogLabel: "Profil pengajar",
       askCta: "Tanya lewat formulir",
@@ -235,9 +235,9 @@ export const siteSeed: SeedSiteCopy = {
     },
     works: {
       label: "Karya dan jasa",
-      title: "Dari bangku ke pembeli.",
+      title: "Dari kelas ke pembeli.",
       description:
-        "Karya di bawah ini lahir dari tugas yang dinilai. Setiap karya membawa Kartu Karya: pembuat, teknik, pengajar, dan jejak prosesnya.",
+        "Karya di bawah ini dibuat dari tugas yang dinilai. Setiap karya membawa Kartu Karya, pembuat, teknik, pengajar, dan riwayat prosesnya.",
       featuredLabel: "Karya pilihan",
       serviceLabel: "Jasa pilihan",
       priceLabel: "Harga karya",
@@ -260,17 +260,17 @@ export const siteSeed: SeedSiteCopy = {
     },
     faq: {
       label: "Pertanyaan",
-      title: "Tanya dulu sebelum duduk.",
+      title: "Tanya sebelum mendaftar.",
       description:
         "Jawaban singkat untuk hal yang paling sering ditanyakan sebelum orang mengirim tugas pertama.",
-      policyCta: "Baca aturan bengkel",
+      policyCta: "Baca aturan sumber",
       askCta: "Tanya lewat formulir",
       askInterest: "Pertanyaan umum",
       emptyState: "Belum ada pertanyaan umum yang terbit di Convex.",
     },
     closing: {
       label: "Mulai dari sini",
-      title: "Bangku berikutnya kosong.",
+      title: "Kelas berikutnya masih kosong.",
       description:
         "Pilih jalur, kerjakan tugas pertama, dan kirim untuk dikoreksi. Kalau sudah siap, kamu bisa kembali mengajar dan membuka jalur untuk orang berikutnya.",
       primaryCta: "Daftar minat",
@@ -295,13 +295,13 @@ export const siteSeed: SeedSiteCopy = {
     ],
     activityLabel: "Yang dikerjakan",
     provenance:
-      "Rujukan: Pranata Mangsa versi Kasunanan Surakarta (Daldjoeni, 1984); berlaku lokal di wilayah Merapi-Lawu. Penanggalan dapat bergeser mengikuti cuaca.",
+      "Rujukan, Pranata Mangsa versi Kasunanan Surakarta (Daldjoeni, 1984), berlaku lokal di wilayah Merapi-Lawu. Penanggalan dapat bergeser mengikuti cuaca.",
   },
   ethics: {
-    label: "Aturan bengkel",
-    title: "Setiap pengetahuan membawa nama, sumber, dan pembagian.",
+    label: "Aturan sumber dan bagi hasil",
+    title: "Setiap pengetahuan mencantumkan nama, sumber, dan bagi hasil.",
     description:
-      "Kartu Sumber Budaya tampil di jalur, karya, dan pustaka. Isinya mencatat sumber materi, rujukan, tanggal pencatatan, tingkat akses, dan aliran nilai ekonomi. Kami menuliskannya sebelum kamu memutuskan.",
+      "Kartu Sumber Budaya tampil di jalur, karya, dan pustaka. Isinya mencatat sumber materi, rujukan, tanggal pencatatan, tingkat akses, dan pembagian nilai ekonomi. Kami menuliskannya sebelum kamu memutuskan.",
     principles: [
       {
         title: "Sumber yang bisa dilacak",
@@ -316,7 +316,7 @@ export const siteSeed: SeedSiteCopy = {
       {
         title: "Bagi hasil sebelum transaksi",
         description:
-          "Rincian pembagian ditampilkan saat kamu masih bisa memutuskan, bukan setelah uang berpindah.",
+          "Rincian pembagian ditampilkan saat kamu masih bisa memutuskan, bukan setelah pembayaran terjadi.",
       },
     ],
     accessLevels: [
@@ -357,9 +357,9 @@ export const siteSeed: SeedSiteCopy = {
   },
   institution: {
     label: "Untuk institusi",
-    title: "Bawa kelasmu ke bangku.",
+    title: "Buka kelas untuk institusimu.",
     description:
-      "Program institusi disusun setelah sesi pemetaan kebutuhan. Belum ada paket siap pakai; kurikulum, jumlah peserta, dan izin dibicarakan lebih dulu.",
+      "Program institusi disusun setelah sesi pemetaan kebutuhan. Belum ada paket siap pakai, kurikulum, jumlah peserta, dan izin dibicarakan lebih dulu.",
     segments: [
       "Sekolah",
       "EO dan wedding organizer",
@@ -369,14 +369,14 @@ export const siteSeed: SeedSiteCopy = {
     points: [
       "Kurikulum disesuaikan dengan jumlah peserta dan durasi",
       "Laporan progres dan rekap kehadiran setiap pekan",
-      "Alokasi kursi, jadwal, dan penagihan institusi",
+      "Jumlah peserta, jadwal, dan penagihan institusi",
       "Pendampingan kurator untuk konteks budaya dan izin",
     ],
     brief: [
       ["Format", "Kelas mandiri dan sesi kurator"],
       ["Durasi", "4-6 pekan"],
       ["Laporan", "Progres dan kehadiran"],
-      ["Kursi minimum", "12 peserta"],
+      ["Peserta minimum", "12 peserta"],
     ],
     cta: "Minta penawaran",
     note: "Paket dan harga disusun setelah sesi pemetaan kebutuhan.",
@@ -389,9 +389,9 @@ export const siteSeed: SeedSiteCopy = {
       "Platform belajar praktik budaya Nusantara. Dinilai pengajar, tersertifikasi platform, lalu tersambung ke karya dan jasa. Lulusan dapat kembali sebagai pengajar, penilai, atau pemasok.",
     columns: [
       {
-        title: "Isi bangku",
+        title: "Isi platform",
         links: [
-          { label: "Lingkaran", href: ABOUT_LOOP_HREF },
+          { label: "Alur belajar", href: ABOUT_LOOP_HREF },
           { label: "Bidang", href: PUBLIC_ROUTES.fields },
           { label: "Jalur belajar", href: PUBLIC_ROUTES.paths },
           { label: "Pengajar", href: PUBLIC_ROUTES.teachers },
@@ -440,7 +440,7 @@ export const siteSeed: SeedSiteCopy = {
     },
   },
   navigation: [
-    { label: "Lingkaran", href: ABOUT_LOOP_HREF },
+    { label: "Alur belajar", href: ABOUT_LOOP_HREF },
     { label: "Bidang", href: PUBLIC_ROUTES.fields },
     { label: "Jalur", href: PUBLIC_ROUTES.paths },
     { label: "Pengajar", href: PUBLIC_ROUTES.teachers },
@@ -583,8 +583,8 @@ export const siteSeed: SeedSiteCopy = {
     pathComingSoon: "Sedang disusun, daftar tunggu dibuka",
     pages: [
       {
-        label: "Cara kerja lingkaran",
-        description: "Lima tahap di bangku yang sama",
+        label: "Cara kerja alur",
+        description: "Lima tahap dalam satu alur",
         href: "#lingkaran",
       },
       {
@@ -663,7 +663,7 @@ export const catalogFieldsSeed: CatalogField[] = [
     name: "Kriya gerabah",
     region: "Kasongan, Bantul",
     status: "Sedang dipetakan",
-    note: "Kurikulum disusun; pembentukan dan pembakaran",
+    note: "Kurikulum disusun, pembentukan dan pembakaran",
   },
   {
     name: "Batik tulis",
@@ -687,7 +687,7 @@ export const catalogFieldsSeed: CatalogField[] = [
     name: "Keramik",
     region: "Bantul",
     status: "Direncanakan",
-    note: "Belum ada pengajar; fokus glaze dan stoneware",
+    note: "Belum ada pengajar, fokus glaze dan stoneware",
   },
   {
     name: "Kuliner Nusantara",
@@ -718,7 +718,7 @@ export const pathsSeed: SeedLearningPath[] = [
       "Memilih bambu, merebus, mengeringkan, mengamplas, memberi pola, nglowongi, ngisen-isen, mbabar, nembok, warna dasar, nglorod, mepe, finishing, memeriksa",
     teacher: "Sri Sriningsih",
     teacherRole:
-      "Perajin batik bambu; materi adaptasi dari Paguyuban Batik Tulis Giriloyo",
+      "Perajin batik bambu, materi adaptasi dari Paguyuban Batik Tulis Giriloyo",
     region: "Krebet, Sendangsari, Pajangan, Bantul, D.I. Yogyakarta",
     level: "Pemula",
     weeks: 6,
@@ -730,8 +730,8 @@ export const pathsSeed: SeedLearningPath[] = [
       "Satu nampan atau panel bambu batik hasil sendiri, lengkap dengan catatan proses dari pemilihan bambu sampai pelapisan untuk Kartu Karya.",
     includes: [
       "6 modul bacaan dan latihan",
-      "Paket bahan: tiga bilah bambu kering siap amplas, malam, tiga warna, dan pelapis",
-      "Alat pribadi yang perlu disiapkan: canting, wajan kecil, kompor, dan kuas",
+      "Paket bahan, tiga bilah bambu kering siap amplas, malam, tiga warna, dan pelapis",
+      "Alat pribadi yang perlu disiapkan, canting, wajan kecil, kompor, dan kuas",
       "Panduan bahan, alat, dan keselamatan kerja",
       "6 tugas praktik dinilai perajin",
       "Ujian akhir dan sertifikat platform",
@@ -787,7 +787,7 @@ export const pathsSeed: SeedLearningPath[] = [
   {
     slug: "aksara-jawa",
     code: "Jalur 04",
-    title: "Aksara Jawa: Membaca dan Menulis",
+    title: "Aksara Jawa, Membaca dan Menulis",
     subtitle: "Dari hanacaraka sampai kalimat utuh tanpa spasi",
     teacher: "Suwardi Pratama",
     teacherRole: "Pengajar aksara Jawa, Kota Yogyakarta",
@@ -812,10 +812,10 @@ export const pathsSeed: SeedLearningPath[] = [
     code: "Jalur 05",
     title: "Batik Tulis",
     subtitle:
-      "Materi batik tulis di atas kain sedang disiapkan; belum ada modul yang diterbitkan",
+      "Materi batik tulis di atas kain sedang disiapkan, belum ada modul yang diterbitkan",
     teacher: "Bambang Hardjono",
     teacherRole:
-      "Pengajar batik tulis; materi Paguyuban Batik Tulis Giriloyo sedang disiapkan",
+      "Pengajar batik tulis, materi Paguyuban Batik Tulis Giriloyo sedang disiapkan",
     region: "Giriloyo, Wukirsari, Imogiri, Bantul, D.I. Yogyakarta",
     level: "Pemula",
     weeks: 0,
@@ -841,7 +841,7 @@ export const pathsSeed: SeedLearningPath[] = [
       "Gerak murni dan maknawi, ruang-waktu-tenaga, bentuk penyajian, lalu menyusun kreasi pendek dua menit",
     teacher: "Retno Wulandari",
     teacherRole:
-      "Pengajar tari dan koreografer; pendamping sanggar komunitas Sleman",
+      "Pengajar tari dan koreografer, pendamping sanggar komunitas Sleman",
     region: "Kota Yogyakarta dan Sleman, D.I. Yogyakarta",
     level: "Pemula",
     weeks: 5,
@@ -868,7 +868,7 @@ export const pathsSeed: SeedLearningPath[] = [
       "Gastronomi, identitas, teknik memasak, geblek dan tumpeng, serta pelestarian makanan tradisional",
     teacher: "Joko Santosa",
     teacherRole:
-      "Pengajar kuliner rumahan; pendamping komunitas dan UMKM Kulon Progo",
+      "Pengajar kuliner rumahan, pendamping komunitas dan UMKM Kulon Progo",
     region: "Kota Yogyakarta dan Kulon Progo, D.I. Yogyakarta",
     level: "Pemula",
     weeks: 5,
@@ -883,7 +883,7 @@ export const pathsSeed: SeedLearningPath[] = [
       "5 tugas praktik dinilai pengajar",
       "Panduan bahan, substitusi, dan keselamatan dapur",
       "Lembar biaya dan porsi",
-      "Ujian akhir: masak, dokumentasi, dan cerita 300-500 kata",
+      "Ujian akhir, masak, dokumentasi, dan cerita 300-500 kata",
       "Sertifikat platform",
     ],
   },
@@ -924,7 +924,7 @@ export const teachersSeed: SeedTeacher[] = [
     experience: "Lebih dari tiga puluh tahun di pewarnaan alami, belasan tahun membatik bambu",
     quote:
       "Bambu tidak menyerap malam seperti kain. Garis harus ditutup rapat, lalu diperiksa di bawah cahaya miring.",
-    focus: "Batik bambu: pemilihan bambu, canting, dan pewarnaan",
+    focus: "Batik bambu, pemilihan bambu, canting, dan pewarnaan",
     path: "Batik Bambu",
     community: "Perajin batik bambu, Bantul",
     imageFile: "teacher-sriningsih.jpg",
@@ -943,7 +943,7 @@ export const teachersSeed: SeedTeacher[] = [
     region: "Kota Yogyakarta, D.I. Yogyakarta",
     experience: "30 tahun tata upacara",
     quote:
-      "Pembawa acara yang baik mengatur napas acara. Kalimatnya jelas, urutannya tidak membuat tamu menunggu.",
+      "Pembawa acara yang baik mengatur jalan acara. Kalimatnya jelas, urutannya tidak membuat tamu menunggu.",
     focus: "Pembawa acara adat dan protokol",
     path: "Seni Pembawa Acara Tradisi Jawa",
     community: "Pembawa acara tradisi Jawa, Yogyakarta",
@@ -985,7 +985,7 @@ export const teachersSeed: SeedTeacher[] = [
     quote:
       "Saya menandai aksara yang salah satu per satu, bukan hanya memberi nilai di akhir. Kesalahan yang terlihat bisa diperbaiki besok.",
     focus: "Aksara Jawa, tembang, dan tata tulis",
-    path: "Aksara Jawa: Membaca dan Menulis",
+    path: "Aksara Jawa, Membaca dan Menulis",
     community: "Pengajar aksara Jawa, Yogyakarta",
     imageFile: "teacher-suwardi.jpg",
     verified: true,
@@ -1004,7 +1004,7 @@ export const teachersSeed: SeedTeacher[] = [
     experience: "24 tahun menari dan mengajar tari di sanggar komunitas",
     quote:
       "Gerak yang kecil tetap harus jelas arah dan napasnya. Saya minta murid berhenti di hitungan kedelapan, bukan buru-buru menambah gerakan.",
-    focus: "Tari kreasi: gerak, ruang, waktu, dan komposisi",
+    focus: "Tari kreasi, gerak, ruang, waktu, dan komposisi",
     path: "Tari Kreasi",
     community: "Sanggar tari komunitas, Sleman",
     imageFile: "teacher-tari-kreasi.jpg",
@@ -1024,7 +1024,7 @@ export const teachersSeed: SeedTeacher[] = [
     experience: "22 tahun memasak dan mengajar kuliner rumahan",
     quote:
       "Resep tanpa catatan takaran cuma jadi cerita. Saya minta murid menimbang bahan, mencatat api, dan menuliskan siapa yang mengajarkan resep itu.",
-    focus: "Kuliner Nusantara: bahan lokal, teknik, dan cerita hidangan",
+    focus: "Kuliner Nusantara, bahan lokal, teknik, dan cerita hidangan",
     path: "Kuliner Nusantara",
     community: "Komunitas kuliner dan UMKM Kulon Progo",
     imageFile: "teacher-kuliner-nusantara.jpg",
@@ -1053,7 +1053,7 @@ export const worksSeed: SeedWork[] = [
     techniqueNote: "Canting pada bilah bambu",
     workCard: "KN-8821",
     description:
-      "Nampan bambu dengan motif geometris yang disusun ulang dari pola klasik Giriloyo. Malam dipakai sebagai perintang warna; motif ditutup malam sebelum warna dasar, lalu nglorod dan pelapisan akhir. Harga mencakup bilah bambu pilihan, malam, pewarna, pelapis, dan kerja canting. Tampilan Kartu Karya memakai ilustrasi tipografi, bukan foto produk.",
+      "Nampan bambu dengan motif geometris yang disusun ulang dari pola klasik Giriloyo. Malam dipakai sebagai perintang warna, motif ditutup malam sebelum warna dasar, lalu nglorod dan pelapisan akhir. Harga mencakup bilah bambu pilihan, malam, pewarna, pelapis, dan kerja canting. Tampilan Kartu Karya memakai ilustrasi tipografi, bukan foto produk.",
     imageFile: "work-bambu-nampan.jpg",
   },
   {
@@ -1076,7 +1076,7 @@ export const worksSeed: SeedWork[] = [
     techniqueNote: "Titik canting pada anyaman bambu",
     workCard: "KN-9014",
     description:
-      "Kotak tisu dari anyaman bambu dengan titik canting rapat dan dua warna. Motif ditutup malam sebelum warna dasar, lalu nglorod dan pelapisan akhir. Harga mencakup anyaman bambu, malam, pewarna, pelapis, dan kerja canting. Kartu bahan dan panduan perawatan tanpa rendam disertakan; tampilan Kartu Karya memakai ilustrasi tipografi.",
+      "Kotak tisu dari anyaman bambu dengan titik canting rapat dan dua warna. Motif ditutup malam sebelum warna dasar, lalu nglorod dan pelapisan akhir. Harga mencakup anyaman bambu, malam, pewarna, pelapis, dan kerja canting. Kartu bahan dan panduan perawatan tanpa rendam disertakan, tampilan Kartu Karya memakai ilustrasi tipografi.",
     imageFile: "work-bambu-box-tisu.jpg",
   },
   {
@@ -1108,7 +1108,7 @@ export const worksSeed: SeedWork[] = [
     pathSlug: "pranatacara-jawa",
     certificateKey: "rani",
     permission:
-      "Izin publikasi tercatat untuk pengelola platform; dokumen sumber diarsipkan pengelola platform",
+      "Izin publikasi tercatat untuk pengelola platform, dokumen sumber diarsipkan pengelola platform",
     title: "Pembawa Acara Siraman dan Midodareni",
     category: "layanan",
     kind: "service",
@@ -1132,7 +1132,7 @@ export const worksSeed: SeedWork[] = [
     pathSlug: "aksara-jawa",
     certificateKey: "galuh",
     permission:
-      "Izin publikasi tercatat untuk pengelola platform; dokumen sumber diarsipkan pengelola platform",
+      "Izin publikasi tercatat untuk pengelola platform, dokumen sumber diarsipkan pengelola platform",
     title: "Jasa Tulis Aksara untuk Undangan dan Papan Nama",
     category: "layanan",
     kind: "service",
@@ -1156,7 +1156,7 @@ export const worksSeed: SeedWork[] = [
     pathSlug: "tari-kreasi",
     certificateKey: "sekar",
     permission:
-      "Izin publikasi tercatat untuk pengelola platform; dokumen sumber diarsipkan pengelola platform",
+      "Izin publikasi tercatat untuk pengelola platform, dokumen sumber diarsipkan pengelola platform",
     title: "Tari Kreasi untuk Acara Keluarga",
     category: "layanan",
     kind: "service",
@@ -1194,7 +1194,7 @@ export const worksSeed: SeedWork[] = [
     techniqueNote: "Geblek tapioka bentuk angka delapan",
     workCard: "KN-KUL-042",
     description:
-      "Geblek Kulon Progo bentuk angka delapan, digoreng lalu dibekukan dalam paket isi sepuluh keping. Bahan utamanya tapioka dan bawang putih; teksturnya kenyal dengan bagian luar yang renyah setelah digoreng ulang. Paket disertai kartu bahan, tanggal produksi, dan cara menggoreng ulang dari beku. Bentuk terhubung dimaknai sebagai persatuan dalam narasi budaya yang dikutip laporan, bukan makna baku.",
+      "Geblek Kulon Progo bentuk angka delapan, digoreng lalu dibekukan dalam paket isi sepuluh keping. Bahan utamanya tapioka dan bawang putih, teksturnya kenyal dengan bagian luar yang renyah setelah digoreng ulang. Paket disertai kartu bahan, tanggal produksi, dan cara menggoreng ulang dari beku. Bentuk terhubung dimaknai sebagai persatuan dalam narasi budaya yang dikutip laporan, bukan makna baku.",
     imageFile: "work-kuliner-nusantara.jpg",
   },
 ]
@@ -1255,11 +1255,11 @@ export const faqsSeed: Faq[] = [
   {
     question: "Bagaimana hak budaya dan bagi hasil dijaga?",
     answer:
-      "Setiap jalur dan karya menampilkan Kartu Sumber Budaya: sumber materi, rujukan, tanggal pencatatan, dan tingkat akses. Rincian bagi hasil ditampilkan sebelum transaksi, saat kamu masih bisa memutuskan.",
+      "Setiap jalur dan karya menampilkan Kartu Sumber Budaya, sumber materi, rujukan, tanggal pencatatan, dan tingkat akses. Rincian bagi hasil ditampilkan sebelum transaksi, saat kamu masih bisa memutuskan.",
   },
   {
     question: "Saya hanya ingin membeli karya. Apakah harus ikut kelas?",
     answer:
-      "Tidak. Kamu bisa langsung menjelajahi etalase karya lulusan dan pengajar. Setiap karya punya Kartu Karya yang menjelaskan pembuat, teknik, dan jejak prosesnya.",
+      "Tidak. Kamu bisa langsung menjelajahi etalase karya lulusan dan pengajar. Setiap karya punya Kartu Karya yang menjelaskan pembuat, teknik, dan riwayat prosesnya.",
   },
 ]

@@ -369,7 +369,7 @@ export const create = mutation({
       action: "support.create",
       entityType: "supportTickets",
       entityId: ticketId,
-      reason: `Tiket baru: ${subject}`,
+      reason: `Tiket baru, ${subject}`,
       after: { code, subject, priority: args.priority ?? "normal" },
     })
     return { ticketId, code }

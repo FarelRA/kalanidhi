@@ -6,7 +6,7 @@ import { errorCode } from "./fixtures"
 
 function tokenFromWaUrl(waUrl: string): string {
   const text = new URL(waUrl).searchParams.get("text") ?? ""
-  return text.replace(/^Verifikasi KalaNidhi:\s*/, "").trim()
+  return text.replace(/^Verifikasi KalaNidhi:?\s*/, "").trim()
 }
 
 async function errorCodeOf(promise: Promise<unknown>): Promise<string | null> {
@@ -34,7 +34,7 @@ describe("WhatsApp identity", () => {
       "https://wa.me/6287784454555?text=",
     )
     expect(decodeURIComponent(result.waUrl)).toContain(
-      "Verifikasi KalaNidhi:",
+      "Verifikasi KalaNidhi",
     )
     expect(result.expiresAt).toBeGreaterThan(Date.now())
 

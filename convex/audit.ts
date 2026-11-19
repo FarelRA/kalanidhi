@@ -244,7 +244,7 @@ async function collectRows(
             `${row.attempts} percobaan.`,
             `Dijadwalkan ${new Date(row.scheduledAt).toISOString()}.`,
             row.sentAt ? `Terkirim ${new Date(row.sentAt).toISOString()}.` : "Belum terkirim.",
-            row.error ? `Galat: ${row.error}` : null,
+            row.error ? `Galat, ${row.error}` : null,
           ]
             .filter(Boolean)
             .join(" "),

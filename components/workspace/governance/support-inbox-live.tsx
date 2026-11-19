@@ -56,7 +56,7 @@ function ageLabel(minutes: number): string {
 }
 
 function dateTimeLabel(value: number | null): string {
-  if (value === null) return "—"
+  if (value === null) return "-"
   return new Intl.DateTimeFormat("id-ID", {
     timeZone: "Asia/Jakarta",
     dateStyle: "short",
@@ -134,7 +134,7 @@ export function SupportInboxLive() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Dukungan"
-        title={admin ? "Kotak masuk dukungan." : "Kami duduk di bangku yang sama."}
+        title={admin ? "Kotak masuk dukungan." : "Kami ada di percakapan yang sama."}
         description={
           admin
             ? "Tiket dengan prioritas, pemilik, SLA respons pertama, dan tautan ke akun, pesanan, pembayaran, atau sertifikat. Catatan internal terpisah dari balasan pengguna."
@@ -320,8 +320,8 @@ export function SupportInboxLive() {
                     : ""}
                 </p>
                 <p className="mt-1 text-[10px] text-ink-muted">
-                  Ditugaskan oleh {detail.assignedByName ?? "—"} · Diselesaikan oleh{" "}
-                  {detail.resolvedByName ?? "—"} · Respons terakhir{" "}
+                  Ditugaskan oleh {detail.assignedByName ?? "-"} · Diselesaikan oleh{" "}
+                  {detail.resolvedByName ?? "-"} · Respons terakhir{" "}
                   {dateTimeLabel(detail.lastResponseAt)}
                 </p>
               </div>
@@ -655,7 +655,7 @@ export function SupportInboxLive() {
           {[
             ["Bergabung dengan persetujuan", "Dukungan hanya masuk percakapan atau panggilan setelah pengguna setuju."],
             ["Konten sensitif", "Membaca pesan atau rekaman memerlukan alasan dan tercatat."],
-            ["Tanpa salinan ganda", "Tiket dari percakapan menautkan percakapan; isi pesan tidak disalin ke catatan."],
+            ["Tanpa salinan ganda", "Tiket dari percakapan menautkan percakapan. Isi pesan tidak disalin ke catatan."],
           ].map(([title, note]) => (
             <div key={title} className="flex gap-2.5 border border-ink/15 bg-paper/40 p-3">
               <ShieldAlert className="mt-0.5 size-4 shrink-0 text-copper-dark" aria-hidden="true" />

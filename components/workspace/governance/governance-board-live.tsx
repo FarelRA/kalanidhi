@@ -126,8 +126,8 @@ export function GovernanceBoardLive() {
   if (!allowed) {
     return (
       <EmptyState
-        title="Ruang tata kelola terkunci"
-        description="Tindakan ini memerlukan kemampuan governance.manage."
+        title="Kamu belum punya akses tata kelola"
+        description="Tindakan ini memerlukan izin tata kelola."
       />
     )
   }
@@ -207,7 +207,7 @@ export function GovernanceBoardLive() {
               size="sm"
               variant="outline"
               disabled={reason.trim().length < 4}
-              onClick={() => void run(() => withdrawSource({ sourceId: row.id as Id<"culturalSources">, reason }), "Sumber ditarik; karya terkait dijeda.")}
+              onClick={() => void run(() => withdrawSource({ sourceId: row.id as Id<"culturalSources">, reason }), "Sumber ditarik, karya terkait dijeda.")}
             >
               Tarik izin
             </Button>
@@ -403,7 +403,7 @@ export function GovernanceBoardLive() {
       <PageHeader
         eyebrow="Tata kelola"
         title="Izin, penarikan, dan akses yang tercatat."
-        description="Sumber budaya, takedown, permintaan privasi, pratinjau baca-saja, dan break-glass. Tidak ada penghapusan diam-diam; status dan pembalikan selalu tercatat."
+        description="Sumber budaya, takedown, permintaan privasi, pratinjau baca-saja, dan akses darurat. Tidak ada penghapusan diam-diam. Status dan pembalikan selalu tercatat."
         meta={
           summary ? (
             <span className="text-[10px] text-ink-muted">
@@ -428,7 +428,7 @@ export function GovernanceBoardLive() {
           { id: "takedowns", label: "Takedown" },
           { id: "privacy", label: "Privasi" },
           { id: "impersonation", label: "Pratinjau" },
-          { id: "breakglass", label: "Break-glass" },
+          { id: "breakglass", label: "Akses darurat" },
         ]}
         value={tab}
         onChange={setTab}
@@ -495,7 +495,7 @@ export function GovernanceBoardLive() {
               Simpan sumber
             </Button>
           </Panel>
-          <Panel eyebrow="Registry" title="Sumber budaya" bodyClassName="p-0">
+          <Panel eyebrow="Daftar" title="Sumber budaya" bodyClassName="p-0">
             <DataTable
               rows={sources ?? []}
               columns={sourceColumns}
@@ -626,7 +626,7 @@ export function GovernanceBoardLive() {
               </div>
             ) : null}
           </Panel>
-          <Panel eyebrow="Registry" title="Permintaan privasi" bodyClassName="p-0">
+          <Panel eyebrow="Daftar" title="Permintaan privasi" bodyClassName="p-0">
             <DataTable
               rows={privacy ?? []}
               columns={privacyColumns}
@@ -672,7 +672,7 @@ export function GovernanceBoardLive() {
               </Button>
             </div>
           </Panel>
-          <Panel eyebrow="Registry" title="Sesi pratinjau" bodyClassName="p-0">
+          <Panel eyebrow="Daftar" title="Sesi pratinjau" bodyClassName="p-0">
             <DataTable
               rows={impersonations ?? []}
               columns={impersonationColumns}
@@ -686,7 +686,7 @@ export function GovernanceBoardLive() {
 
       {tab === "breakglass" ? (
         <div className="space-y-4">
-          <Panel eyebrow="Izin akses" title="Break-glass">
+          <Panel eyebrow="Izin akses" title="Akses darurat">
             <div className="flex flex-wrap items-end gap-2">
               <div>
                 <Label htmlFor="break-entity">Jenis catatan</Label>
@@ -714,7 +714,7 @@ export function GovernanceBoardLive() {
                         reason,
                         minutes: 10,
                       }),
-                    "Izin break-glass dibuat.",
+                    "Izin akses darurat dibuat.",
                   )
                 }
               >
@@ -749,22 +749,22 @@ export function GovernanceBoardLive() {
               </Button>
             </div>
           </Panel>
-          <Panel eyebrow="Registry" title="Izin aktif dan riwayat" bodyClassName="p-0">
+          <Panel eyebrow="Daftar" title="Izin aktif dan riwayat" bodyClassName="p-0">
             <DataTable
               rows={breakGlass ?? []}
               columns={breakGlassColumns}
-              caption="Registry break-glass untuk pesan, rekaman, dan dokumen"
+              caption="Daftar akses darurat untuk pesan, rekaman, dan dokumen"
               searchPlaceholder="Cari jenis atau aktor"
               getSearchText={(row) => `${row.entityType} ${row.entityId} ${row.actorName ?? ""}`}
               minWidth={720}
-              emptyTitle="Belum ada izin break-glass"
+              emptyTitle="Belum ada izin akses darurat"
             />
           </Panel>
           <Panel eyebrow="Kebijakan" title="Batas akses">
             <div className="flex gap-2.5 border border-ink/15 bg-paper/40 p-3">
               <ShieldAlert className="mt-0.5 size-4 shrink-0 text-copper-dark" aria-hidden="true" />
               <p className="text-[9.5px] leading-relaxed text-ink-muted">
-                Break-glass tidak memberi akses tulis, ekspor, atau unduhan. Setiap akses
+                Akses darurat tidak memberi akses tulis, ekspor, atau unduhan. Setiap akses
                 yang ditolak juga dicatat tanpa menampilkan isi. Untuk percakapan, izin
                 dikelola oleh modul pesan dengan persetujuan pengguna.
               </p>
@@ -863,13 +863,13 @@ export function GovernanceBoardLive() {
                   privacyDetail.correction
                     ? [
                         privacyDetail.correction.name
-                          ? `Nama: ${privacyDetail.correction.name}`
+                          ? `Nama, ${privacyDetail.correction.name}`
                           : null,
                         privacyDetail.correction.email
-                          ? `Email: ${privacyDetail.correction.email}`
+                          ? `Email, ${privacyDetail.correction.email}`
                           : null,
                         privacyDetail.correction.region
-                          ? `Wilayah: ${privacyDetail.correction.region}`
+                          ? `Wilayah, ${privacyDetail.correction.region}`
                           : null,
                       ]
                         .filter(Boolean)

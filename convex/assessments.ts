@@ -262,7 +262,7 @@ function validateRubric(rubric: RubricCriterion[]): {
     ) {
       throw new ConvexError({
         code: "INVALID_SCORE",
-        message: "Nilai setiap kriteria harus berada pada 0–100.",
+        message: "Nilai setiap kriteria harus berada pada 0 sampai 100.",
       })
     }
     weightTotal += criterion.weight

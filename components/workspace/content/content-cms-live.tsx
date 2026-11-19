@@ -36,7 +36,7 @@ import { cn } from "cn"
 const GROUPS: { id: string; label: string; path: string[] }[] = [
   { id: "hero", label: "Hero", path: ["hero"] },
   { id: "traction", label: "Capaian", path: ["traction"] },
-  { id: "loop", label: "Lingkaran", path: ["loop"] },
+  { id: "loop", label: "Alur belajar", path: ["loop"] },
   { id: "catalog", label: "Peta bidang", path: ["catalog"] },
   { id: "mangsa", label: "Musim", path: ["mangsa"] },
   { id: "ethics", label: "Etika dan bagi hasil", path: ["ethics"] },
@@ -401,8 +401,8 @@ export function ContentCmsLive() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Konten"
-        title="Halaman depan, dari bangku ini."
-        description="Halaman ini hanya untuk copywriting. Data pengajar, jalur, karya, testimoni, bidang, dan FAQ dibaca langsung dari tabel Convex; pilih yang tampil di halaman pilihan landing. Setiap perubahan copy disimpan sebagai revisi lalu diterbitkan atau dibalik."
+        title="Halaman depan, dari ruang kerja ini."
+        description="Halaman ini hanya untuk copywriting. Data pengajar, jalur, karya, testimoni, bidang, dan FAQ dibaca langsung dari tabel Convex. Pilih yang tampil di halaman pilihan landing. Setiap perubahan copy disimpan sebagai revisi lalu diterbitkan atau dibalik."
         meta={
           <div className="flex flex-wrap items-center gap-2">
             <StatusStamp
@@ -444,7 +444,7 @@ export function ContentCmsLive() {
                 hour: "2-digit",
                 minute: "2-digit",
               }).format(new Date(state.lock.expiresAt))
-            : "—"}
+            : "-"}
           . Tunggu sampai kunci kedaluwarsa atau pemegang kunci menutup editor.
         </p>
       ) : null}
@@ -680,7 +680,7 @@ export function ContentCmsLive() {
               onChange={(event) => setConfirmSensitive(event.target.checked)}
               className="mt-0.5 size-4 accent-[#a9552c]"
             />
-            Saya mengonfirmasi perubahan sensitif: harga, bagi hasil, metadata,
+            Saya mengonfirmasi perubahan sensitif, harga, bagi hasil, metadata,
             atau catatan sertifikat.
           </label>
           {validation && !validation.ok ? (
@@ -847,7 +847,7 @@ function RevisionDrawer({
                       dateStyle: "medium",
                       timeStyle: "short",
                     }).format(new Date(revision.publishedAt))
-                  : "—"}
+                  : "-"}
               </p>
             </div>
           </div>

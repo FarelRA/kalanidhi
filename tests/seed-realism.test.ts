@@ -451,7 +451,7 @@ describe("seed realism", () => {
     // citation, never a grant, and carries its own URL.
     const materialDates: Record<string, number> = {
       "Materi Batik Giriloyo": Date.UTC(2022, 0, 1),
-      "Batik Bambu: Inovasi Teknik Membatik pada Media Bambu": Date.UTC(
+      "Batik Bambu, Inovasi Teknik Membatik pada Media Bambu": Date.UTC(
         2013,
         10,
         8,
@@ -470,7 +470,7 @@ describe("seed realism", () => {
     }
 
     for (const sourceName of [
-      "Batik Bambu: Inovasi Teknik Membatik pada Media Bambu",
+      "Batik Bambu, Inovasi Teknik Membatik pada Media Bambu",
       "Profil Desa Wisata Krebet",
     ]) {
       const source = data.culturalSources.find(

@@ -58,7 +58,7 @@ function intentLabel(intent: LeadSummary["intent"]): string {
 }
 
 function dateTimeLabel(value: number | null): string {
-  if (value === null) return "—"
+  if (value === null) return "-"
   return new Intl.DateTimeFormat("id-ID", {
     timeZone: "Asia/Jakarta",
     dateStyle: "short",
@@ -123,7 +123,7 @@ export function LeadsLive() {
         ]),
       ])
       toast("Ekspor tercatat", {
-        description: `${result.rows.length} baris diunduh; ekspor masuk log audit.`,
+        description: `${result.rows.length} baris diunduh, ekspor masuk log audit.`,
       })
     } catch (error) {
       toast("Ekspor gagal", {
@@ -173,7 +173,7 @@ export function LeadsLive() {
       header: "Minat",
       cell: (row) => (
         <span className="block max-w-56 text-[11px] leading-snug text-ink-soft">
-          {row.interest || row.institution || "—"}
+          {row.interest || row.institution || "-"}
           {row.participants ? ` · ${row.participants} peserta` : ""}
         </span>
       ),
@@ -225,7 +225,7 @@ export function LeadsLive() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Prospek"
-        title="Percakapan sebelum bangku."
+        title="Percakapan sebelum mendaftar."
         description="Lead dari landing dan kanal lain. Setiap pemilik, catatan, status, dan ekspor tercatat di log audit."
         meta={
           <span className="text-[10px] text-ink-muted">
@@ -276,7 +276,7 @@ export function LeadsLive() {
       />
 
       <div className="grid gap-4 xl:grid-cols-12">
-        <Panel className="xl:col-span-9" eyebrow="CRM" title="Antrean lead" bodyClassName="p-0">
+        <Panel className="xl:col-span-9" eyebrow="Prospek" title="Antrean lead" bodyClassName="p-0">
           <DataTable
             rows={rows ?? []}
             columns={columns}
@@ -339,7 +339,7 @@ export function LeadsLive() {
                 ))}
             </ul>
           </Panel>
-          <Panel eyebrow="Panduan" title="Dari lead ke bangku">
+          <Panel eyebrow="Panduan" title="Dari lead ke peserta">
             <ol className="space-y-2.5">
               {[
                 ["01", "Hubungi dan catat kebutuhan"],
@@ -489,16 +489,16 @@ function LeadDrawer({
               { label: "Niat", value: intentLabel(lead.intent) },
               { label: "Pemilik", value: lead.owner?.name ?? "Belum ada" },
               { label: "Umur", value: `${lead.ageDays} hari` },
-              { label: "WhatsApp", value: lead.whatsapp ?? "—" },
+              { label: "WhatsApp", value: lead.whatsapp ?? "-" },
               { label: "Email", value: lead.email ?? "Belum diisi" },
-              { label: "Sumber", value: lead.source ?? "—" },
-              { label: "Institusi", value: lead.institution ?? "—" },
-              { label: "Jenis institusi", value: lead.institutionType ?? "—" },
+              { label: "Sumber", value: lead.source ?? "-" },
+              { label: "Institusi", value: lead.institution ?? "-" },
+              { label: "Jenis institusi", value: lead.institutionType ?? "-" },
               {
                 label: "Peserta",
-                value: lead.participants ? `${lead.participants} orang` : "—",
+                value: lead.participants ? `${lead.participants} orang` : "-",
               },
-              { label: "Minat", value: lead.interest ?? "—" },
+              { label: "Minat", value: lead.interest ?? "-" },
               { label: "Dikonversi", value: dateTimeLabel(lead.convertedAt) },
             ]}
           />
@@ -534,7 +534,7 @@ function LeadDrawer({
                 onClick={() =>
                   onReasonAction({
                     title: "Tetapkan pemilik",
-                    description: "Riwayat penugasan append-only dan masuk audit.",
+                    description: "Riwayat penugasan hanya tambah dan masuk audit.",
                     label: "Tetapkan",
                     run: async (reason) => {
                       await assign({

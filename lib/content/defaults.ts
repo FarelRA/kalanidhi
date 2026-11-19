@@ -6,7 +6,7 @@
 export const CONTENT_FALLBACKS = {
   loop: {
     returnCaveat:
-      "Jalur kembali tidak menjanjikan semua lulusan mengajar. Pintu ini disiapkan untuk pengajar pendamping, penilai tugas, atau pemasok bahan. Setiap pintu yang terisi membuka jalur baru.",
+      "Jalur kembali tidak menjanjikan semua lulusan mengajar. Peran ini disiapkan untuk pengajar pendamping, penilai tugas, atau pemasok bahan. Setiap peran yang terisi membuka jalur baru.",
   },
   ethicsCard: {
     emptyState:

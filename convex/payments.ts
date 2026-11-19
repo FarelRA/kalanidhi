@@ -286,7 +286,7 @@ export const markManualFallback = mutation({
       qrImageUrl: undefined,
       updatedAt: timestamp,
       reconciliationState: "unmatched",
-      reconciliationReason: "Gerbang pembayaran tidak tersedia; transfer manual.",
+      reconciliationReason: "Gerbang pembayaran tidak tersedia. Pakai transfer manual.",
     })
     await ctx.db.patch(order._id, { uniqueAmount: order.baseAmount, updatedAt: timestamp })
     await ctx.db.insert("paymentEvents", {
@@ -774,8 +774,8 @@ export const settleFromWebhook = mutation({
         reconciliationState: payment.status === "expired" ? "late" : "unmatched",
         reconciliationReason:
           payment.status === "expired"
-            ? "Pembayaran masuk setelah tagihan kedaluwarsa; perlu rekonsiliasi manual."
-            : "Pembayaran masuk untuk pesanan yang dibatalkan; perlu rekonsiliasi manual.",
+            ? "Pembayaran masuk setelah tagihan kedaluwarsa. Perlu rekonsiliasi manual."
+            : "Pembayaran masuk untuk pesanan yang dibatalkan. Perlu rekonsiliasi manual.",
         lastReconciledAt: timestamp,
         updatedAt: timestamp,
       })
@@ -820,7 +820,7 @@ export const settleFromWebhook = mutation({
       await ctx.db.patch(payment._id, {
         reconciliationState: "late",
         reconciliationReason:
-          "Pembayaran masuk setelah masa berlaku; perlu rekonsiliasi manual.",
+          "Pembayaran masuk setelah masa berlaku. Perlu rekonsiliasi manual.",
         lastReconciledAt: timestamp,
         updatedAt: timestamp,
       })

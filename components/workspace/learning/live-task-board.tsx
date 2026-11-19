@@ -627,10 +627,10 @@ function SubmissionDrawerContent({
               {detail.overrideReason ? (
                 <div className="mb-3 border border-ink/15 bg-panel/30 p-3">
                   <p className="text-[11px] font-semibold text-ink">
-                    Override: {detail.overrideReason}
+                    Override, {detail.overrideReason}
                   </p>
                   <p className="mt-1 text-[9.5px] text-ink-muted">
-                    Peninjau kedua:{" "}
+                    Peninjau kedua,{" "}
                     {detail.secondReviewerName ?? "Belum diisi"}
                   </p>
                 </div>

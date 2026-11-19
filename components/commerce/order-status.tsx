@@ -181,7 +181,7 @@ function PaymentBlock({
             ) : null}
             {manual ? (
               <p className="mt-3 border border-brass/50 bg-brass/10 px-3 py-2 text-[10px] leading-relaxed text-ink-soft">
-                Transfer manual: hubungi pengelola dengan kode{" "}
+                Transfer manual, hubungi pengelola dengan kode{" "}
                 <strong>{payment.orderCode}</strong> untuk instruksi rekening.
                 Pencocokan dilakukan manual oleh pengelola.
               </p>
@@ -276,7 +276,7 @@ function Summary({
                 Nominal dibayar
               </dt>
               <dd className="mt-0.5 font-semibold tabular-nums">
-                {order.uniqueAmount ? formatIDR(order.uniqueAmount) : "—"}
+                {order.uniqueAmount ? formatIDR(order.uniqueAmount) : "-"}
               </dd>
             </div>
             <div>
@@ -293,7 +293,7 @@ function Summary({
             </div>
           </dl>
           <p className="mt-3 border-t border-ink/15 pt-3 text-[10px] leading-relaxed text-ink-muted">
-            Simpan tautan halaman ini. Tautan adalah kunci pesanan; jangan
+            Simpan tautan halaman ini. Tautan adalah kunci pesanan. Jangan
             dibagikan. Data kontak penuh tidak ditampilkan di halaman publik.
           </p>
         </div>
@@ -304,7 +304,7 @@ function Summary({
       <div className="space-y-5 lg:col-span-5">
         <div className="border border-ink/20 bg-paper-2 p-5">
           <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-copper-dark">
-            Jejak pesanan
+            Riwayat pesanan
           </p>
           <div className="mt-3">
             <Timeline order={order} />

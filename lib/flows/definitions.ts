@@ -183,14 +183,14 @@ export const FLOW_SPECS: Record<FlowKey, FlowSpec> = {
     key: "teacher",
     name: "Pengajuan pengajar",
     owner: "Tim orang",
-    description: "Dossier pengajar sampai terverifikasi atau ditangguhkan.",
+    description: "Berkas pengajar sampai terverifikasi atau ditangguhkan.",
     states: [
       state("review", "Ditinjau", "wait"),
       state("active", "Aktif", "done", true),
       state("suspended", "Ditangguhkan", "danger", true),
     ],
     transitions: [
-      transition("review", "active", "Dossier, izin, dan jalur terverifikasi"),
+      transition("review", "active", "Berkas, izin, dan jalur terverifikasi"),
       transition("review", "suspended", "Ditolak atau melanggar ketentuan"),
       transition("suspended", "review", "Pengajuan ulang diterima"),
       transition("active", "suspended", "Penangguhan dengan alasan"),

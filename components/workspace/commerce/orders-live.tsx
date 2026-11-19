@@ -320,7 +320,7 @@ export function OrdersLive() {
             footer={
               <p>
                 {visible.length} pesanan · nilai {formatIDR(gross)}. Baris ledger
-                tidak diedit; koreksi memakai entri pembalik.
+                tidak diedit. Koreksi memakai entri pembalik.
               </p>
             }
           />
@@ -461,7 +461,7 @@ export function OrdersLive() {
                   label: "Dibatalkan",
                   value: selected.cancelledAt
                     ? formatCommerceDateTime(selected.cancelledAt)
-                    : "—",
+                    : "-",
                 },
                 {
                   label: "Alasan batal",
@@ -505,7 +505,7 @@ export function OrdersLive() {
                 </ul>
               )}
             </DrawerSection>
-            <DrawerSection title="Jejak">
+            <DrawerSection title="Riwayat">
               <ol className="space-y-2 text-[10.5px]">
                 {[
                   ["Dibuat", selected.createdAt],
@@ -614,7 +614,7 @@ export function OrdersLive() {
                   value={evidence}
                   onChange={(event) => setEvidence(event.target.value)}
                   className="mt-1.5 min-h-16"
-                  placeholder="Misalnya: foto kerusakan dan percakapan."
+                  placeholder="Misalnya, foto kerusakan dan percakapan."
                 />
               </div>
             </>

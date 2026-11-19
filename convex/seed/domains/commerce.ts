@@ -221,7 +221,7 @@ export const seedCommerce = internalMutation({
       "order-2":
         "Untuk hadiah pernikahan, mohon sertakan kartu perawatan produk bambu.",
       "order-3":
-        "Kirim ke alamat kantor di Mlati, terima Senin–Jumat pukul 09.00–16.00.",
+        "Kirim ke alamat kantor di Mlati, terima Senin sampai Jumat pukul 09.00 sampai 16.00.",
       "order-4":
         "Booking untuk akad 12 Desember 2026, prosesi pagi di Banguntapan.",
       "order-7": "Pesanan pertama, mohon dipotret proses pewarnaan terakhir.",

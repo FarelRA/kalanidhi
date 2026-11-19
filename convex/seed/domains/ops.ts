@@ -47,7 +47,7 @@ export const seedOps = internalMutation({
     )[0]
     const raniConversation = (
       await ctx.db.query("conversations").collect()
-    ).find((item) => item.title === "Pranatacara: jadwal siraman")
+    ).find((item) => item.title === "Pranatacara, jadwal siraman")
     const missedCall = (await ctx.db.query("callSessions").collect()).find(
       (item) => item.status === "missed",
     )
@@ -66,7 +66,7 @@ export const seedOps = internalMutation({
         whatsapp: "6281392847506",
         interest: "Batik Bambu",
         message:
-          "Saya ingin mulai dari kelas pemula. Apakah angkatan Oktober masih ada kursi?",
+          "Saya ingin mulai dari kelas pemula. Apakah angkatan Oktober masih ada tempat?",
         source: "landing",
         status: "new" as const,
         daysAgo: 1,
@@ -326,8 +326,8 @@ export const seedOps = internalMutation({
         linkedRecords: [
           {
             type: "conversation" as const,
-            id: raniConversation?._id ?? "Pranatacara: jadwal siraman",
-            label: "Pranatacara: jadwal siraman",
+            id: raniConversation?._id ?? "Pranatacara, jadwal siraman",
+            label: "Pranatacara, jadwal siraman",
           },
         ],
         messages: [
@@ -366,7 +366,7 @@ export const seedOps = internalMutation({
           {
             authorId: admin._id,
             kind: "user" as const,
-            body: "Sudah saya periksa: karya belum ditautkan ke sertifikat. Sekarang sudah tampil.",
+            body: "Sudah saya periksa, karya belum ditautkan ke sertifikat. Sekarang sudah tampil.",
             daysAgo: 225,
           },
         ],
@@ -396,7 +396,7 @@ export const seedOps = internalMutation({
 
     const ticketResolutionNotes: Record<string, string> = {
       "SUP-2026-0005":
-        "Mutasi QRIS dicocokkan dengan nominal unik; pesanan ditandai lunas.",
+        "Mutasi QRIS dicocokkan dengan nominal unik, pesanan ditandai lunas.",
       "SUP-2026-0003":
         "Sertifikat disinkronkan ulang dan sudah tampil di profil.",
       "SUP-2026-0002":

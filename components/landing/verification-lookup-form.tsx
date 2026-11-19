@@ -34,7 +34,7 @@ export function VerificationLookupForm() {
           name="kode"
           value={code}
           onChange={(event) => setCode(event.target.value)}
-          placeholder="Contoh: KN-2026-0001"
+          placeholder="Contoh, KN-2026-0001"
           autoComplete="off"
           aria-invalid={Boolean(error)}
           aria-describedby={error ? "verification-code-error" : undefined}

@@ -147,7 +147,7 @@ function workReadiness(
 function incompleteWorkError(missing: string[]): never {
   throw new ConvexError({
     code: "INCOMPLETE_WORK",
-    message: `Karya belum lengkap: ${missing.join(", ")}.`,
+    message: `Karya belum lengkap, ${missing.join(", ")}.`,
     missing,
   })
 }

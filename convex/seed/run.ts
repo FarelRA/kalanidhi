@@ -33,13 +33,13 @@ export const beginRun = internalMutation({
       if (row.startedAt > args.now - LOCK_TTL_MS) {
         throw new ConvexError({
           code: "SEED_RUNNING",
-          message: `Seed lain masih berjalan sejak ${new Date(row.startedAt).toISOString()} (langkah: ${row.step}).`,
+          message: `Seed lain masih berjalan sejak ${new Date(row.startedAt).toISOString()} (langkah ${row.step}).`,
         })
       }
       await ctx.db.patch(row._id, {
         status: "failed",
         finishedAt: args.now,
-        error: "Stale running row: the previous seed process stopped early.",
+        error: "Stale running row, the previous seed process stopped early.",
       })
     }
     return await ctx.db.insert("seedRuns", {

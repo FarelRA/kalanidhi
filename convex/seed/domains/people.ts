@@ -271,7 +271,7 @@ export const seedPeople = internalMutation({
       status: "revoked",
       invitedBy: admin._id,
       reason:
-        "Jadwal mengajar bentrok; undangan dibatalkan atas permintaan calon pengajar.",
+        "Jadwal mengajar bentrok, undangan dibatalkan atas permintaan calon pengajar.",
       expiresAt: clock.ago(20),
       createdAt: clock.ago(30),
     })

@@ -708,7 +708,7 @@ export const reverseTakedown = mutation({
       fail("INVALID_TRANSITION", "Hanya takedown selesai yang dapat dibalik.")
     }
     if (request.targetType === "certificate") {
-      fail("NOT_REVERSIBLE", "Pencabutan sertifikat tidak dibalik; terbitkan ulang.")
+      fail("NOT_REVERSIBLE", "Pencabutan sertifikat tidak dibalik. Terbitkan ulang.")
     }
     const effects = request.effects as EffectSnapshot | undefined
     for (const item of effects?.before ?? []) {
@@ -1300,7 +1300,7 @@ export const logBreakGlassAccess = mutation({
         action: "governance.breakGlass.denied",
         entityType: args.entityType,
         entityId: args.entityId,
-        reason: "Akses ditolak: tidak ada izin aktif.",
+        reason: "Akses ditolak. Tidak ada izin aktif.",
         severity: "warning",
       })
       return { allowed: false as const, grantId: null, expiresAt: null }

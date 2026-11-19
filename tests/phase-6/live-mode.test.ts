@@ -61,6 +61,6 @@ describe("phase 6 / live data only", () => {
       "components/workspace/governance/governance-board-live.tsx",
     )
     expect(code).toContain('can("governance.manage")')
-    expect(code).toContain("Ruang tata kelola terkunci")
+    expect(code).toContain("Kamu belum punya akses tata kelola")
   })
 })

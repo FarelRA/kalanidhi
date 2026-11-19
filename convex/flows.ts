@@ -241,7 +241,7 @@ const STUCK_STATES: Record<FlowKey, string[]> = {
 
 const NEXT_ACTION: Record<FlowKey, string> = {
   lead: "Hubungi lead dan catat kualifikasi",
-  teacher: "Tinjau dossier pengajar",
+  teacher: "Tinjau berkas pengajar",
   enrollment: "Cocokkan pembayaran",
   submission: "Buka tugas dan nilai",
   assessment: "Selesaikan rubrik",

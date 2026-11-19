@@ -34,7 +34,7 @@ function chooseUniqueAmount(
     }
     offset = offset === 999 ? 1 : offset + 1
   }
-  throw new Error("Seed builder: tidak ada nominal unik yang tersisa.")
+  throw new Error("Seed builder, tidak ada nominal unik yang tersisa.")
 }
 
 export type BuildPaidOrderInput = {
@@ -86,7 +86,7 @@ export async function buildPaidOrder(
 }> {
   const baseAmount = assertRupiah(input.baseAmount, "baseAmount")
   if (input.paidAt !== undefined && input.paidAt < input.createdAt) {
-    throw new Error(`Seed builder: ${input.code} paid before it was created.`)
+    throw new Error(`Seed builder, ${input.code} paid before it was created.`)
   }
 
   const providerKey = input.providerKey ?? input.code
@@ -104,7 +104,7 @@ export async function buildPaidOrder(
     )
   const offset = uniqueOffset(baseAmount, uniqueAmount)
   if (offset < 1 || offset > 999) {
-    throw new Error(`Seed builder: ${input.code} offset out of range.`)
+    throw new Error(`Seed builder, ${input.code} offset out of range.`)
   }
   const duplicate = await ctx.db
     .query("payments")
@@ -112,7 +112,7 @@ export async function buildPaidOrder(
     .first()
   if (duplicate) {
     throw new Error(
-      `Seed builder: unique amount ${uniqueAmount} is already in use.`,
+      `Seed builder, unique amount ${uniqueAmount} is already in use.`,
     )
   }
   used.add(uniqueAmount)
@@ -121,7 +121,7 @@ export async function buildPaidOrder(
     input.tokenSeed ?? `seed-order-token-${input.code}`,
   )
   if (!TOKEN_HASH.test(tokenHash)) {
-    throw new Error("Seed builder: order token is not a SHA-256 digest.")
+    throw new Error("Seed builder, order token is not a SHA-256 digest.")
   }
 
   const orderId = await ctx.db.insert("orders", {
@@ -418,7 +418,7 @@ export async function buildRefundReversal(
   const baseAmount = assertRupiah(input.baseAmount, "baseAmount")
   const reversal = reverseSplit(baseAmount, input.amount)
   if (input.paidAt !== undefined && input.paidAt < input.createdAt) {
-    throw new Error("Seed builder: refund paid before it was created.")
+    throw new Error("Seed builder, refund paid before it was created.")
   }
 
   const originalPayout = input.originalPayoutId
@@ -431,7 +431,7 @@ export async function buildRefundReversal(
       ).find((row) => row.kind === "sale")
   const teacherId = originalPayout?.teacherId ?? input.teacherId
   if (!teacherId) {
-    throw new Error("Seed builder: refund has no teacher allocation.")
+    throw new Error("Seed builder, refund has no teacher allocation.")
   }
 
   const refundId = await ctx.db.insert("refunds", {
@@ -556,27 +556,27 @@ export async function buildCertificateChain(
 ): Promise<Id<"certificates">> {
   const assessment = await ctx.db.get(input.assessmentId)
   if (!assessment || assessment.status !== "completed") {
-    throw new Error("Seed builder: certificate needs a completed assessment.")
+    throw new Error("Seed builder, certificate needs a completed assessment.")
   }
   const submission = await ctx.db.get(assessment.submissionId)
   if (!submission || submission.status !== "approved") {
-    throw new Error("Seed builder: certificate needs an approved submission.")
+    throw new Error("Seed builder, certificate needs an approved submission.")
   }
   const enrollmentId = input.enrollmentId ?? submission.enrollmentId
   const enrollment = await ctx.db.get(enrollmentId)
   if (!enrollment || enrollment.status !== "completed") {
-    throw new Error("Seed builder: certificate needs a completed enrollment.")
+    throw new Error("Seed builder, certificate needs a completed enrollment.")
   }
   if (
     enrollment.completedAt !== undefined &&
     input.issuedAt < enrollment.completedAt
   ) {
     throw new Error(
-      "Seed builder: certificate issued before the enrollment completed.",
+      "Seed builder, certificate issued before the enrollment completed.",
     )
   }
   if (input.issuedAt < assessment.createdAt) {
-    throw new Error("Seed builder: certificate issued before the assessment.")
+    throw new Error("Seed builder, certificate issued before the assessment.")
   }
 
   const duplicateSerial = await ctx.db
@@ -588,7 +588,7 @@ export async function buildCertificateChain(
     .withIndex("by_publicCode", (q) => q.eq("publicCode", input.publicCode))
     .first()
   if (duplicateSerial || duplicateCode) {
-    throw new Error("Seed builder: certificate serial or public code reused.")
+    throw new Error("Seed builder, certificate serial or public code reused.")
   }
 
   const [student, teacher, path] = await Promise.all([
@@ -600,13 +600,13 @@ export async function buildCertificateChain(
       .unique(),
   ])
   if (!student || !teacher) {
-    throw new Error("Seed builder: certificate identity is incomplete.")
+    throw new Error("Seed builder, certificate identity is incomplete.")
   }
 
   const status: CertificateStatus = input.status ?? "issued"
   if (status === "revoked") {
     if (input.revokedAt === undefined || input.revokedAt < input.issuedAt) {
-      throw new Error("Seed builder: revoked certificate needs a valid revoke time.")
+      throw new Error("Seed builder, revoked certificate needs a valid revoke time.")
     }
   }
 
@@ -779,7 +779,7 @@ export async function buildSubmissionAssessment(
     .withIndex("by_submissionId", (q) => q.eq("submissionId", submissionId))
     .first()
   if (existing) {
-    throw new Error("Seed builder: submission already has an assessment.")
+    throw new Error("Seed builder, submission already has an assessment.")
   }
 
   const assessmentId = await ctx.db.insert("assessments", {

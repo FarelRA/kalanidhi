@@ -72,7 +72,7 @@ export const navItems: NavItem[] = [
     href: "/ruang/kredensial",
     label: "Kredensial",
     teacherLabel: "Sertifikat kohort",
-    adminLabel: "Registry sertifikat",
+    adminLabel: "Daftar sertifikat",
     shortLabel: "Kredensial",
     group: "Belajar & mengajar",
     icon: Award,

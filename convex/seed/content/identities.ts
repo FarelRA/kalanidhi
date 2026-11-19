@@ -337,7 +337,7 @@ const BY_KEY = new Map(SEED_USERS.map((user) => [user.key, user] as const))
 
 function seedUser(key: string): SeedUser {
   const user = BY_KEY.get(key)
-  if (!user) throw new Error(`Seed identity missing: ${key}`)
+  if (!user) throw new Error(`Seed identity missing, ${key}`)
   return user
 }
 

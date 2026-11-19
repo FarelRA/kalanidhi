@@ -105,7 +105,7 @@ export function qualitySummaryFor(
   )
   if (rated.length === 0) return null
   return rated
-    .map((participant) => `${participant.name}: ${participant.quality}`)
+    .map((participant) => `${participant.name}, ${participant.quality}`)
     .join(" · ")
     .slice(0, 240)
 }

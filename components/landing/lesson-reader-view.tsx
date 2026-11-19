@@ -130,11 +130,11 @@ export function LessonReaderView({
           ) : null}
           <div className="mt-4 border border-ink/20 bg-cream p-4">
             <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-copper-dark">
-              Pelajaran terkunci
+              Pelajaran belum terbuka
             </p>
             <p className="mt-1.5 text-[12px] leading-relaxed text-ink-soft">
               {lesson.reason === "certified"
-                ? "Pelajaran ini terbuka untuk peserta yang sudah memegang sertifikat platform pada jalur ini."
+                ? "Pelajaran ini terbuka untuk peserta yang sudah memiliki sertifikat platform pada jalur ini."
                 : "Pelajaran ini terbuka untuk peserta yang terdaftar pada jalur ini."}
             </p>
             {actions ? <div className="mt-3">{actions}</div> : null}

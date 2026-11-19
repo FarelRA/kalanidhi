@@ -390,7 +390,7 @@ export const releasePayout = mutation({
       if (disputes.some((row) => ["open", "reviewing"].includes(row.status))) {
         commerceError(
           "DISPUTE_OPEN",
-          "Sengketa pesanan masih terbuka; tahan payout sampai selesai.",
+          "Sengketa pesanan masih terbuka. Tahan payout sampai selesai.",
         )
       }
     }
@@ -430,7 +430,7 @@ export const releasePayout = mutation({
       await ctx.db.patch(payout._id, {
         status: "held",
         holdReason:
-          "Saldo bersih nol atau tertutup saldo negatif; perlu pemeriksaan manual.",
+          "Saldo bersih nol atau tertutup saldo negatif. Perlu pemeriksaan manual.",
         updatedAt: now(),
       })
       await writeAudit(ctx, {
@@ -445,7 +445,7 @@ export const releasePayout = mutation({
       })
       commerceError(
         "NEGATIVE_BALANCE",
-        "Saldo bersih payout ini nol atau tertutup saldo negatif; tahan untuk pemeriksaan.",
+        "Saldo bersih payout ini nol atau tertutup saldo negatif. Tahan untuk pemeriksaan.",
       )
     }
 
@@ -628,7 +628,7 @@ export const requestPayoutAccount = mutation({
       action: "payouts.account.change",
       entityType: "payoutAccounts",
       entityId: accountId,
-      reason: "Rekening payout diubah; verifikasi ulang diperlukan.",
+      reason: "Rekening payout diubah. Verifikasi ulang diperlukan.",
       before: existing
         ? { status: existing.status, masked: existing.accountNumberMasked }
         : undefined,
@@ -846,7 +846,7 @@ export const reviewRefund = mutation({
       await holdOrderPayout(
         ctx,
         order._id,
-        "Refund disetujui; payout ditahan sampai refund dibayar.",
+        "Refund disetujui. Payout ditahan sampai refund dibayar.",
       )
     }
     await writeAudit(ctx, {
@@ -976,7 +976,7 @@ export const payRefund = mutation({
         await holdOrderPayout(
           ctx,
           order._id,
-          "Refund sebagian; payout menunggu penyesuaian.",
+          "Refund sebagian. Payout menunggu penyesuaian.",
         )
       }
     }

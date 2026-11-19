@@ -90,11 +90,11 @@ export function LogLive() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Log"
-        title="Satu meja untuk semua jejak."
+        title="Satu halaman untuk semua riwayat."
         description="Audit, auth, pembayaran, notifikasi, panggilan, moderasi, dan konten dibaca dari catatan masing-masing. Sumber yang belum ada dinyatakan kosong, bukan diisi data karangan."
         meta={
           <span className="text-[10px] text-ink-muted">
-            {result?.rows.length ?? 0} baris · {result?.note ?? "append-only"}
+            {result?.rows.length ?? 0} baris · {result?.note ?? "hanya tambah"}
           </span>
         }
         actions={
@@ -266,8 +266,8 @@ function LogDrawer({
               }).format(new Date(detail.createdAt)) },
               { label: "Aktor", value: detail.actor ?? "Sistem" },
               { label: "Entitas", value: detail.entity },
-              { label: "ID entitas", value: detail.entityId ?? "—" },
-              { label: "Request ID", value: detail.requestId ?? "—" },
+              { label: "ID entitas", value: detail.entityId ?? "-" },
+              { label: "Request ID", value: detail.requestId ?? "-" },
               { label: "Severity", value: detail.severity },
             ]}
           />

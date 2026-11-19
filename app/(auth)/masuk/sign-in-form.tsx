@@ -177,7 +177,7 @@ function SignInFormView({
             Satu ruang kerja
           </p>
           <h1 className="mt-3 font-heading text-[clamp(2.2rem,4vw,3.5rem)] leading-[0.98] tracking-[-0.02em]">
-            Duduk di bangku ini. Nanti kamu yang mengajari.
+            Mulai dari kelas ini. Nanti kamu yang mengajari.
           </h1>
           <p className="mt-5 text-[13px] leading-relaxed text-paper/70">
             Belajar, dinilai pengajar, menerima sertifikat platform dan Kartu
@@ -338,7 +338,7 @@ function SignInFormView({
                         placeholder="nama@email.com"
                       />
                       <span className="mt-1 block text-[9.5px] leading-relaxed text-ink-muted">
-                        Sekunder: untuk pemulihan akun dan pemberitahuan.
+                        Email sekunder, untuk pemulihan akun dan pemberitahuan.
                       </span>
                     </label>
                   ) : null}

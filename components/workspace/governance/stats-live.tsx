@@ -67,7 +67,7 @@ function MetricTrend({ points }: { points: MetricHistoryPoint[] }) {
         return (
           <span
             key={point.date}
-            title={`${point.date}: ${formatHistoryValue(point.value)}`}
+            title={`${point.date}, ${formatHistoryValue(point.value)}`}
             className="min-w-0 flex-1 bg-copper-dark/70"
             style={{ height: `${height}%` }}
           />
@@ -144,8 +144,8 @@ export function StatsLive() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Statistik"
-        title="Angka dari catatan, bukan dari ingatan."
-        description="Setiap metrik dihitung dari tabel nyata. Definisi dan rumus ditampilkan bersama nilainya; ketiadaan data dinyatakan sebagai belum ada data."
+        title="Angka dihitung dari catatan, bukan dikarang."
+        description="Setiap metrik dihitung dari tabel nyata. Definisi dan rumus ditampilkan bersama nilainya. Ketiadaan data dinyatakan sebagai belum ada data."
         meta={
           <span className="text-[10px] text-ink-muted">
             {report
@@ -230,7 +230,7 @@ export function StatsLive() {
             ))}
           </div>
 
-          <Panel eyebrow="Corong" title="Dari lead ke penjualan berulang">
+          <Panel eyebrow="Alur" title="Dari lead ke penjualan berulang">
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               {report.funnel.map((step) => (
                 <div key={step.key} className="border border-ink/15 bg-paper/40 p-2.5">
@@ -238,7 +238,7 @@ export function StatsLive() {
                     {step.label}
                   </p>
                   <p className="mt-1 font-heading text-xl leading-none text-ink tabular-nums">
-                    {step.value === null ? "—" : step.value}
+                    {step.value === null ? "-" : step.value}
                   </p>
                   <p className="mt-1 text-[9px] leading-snug text-ink-muted">
                     {step.definition}

@@ -70,7 +70,7 @@ export function FaqManager() {
     }
     const note =
       reason.trim() ||
-      (draft.id ? `Ubah FAQ: ${question.slice(0, 80)}` : `Tambah FAQ: ${question.slice(0, 80)}`)
+      (draft.id ? `Ubah FAQ, ${question.slice(0, 80)}` : `Tambah FAQ, ${question.slice(0, 80)}`)
     setPending(true)
     try {
       if (draft.id) {
@@ -96,7 +96,7 @@ export function FaqManager() {
     try {
       await deleteFaq({
         id: faq.id as never,
-        reason: reason.trim() || `Hapus FAQ: ${faq.question.slice(0, 80)}`,
+        reason: reason.trim() || `Hapus FAQ, ${faq.question.slice(0, 80)}`,
       })
       toast("FAQ dihapus")
       setPendingDelete(null)
@@ -136,7 +136,7 @@ export function FaqManager() {
       <PageHeader
         eyebrow="Konten"
         title="Pertanyaan yang tampil di landing."
-        description="FAQ disimpan di tabel Convex. Tambah, ubah, hapus, dan urutkan di sini; pilih mana yang tampil lewat halaman Pilihan landing. Setiap perubahan masuk log audit."
+        description="FAQ disimpan di tabel Convex. Tambah, ubah, hapus, dan urutkan di sini. Pilih mana yang tampil lewat halaman Pilihan landing. Setiap perubahan masuk log audit."
         actions={
           <Button onClick={startCreate} disabled={pending}>
             <Plus aria-hidden="true" />
@@ -153,7 +153,7 @@ export function FaqManager() {
             value={reason}
             onChange={(event) => setReason(event.target.value)}
             className="mt-1.5"
-            placeholder="Misalnya: perbarui jawaban biaya jalur."
+            placeholder="Misalnya, perbarui jawaban biaya jalur."
           />
           <p className="mt-1 text-[10px] text-ink-muted">
             Kosongkan untuk memakai alasan otomatis. Tersimpan di log audit.

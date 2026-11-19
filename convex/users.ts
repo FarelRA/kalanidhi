@@ -317,7 +317,7 @@ export const invite = mutation({
     if (args.roles.includes("student")) {
       throw new ConvexError({
         code: "INVALID_ROLES",
-        message: "Peserta mendaftar sendiri; undangan hanya untuk admin atau pengajar.",
+        message: "Peserta mendaftar sendiri. Undangan hanya untuk admin atau pengajar.",
       })
     }
 
@@ -412,7 +412,7 @@ export const acceptInvite = mutation({
         role,
         action: "grant",
         actorId: invite.invitedBy,
-        reason: `Invitation accepted: ${invite.reason}`,
+        reason: `Invitation accepted, ${invite.reason}`,
         createdAt: timestamp,
       })
     }

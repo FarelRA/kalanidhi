@@ -79,7 +79,7 @@ export default async function VerificationPage({
       <VerificationShell>
         <p className="text-[12.5px] leading-relaxed text-ink-soft">
           Kode <code className="border border-ink/15 bg-panel/40 px-1.5 py-0.5">{kode}</code>{" "}
-          tidak ditemukan dalam registry sertifikat platform {siteName}.
+          tidak ditemukan dalam daftar sertifikat platform {siteName}.
         </p>
         <p className="mt-3 text-[11px] leading-relaxed text-ink-muted">
           Periksa kembali kode pada sertifikat. Kode publik berbeda dari nomor
@@ -150,7 +150,7 @@ export default async function VerificationPage({
       {certificate.status === "replaced" &&
       certificate.replacedByPublicCode ? (
         <p className="mt-5 border border-ink/20 bg-panel/30 p-3 text-[11.5px] leading-relaxed text-ink-soft">
-          Kode ini telah diganti. Gunakan kode terbaru:{" "}
+          Kode ini telah diganti. Gunakan kode terbaru berikut.{" "}
           <Link
             href={verifyHref(certificate.replacedByPublicCode)}
             className="font-semibold text-copper-dark underline underline-offset-2"
@@ -191,7 +191,7 @@ async function VerificationShell({ children }: { children: React.ReactNode }) {
             href={PUBLIC_ROUTES.verify}
             className="text-[9px] font-bold uppercase tracking-[0.1em] text-ink-muted hover:text-ink"
           >
-            Registry kredensial
+            Daftar sertifikat
           </Link>
         </div>
         {children}

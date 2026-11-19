@@ -91,7 +91,7 @@ export function LiveCredentialBoard() {
     },
     can("certificates.manage") && {
       id: "registry",
-      label: "Registry",
+      label: "Daftar",
       count: registry?.length ?? 0,
     },
   ].filter(Boolean) as { id: string; label: string; count?: number }[]
@@ -102,7 +102,7 @@ export function LiveCredentialBoard() {
     return (
       <EmptyState
         title="Belum ada kredensial"
-        description="Akun ini belum memiliki akses sertifikat atau registry."
+        description="Akun ini belum memiliki akses sertifikat atau daftar."
       />
     )
   }
@@ -152,7 +152,7 @@ export function LiveCredentialBoard() {
         eyebrow="Kredensial"
         title={
           can("certificates.manage")
-            ? "Registry, verifikasi, dan pencabutan."
+            ? "Daftar, verifikasi, dan pencabutan."
             : can("certificates.read.cohort")
               ? "Sertifikat kohort."
               : "Sertifikat dan Kartu Karya."
@@ -225,11 +225,11 @@ export function LiveCredentialBoard() {
       ) : null}
 
       {active === "registry" ? (
-        <Panel eyebrow="Registry" title="Semua sertifikat" bodyClassName="p-0">
+        <Panel eyebrow="Daftar" title="Semua sertifikat" bodyClassName="p-0">
           <DataTable
             rows={registry ?? []}
             columns={certificateColumns(setSelected)}
-            caption="Registry sertifikat dengan status, jalur, dan pengajar"
+            caption="Daftar sertifikat dengan status, jalur, dan pengajar"
             searchPlaceholder="Cari seri, kode publik, nama, atau jalur"
             getSearchText={(row) =>
               `${row.serial} ${row.publicCode} ${row.studentName} ${row.pathTitle} ${row.teacherName}`
@@ -252,11 +252,11 @@ export function LiveCredentialBoard() {
               values.status === "all" ||
               row.status === values.status
             }
-            emptyTitle="Registry kosong"
+            emptyTitle="Daftar kosong"
             minWidth={900}
             footer={
               <p>
-                Registry bersifat append-only. Penggantian membuat kode baru;
+                Daftar bersifat hanya tambah. Penggantian membuat kode baru,
                 kode lama berstatus diganti.
               </p>
             }

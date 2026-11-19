@@ -44,6 +44,6 @@ export const WHATSAPP_VERIFICATION_NUMBER = "6287784454555"
 
 export function whatsappVerificationUrl(token: string): string {
   return `https://wa.me/${WHATSAPP_VERIFICATION_NUMBER}?text=${encodeURIComponent(
-    `Verifikasi KalaNidhi: ${token}`,
+    `Verifikasi KalaNidhi ${token}`,
   )}`
 }

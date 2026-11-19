@@ -226,7 +226,7 @@ const WITHDRAW_REASONS = [
 ] as const
 
 const NO_REFUND_REASON =
-  "Mengundurkan diri setelah sesi kedua; biaya angkatan tidak dikembalikan sesuai ketentuan yang disetujui saat mendaftar."
+  "Mengundurkan diri setelah sesi kedua, biaya angkatan tidak dikembalikan sesuai ketentuan yang disetujui saat mendaftar."
 
 const LEAD_MESSAGES = [
   "Saya lihat jadwal angkatan Juli di halaman jalur. Masih ada tempat untuk yang kerja kantor?",
@@ -256,17 +256,17 @@ const LEAD_NOTES = [
   "Tinggal di luar kota, tanya paket bahan. Sudah saya cek ongkir ke Magelang.",
   "Minta dihubungi setelah gajian tanggal 25. Saya pasang pengingat.",
   "Masih membandingkan dua jalur. Saya sarankan datang ke sesi terbuka dulu.",
-  "Sudah saya kirim jadwal angkatan Juli dan tautan pendaftaran; dia akan cek dulu dengan suami.",
+  "Sudah saya kirim jadwal angkatan Juli dan tautan pendaftaran, dia akan cek dulu dengan suami.",
   "Kerja shift malam, jadi saya tawarkan rekaman sesi dan sesi susulan akhir pekan.",
   "Minta rincian biaya bahan. Sudah saya jelaskan apa saja yang termasuk dan ongkirnya.",
   "Dia baru pindah ke Sleman, minta rekomendasi jalur yang dekat. Saya arahkan ke batik bambu.",
-  "Sudah saya kirim contoh tugas akhir dua lulusan; dia minta waktu sampai akhir bulan.",
+  "Sudah saya kirim contoh tugas akhir dua lulusan, dia minta waktu sampai akhir bulan.",
   "Tanya apakah sertifikat bisa dipakai untuk kenaikan jenjang. Saya jelaskan ini sertifikat platform.",
   "Mau ikut berdua dengan teman kantor. Saya kirim dua tautan dan catat keduanya.",
   "Belum pernah pegang canting, agak ragu. Saya tawarkan datang ke sesi terbuka dulu.",
   "Minta dihubungi lewat telepon, bukan WA. Sudah saya catat nomornya dan jadwalkan sore.",
   "Tanya soal aksara untuk undangan pernikahan. Saya kirim contoh dan tarif jasa tulis.",
-  "Sudah saya kabari jadwal angkatan Agustus; dia minta pengingat H-3.",
+  "Sudah saya kabari jadwal angkatan Agustus, dia minta pengingat H-3.",
   "Tertarik pranatacara untuk acara keluarga. Saya sarankan ikut angkatan Oktober.",
 ] as const
 
@@ -278,7 +278,7 @@ const SUPPORT_SCENARIOS = [
       "Bercaknya masih bisa ditutup kalau belum difiksasi. Keringkan dulu semalaman, lalu tutup tipis dengan malam dingin. Jangan dipanaskan lagi di bagian yang sudah berwarna.",
     priority: "high" as const,
     resolution:
-      "Canting pengganti dikirim Senin; {name} lanjut latihan di sesi susulan.",
+      "Canting pengganti dikirim Senin, {name} lanjut latihan di sesi susulan.",
   },
   {
     subject: "Video sesi kemarin tidak bisa diputar",
@@ -302,7 +302,7 @@ const SUPPORT_SCENARIOS = [
     subject: "Sertifikat belum muncul di akun",
     body: "Tugas akhir saya sudah dinilai Bu Sri minggu lalu, tapi sertifikat belum ada di halaman akun. Apakah ada yang kurang?",
     reply:
-      "Sudah saya cek, penilaiannya masuk dan sertifikat terbit hari ini. Coba muat ulang halaman verifikasi; kalau masih kosong, kirim tangkapan layarnya ke sini.",
+      "Sudah saya cek, penilaiannya masuk dan sertifikat terbit hari ini. Coba muat ulang halaman verifikasi, kalau masih kosong, kirim tangkapan layarnya ke sini.",
     priority: "normal" as const,
     resolution:
       "Sertifikat disinkronkan ulang dan sudah muncul di akun {name}.",
@@ -314,7 +314,7 @@ const SUPPORT_SCENARIOS = [
       "Tiga puluh tujuh rupiah itu kode unik untuk mencocokkan mutasi, bukan biaya tambahan. Statusnya sudah lunas, tidak perlu transfer lagi.",
     priority: "high" as const,
     resolution:
-      "Selisih 37 rupiah dikonfirmasi sebagai kode unik; pesanan {name} lunas.",
+      "Selisih 37 rupiah dikonfirmasi sebagai kode unik, pesanan {name} lunas.",
   },
   {
     subject: "Mau pindah jadwal sesi",
@@ -332,13 +332,13 @@ const SUPPORT_SCENARIOS = [
       "Kalau yang salah cuma satu blok, bisa ditambal dengan stiker kertas bebas asam. Saya kirim versi aksara yang benar malam ini, sekalian ejaan Latin-nya.",
     priority: "low" as const,
     resolution:
-      "Blok aksara yang benar dikirim ulang; undangan {name} ditambal dengan stiker.",
+      "Blok aksara yang benar dikirim ulang, undangan {name} ditambal dengan stiker.",
   },
   {
     subject: "Belum dapat kabar jadwal wawancara",
     body: "Saya daftar jadi pengajar pendamping bulan lalu. Katanya akan dihubungi untuk wawancara, tapi sampai sekarang belum ada kabar.",
     reply:
-      "Berkasnya sudah masuk daftar tunggu. Wawancara gelombang berikutnya minggu ketiga November; saya kabari lewat WA begitu jadwalnya keluar.",
+      "Berkasnya sudah masuk daftar tunggu. Wawancara gelombang berikutnya minggu ketiga November, saya kabari lewat WA begitu jadwalnya keluar.",
     priority: "normal" as const,
     resolution:
       "Berkas {name} masuk gelombang wawancara November dan dikabari lewat WA.",
@@ -347,10 +347,10 @@ const SUPPORT_SCENARIOS = [
     subject: "Karya yang saya pesan warnanya beda",
     body: "Nampannya sudah sampai, tapi warna dasarnya lebih gelap dari foto di etalase. Apakah memang begitu, atau ada kesalahan pewarnaan?",
     reply:
-      "Warna alami memang bisa sedikit berbeda tergantung bilah. Kalau terlalu jauh dari foto, kirim foto dengan cahaya siang; kalau memang beda jauh, kami tawarkan penukaran.",
+      "Warna alami memang bisa sedikit berbeda tergantung bilah. Kalau terlalu jauh dari foto, kirim foto dengan cahaya siang, kalau memang beda jauh, kami tawarkan penukaran.",
     priority: "normal" as const,
     resolution:
-      "Foto cahaya siang diminta; {name} mengirim ulang foto untuk pengecekan warna.",
+      "Foto cahaya siang diminta, {name} mengirim ulang foto untuk pengecekan warna.",
   },
   {
     subject: "Tidak bisa unggah tugas dari HP",
@@ -368,7 +368,7 @@ const SUPPORT_SCENARIOS = [
       "Refund sudah diproses tanggal 12, biasanya masuk 3-5 hari kerja. Saya kirim bukti transfernya lewat email supaya bisa dicek ke bank.",
     priority: "high" as const,
     resolution:
-      "Refund {name} diproses 12 Oktober; bukti transfer dikirim lewat email.",
+      "Refund {name} diproses 12 Oktober, bukti transfer dikirim lewat email.",
   },
   {
     subject: "Jadwal sesi bentrok dengan kerja",
@@ -737,7 +737,7 @@ function uniqueAmount(
     }
     offset = offset === 999 ? 1 : offset + 1
   }
-  throw new Error("Seed growth: tidak ada nominal unik yang tersisa.")
+  throw new Error("Seed growth, tidak ada nominal unik yang tersisa.")
 }
 
 async function publishedLessons(
@@ -1004,7 +1004,7 @@ export const seedGrowthBatch = internalMutation({
 
     const ensureCohort = async (index: number): Promise<Doc<"cohorts">> => {
       const spec = COHORT_PLAN[index]
-      if (!spec) throw new Error(`Seed growth: cohort slot ${index} missing`)
+      if (!spec) throw new Error(`Seed growth, cohort slot ${index} missing`)
       const path = paths[spec.pathIndex % paths.length] as OpenPath
       const code = `GRW-26${String(spec.period + 1).padStart(2, "0")}-${pathSlugToken(
         path.slug,
@@ -1016,7 +1016,7 @@ export const seedGrowthBatch = internalMutation({
       const startDate = periodStart(spec.period) + spec.pathIndex * DAY
       const endDate = startDate + COHORT_DAYS * DAY
       const status = cohortStatusFor(startDate, endDate, now)
-      const title = `${path.title} — Angkatan ${MONTH_LABELS[spec.period * 3]} 2026${
+      const title = `${path.title} | Angkatan ${MONTH_LABELS[spec.period * 3]} 2026${
         spec.ordinal > 0 ? ` (${spec.ordinal + 1})` : ""
       }`
       const cohortId = await ctx.db.insert("cohorts", {
@@ -1105,7 +1105,7 @@ export const seedGrowthBatch = internalMutation({
           input.status === "cancelled" ? input.paidAt : undefined,
         cancelReason:
           input.status === "cancelled"
-            ? "Peserta mengundurkan diri; biaya tidak dikembalikan."
+            ? "Peserta mengundurkan diri, biaya tidak dikembalikan."
             : undefined,
         updatedAt: now,
       })
@@ -1564,7 +1564,7 @@ export const seedGrowthBatch = internalMutation({
             status: "paid",
             decidedBy: admin._id as string,
             decisionReason:
-              "Pengunduran diri diterima; pengembalian disetujui.",
+              "Pengunduran diri diterima, pengembalian disetujui.",
             evidence: "Percakapan WhatsApp dan formulir pengunduran diri.",
             reviewedAt: (withdrawnAt as number) + DAY,
             paidAt: (withdrawnAt as number) + 2 * DAY,
@@ -1700,14 +1700,14 @@ export const seedGrowthBatch = internalMutation({
         }
         const taskTitle =
           path.slug === pathSlug("aksaraJawa")
-            ? "Ujian akhir: paragraf aksara Jawa"
+            ? "Ujian akhir, paragraf aksara Jawa"
             : path.slug === pathSlug("pranatacaraJawa")
-              ? "Ujian akhir: susunan acara dan praktik"
+              ? "Ujian akhir, susunan acara dan praktik"
               : path.slug === pathSlug("tariKreasi")
-                ? "Ujian akhir: kreasi tari dua menit"
+                ? "Ujian akhir, kreasi tari dua menit"
                 : path.slug === pathSlug("kulinerNusantara")
-                  ? "Ujian akhir: masak dan dokumentasi hidangan"
-                  : "Ujian akhir: kain batik bambu"
+                  ? "Ujian akhir, masak dan dokumentasi hidangan"
+                  : "Ujian akhir, kain batik bambu"
         const submissionAtFinal = finalSubmissionAt as number
         const assessmentAt = submissionAtFinal + DAY + 3 * HOUR
         const score = 84 + ((row.globalIndex * 7) % 13)
@@ -1716,7 +1716,7 @@ export const seedGrowthBatch = internalMutation({
           weight: criterion.weight,
           score,
           comment:
-            "Proses terdokumentasi rapi; hasil akhir sesuai kriteria angkatan.",
+            "Proses terdokumentasi rapi, hasil akhir sesuai kriteria angkatan.",
         }))
         const resultRow = await buildSubmissionAssessment(ctx, {
           now,
@@ -1828,7 +1828,7 @@ export const seedGrowthBatch = internalMutation({
           enrollmentId,
           cohortId: cohort._id,
           pathId: path.slug,
-          taskTitle: "Tugas tengah angkatan: latihan terbimbing",
+          taskTitle: "Tugas tengah angkatan, latihan terbimbing",
           status: "submitted",
           submittedAt: midAt,
           dueAt: midAt + 3 * DAY,

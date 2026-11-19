@@ -127,7 +127,7 @@ describe("calls / policy", () => {
         { name: "Anisa", quality: "excellent" },
         { name: "Bambang", quality: null },
       ]),
-    ).toBe("Anisa: excellent")
+    ).toBe("Anisa, excellent")
     expect(
       qualitySummaryFor([
         { name: "A".repeat(200), quality: "good" },

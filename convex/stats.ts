@@ -624,7 +624,7 @@ function buildFunnel(data: Data, range: Range): FunnelStep[] {
       key: "visitor",
       label: "Pengunjung",
       value: null,
-      definition: "Belum ada sumber analitik pengunjung; angka ini tidak dikarang.",
+      definition: "Belum ada sumber analitik pengunjung. Angka ini tidak dikarang.",
     },
     {
       key: "lead",
@@ -944,7 +944,7 @@ export const overview = query({
             data.submissions.length > 0 ||
             data.assessments.length > 0
               ? "Data nyata tersedia."
-              : "Fase belajar belum terhubung; tidak ada data untuk ditampilkan.",
+              : "Fase belajar belum terhubung. Tidak ada data untuk ditampilkan.",
         },
         {
           key: "commerce",
@@ -958,7 +958,7 @@ export const overview = query({
             data.payments.length > 0 ||
             data.payouts.length > 0
               ? "Data nyata tersedia."
-              : "Fase commerce belum terhubung; tidak ada data untuk ditampilkan.",
+              : "Fase commerce belum terhubung. Tidak ada data untuk ditampilkan.",
         },
         {
           key: "messaging",
@@ -967,7 +967,7 @@ export const overview = query({
           note:
             data.conversations.length > 0 || data.messages.length > 0
               ? "Data nyata tersedia."
-              : "Fase pesan belum terhubung; tidak ada data untuk ditampilkan.",
+              : "Fase pesan belum terhubung. Tidak ada data untuk ditampilkan.",
         },
         {
           key: "calls",
@@ -976,7 +976,7 @@ export const overview = query({
           note:
             data.callSessions.length > 0
               ? "Data nyata tersedia."
-              : "Fase panggilan belum terhubung; tidak ada data untuk ditampilkan.",
+              : "Fase panggilan belum terhubung. Tidak ada data untuk ditampilkan.",
         },
       ],
     }

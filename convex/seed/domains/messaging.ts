@@ -74,7 +74,7 @@ export const seedMessagingBatch = internalMutation({
 
       const directId = await ctx.db.insert("conversations", {
         kind: "direct",
-        title: "Batik: catatan canting",
+        title: "Batik, catatan canting",
         pathId: pathSlug("batikBambu"),
         createdBy: sri._id,
         status: "open",
@@ -212,7 +212,7 @@ export const seedMessagingBatch = internalMutation({
 
       const raniConversationId = await ctx.db.insert("conversations", {
         kind: "direct",
-        title: "Pranatacara: jadwal siraman",
+        title: "Pranatacara, jadwal siraman",
         pathId: pathSlug("pranatacaraJawa"),
         createdBy: (await userByEmail(ctx, seedEmail("widagdo")))._id,
         status: "open",
@@ -283,7 +283,7 @@ export const seedMessagingBatch = internalMutation({
 
       const dimasConversationId = await ctx.db.insert("conversations", {
         kind: "direct",
-        title: "Pewarnaan alami: catatan nila",
+        title: "Pewarnaan alami, catatan nila",
         pathId: pathSlug("batikBambu"),
         createdBy: sri._id,
         status: "open",
@@ -599,7 +599,7 @@ export const seedMessagingBatch = internalMutation({
 
       const aksaraConversationId = await ctx.db.insert("conversations", {
         kind: "direct",
-        title: "Aksara: koreksi pasangan dan spasi",
+        title: "Aksara, koreksi pasangan dan spasi",
         pathId: pathSlug("aksaraJawa"),
         createdBy: suwardi._id,
         status: "open",
@@ -855,7 +855,7 @@ export const seedMessagingBatch = internalMutation({
       })
       for (const notice of [
         {
-          body: "Pemeliharaan terjadwal Minggu, 16 November 2026 pukul 01.00–03.00 WIB. Ruang belajar tetap dapat dibuka; unggahan tugas mungkin tertunda beberapa menit.",
+          body: "Pemeliharaan terjadwal Minggu, 16 November 2026 pukul 01.00 sampai 03.00 WIB. Ruang belajar tetap dapat dibuka, unggahan tugas mungkin tertunda beberapa menit.",
           createdAt: clock.ago(1.5),
         },
         {
@@ -881,14 +881,14 @@ export const seedMessagingBatch = internalMutation({
       const rani = await userByEmail(ctx, seedEmail("rani"))
       const dimas = await userByEmail(ctx, seedEmail("dimas"))
       const cohort = await cohortByCode(ctx, cohortCode("bbm2026_01"))
-      const direct = await conversationByTitle(ctx, "Batik: catatan canting")
+      const direct = await conversationByTitle(ctx, "Batik, catatan canting")
       const raniConversation = await conversationByTitle(
         ctx,
-        "Pranatacara: jadwal siraman",
+        "Pranatacara, jadwal siraman",
       )
       const dimasConversation = await conversationByTitle(
         ctx,
-        "Pewarnaan alami: catatan nila",
+        "Pewarnaan alami, catatan nila",
       )
       const cohortStudents = await Promise.all(
         ["sari", "dwi", "bayu", "nanda", "ratih", "yusuf", "melati", "arif"].map(
@@ -982,7 +982,7 @@ export const seedMessagingBatch = internalMutation({
         hostId: sri._id,
         cohortId: cohort._id,
         cohortSessionId: scheduledSession?._id,
-        title: "Sesi 3: lengkung ganda",
+        title: "Sesi 3, lengkung ganda",
         status: "scheduled",
         scheduledAt: clock.ahead(5),
         scheduledEndsAt: clock.ahead(5) + 2 * HOUR,
@@ -1218,7 +1218,7 @@ function cohortLines(pathId: string): PathLines {
   if (pathId === pathSlug("kulinerNusantara")) {
     return {
       teacher: [
-        "Untuk geblek, timbang tapiokanya dulu. Jangan menuang air sekaligus; tambahkan sedikit-sedikit sampai adonan bisa dipulung.",
+        "Untuk geblek, timbang tapiokanya dulu. Jangan menuang air sekaligus, tambahkan sedikit-sedikit sampai adonan bisa dipulung.",
         "Minyak terlalu panas kalau geblek langsung gelap di luar. Turunkan api, uji satu keping dulu.",
         "Catatan biaya jangan lupa menghitung minyak dan gas. Biaya per porsi baru masuk akal kalau semua bahan tercatat.",
         "Cerita rendang boleh memakai narasi kesabaran, tapi tulis bahwa itu narasi budaya, bukan aturan baku.",
@@ -1259,7 +1259,7 @@ const DIRECT_TITLES = [
 ] as const
 
 const DIRECT_TEACHER_LINES = [
-  "Sudah saya lihat fotonya. Bagian lengkung kanan masih goyang; coba mulai dari garis lurus pendek dulu.",
+  "Sudah saya lihat fotonya. Bagian lengkung kanan masih goyang, coba mulai dari garis lurus pendek dulu.",
   "Untuk tugas akhir, unggah prosesnya per tahap. Saya tidak perlu hasil yang sempurna, yang penting langkahnya kelihatan.",
   "Besok saya buka jam 16.00 kalau mau latihan tambahan. Bawa hasil yang kemarin, kita bedah bareng.",
   "Catatan saya sudah saya kirim di menu tugas. Poin utamanya ada di dua kalimat terakhir.",
@@ -1484,7 +1484,7 @@ export const seedGrowthMessagingBatch = internalMutation({
         )
         const conversationId = await ctx.db.insert("conversations", {
           kind: "direct",
-          title: `${DIRECT_TITLES[index % DIRECT_TITLES.length]} — ${row.student.name.split(" ")[0]}`,
+          title: `${DIRECT_TITLES[index % DIRECT_TITLES.length]} | ${row.student.name.split(" ")[0]}`,
           pathId: row.enrollment.pathId,
           createdBy: row.teacher._id,
           status: "open",
@@ -1634,7 +1634,7 @@ export const seedGrowthMessagingBatch = internalMutation({
       )
       const conversationId = await ctx.db.insert("conversations", {
         kind: "support",
-        title: `Bantuan: ${ticket.subject} • ${ticket.code}`,
+        title: `Bantuan, ${ticket.subject} • ${ticket.code}`,
         createdBy: requester._id,
         status:
           ticket.status === "resolved" || ticket.status === "closed"
@@ -1742,7 +1742,7 @@ export const seedGrowthCalls = internalMutation({
         cohortSessionId: session._id,
         title: isEnded
           ? `Tinjauan ${session.title.toLowerCase()}`
-          : `${session.title} — panggilan kelas`,
+          : `${session.title} | Panggilan kelas`,
         status: isEnded ? "ended" : "scheduled",
         startedAt: isEnded ? startedAt : undefined,
         endedAt: isEnded ? endedAt : undefined,

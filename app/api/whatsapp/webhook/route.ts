@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 import { constantTimeEqual } from "@/lib/security/constant-time"
 
-const TOKEN_MARKER = "Verifikasi KalaNidhi:"
+const TOKEN_MARKER = "Verifikasi KalaNidhi"
 
 function tokenFromBody(body: string): string | null {
   const markerIndex = body.indexOf(TOKEN_MARKER)
