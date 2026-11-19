@@ -91,13 +91,6 @@ export default async function PathsPage({
           ))}
         </div>
 
-        {activeField ? (
-          <p className="mt-5 text-[12px] leading-relaxed text-ink-soft">
-            Menampilkan kelas untuk bidang{" "}
-            <strong className="font-semibold text-ink">{activeField.name}</strong>.
-          </p>
-        ) : null}
-
         {visiblePaths.length === 0 ? (
           <p className="mt-12 max-w-xl border border-ink/25 bg-paper-2 p-5 text-[12.5px] leading-relaxed text-ink-soft">
             {activeField

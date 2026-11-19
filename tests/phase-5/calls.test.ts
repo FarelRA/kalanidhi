@@ -114,7 +114,7 @@ describe("calls / origin and membership", () => {
     const world = await seedWorld(t)
     const sessionId = await seedCohortSession(t, {
       cohortId: world.cohortId,
-      title: "Sesi batik pekan ini",
+      title: "Sesi batik minggu ini",
     })
 
     expect(
@@ -132,7 +132,7 @@ describe("calls / origin and membership", () => {
     })
     const call = await as(t, "auth-teacher").query(api.calls.getCall, { callId })
     expect(call.scope).toBe("cohort")
-    expect(call.title).toBe("Sesi batik pekan ini")
+    expect(call.title).toBe("Sesi batik minggu ini")
     expect(call.cohortSessionId).toBe(sessionId)
     expect(call.participants.map((item) => item.userId)).toContain(
       world.studentId,

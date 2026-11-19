@@ -11,6 +11,7 @@ import {
   Users,
 } from "lucide-react"
 
+import { CulturalSources } from "@/components/landing/cultural-sources"
 import { LessonReader } from "@/components/landing/lesson-reader"
 import { Button } from "@/components/ui/button"
 import { api } from "@/convex/_generated/api"
@@ -104,6 +105,9 @@ export default async function PathDetailPage({
   if (!path) notFound()
 
   const copy = data.sections.paths
+  const pathSources = data.culturalSources.filter(
+    (source) => source.pathSlug === path.slug,
+  )
   const teacherName = publishedTeacherName(
     path.teacher,
     teachers.map((teacher) => teacher.name),
@@ -165,7 +169,7 @@ export default async function PathDetailPage({
                       copy.contentLabel,
                       path.comingSoon
                         ? copy.curriculumPending
-                        : `${path.modules} modul · ${path.lessons} pelajaran · ${path.weeks} pekan`,
+                        : `${path.modules} modul · ${path.lessons} pelajaran · ${path.weeks} minggu`,
                     ],
                   ]
                 : [
@@ -175,7 +179,7 @@ export default async function PathDetailPage({
                       copy.contentLabel,
                       path.comingSoon
                         ? copy.curriculumPending
-                        : `${path.modules} modul · ${path.lessons} pelajaran · ${path.weeks} pekan`,
+                        : `${path.modules} modul · ${path.lessons} pelajaran · ${path.weeks} minggu`,
                     ],
                   ]
               ).map(([label, value]) => (
@@ -337,6 +341,10 @@ export default async function PathDetailPage({
                 </p>
               </div>
             </section>
+
+            <div className="mt-6">
+              <CulturalSources sources={pathSources} />
+            </div>
 
             <section className="mt-6 border border-ink/20 bg-cream-2 p-5">
               <h2 className="font-heading text-[1.2rem]">Ingin bertanya dulu?</h2>

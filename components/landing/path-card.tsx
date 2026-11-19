@@ -29,7 +29,7 @@ export function PathCard({
       copy.contentLabel,
       path.comingSoon
         ? copy.curriculumPending
-        : `${path.modules} modul / ${path.weeks} pekan`,
+        : `${path.modules} modul / ${path.weeks} minggu`,
     ],
   ]
   if (teacherName) facts.unshift([copy.teacherLabel, teacherName])

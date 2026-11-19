@@ -55,7 +55,7 @@ export default async function HomePage() {
       />
       <BenchTeachers teachers={data.teachers} copy={data.sections.teachers} />
       <WorksShelf works={data.works} copy={data.sections.works} />
-      <WorkshopRules ethics={data.ethics} sources={data.culturalSources} />
+      <WorkshopRules ethics={data.ethics} />
       <SeasonNote mangsa={data.mangsa} />
       <InstitutionBench institution={data.institution} />
       <ParticipantNotes

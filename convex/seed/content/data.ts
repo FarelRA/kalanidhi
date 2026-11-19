@@ -367,13 +367,13 @@ export const siteSeed: SeedSiteCopy = {
     ],
     points: [
       "Kurikulum disesuaikan dengan jumlah peserta dan durasi",
-      "Laporan progres dan rekap kehadiran setiap pekan",
+      "Laporan progres dan rekap kehadiran setiap minggu",
       "Jumlah peserta, jadwal, dan penagihan institusi",
       "Pendampingan kurator untuk konteks budaya dan izin",
     ],
     brief: [
       ["Format", "Kelas mandiri dan sesi kurator"],
-      ["Durasi", "4-6 pekan"],
+      ["Durasi", "4-6 minggu"],
       ["Laporan", "Progres dan kehadiran"],
       ["Peserta minimum", "12 peserta"],
     ],
@@ -390,7 +390,7 @@ export const siteSeed: SeedSiteCopy = {
       {
         title: "Isi platform",
         links: [
-          { label: "Cara kerja", href: ABOUT_LOOP_HREF },
+          { label: "Tentang", href: ABOUT_LOOP_HREF },
           { label: "Bidang", href: PUBLIC_ROUTES.fields },
           { label: "Kelas belajar", href: PUBLIC_ROUTES.paths },
           { label: "Pengajar", href: PUBLIC_ROUTES.teachers },
@@ -439,7 +439,7 @@ export const siteSeed: SeedSiteCopy = {
     },
   },
   navigation: [
-    { label: "Cara kerja", href: ABOUT_LOOP_HREF },
+    { label: "Tentang", href: ABOUT_LOOP_HREF },
     { label: "Bidang", href: PUBLIC_ROUTES.fields },
     { label: "Kelas", href: PUBLIC_ROUTES.paths },
     { label: "Pengajar", href: PUBLIC_ROUTES.teachers },
@@ -674,7 +674,7 @@ export const catalogFieldsSeed: CatalogField[] = [
     name: "Karawitan",
     region: "Kota Yogyakarta",
     status: "Sedang dipetakan",
-    note: "Pengajar dijajaki",
+    note: "Pengajar sedang dicari",
   },
   {
     name: "Tari kreasi",
@@ -686,7 +686,7 @@ export const catalogFieldsSeed: CatalogField[] = [
     name: "Keramik",
     region: "Bantul",
     status: "Direncanakan",
-    note: "Belum ada pengajar, fokus glaze dan stoneware",
+    note: "Belum ada pengajar",
   },
   {
     name: "Kuliner Nusantara",

@@ -31,7 +31,7 @@ export function TeacherCard({
             {teacher.initials}
           </span>
         )}
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep/85 via-deep/25 to-transparent p-3.5 pt-12">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep/85 via-deep/25 to-transparent p-3.5 pb-6 pt-12">
           <span className="stamp border-cream-2/50 text-cream-2">
             {teacher.experience}
           </span>

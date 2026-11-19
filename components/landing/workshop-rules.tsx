@@ -1,7 +1,6 @@
 import { BookMarked, HandCoins, LockKeyhole } from "lucide-react"
 
-import { summarizeCulturalSource } from "@/lib/content/sources"
-import type { EthicsContent, PublicCulturalSource } from "@/lib/content/types"
+import type { EthicsContent } from "@/lib/content/types"
 import { cn } from "cn"
 
 const principleIcons = [BookMarked, LockKeyhole, HandCoins] as const
@@ -12,25 +11,7 @@ const shareStyles = [
   "bg-brass text-ink",
 ] as const
 
-const ACCESS_ORDER = ["public", "community", "restricted"] as const
-
-function initialsOf(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? "")
-    .join("")
-}
-
-export function WorkshopRules({
-  ethics,
-  sources,
-}: {
-  ethics: EthicsContent
-  sources: PublicCulturalSource[]
-}) {
-  const activeAccess = new Set(sources.map((source) => source.accessLevel))
+export function WorkshopRules({ ethics }: { ethics: EthicsContent }) {
   return (
     <section
       id="etika"
@@ -75,98 +56,6 @@ export function WorkshopRules({
           </div>
 
           <div className="lg:col-span-6">
-            <div className="relative border-2 border-ink bg-paper-2 p-5 text-ink shadow-[8px_8px_0_rgba(0,0,0,0.28)] sm:p-6 lg:rotate-[1.1deg]">
-              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-ink/20 pb-3">
-                <span className="stamp stamp-soft border-ink/45 text-ink">
-                  {ethics.card.sourceTitle}
-                </span>
-                <span className="stamp border-moss bg-moss text-cream-2">
-                  {sources.length > 0 ? `${sources.length} sumber` : "-"}
-                </span>
-              </div>
-              {sources.length === 0 ? (
-                <p className="mt-4 border-y border-ink/15 py-4 text-[12px] leading-relaxed text-ink-muted">
-                  {ethics.card.emptyState}
-                </p>
-              ) : (
-                <ul className="mt-4 divide-y divide-ink/15 border-y border-ink/15">
-                  {sources.map((source) => {
-                    const row = summarizeCulturalSource(source)
-                    return (
-                      <li
-                        key={`${row.community}-${row.sourceName}`}
-                        className="flex items-start gap-3 py-3"
-                      >
-                        <span className="flex size-9 shrink-0 items-center justify-center border border-ink/30 bg-cream text-[10px] font-bold tracking-[0.08em] text-ink">
-                          {initialsOf(row.community)}
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                            <p className="font-heading text-[1.25rem] leading-tight">
-                              {row.community}
-                            </p>
-                            <span className="text-[9px] font-bold uppercase tracking-[0.06em] text-ink-muted">
-                              {row.statusLabel}
-                            </span>
-                          </div>
-                          <p className="mt-0.5 text-[11.5px] leading-snug text-ink-muted">
-                            {row.sourceName}
-                          </p>
-                          {row.dateLabel || row.reference ? (
-                            <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[10.5px] leading-snug text-ink/70">
-                              {row.dateLabel ? (
-                                <span>
-                                  {ethics.card.permissionLabel}: {row.dateLabel}
-                                </span>
-                              ) : null}
-                              {row.reference ? (
-                                <span className="min-w-0 break-words">
-                                  {row.referenceLabel}:{" "}
-                                  {row.referenceKind === "public" ? (
-                                    <a
-                                      href={row.reference}
-                                      target="_blank"
-                                      rel="noreferrer noopener"
-                                      className="underline underline-offset-2 hover:text-copper-dark"
-                                    >
-                                      {row.reference}
-                                    </a>
-                                  ) : (
-                                    row.reference
-                                  )}
-                                </span>
-                              ) : null}
-                            </p>
-                          ) : null}
-                          <p className="mt-1 text-[10.5px] leading-snug text-ink/60">
-                            {row.attribution}
-                          </p>
-                        </div>
-                      </li>
-                    )
-                  })}
-                </ul>
-              )}
-              <div className="mt-4 flex flex-wrap gap-2 border-t border-ink/15 pt-3">
-                {ethics.accessLevels.map((level, index) => {
-                  const access = ACCESS_ORDER[index]
-                  return (
-                    <span
-                      key={level.label}
-                      className={cn(
-                        "inline-flex min-h-7 items-center border px-2 text-[9.5px] font-bold uppercase tracking-[0.06em]",
-                        access && activeAccess.has(access)
-                          ? "border-moss bg-moss/10 text-moss"
-                          : "border-ink/25 text-ink-muted",
-                      )}
-                    >
-                      {level.label}
-                    </span>
-                  )
-                })}
-              </div>
-            </div>
-
             <div className="mt-8 border-2 border-paper/25 p-4 sm:p-5">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h3 className="font-heading text-[1.3rem] text-paper">

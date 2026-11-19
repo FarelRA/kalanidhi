@@ -33,7 +33,7 @@ export default async function SiteLayout({
       <main id="konten" tabIndex={-1} className="flex-1">
         {children}
       </main>
-      <SiteFooter footer={data.footer} sources={data.culturalSources} />
+      <SiteFooter footer={data.footer} />
       <MobileCtaDock startingPrice={startingPrice} copy={data.mobileCta} />
     </div>
   )

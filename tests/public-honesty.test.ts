@@ -90,15 +90,14 @@ describe("per-source cultural permissions", () => {
 })
 
 describe("public source rendering never borrows one row for the site", () => {
-  it("footer renders every source instead of the last one", () => {
+  it("footer leaves the source list to the class and work pages", () => {
     const source = read("components/layout/site-footer.tsx")
-    expect(source).not.toMatch(/sources\.at\(-1\)/)
-    expect(source).not.toContain("permissionDate")
-    expect(source).toMatch(/summarizeCulturalSource/)
+    expect(source).not.toContain("summarizeCulturalSource")
+    expect(source).not.toContain("culturalSources")
   })
 
-  it("ethics card renders every source instead of the last one", () => {
-    const source = read("components/landing/workshop-rules.tsx")
+  it("source panel renders every source instead of the last one", () => {
+    const source = read("components/landing/cultural-sources.tsx")
     expect(source).not.toMatch(/sources\.at\(-1\)/)
     expect(source).not.toMatch(/latest/)
     expect(source).toMatch(/summarizeCulturalSource/)

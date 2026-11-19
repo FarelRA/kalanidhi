@@ -257,7 +257,7 @@ const LEAD_NOTES = [
   "Minta dihubungi setelah gajian tanggal 25. Saya pasang pengingat.",
   "Masih membandingkan dua kelas. Saya sarankan datang ke sesi terbuka dulu.",
   "Sudah saya kirim jadwal angkatan Juli dan tautan pendaftaran, dia akan cek dulu dengan suami.",
-  "Kerja shift malam, jadi saya tawarkan rekaman sesi dan sesi susulan akhir pekan.",
+  "Kerja shift malam, jadi saya tawarkan rekaman sesi dan sesi susulan akhir minggu.",
   "Minta rincian biaya bahan. Sudah saya jelaskan apa saja yang termasuk dan ongkirnya.",
   "Dia baru pindah ke Sleman, minta rekomendasi kelas yang dekat. Saya arahkan ke batik bambu.",
   "Sudah saya kirim contoh tugas akhir dua lulusan, dia minta waktu sampai akhir bulan.",

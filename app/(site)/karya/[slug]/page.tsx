@@ -6,12 +6,14 @@ import { connection } from "next/server"
 import { Suspense } from "react"
 import { ArrowRight, ShieldCheck } from "lucide-react"
 
+import { CulturalSources } from "@/components/landing/cultural-sources"
 import type { PublicWorkView } from "@/lib/commerce/types"
 import { formatIDR } from "@/lib/format"
 import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
 import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
 import { getPublicWork } from "@/lib/commerce/server"
 import { buildPageMetadata } from "@/lib/content/metadata"
+import { getSiteData } from "@/lib/convex/server"
 import {
   buyHref,
   interestHref,
@@ -61,8 +63,11 @@ export default async function WorkDetailPage({
   params: Promise<Params>
 }) {
   const { slug } = await params
-  const work = await getPublicWork(slug)
+  const [work, data] = await Promise.all([getPublicWork(slug), getSiteData()])
   if (!work) notFound()
+  const workSources = data.culturalSources.filter(
+    (source) => source.workSlug === work.slug,
+  )
 
   return (
     <div className="bg-cream">
@@ -190,6 +195,10 @@ export default async function WorkDetailPage({
             pada checkout adalah penanda rekonsiliasi, bukan tambahan pendapatan.
           </p>
         </section>
+
+        <div className="mt-6">
+          <CulturalSources sources={workSources} />
+        </div>
       </section>
     </div>
   )

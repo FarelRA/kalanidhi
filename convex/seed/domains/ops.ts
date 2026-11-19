@@ -93,7 +93,7 @@ export const seedOps = internalMutation({
         participants: 28,
         interest: "Muatan lokal batik",
         message:
-          "Kami butuh program 6 pekan untuk kelas 5 dan 6, jadwal Jumat siang.",
+          "Kami butuh program 6 minggu untuk kelas 5 dan 6, jadwal Jumat siang.",
         source: "referral",
         status: "qualified" as const,
         daysAgo: 8,
@@ -570,7 +570,7 @@ export const seedOps = internalMutation({
         channel: "email" as const,
         template: "enrollment.welcome",
         title: "Selamat datang di angkatan perintis",
-        body: "Akses ruang belajar sudah dibuka. Sesi pertama dimulai pekan depan di Krebet.",
+        body: "Akses ruang belajar sudah dibuka. Sesi pertama dimulai minggu depan di Krebet.",
         entityType: "cohorts",
         entityId: cohortCode("bbm2025_02"),
         readAt: clock.ago(387),

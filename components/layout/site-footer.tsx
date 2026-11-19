@@ -3,24 +3,10 @@ import Link from "next/link"
 import { BrandLockup } from "@/components/brand/brand-mark"
 import { NewsletterForm } from "@/components/forms/newsletter-form"
 import { FooterPreferences } from "@/components/layout/footer-preferences"
-import type {
-  FooterContent,
-  PublicCulturalSource,
-} from "@/lib/content/types"
+import type { FooterContent } from "@/lib/content/types"
 import { PUBLIC_ROUTES, publicHref } from "@/lib/content/routes"
-import {
-  CULTURAL_SOURCE_CARD_LABEL,
-  CULTURAL_SOURCE_NOTE_PREFIX,
-  summarizeCulturalSource,
-} from "@/lib/content/sources"
 
-export function SiteFooter({
-  footer,
-  sources,
-}: {
-  footer: FooterContent
-  sources: PublicCulturalSource[]
-}) {
+export function SiteFooter({ footer }: { footer: FooterContent }) {
   return (
     <footer className="wood-deep border-t-2 border-copper-dark pb-28 text-paper md:pb-0">
       <div className="shell py-14 lg:py-20">
@@ -77,69 +63,6 @@ export function SiteFooter({
                 </p>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div className="mt-14 grid gap-8 border-t border-paper/20 pt-6 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-brass">
-              {footer.sourceLabel}
-            </p>
-            <p className="mt-2 max-w-md text-[11.5px] leading-relaxed text-paper/60">
-              {footer.sourceDescription}
-            </p>
-          </div>
-          <div className="lg:col-span-4">
-            <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-brass">
-              {footer.sourcesLabel}
-            </p>
-            {sources.length > 0 ? (
-              <ul className="mt-2 border-t border-paper/20">
-                {sources.map((source) => {
-                  const row = summarizeCulturalSource(source)
-                  return (
-                    <li
-                      key={`${row.community}-${row.sourceName}`}
-                      className="flex items-baseline justify-between gap-3 border-b border-paper/10 py-1.5"
-                    >
-                      <span
-                        className="min-w-0 truncate text-[11.5px] text-paper/80"
-                        title={row.community}
-                      >
-                        {row.shortCommunity}
-                      </span>
-                      <span className="shrink-0 text-[9px] font-bold uppercase tracking-[0.06em] text-paper/55">
-                        {row.statusLabel}
-                      </span>
-                    </li>
-                  )
-                })}
-              </ul>
-            ) : null}
-            <p className="mt-3 text-[10.5px] leading-relaxed text-paper/65">
-              {CULTURAL_SOURCE_NOTE_PREFIX}
-              <Link
-                href={PUBLIC_ROUTES.ethics}
-                className="border-b border-copper-light/40 text-paper/85 hover:text-copper-light"
-              >
-                {CULTURAL_SOURCE_CARD_LABEL}
-              </Link>
-              .
-            </p>
-          </div>
-          <div className="lg:col-span-3">
-            <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-brass">
-              {footer.cultureLabel}
-            </p>
-            <Link
-              href={PUBLIC_ROUTES.ethics}
-              className="mt-2 inline-flex min-h-11 items-center border-b border-copper-light/50 pb-0.5 text-[11.5px] text-paper hover:text-copper-light"
-            >
-              {footer.culturePolicyCta}
-            </Link>
-            <p className="mt-4 text-[9.5px] leading-relaxed text-paper/65">
-              {footer.certificateNote}
-            </p>
           </div>
         </div>
 
