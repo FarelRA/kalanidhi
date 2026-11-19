@@ -79,9 +79,6 @@ export default async function AboutPage() {
               <span className="stamp stamp-soft border-ink/35 text-ink-soft">
                 {data.footer.secretariat.label}
               </span>
-              <p className="mt-3 text-[12.5px] leading-relaxed text-ink-soft">
-                {data.footer.secretariat.value}
-              </p>
               <div className="mt-3 overflow-hidden border border-ink/15">
                 <iframe
                   title="Peta lokasi sekretariat KalaNidhi Digital"

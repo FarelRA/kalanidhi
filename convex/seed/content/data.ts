@@ -659,7 +659,7 @@ export const catalogFieldsSeed: CatalogField[] = [
     name: "Kriya gerabah",
     region: "Kasongan, Bantul",
     status: "Sedang dipetakan",
-    note: "Kurikulum disusun, pembentukan dan pembakaran",
+    note: "Kurikulum disusun",
   },
   {
     name: "Batik tulis",
