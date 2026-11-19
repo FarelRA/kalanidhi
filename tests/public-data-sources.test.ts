@@ -21,7 +21,7 @@ describe("public data sources", () => {
     const files = [
       "app/(site)/karya/[slug]/page.tsx",
       "app/(site)/pesan/[slug]/page.tsx",
-      "app/(site)/pesan/jalur/[slug]/page.tsx",
+      "app/(site)/pesan/kelas/[slug]/page.tsx",
     ]
 
     for (const file of files) {

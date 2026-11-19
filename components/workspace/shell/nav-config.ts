@@ -175,9 +175,9 @@ export const navItems: NavItem[] = [
     anyOf: ["stats.read", "stats.teach"],
   },
   {
-    href: "/ruang/alur",
-    label: "Alur",
-    shortLabel: "Alur",
+    href: "/ruang/proses",
+    label: "Proses",
+    shortLabel: "Proses",
     group: "Kelola",
     icon: GitBranch,
     anyOf: ["flows.manage"],

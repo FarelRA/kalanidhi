@@ -1,6 +1,6 @@
 # KalaNidhi Digital
 
-Landing page untuk platform belajar praktik budaya Nusantara. Alurnya satu lingkaran:
+Landing page untuk platform belajar praktik budaya Nusantara. Alurnya berurutan:
 **belajar, dinilai pengajar, mendapat sertifikat platform dan Kartu Karya, berkarya atau
 berjualan, lalu kembali sebagai pengajar, penilai, atau pemasok.**
 
@@ -171,7 +171,7 @@ convex/
   seed/lib/                Clock, kode, builder, lookup, media, dan helper bersama
   seed/integrity.ts        Pemeriksaan invarian setelah seed
 components/
-  landing/                 Section landing: bangku, lingkaran, rak bahan, kelas, pengajar,
+  landing/                 Section landing: hero, alur, bahan, kelas, pengajar,
                            karya, etika, musim, institusi, catatan peserta, FAQ, penutup
   layout/                  Header, footer, preferensi hemat kuota dan bahasa
   overlays/                Provider dialog, lead dialog, info dialog, tombol overlay

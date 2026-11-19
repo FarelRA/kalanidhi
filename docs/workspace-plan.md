@@ -130,7 +130,7 @@ A certificate in Batik Bambu never authorizes selling pranatacara services.
 | `/ruang/orang` | `people.read` | — | Profil publik | Accounts, roles, verification |
 | `/ruang/konten` | `content.publish` | — | — | Full landing CMS |
 | `/ruang/statistik` | `stats.read` | — | — | All metrics |
-| `/ruang/alur` | `flows.manage` | — | — | State machines, SLAs, automation |
+| `/ruang/proses` | `flows.manage` | — | — | State machines, SLAs, automation |
 | `/ruang/log` | `logs.read` | — | — | All logs |
 | `/ruang/dukungan` | `support.*` | Support | Support | Support inbox |
 | `/ruang/tata-kelola` | `governance.manage` | — | — | Permissions, takedown, audit |
@@ -471,7 +471,7 @@ Views:
 - Export CSV.
 - No page-view claims unless a real analytics source exists.
 
-### 6.13 Flows — `/ruang/alur`
+### 6.13 Flows — `/ruang/proses`
 
 Admin can inspect and configure the state machines that run the product.
 

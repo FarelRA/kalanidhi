@@ -27,7 +27,7 @@ const stageIndent = [
 export function BenchLoop({ loop }: { loop: LoopContent }) {
   return (
     <section
-      id="lingkaran"
+      id="cara-kerja"
       aria-labelledby="loop-title"
       className="relative border-b border-ink/15 bg-cream py-16 sm:py-20 lg:py-28"
     >

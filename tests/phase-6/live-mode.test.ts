@@ -42,7 +42,7 @@ describe("phase 6 / live data only", () => {
 
   it("[P6-SHL-03] workspace routes render the live governance boards, not role dashboards", async () => {
     const routes = {
-      "app/ruang/alur/page.tsx": "FlowBoardLive",
+      "app/ruang/proses/page.tsx": "FlowBoardLive",
       "app/ruang/dukungan/page.tsx": "SupportInboxLive",
       "app/ruang/pengaturan/page.tsx": "SettingsPanelLive",
       "app/ruang/tata-kelola/page.tsx": "GovernanceBoardLive",

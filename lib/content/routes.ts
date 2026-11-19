@@ -6,7 +6,7 @@
 export const PUBLIC_ROUTES = {
   home: "/",
   fields: "/bidang",
-  paths: "/jalur",
+  paths: "/kelas",
   teachers: "/pengajar",
   works: "/karya",
   interest: "/minat",
@@ -52,9 +52,11 @@ export const PUBLIC_STATIC_ROUTES = [
  */
 const LEGACY_ANCHOR_ROUTES: Record<string, string> = {
   "#top": PUBLIC_ROUTES.home,
-  "#lingkaran": `${PUBLIC_ROUTES.about}#lingkaran`,
+  "#lingkaran": `${PUBLIC_ROUTES.about}#cara-kerja`,
+  "#cara-kerja": `${PUBLIC_ROUTES.about}#cara-kerja`,
   "#indeks": `${PUBLIC_ROUTES.home}#indeks`,
   "#jalur": PUBLIC_ROUTES.paths,
+  "#kelas": PUBLIC_ROUTES.paths,
   "#pengajar": PUBLIC_ROUTES.teachers,
   "#karya": PUBLIC_ROUTES.works,
   "#etika": PUBLIC_ROUTES.ethics,
@@ -68,7 +70,7 @@ export function publicHref(href: string): string {
 }
 
 /** Real route for the loop section on the about page. */
-export const ABOUT_LOOP_HREF = `${PUBLIC_ROUTES.about}#lingkaran`
+export const ABOUT_LOOP_HREF = `${PUBLIC_ROUTES.about}#cara-kerja`
 
 export type InterestLinkInput = {
   path?: string
@@ -107,7 +109,7 @@ export function consultHref(input: InterestLinkInput = {}): string {
 
 /** Checkout URL for a learning path. */
 export function enrollHref(pathSlug: string): string {
-  return `/pesan/jalur/${pathSlug}`
+  return `/pesan/kelas/${pathSlug}`
 }
 
 /** Checkout URL for a work. */

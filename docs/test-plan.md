@@ -1099,7 +1099,7 @@ WCAG 2.1 AA. Axe runs with `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, and `best
 | `/ruang` | student, teacher, admin | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `/ruang/belajar`, `/ruang/tugas`, `/ruang/kredensial` | student, teacher | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `/ruang/karya`, `/ruang/pesanan`, `/ruang/pesan`, `/ruang/panggilan` | student-seller, teacher | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `/ruang/prospek`, `/ruang/orang`, `/ruang/konten`, `/ruang/statistik`, `/ruang/alur`, `/ruang/log`, `/ruang/dukungan`, `/ruang/tata-kelola` | admin | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `/ruang/prospek`, `/ruang/orang`, `/ruang/konten`, `/ruang/statistik`, `/ruang/proses`, `/ruang/log`, `/ruang/dukungan`, `/ruang/tata-kelola` | admin | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### 12.3 Checklist
 

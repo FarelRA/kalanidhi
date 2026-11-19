@@ -120,8 +120,10 @@ describe("public routes", () => {
     const anchors = [
       "#top",
       "#lingkaran",
+      "#cara-kerja",
       "#indeks",
       "#jalur",
+      "#kelas",
       "#pengajar",
       "#karya",
       "#etika",

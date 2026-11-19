@@ -58,7 +58,7 @@ describe("landing content sources", () => {
   })
 
   it("builds a field filter URL and matches paths honestly", () => {
-    expect(fieldHref("Batik tulis")).toBe("/jalur?bidang=Batik%20tulis")
+    expect(fieldHref("Batik tulis")).toBe("/kelas?bidang=Batik%20tulis")
 
     const bamboo = {
       ...pathsSeed[0],

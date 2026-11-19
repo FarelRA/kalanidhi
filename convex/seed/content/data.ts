@@ -584,7 +584,7 @@ export const siteSeed: SeedSiteCopy = {
       {
         label: "Cara kerja",
         description: "Lima tahap berurutan",
-        href: "#lingkaran",
+        href: "#cara-kerja",
       },
       {
         label: "Etika dan bagi hasil",

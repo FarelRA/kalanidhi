@@ -117,7 +117,7 @@ describe("published teacher visibility", () => {
   })
 
   it("path pages leave out an unpublished teacher line", () => {
-    const detail = read("app/(site)/jalur/[slug]/page.tsx")
+    const detail = read("app/(site)/kelas/[slug]/page.tsx")
     expect(detail).toMatch(/publishedTeacherName/)
     expect(detail).not.toContain("Pengajar sedang diverifikasi")
     const card = read("components/landing/path-card.tsx")
