@@ -52,10 +52,8 @@ export const PUBLIC_STATIC_ROUTES = [
  */
 const LEGACY_ANCHOR_ROUTES: Record<string, string> = {
   "#top": PUBLIC_ROUTES.home,
-  "#lingkaran": `${PUBLIC_ROUTES.about}#cara-kerja`,
   "#cara-kerja": `${PUBLIC_ROUTES.about}#cara-kerja`,
   "#indeks": `${PUBLIC_ROUTES.home}#indeks`,
-  "#jalur": PUBLIC_ROUTES.paths,
   "#kelas": PUBLIC_ROUTES.paths,
   "#pengajar": PUBLIC_ROUTES.teachers,
   "#karya": PUBLIC_ROUTES.works,

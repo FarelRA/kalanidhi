@@ -119,10 +119,8 @@ describe("public routes", () => {
   it("maps every legacy landing anchor to a real page, never an action-only hash", () => {
     const anchors = [
       "#top",
-      "#lingkaran",
       "#cara-kerja",
       "#indeks",
-      "#jalur",
       "#kelas",
       "#pengajar",
       "#karya",

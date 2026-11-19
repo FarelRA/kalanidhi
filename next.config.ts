@@ -46,20 +46,7 @@ const nextConfig: NextConfig = {
       },
     ])
 
-    // The public path section and its checkout were renamed from jalur to
-    // kelas. Keep old links working.
-    const renamedRoutes = [
-      { source: "/jalur", destination: "/kelas", permanent: true },
-      { source: "/jalur/:slug", destination: "/kelas/:slug", permanent: true },
-      {
-        source: "/pesan/jalur/:slug",
-        destination: "/pesan/kelas/:slug",
-        permanent: true,
-      },
-      { source: "/ruang/alur", destination: "/ruang/proses", permanent: true },
-    ] as const
-
-    return [...renamedWorksRedirects, ...renamedRoutes]
+    return renamedWorksRedirects
   },
 };
 
