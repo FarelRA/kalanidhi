@@ -107,11 +107,7 @@ export default async function WorksPage() {
                       >
                         Pesan
                       </Link>
-                    ) : (
-                      <span className="max-w-44 text-[9.5px] leading-relaxed text-ink-muted">
-                        Karya kurasi platform. Hubungi pengelola untuk pembelian.
-                      </span>
-                    )}
+                    ) : null}
                     <Link
                       href={interestHref({
                         work: work.slug,

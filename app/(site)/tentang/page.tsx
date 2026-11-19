@@ -82,6 +82,15 @@ export default async function AboutPage() {
               <p className="mt-3 text-[12.5px] leading-relaxed text-ink-soft">
                 {data.footer.secretariat.value}
               </p>
+              <div className="mt-3 overflow-hidden border border-ink/15">
+                <iframe
+                  title="Peta lokasi sekretariat KalaNidhi Digital"
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=110.2385%2C-7.9533%2C110.2685%2C-7.9233&layer=mapnik&marker=-7.9383247%2C110.2535166"
+                  className="h-40 w-full"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
               <p className="mt-4 border-t border-ink/15 pt-3 text-[10.5px] leading-relaxed text-ink-muted">
                 {about.footnote}
               </p>
