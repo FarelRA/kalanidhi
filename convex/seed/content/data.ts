@@ -390,7 +390,7 @@ export const siteSeed: SeedSiteCopy = {
       {
         title: "Isi platform",
         links: [
-          { label: "Alur belajar", href: ABOUT_LOOP_HREF },
+          { label: "Cara kerja", href: ABOUT_LOOP_HREF },
           { label: "Bidang", href: PUBLIC_ROUTES.fields },
           { label: "Kelas belajar", href: PUBLIC_ROUTES.paths },
           { label: "Pengajar", href: PUBLIC_ROUTES.teachers },
@@ -439,7 +439,7 @@ export const siteSeed: SeedSiteCopy = {
     },
   },
   navigation: [
-    { label: "Alur belajar", href: ABOUT_LOOP_HREF },
+    { label: "Cara kerja", href: ABOUT_LOOP_HREF },
     { label: "Bidang", href: PUBLIC_ROUTES.fields },
     { label: "Kelas", href: PUBLIC_ROUTES.paths },
     { label: "Pengajar", href: PUBLIC_ROUTES.teachers },

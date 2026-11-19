@@ -36,7 +36,7 @@ import { cn } from "cn"
 const GROUPS: { id: string; label: string; path: string[] }[] = [
   { id: "hero", label: "Hero", path: ["hero"] },
   { id: "traction", label: "Capaian", path: ["traction"] },
-  { id: "loop", label: "Alur belajar", path: ["loop"] },
+  { id: "loop", label: "Cara kerja", path: ["loop"] },
   { id: "catalog", label: "Bidang budaya", path: ["catalog"] },
   { id: "mangsa", label: "Musim", path: ["mangsa"] },
   { id: "ethics", label: "Etika dan bagi hasil", path: ["ethics"] },
