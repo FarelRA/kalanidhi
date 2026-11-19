@@ -184,7 +184,7 @@ export function assertScope(
   if (!scopes.includes(pathId)) {
     accessError(
       "OUT_OF_SCOPE",
-      `Jalur ${pathId} berada di luar cakupan ${kind}.`,
+      `Kelas ${pathId} berada di luar cakupan ${kind}.`,
     )
   }
 

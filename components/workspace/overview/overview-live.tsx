@@ -487,7 +487,7 @@ function StudentOverviewLive({ data }: { data: ViewerOverview }) {
       <PageHeader
         eyebrow={`${formatJakarta(data.generatedAt)} · ${data.region}`}
         title={`Selamat datang, ${firstName(data.viewerName)}.`}
-        description="Progres jalur, tugas terdekat, dan sesi kohortmu dalam satu halaman. Semua angka diambil dari catatan belajar dan pesananmu."
+        description="Progres kelas, tugas terdekat, dan sesi kohortmu dalam satu halaman. Semua angka diambil dari catatan belajar dan pesananmu."
         meta={
           <div className="flex flex-wrap items-center gap-2">
             <StatusStamp label={data.roleLabel} tone="open" />
@@ -512,12 +512,12 @@ function StudentOverviewLive({ data }: { data: ViewerOverview }) {
       <div className="grid gap-4 xl:grid-cols-12">
         <Panel
           className="xl:col-span-7"
-          eyebrow="Jalur"
+          eyebrow="Kelas"
           title="Progres belajar"
           action={
             <Button asChild variant="ghost" size="sm">
               <Link href="/ruang/belajar">
-                Semua jalur
+                Semua kelas
                 <ArrowRight aria-hidden="true" />
               </Link>
             </Button>
@@ -525,7 +525,7 @@ function StudentOverviewLive({ data }: { data: ViewerOverview }) {
         >
           {student.enrollments.length === 0 ? (
             <EmptyState
-              title="Belum ada jalur aktif"
+              title="Belum ada kelas aktif"
               description="Pendaftaranmu muncul setelah pembayaran dikonfirmasi."
               action={
                 <Button asChild variant="outline" size="sm">
@@ -572,7 +572,7 @@ function StudentOverviewLive({ data }: { data: ViewerOverview }) {
                   </div>
                   <p className="mt-1.5 text-[10px] leading-snug text-ink-muted">
                     {enrollment.totalLessons === 0
-                      ? "Kurikulum jalur ini belum diterbitkan."
+                      ? "Kurikulum kelas ini belum diterbitkan."
                       : enrollment.nextLesson
                         ? `Berikutnya, ${enrollment.nextLesson}`
                         : "Semua pelajaran selesai."}
@@ -672,7 +672,7 @@ function StudentOverviewLive({ data }: { data: ViewerOverview }) {
         >
           {student.recentOrders.length === 0 ? (
             <p className="text-[11px] leading-relaxed text-ink-muted">
-              Belum ada pembelian. Pesanan jalur dan karya muncul di sini.
+              Belum ada pembelian. Pesanan kelas dan karya muncul di sini.
             </p>
           ) : (
             <ul className="divide-y divide-ink/10">
@@ -761,7 +761,7 @@ function TeacherOverviewLive({ data }: { data: ViewerOverview }) {
           {teacher.cohorts.length === 0 ? (
             <EmptyState
               title="Belum ada kohort"
-              description="Kohort muncul setelah pengelola menetapkan jalur dan jadwal untukmu."
+              description="Kohort muncul setelah pengelola menetapkan kelas dan jadwal untukmu."
               className="border-0 bg-transparent px-0 py-8"
             />
           ) : (
@@ -857,7 +857,7 @@ function TeacherOverviewLive({ data }: { data: ViewerOverview }) {
         >
           <EarningsLines earnings={teacher.earnings} />
           <p className="mt-3 text-[10px] leading-relaxed text-ink-muted">
-            Dihitung dari alokasi payout untuk karya dan jalur yang kamu ampu.
+            Dihitung dari alokasi payout untuk karya dan kelas yang kamu ampu.
           </p>
         </Panel>
 
@@ -1001,15 +1001,15 @@ function SellerOverviewLive({ data }: { data: ViewerOverview }) {
             />
           </div>
         </Panel>
-        <Panel eyebrow="Jalur" title="Belajar lagi">
+        <Panel eyebrow="Kelas" title="Belajar lagi">
           <p className="text-[11px] leading-relaxed text-ink-soft">
-            Jalur yang selesai membuka karya baru. Sertifikat terbit setelah
+            Kelas yang selesai membuka karya baru. Sertifikat terbit setelah
             penilaian akhir disetujui.
           </p>
           <div className="mt-3 grid gap-1.5">
             <QuickLink
               href="/ruang/belajar"
-              label="Buka jalur"
+              label="Buka kelas"
               note="Kurikulum dan kohort"
             />
             <QuickLink

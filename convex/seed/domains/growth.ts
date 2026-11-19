@@ -229,11 +229,11 @@ const NO_REFUND_REASON =
   "Mengundurkan diri setelah sesi kedua, biaya angkatan tidak dikembalikan sesuai ketentuan yang disetujui saat mendaftar."
 
 const LEAD_MESSAGES = [
-  "Saya lihat jadwal angkatan Juli di halaman jalur. Masih ada tempat untuk yang kerja kantor?",
-  "Bu, kalau belum pernah megang canting sama sekali, boleh langsung ikut jalur batik bambu?",
+  "Saya lihat jadwal angkatan Juli di halaman kelas. Masih ada tempat untuk yang kerja kantor?",
+  "Bu, kalau belum pernah megang canting sama sekali, boleh langsung ikut kelas batik bambu?",
   "Saya guru SD di Bantul. Kalau bawa 12 anak, bisa dibuat kelas sendiri?",
   "Kak, rekaman sesi kemarin katanya bisa diputar ulang. Berlaku sampai kapan ya?",
-  "Tertarik jalur aksara, tapi saya lebih nyaman kelas malam. Ada pilihan jam?",
+  "Tertarik kelas aksara, tapi saya lebih nyaman kelas malam. Ada pilihan jam?",
   "Saya mau tanya paket bahan. Kalau ikut dari luar kota, alatnya dikirim juga?",
   "Undangan saya sudah dicetak, tinggal aksara Jawa-nya. Bisa dibantu cek ejaan dulu?",
   "Angkatan Oktober masih buka? Saya baru tahu dari teman di Sleman.",
@@ -255,11 +255,11 @@ const LEAD_NOTES = [
   "Mau daftar bareng adiknya. Saya kirim dua tautan pendaftaran dan catat keduanya.",
   "Tinggal di luar kota, tanya paket bahan. Sudah saya cek ongkir ke Magelang.",
   "Minta dihubungi setelah gajian tanggal 25. Saya pasang pengingat.",
-  "Masih membandingkan dua jalur. Saya sarankan datang ke sesi terbuka dulu.",
+  "Masih membandingkan dua kelas. Saya sarankan datang ke sesi terbuka dulu.",
   "Sudah saya kirim jadwal angkatan Juli dan tautan pendaftaran, dia akan cek dulu dengan suami.",
   "Kerja shift malam, jadi saya tawarkan rekaman sesi dan sesi susulan akhir pekan.",
   "Minta rincian biaya bahan. Sudah saya jelaskan apa saja yang termasuk dan ongkirnya.",
-  "Dia baru pindah ke Sleman, minta rekomendasi jalur yang dekat. Saya arahkan ke batik bambu.",
+  "Dia baru pindah ke Sleman, minta rekomendasi kelas yang dekat. Saya arahkan ke batik bambu.",
   "Sudah saya kirim contoh tugas akhir dua lulusan, dia minta waktu sampai akhir bulan.",
   "Tanya apakah sertifikat bisa dipakai untuk kenaikan jenjang. Saya jelaskan ini sertifikat platform.",
   "Mau ikut berdua dengan teman kantor. Saya kirim dua tautan dan catat keduanya.",
@@ -1450,7 +1450,7 @@ export const seedGrowthBatch = internalMutation({
         paidAt,
         status: orderStatus,
         gatewayFee,
-        note: "Pendaftaran jalur melalui halaman publik.",
+        note: "Pendaftaran kelas melalui halaman publik.",
       })
       result.pathOrders += 1
 

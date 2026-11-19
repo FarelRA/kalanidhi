@@ -133,7 +133,7 @@ export const seedGovernance = internalMutation({
         permissionStatus: "pending" as const,
         accessLevel: "restricted" as const,
         attribution:
-          "Materi pengantar gerabah Kasongan dari arsip pengelola platform, disusun untuk jalur yang belum dibuka.",
+          "Materi pengantar gerabah Kasongan dari arsip pengelola platform, disusun untuk kelas yang belum dibuka.",
         notes: "Belum diterbitkan.",
         withdrawalStatus: "withdrawal_requested" as const,
         status: "active" as const,
@@ -150,7 +150,7 @@ export const seedGovernance = internalMutation({
         permissionStatus: "granted" as const,
         accessLevel: "public" as const,
         attribution:
-          "Dokumen sumber aksara Jawa dan tabel sandhangan dipegang pengelola platform, dipakai sebagai bahan ajar jalur ini.",
+          "Dokumen sumber aksara Jawa dan tabel sandhangan dipegang pengelola platform, dipakai sebagai bahan ajar kelas ini.",
         notes:
           "Contoh tulisan memakai kalimat sumber, moral paragraf penutup tidak dipakai sebagai ajaran kursus.",
         withdrawalStatus: "active" as const,
@@ -168,7 +168,7 @@ export const seedGovernance = internalMutation({
         permissionStatus: "granted" as const,
         accessLevel: "public" as const,
         attribution:
-          "Materi jalur Tari Kreasi disusun dari laporan Apresiasi Karya Seni Tari yang mengutip Hadi (1990) untuk definisi tari, serta unsur gerak, ruang, waktu, tenaga, bentuk penyajian, dan fungsi tari. Laporan itu adalah laporan siswa, bukan rujukan primer.",
+          "Materi kelas Tari Kreasi disusun dari laporan Apresiasi Karya Seni Tari yang mengutip Hadi (1990) untuk definisi tari, serta unsur gerak, ruang, waktu, tenaga, bentuk penyajian, dan fungsi tari. Laporan itu adalah laporan siswa, bukan rujukan primer.",
         notes:
           "Contoh Legong, Saman, dan Bedhaya dipakai sebagai contoh dari laporan, detail gerak tidak ditambahkan di luar catatan laporan.",
         withdrawalStatus: "active" as const,
@@ -186,7 +186,7 @@ export const seedGovernance = internalMutation({
         permissionStatus: "granted" as const,
         accessLevel: "public" as const,
         attribution:
-          "Materi jalur Kuliner Nusantara disusun dari Laporan Gastronomi Nusantara, laporan siswa tentang filosofi, identitas, dan pelestarian makanan tradisional. Daftar pustakanya masih berupa rujukan awal, sehingga klaim sejarah diperlakukan sebagai bahan telusur.",
+          "Materi kelas Kuliner Nusantara disusun dari Laporan Gastronomi Nusantara, laporan siswa tentang filosofi, identitas, dan pelestarian makanan tradisional. Daftar pustakanya masih berupa rujukan awal, sehingga klaim sejarah diperlakukan sebagai bahan telusur.",
         notes:
           "Tafsiran geblek dan tumpeng ditulis sebagai interpretasi budaya, sesuai catatan laporan, bukan makna baku.",
         withdrawalStatus: "active" as const,

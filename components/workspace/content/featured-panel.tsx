@@ -82,7 +82,7 @@ export function FeaturedPanel() {
       <PageHeader
         eyebrow="Halaman depan"
         title="Pilih yang tampil, bukan mengetik ulang."
-        description="Jalur, pengajar, karya, testimoni, bidang katalog, dan FAQ diambil langsung dari tabel Convex. Pilihan di sini hanya menentukan mana yang tampil, urutannya, dan karya untuk Kartu Karya hero. Tidak ada data entitas yang diketik di sini."
+        description="Kelas, pengajar, karya, testimoni, bidang katalog, dan FAQ diambil langsung dari tabel Convex. Pilihan di sini hanya menentukan mana yang tampil, urutannya, dan karya untuk Kartu Karya hero. Tidak ada data entitas yang diketik di sini."
         actions={
           <Button onClick={() => void submit()} disabled={pending}>
             <Save aria-hidden="true" />
@@ -92,7 +92,7 @@ export function FeaturedPanel() {
       />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Panel eyebrow="Jalur" title="Jalur belajar">
+        <Panel eyebrow="Kelas" title="Kelas belajar">
           <ul className="space-y-2">
             {data.paths.map((item) => (
               <li key={item.slug}>

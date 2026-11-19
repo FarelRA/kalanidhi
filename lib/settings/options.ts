@@ -41,7 +41,7 @@ export const NOTIFICATION_LABELS: Record<NotificationKey, string> = {
   messages: "Pesan langsung",
   sessionReminders: "Pengingat sesi",
   weeklyDigest: "Ringkasan mingguan",
-  promotions: "Promosi jalur baru",
+  promotions: "Promosi kelas baru",
 }
 
 export const INTEGRATION_KEYS = [

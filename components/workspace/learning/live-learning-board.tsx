@@ -92,7 +92,7 @@ function enrollmentLabel(status: EnrollmentOverview["status"]) {
 
 export function LiveLearningBoard() {
   const { can } = useViewer()
-  const [tab, setTab] = React.useState("jalur")
+  const [tab, setTab] = React.useState("kelas")
   const [cohortId, setCohortId] = React.useState<string | null>(null)
   const [enrollmentId, setEnrollmentId] = React.useState<string | null>(null)
 
@@ -101,7 +101,7 @@ export function LiveLearningBoard() {
   const enrollments = useQuery(api.learning.listEnrollments, {}) ?? []
 
   const tabs = [
-    (can("learn") || can("teach")) && { id: "jalur", label: "Jalur saya" },
+    (can("learn") || can("teach")) && { id: "kelas", label: "Kelas saya" },
     (can("teach") || can("operate")) && {
       id: "kohort",
       label: can("operate") ? "Semua kohort" : "Kohort saya",
@@ -119,7 +119,7 @@ export function LiveLearningBoard() {
     },
     can("operate") && {
       id: "katalog",
-      label: "Katalog jalur",
+      label: "Katalog kelas",
       count: paths.length,
     },
   ].filter(Boolean) as { id: string; label: string; count?: number }[]
@@ -129,8 +129,8 @@ export function LiveLearningBoard() {
   if (tabs.length === 0) {
     return (
       <EmptyState
-        title="Belum ada jalur"
-        description="Akun ini belum memiliki jalur belajar atau kohort yang dapat ditampilkan."
+        title="Belum ada kelas"
+        description="Akun ini belum memiliki kelas belajar atau kohort yang dapat ditampilkan."
       />
     )
   }
@@ -141,17 +141,17 @@ export function LiveLearningBoard() {
         eyebrow="Belajar & mengajar"
         title={
           can("operate")
-            ? "Jalur, kohort, dan peserta."
+            ? "Kelas, kohort, dan peserta."
             : can("teach")
               ? "Kohort yang kamu pegang."
-              : "Jalur yang sedang kamu jalani."
+              : "Kelas yang sedang kamu jalani."
         }
         description={
           can("operate")
-            ? "Data jalur, kohort, kapasitas, dan peserta dibaca langsung dari Convex."
+            ? "Data kelas, kohort, kapasitas, dan peserta dibaca langsung dari Convex."
             : can("teach")
               ? "Roster, kapasitas, dan progres peserta pada kohort yang kamu ampu."
-              : "Modul, tugas, dan langkah berikutnya pada jalur yang kamu ikuti."
+              : "Modul, tugas, dan langkah berikutnya pada kelas yang kamu ikuti."
         }
         actions={
           <Button asChild variant="outline">
@@ -162,12 +162,12 @@ export function LiveLearningBoard() {
 
       <SegmentedTabs
         tabs={tabs}
-        value={activeTab ?? "jalur"}
+        value={activeTab ?? "kelas"}
         onChange={setTab}
         ariaLabel="Pilih tampilan belajar"
       />
 
-      {activeTab === "jalur" ? (
+      {activeTab === "kelas" ? (
         <StudentPaths paths={paths} enrollments={enrollments} />
       ) : null}
       {activeTab === "kohort" ? (
@@ -208,7 +208,7 @@ function StudentPaths({
   if (paths.length === 0) {
     return (
       <EmptyState
-        title="Belum ada jalur aktif"
+        title="Belum ada kelas aktif"
         description="Pendaftaranmu akan muncul di sini setelah diaktifkan pengelola."
       />
     )
@@ -457,7 +457,7 @@ function EnrollmentTable({
     },
     {
       id: "path",
-      header: "Jalur",
+      header: "Kelas",
       cell: (row) => (
         <span className="text-[11px] leading-snug text-ink-soft">
           {row.pathTitle}
@@ -546,7 +546,7 @@ function PathCatalog({ paths }: { paths: PathOverview[] }) {
   const columns: Column<PathOverview>[] = [
     {
       id: "path",
-      header: "Jalur",
+      header: "Kelas",
       cell: (row) => (
         <div>
           <p className="font-semibold text-ink">{row.title}</p>
@@ -648,16 +648,16 @@ function PathCatalog({ paths }: { paths: PathOverview[] }) {
 
   return (
     <>
-      <Panel eyebrow="Katalog" title="Jalur dan kesiapan" bodyClassName="p-0">
+      <Panel eyebrow="Katalog" title="Kelas dan kesiapan" bodyClassName="p-0">
         <DataTable
           rows={paths}
           columns={columns}
-          caption="Katalog jalur dengan tingkat, modul, kohort, dan penyelesaian"
-          searchPlaceholder="Cari jalur atau pengajar"
+          caption="Katalog kelas dengan tingkat, modul, kohort, dan penyelesaian"
+          searchPlaceholder="Cari kelas atau pengajar"
           getSearchText={(row) =>
             `${row.title} ${row.teacherName} ${row.level} ${row.status}`
           }
-          emptyTitle="Belum ada jalur"
+          emptyTitle="Belum ada kelas"
           minWidth={900}
         />
       </Panel>
@@ -679,8 +679,8 @@ function PathDrawer({
       onOpenChange={(open) => {
         if (!open) onClose()
       }}
-      eyebrow="Jalur"
-      title={path?.title ?? "Jalur"}
+      eyebrow="Kelas"
+      title={path?.title ?? "Kelas"}
       stamp={path ? pathStatusLabel(path.status) : undefined}
       tone={path ? pathStatusTone(path.status) : "muted"}
       description={path?.subtitle}
@@ -788,7 +788,7 @@ function CohortDrawer({
           <DetailGrid
             items={[
               { label: "Judul kohort", value: cohort.title },
-              { label: "Jalur", value: cohort.pathTitle },
+              { label: "Kelas", value: cohort.pathTitle },
               { label: "Pengajar", value: cohort.teacherName },
               { label: "Mulai", value: formatWorkspaceDate(iso(cohort.startDate)) },
               { label: "Selesai", value: formatWorkspaceDate(iso(cohort.endDate)) },
@@ -970,8 +970,8 @@ function CurriculumBoard({ paths }: { paths: PathOverview[] }) {
   if (paths.length === 0) {
     return (
       <EmptyState
-        title="Belum ada jalur yang dapat disusun"
-        description="Kurikulum muncul setelah akun ini terhubung ke jalur sebagai pengajar atau pengelola."
+        title="Belum ada kelas yang dapat disusun"
+        description="Kurikulum muncul setelah akun ini terhubung ke kelas sebagai pengajar atau pengelola."
       />
     )
   }
@@ -1009,7 +1009,7 @@ function CurriculumBoard({ paths }: { paths: PathOverview[] }) {
           <p className="mt-4 text-[12px] text-ink-muted">Memuat kurikulum…</p>
         ) : curriculum === null ? (
           <p className="mt-4 text-[12px] leading-relaxed text-ink-muted">
-            Kurikulum jalur ini tidak tersedia untuk akun ini.
+            Kurikulum kelas ini tidak tersedia untuk akun ini.
           </p>
         ) : (
           <>
@@ -1028,7 +1028,7 @@ function CurriculumBoard({ paths }: { paths: PathOverview[] }) {
                   value: `${curriculum.counts.estimatedMinutes} menit`,
                 },
                 {
-                  label: "Tugas jalur",
+                  label: "Tugas kelas",
                   value: `${curriculum.path.tasks} tugas`,
                 },
               ].map((item) => (
@@ -1795,7 +1795,7 @@ function EnrollmentDrawer({
           <DrawerSection title="Modul dan pelajaran">
             {detail.modules.length === 0 ? (
               <p className="text-[12px] text-ink-muted">
-                Kurikulum jalur ini belum terbit.
+                Kurikulum kelas ini belum terbit.
               </p>
             ) : (
               <div className="space-y-3">

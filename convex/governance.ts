@@ -301,7 +301,7 @@ async function pauseDependentWorks(
       if (work.status !== "published") continue
       if (source.workId && work._id === source.workId) continue
       await ctx.db.patch(work._id, { status: "paused" })
-      effects.push(`Karya ${work.title} pada jalur ${source.pathId} dijeda.`)
+      effects.push(`Karya ${work.title} pada kelas ${source.pathId} dijeda.`)
     }
   }
   if (effects.length > 0) {

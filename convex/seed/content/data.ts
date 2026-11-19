@@ -52,16 +52,15 @@ export const siteSeed: SeedSiteCopy = {
     siteName: "KalaNidhi Digital",
     siteUrl: "https://kalanidhi.site",
     areaServed: "Daerah Istimewa Yogyakarta",
-    title: "KalaNidhi Digital | Belajar sampai bisa, bisa sampai mengajari",
+    title: "KalaNidhi Digital | Buka layarmu, kenali budayamu",
     description:
-      "Platform belajar praktik budaya Nusantara. Tugas dinilai pengajar, sertifikat platform bisa diverifikasi, karya punya Kartu Karya. Lulusan dapat kembali sebagai pengajar, penilai, atau pemasok.",
-    ogTitle: "KalaNidhi Digital | Belajar sampai bisa, bisa sampai mengajari",
+      "Platform belajar praktik budaya Nusantara di Yogyakarta. Kelas disusun bersama pengajar, tugas dinilai manusia, sertifikat bisa diverifikasi, dan karya punya Kartu Karya.",
+    ogTitle: "KalaNidhi Digital | Buka layarmu, kenali budayamu",
     ogDescription:
-      "Bidang budaya dipetakan, jalur belajar dibuka bertahap. Belajar langsung dari pengajar, dinilai manusia, lalu berkarya dengan Kartu Karya.",
-    twitterTitle:
-      "KalaNidhi Digital | Belajar sampai bisa, bisa sampai mengajari",
+      "Bidang budaya dipetakan, kelas belajar dibuka bertahap. Belajar langsung dari pengajar, dinilai manusia, lalu berkarya dengan Kartu Karya.",
+    twitterTitle: "KalaNidhi Digital | Buka layarmu, kenali budayamu",
     twitterDescription:
-      "Jalur belajar praktik budaya Nusantara dengan penilaian pengajar dan sertifikat platform.",
+      "Kelas belajar praktik budaya Nusantara dengan penilaian pengajar dan sertifikat platform.",
     keywords: [
       "batik bambu",
       "batik tulis",
@@ -92,12 +91,12 @@ export const siteSeed: SeedSiteCopy = {
     brandAria: "KalaNidhi Digital, kembali ke atas",
     mainNavAria: "Navigasi utama",
     mobileNavAria: "Navigasi mobile",
-    searchAria: "Cari jalur, pengajar, bidang, atau karya",
+    searchAria: "Cari kelas, pengajar, bidang, atau karya",
     searchLabel: "Cari",
     menuAria: "Buka menu navigasi",
     loginCta: "Masuk",
     registerCta: "Daftar",
-    mobileSearch: "Cari jalur, pengajar, atau karya",
+    mobileSearch: "Cari kelas, pengajar, atau karya",
     mobileRegisterCta: "Daftar minat",
     sheetTitle: "Menu navigasi",
     sheetDescription:
@@ -106,11 +105,11 @@ export const siteSeed: SeedSiteCopy = {
     homeLabel: "Beranda",
   },
   hero: {
-    title: ["Mulai dari kelas ini.", "Nanti kamu yang mengajari."],
+    title: ["Buka layarmu,", "Kenali Budayamu"],
     description:
-      "KalaNidhi Digital mempertemukan pelajar dengan pengajar batik bambu, aksara Jawa, pranatacara, gerabah, karawitan, tari, dan praktik hidup lain di Yogyakarta. Kerjakan tugas dengan tangan atau suara, kirim hasilnya, terima koreksi pengajar, lalu bawa karya atau jasamu ke pembeli. Lulusan yang siap kembali mengajar dan membuka jalur untuk pelajar berikutnya.",
-    primaryCta: "Pilih jalur yang terbuka",
-    secondaryCta: "Lihat alurnya",
+      "Kelas belajar praktik budaya Yogyakarta. Belajar dari pengajar yang masih berkarya, kirim tugas, terima koreksi, lalu bawa hasilnya ke pembeli.",
+    primaryCta: "Pilih kelas yang terbuka",
+    secondaryCta: "Lihat cara kerjanya",
     plate: {
       imageFile: "hero-canting.jpg",
       alt: "Tangan membatik dengan canting di atas kain",
@@ -134,14 +133,14 @@ export const siteSeed: SeedSiteCopy = {
   },
   loop: {
     label: "Cara kerja",
-    title: "Satu alur, lima langkah, lalu kembali ke awal.",
+    title: "Belajar, dinilai, tersertifikat, lalu berkarya.",
     description:
-      "Belajar, dinilai, tersertifikasi, berkarya. Empat langkah inti itu terjadi berurutan. Langkah kelima membuka jalur kembali, lulusan bisa menjadi pengajar pendamping, penilai, atau pemasok. Dari situ jalur baru dibuka, dan pelajar baru masuk.",
-    returnLabel: "jalur kembali",
+      "Empat langkah inti terjadi berurutan. Setelah lulus, ada kesempatan tambahan untuk ikut mengajar, menilai, atau memasok bahan.",
+    returnLabel: "setelah lulus",
     returnNote:
-      "Lulusan dapat kembali sebagai pengajar pendamping, penilai, atau pemasok. Peran itu membuka kelas berikutnya.",
+      "Lulusan boleh ikut mengajar sebagai pendamping, menilai tugas, atau memasok bahan. Ini kesempatan, bukan syarat kelulusan.",
     returnCaveat:
-      "Jalur kembali tidak menjanjikan semua lulusan mengajar. Peran ini disiapkan untuk pengajar pendamping, penilai tugas, atau pemasok bahan. Setiap peran yang terisi membuka jalur baru.",
+      "Tidak semua lulusan menjadi pengajar. Peran ini dibuka sesuai kebutuhan kelas.",
     stages: [
       {
         code: "01",
@@ -169,18 +168,18 @@ export const siteSeed: SeedSiteCopy = {
       },
       {
         code: "05",
-        title: "Kembali mengajar",
+        title: "Ikut mengajar",
         description:
-          "Lulusan dapat mengajukan diri sebagai pengajar pendamping, penilai, atau pemasok. Pasokan dan jalur baru dibuka dari sini.",
+          "Kalau mau, lulusan bisa mendaftar sebagai pengajar pendamping, penilai, atau pemasok bahan. Peran ini membuka kelas berikutnya.",
       },
     ],
   },
   catalog: {
-    label: "Peta bidang",
+    label: "Bidang budaya",
     title: "Bidang ini dibuka bertahap, bersama pengajarnya.",
     description:
-      "Katalog bertambah dari pengajar yang masuk. Peta di bawah menunjukkan mana yang sudah bisa dikerjakan sekarang, mana yang sedang disiapkan, dan mana yang masih menunggu pengajar.",
-    cta: "Lihat jalur yang terbuka",
+      "Katalog bertambah dari pengajar yang masuk. Daftar di bawah menunjukkan mana yang sudah bisa dikerjakan sekarang, mana yang sedang disiapkan, dan mana yang masih menunggu pengajar.",
+    cta: "Lihat kelas yang terbuka",
     groups: [
       {
         status: "Terbuka",
@@ -198,20 +197,20 @@ export const siteSeed: SeedSiteCopy = {
         status: "Direncanakan",
         title: "Menunggu pengajar",
         blurb:
-          "Bidangnya ada. Pengajar yang mau membuka jalur belum bergabung.",
+          "Bidangnya ada. Pengajar yang mau membuka kelas belum bergabung.",
       },
     ],
   },
   sections: {
     paths: {
-      label: "Jalur belajar",
-      title: "Jalur yang sudah terbuka.",
+      label: "Kelas belajar",
+      title: "Kelas yang sudah terbuka.",
       description:
-        "Setiap jalur punya pengajar, modul, dan tugas praktik yang dinilai manusia. Pilih yang paling dekat dengan minatmu sekarang.",
+        "Setiap kelas punya pengajar, modul, dan tugas praktik yang dinilai manusia. Pilih yang paling dekat dengan minatmu sekarang.",
       detailCta: "Buka rincian",
       openCta: "Daftar minat",
       plannedCta: "Catat minat",
-      priceLabel: "Biaya jalur",
+      priceLabel: "Biaya kelas",
       statusLabel: "Status",
       contentLabel: "Isi",
       includesLabel: "Yang termasuk",
@@ -220,7 +219,7 @@ export const siteSeed: SeedSiteCopy = {
       regionLabel: "Daerah",
       levelLabel: "Level",
       emptyState:
-        "Belum ada jalur terbit di Convex. Jalur akan muncul di sini setelah kurikulum, pengajar, dan angkatan pertama tersedia.",
+        "Belum ada kelas terbit di Convex. Kelas akan muncul di sini setelah kurikulum, pengajar, dan angkatan pertama tersedia.",
     },
     teachers: {
       label: "Pengajar",
@@ -272,11 +271,11 @@ export const siteSeed: SeedSiteCopy = {
       label: "Mulai dari sini",
       title: "Kelas berikutnya masih kosong.",
       description:
-        "Pilih jalur, kerjakan tugas pertama, dan kirim untuk dikoreksi. Kalau sudah siap, kamu bisa kembali mengajar dan membuka jalur untuk orang berikutnya.",
+        "Pilih kelas, kerjakan tugas pertama, dan kirim untuk dikoreksi. Dari situ kamu tahu apa yang sudah bisa dan apa yang perlu dilatih lagi.",
       primaryCta: "Daftar minat",
-      secondaryCta: "Lihat jalur",
+      secondaryCta: "Lihat kelas",
       noteSuffix:
-        "Praktisi dari kabupaten dan kota di DIY dapat mengajukan jalur baru.",
+        "Praktisi dari kabupaten dan kota di DIY dapat mengajukan kelas baru.",
     },
   },
   mangsa: {
@@ -301,12 +300,12 @@ export const siteSeed: SeedSiteCopy = {
     label: "Aturan sumber dan bagi hasil",
     title: "Setiap pengetahuan mencantumkan nama, sumber, dan bagi hasil.",
     description:
-      "Kartu Sumber Budaya tampil di jalur, karya, dan pustaka. Isinya mencatat sumber materi, rujukan, tanggal pencatatan, tingkat akses, dan pembagian nilai ekonomi. Kami menuliskannya sebelum kamu memutuskan.",
+      "Kartu Sumber Budaya tampil di kelas, karya, dan pustaka. Isinya mencatat sumber materi, rujukan, tanggal pencatatan, tingkat akses, dan pembagian nilai ekonomi. Kami menuliskannya sebelum kamu memutuskan.",
     principles: [
       {
         title: "Sumber yang bisa dilacak",
         description:
-          "Materi kurikulum berasal dari arsip pengelola platform dan rujukan publik. Sumber, pengajar, dan rujukan tercatat di setiap jalur dan karya.",
+          "Materi kurikulum berasal dari arsip pengelola platform dan rujukan publik. Sumber, pengajar, dan rujukan tercatat di setiap kelas dan karya.",
       },
       {
         title: "Izin dan tingkat akses",
@@ -386,14 +385,14 @@ export const siteSeed: SeedSiteCopy = {
   },
   footer: {
     description:
-      "Platform belajar praktik budaya Nusantara. Dinilai pengajar, tersertifikasi platform, lalu tersambung ke karya dan jasa. Lulusan dapat kembali sebagai pengajar, penilai, atau pemasok.",
+      "Platform belajar praktik budaya Nusantara. Dinilai pengajar, tersertifikasi platform, lalu tersambung ke karya dan jasa.",
     columns: [
       {
         title: "Isi platform",
         links: [
           { label: "Alur belajar", href: ABOUT_LOOP_HREF },
           { label: "Bidang", href: PUBLIC_ROUTES.fields },
-          { label: "Jalur belajar", href: PUBLIC_ROUTES.paths },
+          { label: "Kelas belajar", href: PUBLIC_ROUTES.paths },
           { label: "Pengajar", href: PUBLIC_ROUTES.teachers },
           { label: "Karya dan jasa", href: PUBLIC_ROUTES.works },
         ],
@@ -421,7 +420,7 @@ export const siteSeed: SeedSiteCopy = {
     cultureLabel: "Hak budaya",
     culturePolicyCta: "Baca prinsip etika",
     certificateNote:
-      "Sertifikat menandai kompetensi di platform KalaNidhi Digital. Sertifikasi pemerintah dan BNSP memiliki jalur terpisah.",
+      "Sertifikat menandai kompetensi di platform KalaNidhi Digital. Sertifikasi pemerintah dan BNSP memiliki kelas terpisah.",
     preferencesLabel: "Preferensi",
     languageLabel: "Bahasa",
     dataSaverLabel: "Hemat kuota",
@@ -429,20 +428,20 @@ export const siteSeed: SeedSiteCopy = {
     termsLabel: "Ketentuan layanan",
     backToTopLabel: "Kembali ke atas",
     newsletter: {
-      label: "Kabar jalur dan karya baru",
-      placeholder: "Email untuk kabar jalur baru",
+      label: "Kabar kelas dan karya baru",
+      placeholder: "Email untuk kabar kelas baru",
       cta: "Ikuti kabar",
       pending: "Mengirim",
-      note: "Kami hanya mengirim kabar jalur dan karya baru. Berhenti kapan saja.",
+      note: "Kami hanya mengirim kabar kelas dan karya baru. Berhenti kapan saja.",
       errorNote: "Periksa alamat emailmu.",
-      interest: "Kabar jalur dan karya baru",
+      interest: "Kabar kelas dan karya baru",
       source: "footer",
     },
   },
   navigation: [
     { label: "Alur belajar", href: ABOUT_LOOP_HREF },
     { label: "Bidang", href: PUBLIC_ROUTES.fields },
-    { label: "Jalur", href: PUBLIC_ROUTES.paths },
+    { label: "Kelas", href: PUBLIC_ROUTES.paths },
     { label: "Pengajar", href: PUBLIC_ROUTES.teachers },
     { label: "Karya", href: PUBLIC_ROUTES.works },
     { label: "Etika", href: PUBLIC_ROUTES.ethics },
@@ -454,7 +453,7 @@ export const siteSeed: SeedSiteCopy = {
       description:
         "Prinsip yang kami pakai sebelum sebuah pengetahuan atau karya ditampilkan.",
       bullets: [
-        "Sumber materi, pengajar, dan rujukan tampil di setiap jalur dan karya.",
+        "Sumber materi, pengajar, dan rujukan tampil di setiap kelas dan karya.",
         "Status sumber dan tanggal pencatatan ditampilkan bersama tingkat aksesnya.",
         "Rincian bagi hasil dapat dilihat sebelum transaksi, saat kamu masih bisa memutuskan.",
         "Pengetahuan terbatas dihormati. Tidak semua materi dibuka untuk publik.",
@@ -471,7 +470,7 @@ export const siteSeed: SeedSiteCopy = {
       icon: "login",
       title: "Masuk ke KalaNidhi Digital",
       description:
-        "Dasbor pelajar, pengajar, dan mitra menyimpan alur belajar, tugas, dan sertifikat dalam satu tempat.",
+        "Dasbor pelajar, pengajar, dan mitra menyimpan catatan belajar, tugas, dan sertifikat dalam satu tempat.",
       bullets: [
         "Pelajar bisa membuka modul, mengirim tugas, dan mengunduh sertifikat.",
         "Pengajar bisa meninjau tugas dan mengelola jadwal sesi.",
@@ -522,13 +521,13 @@ export const siteSeed: SeedSiteCopy = {
       icon: "about",
       title: "Tentang KalaNidhi Digital",
       description:
-        "KalaNidhi Digital adalah ruang belajar praktik budaya Nusantara yang dibangun bersama pengajar dan sanggar. Bidang budaya dipetakan dan jalur belajar dibuka bertahap.",
+        "KalaNidhi Digital adalah ruang belajar praktik budaya Nusantara yang dibangun bersama pengajar dan sanggar. Bidang budaya dipetakan dan kelas belajar dibuka bertahap.",
       bullets: [
-        "Jalur belajar disusun bersama pengajar, kurator, dan praktisi sanggar.",
+        "Kelas belajar disusun bersama pengajar, kurator, dan praktisi sanggar.",
         "Setiap karya membawa Kartu Karya yang mencatat pembuat, teknik, dan proses.",
         "Sertifikat KalaNidhi Digital adalah sertifikat platform dengan kode verifikasi publik.",
         "Lulusan dapat mengajukan diri sebagai pengajar pendamping, penilai, atau pemasok.",
-        "Layanan berjalan di Daerah Istimewa Yogyakarta. Setiap kabupaten dan kota membuka jalur bersama pengajarnya sendiri.",
+        "Layanan berjalan di Daerah Istimewa Yogyakarta. Setiap kabupaten dan kota membuka kelas bersama pengajarnya sendiri.",
       ],
       footnote:
         "Sekretariat kami berada di Trimurti, Srandakan, Bantul, Yogyakarta. Untuk kerja sama, gunakan formulir institusi.",
@@ -566,15 +565,15 @@ export const siteSeed: SeedSiteCopy = {
   },
   search: {
     title: "Cari di KalaNidhi Digital",
-    description: "Cari jalur belajar, pengajar, karya, atau halaman.",
-    placeholder: "Cari jalur, pengajar, karya…",
+    description: "Cari kelas belajar, pengajar, karya, atau halaman.",
+    placeholder: "Cari kelas, pengajar, karya…",
     emptyPrefix: "Belum ada yang cocok untuk “",
     emptySuffix: "”. Coba kata kunci lain.",
     footerLabel: "Cari di seluruh halaman",
     escLabel: "untuk menutup",
     closeLabel: "Tutup",
     groups: {
-      paths: "Jalur belajar",
+      paths: "Kelas belajar",
       teachers: "Pengajar",
       works: "Karya dan jasa",
       fields: "Bidang budaya",
@@ -583,8 +582,8 @@ export const siteSeed: SeedSiteCopy = {
     pathComingSoon: "Sedang disusun, daftar tunggu dibuka",
     pages: [
       {
-        label: "Cara kerja alur",
-        description: "Lima tahap dalam satu alur",
+        label: "Cara kerja",
+        description: "Lima tahap berurutan",
         href: "#lingkaran",
       },
       {
@@ -612,7 +611,7 @@ export const siteSeed: SeedSiteCopy = {
   mobileCta: {
     label: "Mulai dari",
     pricePrefix: "",
-    priceSuffix: "/ jalur",
+    priceSuffix: "/ kelas",
     registerCta: "Daftar minat",
     note: "Sudah termasuk penilaian pengajar",
   },
@@ -620,7 +619,7 @@ export const siteSeed: SeedSiteCopy = {
     student: {
       title: "Daftar minat belajar",
       description:
-        "Pilih jalur yang ingin kamu mulai. Tim KalaNidhi Digital akan menghubungimu untuk jadwal dan langkah berikutnya.",
+        "Pilih kelas yang ingin kamu mulai. Tim KalaNidhi Digital akan menghubungimu untuk jadwal dan langkah berikutnya.",
     },
     institution: {
       title: "Minta penawaran institusi",
@@ -630,7 +629,7 @@ export const siteSeed: SeedSiteCopy = {
     consultation: {
       title: "Tanya sebelum memesan",
       description:
-        "Tanyakan ketersediaan, ukuran, jadwal, atau jalur yang paling cocok. Tim KalaNidhi Digital akan menghubungimu.",
+        "Tanyakan ketersediaan, ukuran, jadwal, atau kelas yang paling cocok. Tim KalaNidhi Digital akan menghubungimu.",
     },
     notify: {
       title: "Beri tahu saya",
@@ -645,19 +644,19 @@ export const catalogFieldsSeed: CatalogField[] = [
     name: "Batik bambu",
     region: "Krebet, Sendangsari, Pajangan, Bantul",
     status: "Terbuka",
-    note: "Jalur aktif",
+    note: "Kelas aktif",
   },
   {
     name: "Aksara Jawa",
     region: "Kota Yogyakarta",
     status: "Terbuka",
-    note: "Jalur aktif",
+    note: "Kelas aktif",
   },
   {
     name: "Pranatacara",
     region: "Kota Yogyakarta",
     status: "Terbuka",
-    note: "Jalur aktif",
+    note: "Kelas aktif",
   },
   {
     name: "Kriya gerabah",
@@ -681,7 +680,7 @@ export const catalogFieldsSeed: CatalogField[] = [
     name: "Tari kreasi",
     region: "Kota Yogyakarta dan Sleman",
     status: "Terbuka",
-    note: "Jalur aktif",
+    note: "Kelas aktif",
   },
   {
     name: "Keramik",
@@ -693,7 +692,7 @@ export const catalogFieldsSeed: CatalogField[] = [
     name: "Kuliner Nusantara",
     region: "Kota Yogyakarta dan Kulon Progo",
     status: "Terbuka",
-    note: "Jalur aktif",
+    note: "Kelas aktif",
   },
   {
     name: "Jamu",
@@ -712,7 +711,7 @@ export const catalogFieldsSeed: CatalogField[] = [
 export const pathsSeed: SeedLearningPath[] = [
   {
     slug: "batik-bambu",
-    code: "Jalur 01",
+    code: "Kelas 01",
     title: "Batik Bambu",
     subtitle:
       "Memilih bambu, merebus, mengeringkan, mengamplas, memberi pola, nglowongi, ngisen-isen, mbabar, nembok, warna dasar, nglorod, mepe, finishing, memeriksa",
@@ -739,7 +738,7 @@ export const pathsSeed: SeedLearningPath[] = [
   },
   {
     slug: "pranatacara-jawa",
-    code: "Jalur 02",
+    code: "Kelas 02",
     title: "Seni Pembawa Acara Tradisi Jawa",
     subtitle: "Tata wicara, urutan acara, dan etiket panggung",
     teacher: "Widagdo Saputra",
@@ -762,7 +761,7 @@ export const pathsSeed: SeedLearningPath[] = [
   },
   {
     slug: "kriya-gerabah-bantul",
-    code: "Jalur 03",
+    code: "Kelas 03",
     title: "Kriya Gerabah Bantul",
     subtitle: "Membentuk, mengeringkan, dan membakar gerabah Kasongan",
     teacher: "",
@@ -786,7 +785,7 @@ export const pathsSeed: SeedLearningPath[] = [
   },
   {
     slug: "aksara-jawa",
-    code: "Jalur 04",
+    code: "Kelas 04",
     title: "Aksara Jawa, Membaca dan Menulis",
     subtitle: "Dari hanacaraka sampai kalimat utuh tanpa spasi",
     teacher: "Suwardi Pratama",
@@ -809,7 +808,7 @@ export const pathsSeed: SeedLearningPath[] = [
   },
   {
     slug: "batik-tulis-soga",
-    code: "Jalur 05",
+    code: "Kelas 05",
     title: "Batik Tulis",
     subtitle:
       "Materi batik tulis di atas kain sedang disiapkan, belum ada modul yang diterbitkan",
@@ -825,7 +824,7 @@ export const pathsSeed: SeedLearningPath[] = [
     imageFile: "path-batik-tulis-giriloyo.jpg",
     tags: ["Sedang disusun", "Materi sumber belum tersedia"],
     outcome:
-      "Jalur batik tulis di atas kain belum dibuka. Materi sumber dari Paguyuban Batik Tulis Giriloyo masih disiapkan dan belum diterbitkan sebagai modul, jadi belum ada kurikulum yang bisa dijanjikan.",
+      "Kelas batik tulis di atas kain belum dibuka. Materi sumber dari Paguyuban Batik Tulis Giriloyo masih disiapkan dan belum diterbitkan sebagai modul, jadi belum ada kurikulum yang bisa dijanjikan.",
     includes: [
       "Kurikulum dalam penyusunan",
       "Daftar tunggu dibuka",
@@ -835,7 +834,7 @@ export const pathsSeed: SeedLearningPath[] = [
   },
   {
     slug: "tari-kreasi",
-    code: "Jalur 06",
+    code: "Kelas 06",
     title: "Tari Kreasi",
     subtitle:
       "Gerak murni dan maknawi, ruang-waktu-tenaga, bentuk penyajian, lalu menyusun kreasi pendek dua menit",
@@ -862,7 +861,7 @@ export const pathsSeed: SeedLearningPath[] = [
   },
   {
     slug: "kuliner-nusantara",
-    code: "Jalur 07",
+    code: "Kelas 07",
     title: "Kuliner Nusantara",
     subtitle:
       "Gastronomi, identitas, teknik memasak, geblek dan tumpeng, serta pelestarian makanan tradisional",
@@ -1044,7 +1043,7 @@ export const worksSeed: SeedWork[] = [
     category: "batik",
     kind: "product",
     maker: "Anisa Rahmawati",
-    makerRole: "Lulusan jalur Batik Bambu",
+    makerRole: "Lulusan kelas Batik Bambu",
     teacher: "Sri Sriningsih",
     region: "Bantul",
     price: 385_000,
@@ -1067,7 +1066,7 @@ export const worksSeed: SeedWork[] = [
     category: "batik",
     kind: "product",
     maker: "Dimas Yoga Pratama",
-    makerRole: "Lulusan jalur Batik Bambu",
+    makerRole: "Lulusan kelas Batik Bambu",
     teacher: "Sri Sriningsih",
     region: "Bantul",
     price: 275_000,
@@ -1090,7 +1089,7 @@ export const worksSeed: SeedWork[] = [
     category: "batik",
     kind: "product",
     maker: "Bambang Purnomo",
-    makerRole: "Lulusan jalur Batik Bambu",
+    makerRole: "Lulusan kelas Batik Bambu",
     teacher: "Sri Sriningsih",
     region: "Bantul",
     price: 650_000,
@@ -1137,7 +1136,7 @@ export const worksSeed: SeedWork[] = [
     category: "layanan",
     kind: "service",
     maker: "Galuh Puspita",
-    makerRole: "Lulusan jalur Aksara Jawa",
+    makerRole: "Lulusan kelas Aksara Jawa",
     teacher: "Suwardi Pratama",
     region: "Kota Yogyakarta dan sekitarnya",
     price: 275_000,
@@ -1161,7 +1160,7 @@ export const worksSeed: SeedWork[] = [
     category: "layanan",
     kind: "service",
     maker: "Sekar Ayuningtyas",
-    makerRole: "Lulusan jalur Tari Kreasi",
+    makerRole: "Lulusan kelas Tari Kreasi",
     teacher: "Retno Wulandari",
     region: "Sleman dan sekitarnya",
     price: 1_500_000,
@@ -1171,7 +1170,7 @@ export const worksSeed: SeedWork[] = [
     techniqueNote: "Tari kreasi solo atau duet",
     workCard: "KN-TRI-031",
     description:
-      "Penampilan tari kreasi dua menit untuk acara keluarga, dengan pilihan solo atau duet. Gerak disusun dari motif yang dipelajari di jalur, lalu disesuaikan dengan durasi dan ruang acara. Harga mencakup latihan bersama penyelenggara, iringan musik siap pakai, dan satu kali tampil. Rekaman pertunjukan dan skor gerak diserahkan setelah acara.",
+      "Penampilan tari kreasi dua menit untuk acara keluarga, dengan pilihan solo atau duet. Gerak disusun dari motif yang dipelajari di kelas, lalu disesuaikan dengan durasi dan ruang acara. Harga mencakup latihan bersama penyelenggara, iringan musik siap pakai, dan satu kali tampil. Rekaman pertunjukan dan skor gerak diserahkan setelah acara.",
     imageFile: "work-tari-kreasi.jpg",
   },
   {
@@ -1185,7 +1184,7 @@ export const worksSeed: SeedWork[] = [
     category: "kuliner",
     kind: "product",
     maker: "Bimo Prakoso",
-    makerRole: "Lulusan jalur Kuliner Nusantara",
+    makerRole: "Lulusan kelas Kuliner Nusantara",
     teacher: "Joko Santosa",
     region: "Kulon Progo",
     price: 45_000,
@@ -1210,7 +1209,7 @@ export const testimonialsSeed: Testimonial[] = [
   },
   {
     quote:
-      "Kami memakai jalur batik untuk muatan lokal. Laporan progres membantu saya melihat siswa mana yang perlu pendampingan, bukan hanya nilai akhir.",
+      "Kami memakai kelas batik untuk muatan lokal. Laporan progres membantu saya melihat siswa mana yang perlu pendampingan, bukan hanya nilai akhir.",
     name: "Dwi Lestari",
     role: "Guru SD, mitra institusi",
     city: "Sleman",
@@ -1235,12 +1234,12 @@ export const faqsSeed: Faq[] = [
   {
     question: "Bagaimana lulusan bisa kembali sebagai pengajar?",
     answer:
-      "Setelah menyelesaikan jalur lanjutan dan dinilai, lulusan bisa mengajukan diri sebagai pengajar pendamping, penilai tugas, atau pemasok bahan dan karya. Pengajuan ditinjau bersama pengajar senior dan kurator. Jalur baru dibuka bila pengajar, kurikulum, dan izinnya sudah siap.",
+      "Setelah menyelesaikan kelas lanjutan dan dinilai, lulusan bisa mengajukan diri sebagai pengajar pendamping, penilai tugas, atau pemasok bahan dan karya. Pengajuan ditinjau bersama pengajar senior dan kurator. Kelas baru dibuka bila pengajar, kurikulum, dan izinnya sudah siap.",
   },
   {
     question: "Bidang apa saja yang bisa dipelajari?",
     answer:
-      "Bidang budaya sudah dipetakan, dari batik bambu Bantul, aksara Jawa, dan pranatacara sampai gerabah Kasongan, batik tulis Giriloyo, karawitan, tari, keramik, kuliner tradisi, jamu, dan wayang. Jalur dibuka bertahap setelah kurikulum dan sumbernya siap.",
+      "Bidang budaya sudah dipetakan, dari batik bambu Bantul, aksara Jawa, dan pranatacara sampai gerabah Kasongan, batik tulis Giriloyo, karawitan, tari, keramik, kuliner tradisi, jamu, dan wayang. Kelas dibuka bertahap setelah kurikulum dan sumbernya siap.",
   },
   {
     question: "Bagaimana pengajar menilai tugas praktik saya?",
@@ -1255,11 +1254,11 @@ export const faqsSeed: Faq[] = [
   {
     question: "Bagaimana hak budaya dan bagi hasil dijaga?",
     answer:
-      "Setiap jalur dan karya menampilkan Kartu Sumber Budaya, sumber materi, rujukan, tanggal pencatatan, dan tingkat akses. Rincian bagi hasil ditampilkan sebelum transaksi, saat kamu masih bisa memutuskan.",
+      "Setiap kelas dan karya menampilkan Kartu Sumber Budaya, sumber materi, rujukan, tanggal pencatatan, dan tingkat akses. Rincian bagi hasil ditampilkan sebelum transaksi, saat kamu masih bisa memutuskan.",
   },
   {
     question: "Saya hanya ingin membeli karya. Apakah harus ikut kelas?",
     answer:
-      "Tidak. Kamu bisa langsung menjelajahi etalase karya lulusan dan pengajar. Setiap karya punya Kartu Karya yang menjelaskan pembuat, teknik, dan riwayat prosesnya.",
+      "Tidak. Kamu bisa langsung melihat daftar karya lulusan dan pengajar. Setiap karya punya Kartu Karya yang menjelaskan pembuat, teknik, dan riwayat prosesnya.",
   },
 ]

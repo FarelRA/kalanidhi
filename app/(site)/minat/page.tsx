@@ -131,7 +131,7 @@ function InterestCatalog({
       <section className="shell py-12 sm:py-16">
         <PublicPageIntro
           eyebrow="Daftar minat"
-          title="Pilih jalur atau karya."
+          title="Pilih kelas atau karya."
           description="Daftar minat langsung membuka halaman checkout. WhatsApp adalah identitas utama, email opsional untuk salinan."
         />
 
@@ -156,19 +156,19 @@ function InterestCatalog({
         <div className="mt-12">
           <div className="flex items-end justify-between gap-4 border-b border-ink/20 pb-3">
             <h2 className="font-heading text-[clamp(1.5rem,3vw,2rem)] leading-none">
-              Jalur belajar
+              Kelas belajar
             </h2>
             <Link
               href={PUBLIC_ROUTES.paths}
               className="text-[10px] font-bold uppercase tracking-[0.06em] text-copper-dark hover:text-ink"
             >
-              Semua jalur
+              Semua kelas
             </Link>
           </div>
 
           {paths.length === 0 ? (
             <p className="mt-6 max-w-xl border border-ink/25 bg-paper-2 p-5 text-[12.5px] leading-relaxed text-ink-soft">
-              Belum ada jalur yang terbit di Convex. Jalur akan muncul di sini
+              Belum ada kelas yang terbit di Convex. Kelas akan muncul di sini
               setelah kurikulum dan pengajarnya tersedia.
             </p>
           ) : (
@@ -194,7 +194,7 @@ function InterestCatalog({
                   </div>
                   <div className="flex flex-1 flex-col p-4">
                     <p className="text-[9px] font-bold uppercase tracking-[0.09em] text-copper-dark">
-                      Jalur belajar · {path.region}
+                      Kelas belajar · {path.region}
                     </p>
                     <h3 className="mt-1.5 font-heading text-[1.35rem] leading-tight">
                       <Link
@@ -213,7 +213,7 @@ function InterestCatalog({
 
                     <div className="mt-3 border-t border-ink/15 pt-3">
                       <p className="text-[9.5px] font-bold uppercase tracking-[0.07em] text-ink-muted">
-                        Biaya jalur
+                        Biaya kelas
                       </p>
                       <p className="mt-1 font-heading text-[1.5rem] leading-none">
                         {path.price ? formatIDR(path.price) : path.priceLabel}
@@ -225,7 +225,7 @@ function InterestCatalog({
                         href={pathHref(path.slug)}
                         className="inline-flex min-h-11 items-center border border-ink/35 px-4 text-[10.5px] font-bold uppercase tracking-[0.06em] text-ink transition-colors hover:border-copper-dark hover:text-copper-dark"
                       >
-                        Lihat jalur
+                        Lihat kelas
                       </Link>
                       {path.comingSoon ? (
                         <Link
@@ -242,7 +242,7 @@ function InterestCatalog({
                           href={enrollHref(path.slug)}
                           className="inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[10.5px] font-bold uppercase tracking-[0.06em] text-paper transition-colors hover:bg-ink-2"
                         >
-                          Daftar jalur
+                          Daftar kelas
                         </Link>
                       )}
                     </div>
@@ -361,8 +361,8 @@ function TeacherChooser({ teacher }: { teacher: PublicTeacherDetail }) {
       <section className="shell py-12 sm:py-16">
         <PublicPageIntro
           eyebrow="Daftar minat"
-          title={`Jalur ${teacher.name}.`}
-          description="Pilih jalur yang ingin kamu daftar. Setiap pilihan langsung membuka checkout."
+          title={`Kelas ${teacher.name}.`}
+          description="Pilih kelas yang ingin kamu daftar. Setiap pilihan langsung membuka checkout."
         />
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
@@ -398,7 +398,7 @@ function TeacherChooser({ teacher }: { teacher: PublicTeacherDetail }) {
                   href={pathHref(path.slug)}
                   className="inline-flex min-h-11 items-center border border-ink/35 px-4 text-[10.5px] font-bold uppercase tracking-[0.06em] text-ink transition-colors hover:border-copper-dark hover:text-copper-dark"
                 >
-                  Lihat jalur
+                  Lihat kelas
                 </Link>
                 {path.comingSoon ? (
                   <Link
@@ -412,7 +412,7 @@ function TeacherChooser({ teacher }: { teacher: PublicTeacherDetail }) {
                     href={enrollHref(path.slug)}
                     className="inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[10.5px] font-bold uppercase tracking-[0.06em] text-paper transition-colors hover:bg-ink-2"
                   >
-                    Daftar jalur
+                    Daftar kelas
                   </Link>
                 )}
               </div>
@@ -426,7 +426,7 @@ function TeacherChooser({ teacher }: { teacher: PublicTeacherDetail }) {
             aria-hidden="true"
           />
           <p className="text-[11.5px] leading-relaxed text-ink-soft">
-            Belum yakin jalur mana? Tanya dulu lewat WhatsApp.
+            Belum yakin kelas mana? Tanya dulu lewat WhatsApp.
           </p>
           <Link
             href={consultHref({

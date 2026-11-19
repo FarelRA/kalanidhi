@@ -152,7 +152,7 @@ async function scanUsage(
     references.push({ label: "Tabel karya", source: "entity" })
   }
   if (paths.some((path) => path.imageAssetId === document._id)) {
-    references.push({ label: "Tabel jalur", source: "entity" })
+    references.push({ label: "Tabel kelas", source: "entity" })
   }
   if (teachers.some((teacher) => teacher.imageAssetId === document._id)) {
     references.push({ label: "Tabel pengajar", source: "entity" })

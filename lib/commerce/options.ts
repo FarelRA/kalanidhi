@@ -300,7 +300,7 @@ export const WORK_READINESS_LABELS = {
   technique: "Teknik",
   maker: "Pembuat",
   teacher: "Pengajar",
-  path: "Jalur",
+  path: "Kelas",
   permission: "Izin sumber",
   provenance: "Provenans",
   materials: "Bahan",

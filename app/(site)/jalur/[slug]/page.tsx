@@ -63,7 +63,7 @@ async function getViewerOrNull(): Promise<Viewer | null> {
     if (!(await auth.isAuthenticated())) return null
     return await auth.fetchAuthQuery(api.access.getViewer)
   } catch (error) {
-    console.error("[jalur] Could not resolve auth session.", error)
+    console.error("[kelas] Could not resolve auth session.", error)
     return null
   }
 }
@@ -76,7 +76,7 @@ export async function generateMetadata({
   const { slug } = await params
   const path = await getPublicPath(slug)
   if (!path) {
-    return { title: "Jalur tidak ditemukan", robots: { index: false } }
+    return { title: "Kelas tidak ditemukan", robots: { index: false } }
   }
   return buildPageMetadata(pathHref(path.slug), {
     title: path.title,
@@ -119,7 +119,7 @@ export default async function PathDetailPage({
           </Link>
           <span aria-hidden="true"> / </span>
           <Link href={PUBLIC_ROUTES.paths} className="hover:text-copper-dark">
-            Jalur
+            Kelas
           </Link>
           <span aria-hidden="true"> / </span>
           <span>{path.title}</span>
@@ -130,7 +130,7 @@ export default async function PathDetailPage({
             <div className="relative aspect-[4/3] overflow-hidden border-2 border-ink bg-panel shadow-[5px_5px_0_var(--teak)]">
               <Image
                 src={path.image}
-                alt={`Jalur ${path.title}`}
+                alt={`Kelas ${path.title}`}
                 fill
                 priority
                 sizes="(min-width: 1024px) 640px, 92vw"
@@ -293,7 +293,7 @@ export default async function PathDetailPage({
               </h2>
               {path.cohorts.length === 0 ? (
                 <p className="mt-3 text-[12px] leading-relaxed text-ink-muted">
-                  Belum ada angkatan terbuka untuk jalur ini.
+                  Belum ada angkatan terbuka untuk kelas ini.
                 </p>
               ) : (
                 <ul className="mt-4 space-y-3">
@@ -342,7 +342,7 @@ export default async function PathDetailPage({
               <h2 className="font-heading text-[1.2rem]">Ingin bertanya dulu?</h2>
               <p className="mt-1.5 text-[11.5px] leading-relaxed text-ink-soft">
                 Kirim pertanyaan lewat formulir. Tim KalaNidhi akan menjawab
-                tanpa membuka jendela dialog.
+                tanpa membuka dialog.
               </p>
               <Link
                 href={interestHref({
@@ -416,7 +416,7 @@ function PathEnrollmentView({
       ? "Buka ruang belajar"
       : purchasable
         ? signedIn
-          ? "Beli jalur ini"
+          ? "Beli kelas ini"
           : "Masuk untuk membeli"
         : signedIn
           ? "Mulai belajar"
@@ -464,7 +464,7 @@ function PathEnrollmentView({
       {!signedIn && !path.comingSoon ? (
         <p className="mt-2 text-[10.5px] leading-relaxed text-ink-muted">
           Masuk dengan akun peserta untuk{" "}
-          {purchasable ? "membeli" : "memulai"} jalur ini. Belum punya akun?{" "}
+          {purchasable ? "membeli" : "memulai"} kelas ini. Belum punya akun?{" "}
           <Link
             href={`${PUBLIC_ROUTES.signUp}?next=${encodeURIComponent(
               purchasable ? checkoutHref : PUBLIC_ROUTES.learning,
@@ -478,7 +478,7 @@ function PathEnrollmentView({
       ) : null}
       {enrolled ? (
         <p className="mt-2 text-[10.5px] leading-relaxed text-ink-muted">
-          Kamu sudah terdaftar di jalur ini. Lanjutkan pelajaran dari ruang
+          Kamu sudah terdaftar di kelas ini. Lanjutkan pelajaran dari ruang
           belajar.
         </p>
       ) : null}

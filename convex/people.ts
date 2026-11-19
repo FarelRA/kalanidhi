@@ -601,7 +601,7 @@ export const createTeacherProfile = mutation({
     if (pathIds.length === 0 || pathIds.some((id) => !knownPaths.has(id))) {
       throw new ConvexError({
         code: "INVALID_PATH",
-        message: "Pilih setidaknya satu jalur yang valid.",
+        message: "Pilih setidaknya satu kelas yang valid.",
       })
     }
 

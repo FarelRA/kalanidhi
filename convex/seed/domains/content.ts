@@ -233,8 +233,8 @@ export const seedContent = internalMutation({
     >
     const draftHero = draftCopy.hero as { title: string[] }
     draftHero.title = [
-      "Mulai dari kelas ini.",
-      "Nanti kamu yang mengajari.",
+      "Buka layarmu,",
+      "Kenali Budayamu",
     ]
     const scheduledCopy = JSON.parse(JSON.stringify(revisionCopy)) as Record<
       string,
@@ -244,7 +244,7 @@ export const seedContent = internalMutation({
       newsletter: { label: string }
     }
     scheduledBanner.newsletter.label =
-      "Kabar jalur dan karya baru, edisi Desember"
+      "Kabar kelas dan karya baru, edisi Desember"
 
     await ctx.db.insert("contentRevisions", {
       key: "site",

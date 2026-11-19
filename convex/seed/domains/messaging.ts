@@ -556,7 +556,7 @@ export const seedMessagingBatch = internalMutation({
         conversationId: blockedConversationId,
         senderId: nanda._id,
         kind: "text",
-        body: "Grup apa ini? Saya sudah daftar lewat halaman jalur, kok diajak ke tempat lain.",
+        body: "Grup apa ini? Saya sudah daftar lewat halaman kelas, kok diajak ke tempat lain.",
         createdAt: clock.ago(7.8),
       })
       messages += 1

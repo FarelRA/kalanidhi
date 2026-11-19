@@ -190,7 +190,7 @@ export const FLOW_SPECS: Record<FlowKey, FlowSpec> = {
       state("suspended", "Ditangguhkan", "danger", true),
     ],
     transitions: [
-      transition("review", "active", "Berkas, izin, dan jalur terverifikasi"),
+      transition("review", "active", "Berkas, izin, dan kelas terverifikasi"),
       transition("review", "suspended", "Ditolak atau melanggar ketentuan"),
       transition("suspended", "review", "Pengajuan ulang diterima"),
       transition("active", "suspended", "Penangguhan dengan alasan"),
@@ -380,7 +380,7 @@ export const FLOW_SPECS: Record<FlowKey, FlowSpec> = {
     ],
     transitions: [
       transition("draft", "submitted", "Data karya dan izin lengkap"),
-      transition("submitted", "teacher_confirmed", "Pengajar mengonfirmasi jalur"),
+      transition("submitted", "teacher_confirmed", "Pengajar mengonfirmasi kelas"),
       transition("teacher_confirmed", "admin_review", "Masuk tinjauan pengelola"),
       transition("admin_review", "published", "Moderasi dan izin valid", {
         requiresRole: "admin",

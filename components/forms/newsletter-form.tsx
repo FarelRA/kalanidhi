@@ -60,7 +60,7 @@ export function NewsletterForm({ copy }: { copy: FooterContent["newsletter"] }) 
       </div>
 
       <label htmlFor="newsletter-email" className="sr-only">
-        Alamat email untuk kabar jalur baru
+        Alamat email untuk kabar kelas baru
       </label>
       <div className="flex items-end gap-3 border-b border-paper/30 pb-1 focus-within:border-thread-light">
         <Input

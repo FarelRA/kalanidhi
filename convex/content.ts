@@ -2252,7 +2252,7 @@ export const setFeatured = mutation({
     if (pathSlugs.some((slug) => !validPaths.has(slug))) {
       throw new ConvexError({
         code: "INVALID_PATH",
-        message: "Ada jalur yang tidak tersedia untuk landing.",
+        message: "Ada kelas yang tidak tersedia untuk landing.",
       })
     }
     if (teacherSlugs.some((slug) => !validTeachers.has(slug))) {

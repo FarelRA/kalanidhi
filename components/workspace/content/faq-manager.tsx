@@ -153,7 +153,7 @@ export function FaqManager() {
             value={reason}
             onChange={(event) => setReason(event.target.value)}
             className="mt-1.5"
-            placeholder="Misalnya, perbarui jawaban biaya jalur."
+            placeholder="Misalnya, perbarui jawaban biaya kelas."
           />
           <p className="mt-1 text-[10px] text-ink-muted">
             Kosongkan untuk memakai alasan otomatis. Tersimpan di log audit.

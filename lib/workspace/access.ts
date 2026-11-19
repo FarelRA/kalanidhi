@@ -31,7 +31,7 @@ export function profileForViewer(viewer: Viewer): WorkspaceProfile {
       ? "Operasi platform, konten, statistik, dan tata kelola."
       : viewer.entitlements.teach
         ? "Kohort, penilaian, dan kredensial yang ditugaskan."
-        : "Jalur belajar, tugas, dan kredensial.",
+        : "Kelas belajar, tugas, dan kredensial.",
     user: {
       id: viewer.userId,
       name: viewer.name,

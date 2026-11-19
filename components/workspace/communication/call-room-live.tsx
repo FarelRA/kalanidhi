@@ -374,7 +374,7 @@ export function CallRoomLive({
         <PageHeader
           eyebrow="Panggilan"
           title={call.title}
-          description="Pemeriksaan perangkat sebelum masuk. Suara adalah jalur utama. Video dapat dimatikan kapan saja."
+          description="Pemeriksaan perangkat sebelum masuk. Suara adalah kelas utama. Video dapat dimatikan kapan saja."
           meta={<CallMeta call={call} />}
           actions={
             <Button asChild variant="outline">

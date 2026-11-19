@@ -352,7 +352,7 @@ async function requireCurriculumEditor(
   if (!path) {
     throw new ConvexError({
       code: "NOT_FOUND",
-      message: "Jalur tidak ditemukan.",
+      message: "Kelas tidak ditemukan.",
     })
   }
   if (
@@ -368,7 +368,7 @@ async function requireCurriculumEditor(
   }
   throw new ConvexError({
     code: "FORBIDDEN",
-    message: "Kurikulum hanya dapat diubah pengajar jalur atau pengelola.",
+    message: "Kurikulum hanya dapat diubah pengajar kelas atau pengelola.",
   })
 }
 
@@ -912,7 +912,7 @@ export const createCohort = mutation({
     if (!path || !isOpenPath(path)) {
       throw new ConvexError({
         code: "PATH_NOT_OPEN",
-        message: "Jalur belum terbuka untuk kohort.",
+        message: "Kelas belum terbuka untuk kohort.",
       })
     }
     if (!args.code.trim() || !args.title.trim()) {
@@ -953,7 +953,7 @@ export const createCohort = mutation({
     if (!activeProfile) {
       throw new ConvexError({
         code: "TEACHER_OUT_OF_SCOPE",
-        message: "Pengajar belum aktif untuk jalur ini.",
+        message: "Pengajar belum aktif untuk kelas ini.",
       })
     }
 
@@ -964,7 +964,7 @@ export const createCohort = mutation({
     if (existing.some((cohort) => cohort.code === args.code.trim())) {
       throw new ConvexError({
         code: "DUPLICATE_COHORT",
-        message: "Kode kohort sudah dipakai pada jalur ini.",
+        message: "Kode kohort sudah dipakai pada kelas ini.",
       })
     }
 
@@ -1066,7 +1066,7 @@ export const createEnrollment = mutation({
     if (!path || !isOpenPath(path)) {
       throw new ConvexError({
         code: "PATH_NOT_OPEN",
-        message: "Jalur ini belum membuka pendaftaran.",
+        message: "Kelas ini belum membuka pendaftaran.",
       })
     }
 
@@ -1082,7 +1082,7 @@ export const createEnrollment = mutation({
       if (cohort.pathId !== args.pathId) {
         throw new ConvexError({
           code: "PATH_MISMATCH",
-          message: "Kohort bukan bagian dari jalur ini.",
+          message: "Kohort bukan bagian dari kelas ini.",
         })
       }
       if (!["enrolling", "active"].includes(cohort.status)) {
@@ -1120,7 +1120,7 @@ export const createEnrollment = mutation({
       if (counts.enrolled >= cohort.capacity) {
         throw new ConvexError({
           code: "COHORT_FULL",
-          message: "Kelas kohort sudah penuh.",
+          message: "Kelas ini sudah penuh.",
         })
       }
     }
@@ -1177,7 +1177,7 @@ export const activateEnrollment = mutation({
         if (counts.enrolled >= cohort.capacity) {
           throw new ConvexError({
             code: "COHORT_FULL",
-            message: "Kelas kohort sudah penuh.",
+            message: "Kelas ini sudah penuh.",
           })
         }
       }
@@ -1312,7 +1312,7 @@ export const completeEnrollment = mutation({
     ) {
       throw new ConvexError({
         code: "INCOMPLETE",
-        message: `Penyelesaian mengikuti aturan jalur, ${completed} dari ${total} pelajaran selesai.`,
+        message: `Penyelesaian mengikuti aturan kelas, ${completed} dari ${total} pelajaran selesai.`,
       })
     }
 
@@ -1329,7 +1329,7 @@ export const completeEnrollment = mutation({
       action: "learning.completeEnrollment",
       entityType: "enrollments",
       entityId: enrollment._id,
-      reason: args.reason ?? "Aturan penyelesaian jalur terpenuhi",
+      reason: args.reason ?? "Aturan penyelesaian kelas terpenuhi",
       before: { status: enrollment.status },
       after: { status: "completed" },
     })
@@ -1357,7 +1357,7 @@ export const moveEnrollment = mutation({
     if (cohort.pathId !== enrollment.pathId) {
       throw new ConvexError({
         code: "PATH_MISMATCH",
-        message: "Kohort tujuan bukan bagian dari jalur ini.",
+        message: "Kohort tujuan bukan bagian dari kelas ini.",
       })
     }
     if (enrollment.cohortId === cohort._id) {
@@ -1489,7 +1489,7 @@ export const recordProgress = mutation({
     if (!lesson || lesson.pathId !== enrollment.pathId) {
       throw new ConvexError({
         code: "INVALID_LESSON",
-        message: "Pelajaran bukan bagian dari jalur ini.",
+        message: "Pelajaran bukan bagian dari kelas ini.",
       })
     }
     if (lesson.status !== "published") {
@@ -1571,7 +1571,7 @@ export const recordAttendance = mutation({
     if (!lesson || lesson.pathId !== enrollment.pathId) {
       throw new ConvexError({
         code: "INVALID_LESSON",
-        message: "Pelajaran bukan bagian dari jalur ini.",
+        message: "Pelajaran bukan bagian dari kelas ini.",
       })
     }
     const timestamp = nowMs()
@@ -2234,7 +2234,7 @@ export const reorderModules = mutation({
     ) {
       throw new ConvexError({
         code: "INVALID_ORDER",
-        message: "Daftar urutan modul harus memuat semua modul jalur ini.",
+        message: "Daftar urutan modul harus memuat semua modul kelas ini.",
       })
     }
     for (const [index, moduleId] of args.moduleIds.entries()) {

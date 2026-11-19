@@ -118,7 +118,7 @@ export function MaterialShelf({ catalog }: { catalog: SiteData["catalog"] }) {
             href={PUBLIC_ROUTES.fields}
             className="inline-flex min-h-11 items-center text-[10.5px] font-bold uppercase tracking-[0.06em] text-copper-dark hover:text-ink"
           >
-            Buka peta bidang
+            Buka daftar bidang
           </Link>
           <Button asChild className="bg-ink text-paper hover:bg-ink-2">
             <Link href={PUBLIC_ROUTES.paths}>{catalog.cta}</Link>

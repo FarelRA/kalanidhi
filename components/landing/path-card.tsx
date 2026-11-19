@@ -48,7 +48,7 @@ export function PathCard({
           {path.image ? (
             <Image
               src={path.image}
-              alt={`Jalur ${path.title}`}
+              alt={`Kelas ${path.title}`}
               fill
               sizes="(min-width: 1024px) 400px, 92vw"
               className={cn(

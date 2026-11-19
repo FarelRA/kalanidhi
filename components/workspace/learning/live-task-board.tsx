@@ -98,7 +98,7 @@ export function LiveTaskBoard() {
             ? "Periksa bukti, isi skor per rubrik, lalu putuskan. Persetujuan menerbitkan sertifikat platform."
             : can("submissions.escalate")
               ? "Pantau SLA lintas pengajar dan eskalasi tanpa menilai sendiri."
-              : "Unggah catatan proses. Pengajar menilai dengan rubrik jalur."
+              : "Unggah catatan proses. Pengajar menilai dengan rubrik kelas."
         }
       />
 
@@ -118,7 +118,7 @@ export function LiveTaskBoard() {
       {active === "queue" ? (
         <SubmissionTable
           submissions={queue ?? []}
-          caption="Antrean tugas dengan peserta, jalur, umur, dan status"
+          caption="Antrean tugas dengan peserta, kelas, umur, dan status"
           onSelect={(row) => setSelectedId(row.id)}
         />
       ) : null}
@@ -296,7 +296,7 @@ function SubmissionTable({
         rows={submissions}
         columns={columns}
         caption={caption}
-        searchPlaceholder="Cari peserta, kode, atau jalur"
+        searchPlaceholder="Cari peserta, kode, atau kelas"
         getSearchText={(row) =>
           `${row.studentName} ${row.code} ${row.pathTitle} ${row.statusLabel}`
         }
@@ -521,7 +521,7 @@ function SubmissionDrawerContent({
             items={[
               { label: "Peserta", value: detail.studentName },
               { label: "Kohort", value: detail.cohort },
-              { label: "Jalur", value: detail.pathTitle },
+              { label: "Kelas", value: detail.pathTitle },
               { label: "Pengajar", value: detail.teacher },
               {
                 label: "Dikirim",

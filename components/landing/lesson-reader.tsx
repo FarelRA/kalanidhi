@@ -119,7 +119,7 @@ export function LessonReader({
                   {signedIn ? (
                     <Button asChild size="sm">
                       <Link href={interestLink}>
-                        Daftar minat jalur ini
+                        Daftar minat kelas ini
                         <ArrowRight aria-hidden="true" />
                       </Link>
                     </Button>

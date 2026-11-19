@@ -198,7 +198,7 @@ export function LiveCredentialBoard() {
         ) : (
           <EmptyState
             title="Belum ada sertifikat"
-            description="Sertifikat terbit setelah tugas terakhir disetujui pengajar. Setelah terbit, cakupan penjualan jalur itu terbuka."
+            description="Sertifikat terbit setelah tugas terakhir disetujui pengajar. Setelah terbit, cakupan penjualan kelas itu terbuka."
             action={
               <Button asChild size="sm">
                 <Link href="/ruang/tugas">Buka tugas</Link>
@@ -214,7 +214,7 @@ export function LiveCredentialBoard() {
             rows={cohort ?? []}
             columns={certificateColumns(setSelected)}
             caption="Sertifikat peserta pada kohort yang diampu"
-            searchPlaceholder="Cari peserta, seri, atau jalur"
+            searchPlaceholder="Cari peserta, seri, atau kelas"
             getSearchText={(row) =>
               `${row.studentName} ${row.serial} ${row.pathTitle}`
             }
@@ -229,8 +229,8 @@ export function LiveCredentialBoard() {
           <DataTable
             rows={registry ?? []}
             columns={certificateColumns(setSelected)}
-            caption="Daftar sertifikat dengan status, jalur, dan pengajar"
-            searchPlaceholder="Cari seri, kode publik, nama, atau jalur"
+            caption="Daftar sertifikat dengan status, kelas, dan pengajar"
+            searchPlaceholder="Cari seri, kode publik, nama, atau kelas"
             getSearchText={(row) =>
               `${row.serial} ${row.publicCode} ${row.studentName} ${row.pathTitle} ${row.teacherName}`
             }
@@ -322,7 +322,7 @@ export function LiveCredentialBoard() {
               items={[
                 { label: "Seri", value: selected.serial },
                 { label: "Kode publik", value: selected.publicCode },
-                { label: "Jalur", value: selected.pathTitle },
+                { label: "Kelas", value: selected.pathTitle },
                 { label: "Pengajar", value: selected.teacherName },
                 { label: "Terbit", value: formatWorkspaceDate(iso(selected.issuedAt)) },
                 { label: "Nilai penilaian", value: String(selected.assessmentScore) },
@@ -482,7 +482,7 @@ export function LiveCredentialBoard() {
             <DialogTitle>Cabut {revokeTarget?.serial}</DialogTitle>
             <DialogDescription>
               Pencabutan langsung terlihat pada verifikasi publik, mencatat
-              audit, dan mencabut cakupan penjualan jalur ini.
+              audit, dan mencabut cakupan penjualan kelas ini.
             </DialogDescription>
           </DialogHeader>
           <div>
@@ -667,7 +667,7 @@ function certificateColumns(
     },
     {
       id: "path",
-      header: "Jalur",
+      header: "Kelas",
       cell: (row) => (
         <span className="text-[11px] leading-snug text-ink-soft">
           {row.pathTitle}

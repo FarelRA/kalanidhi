@@ -235,7 +235,7 @@ export const seedAudit = internalMutation({
         action: "certificates.issue",
         entityType: "certificates",
         entityId: aksaraCertificate._id,
-        reason: "Penerbitan sertifikat jalur Aksara Jawa angkatan 1.",
+        reason: "Penerbitan sertifikat kelas Aksara Jawa angkatan 1.",
         severity: "info" as const,
         daysAgo: 110,
         after: {

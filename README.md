@@ -171,7 +171,7 @@ convex/
   seed/lib/                Clock, kode, builder, lookup, media, dan helper bersama
   seed/integrity.ts        Pemeriksaan invarian setelah seed
 components/
-  landing/                 Section landing: bangku, lingkaran, rak bahan, jalur, pengajar,
+  landing/                 Section landing: bangku, lingkaran, rak bahan, kelas, pengajar,
                            karya, etika, musim, institusi, catatan peserta, FAQ, penutup
   layout/                  Header, footer, preferensi hemat kuota dan bahasa
   overlays/                Provider dialog, lead dialog, info dialog, tombol overlay
@@ -202,7 +202,7 @@ yang tampil di landing). Data entitas tidak disalin ke dokumen itu; landing memb
 langsung dari tabel masing-masing:
 
 - `catalogFields`: bidang budaya dan status kesiapannya
-- `paths`: jalur belajar
+- `paths`: kelas belajar
 - `teachers`: pengajar dan praktisi
 - `works`: karya dan jasa
 - `testimonials`: catatan peserta dan mitra
@@ -215,7 +215,7 @@ yang dipakai `app/layout.tsx` dan `app/page.tsx`. Server Component mengambil dat
 Gambar selalu berupa URL Convex storage; tidak ada copy landing atau gambar statis yang
 diimpor langsung dari file publik.
 
-Halaman admin Konten hanya untuk copywriting. Pemilihan jalur, pengajar, karya,
+Halaman admin Konten hanya untuk copywriting. Pemilihan kelas, pengajar, karya,
 testimoni, bidang katalog, FAQ, dan karya untuk Kartu Karya hero dilakukan di halaman
 `/ruang/konten/unggulan`. Data entitas tidak pernah diketik di editor konten.
 
@@ -224,7 +224,7 @@ testimoni, bidang katalog, FAQ, dan karya untuk Kartu Karya hero dilakukan di ha
 1. Copy landing diedit di Konten; simpan draf lalu terbitkan. Riwayat revisi tetap
    tersedia untuk pembalikan.
 2. Pilihan node landing disimpan lewat halaman `/ruang/konten/unggulan`.
-3. Untuk menambah jalur, pengajar, karya, atau bidang, tambahkan entri di
+3. Untuk menambah kelas, pengajar, karya, atau bidang, tambahkan entri di
    `convex/seed/content/data.ts` atau dashboard domain terkait. Urutan tampil memakai field
    `order`.
 4. Jalankan `npm run convex:seed` hanya bila ingin mengisi ulang seluruh data domain;
@@ -234,7 +234,7 @@ Gambar sumber berada di `seed/images/`. Jalankan `npm run images:upload` untuk
 mengunggahnya ke Convex storage dan mendaftarkannya di `mediaAssets`; seed akan gagal
 jika ada `imageFile` yang belum terdaftar.
 
-Katalog seed berisi lima jalur: tiga terbuka dan dua sedang disiapkan. Jalur terbuka
+Katalog seed berisi lima kelas: tiga terbuka dan dua sedang disiapkan. Kelas terbuka
 adalah Batik Bambu (Krebet, Sendangsari, Pajangan, Bantul), Aksara Jawa, dan Seni
 Pembawa Acara Tradisi Jawa. Kriya Gerabah Bantul dan Batik Tulis berstatus
 `comingSoon`; Batik Tulis tidak memiliki modul atau pelajaran karena materi batik tulis
@@ -256,8 +256,8 @@ dikenal sebagai desa batik kayu; sebagian pengrajinnya juga membatik bambu.
   dihormati.
 - **Tipografi sebagai identitas**: Fraunces untuk headline dan kutipan, Karla untuk UI.
   Label section memakai stempel kapital, bukan eyebrow dekoratif.
-- **Lingkaran sebagai struktur**: lima stasiun di bangku melingkar, jalur kembali putus-
-  putus, dan karya selesai yang berjalan balik ke stasiun 01.
+- **Alur sebagai struktur**: lima langkah berurutan, dengan langkah terakhir
+  sebagai kesempatan tambahan setelah lulus, bukan tujuan utama.
 - **Konten tetap terbaca tanpa JS**: animasi memakai CSS dan tidak menyembunyikan konten.
 - **Aksesibilitas**: skip link, landmark, label form eksplisit, fokus terlihat, target
   sentuh, `aria-live` pada hasil, kontras teks dijaga.
@@ -292,14 +292,14 @@ dikenal sebagai desa batik kayu; sebagian pengrajinnya juga membatik bambu.
 
 ## Batasan saat ini
 
-Situs publik mencakup landing, katalog bidang, jalur, pengajar, karya dan jasa, etika,
+Situs publik mencakup landing, katalog bidang, kelas, pengajar, karya dan jasa, etika,
 verifikasi sertifikat, serta halaman pendaftaran dan pesanan. Ruang kerja `/ruang`
 sudah memuat alur belajar, tugas, kredensial, commerce, pesan, panggilan, konten, dan
 tata kelola sesuai peran. Isi halaman bergantung pada data Convex hasil seed; panggilan
 live dan gateway pembayaran memerlukan layanan eksternal yang dijelaskan di
 `docs/self-hosting.md` dan `docs/payments-gateway.md`.
 
-Halaman jalur membuka pelajaran dalam tiga tingkat: `public` untuk semua pengunjung,
-`enrolled` untuk peserta dengan pendaftaran aktif atau selesai di jalur itu, dan
-`certified` untuk pemegang sertifikat terbit di jalur itu. Pelajaran terkunci hanya
+Halaman kelas membuka pelajaran dalam tiga tingkat: `public` untuk semua pengunjung,
+`enrolled` untuk peserta dengan pendaftaran aktif atau selesai di kelas itu, dan
+`certified` untuk pemegang sertifikat terbit di kelas itu. Pelajaran terkunci hanya
 menampilkan cuplikan singkat; isi dan medianya dimuat saat dibuka.

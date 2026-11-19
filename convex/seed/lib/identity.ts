@@ -179,7 +179,7 @@ export async function insertSeedUser(
   const roleReason =
     input.roleReason ??
     (projection === "growth"
-      ? "Pendaftaran peserta melalui halaman jalur."
+      ? "Pendaftaran peserta melalui halaman kelas."
       : "Penyiapan akun melalui undangan pengelola.")
   for (const role of input.roles) {
     await ctx.db.insert("roleAssignments", {

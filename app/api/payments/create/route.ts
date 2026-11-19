@@ -212,11 +212,11 @@ export async function POST(request: Request) {
           code === "UNAUTHENTICATED"
             ? "Masuk ke akunmu sebelum membuat pesanan."
             : code === "SELF_DEALING"
-              ? "Karya atau jalur ini milik akun yang sama."
+              ? "Karya atau kelas ini milik akun yang sama."
               : code === "WORK_UNAVAILABLE"
                 ? "Karya ini tidak sedang dijual."
                 : code === "PATH_UNAVAILABLE"
-                  ? "Jalur ini belum dapat dibeli."
+                  ? "Kelas ini belum dapat dibeli."
                   : code === "CONSENT_REQUIRED"
                     ? "Persetujuan kontak transaksional diperlukan."
                     : "Checkout belum dapat diproses. Coba lagi.",

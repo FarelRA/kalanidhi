@@ -347,7 +347,7 @@ export function WorksLive() {
               ? "Karya peserta yang kamu ampu."
               : "Karya yang kamu bawa ke pembeli."
         }
-        description={`Setiap karya membawa jalur, sertifikat, izin sumber budaya, dan bagi hasil ${SPLIT_PERCENTAGES.teacher}/${SPLIT_PERCENTAGES.platform}/${SPLIT_PERCENTAGES.community}. Data berasal dari catatan Convex.`}
+        description={`Setiap karya membawa kelas, sertifikat, izin sumber budaya, dan bagi hasil ${SPLIT_PERCENTAGES.teacher}/${SPLIT_PERCENTAGES.platform}/${SPLIT_PERCENTAGES.community}. Data berasal dari catatan Convex.`}
         actions={
           eligible ? (
             <Button onClick={openCreate}>
@@ -404,9 +404,9 @@ export function WorksLive() {
               active === "review"
                 ? "Karya yang diajukan penjual akan muncul di sini."
                 : can("works.review")
-                  ? "Karya peserta dari jalur yang kamu ampu muncul di sini setelah Kartu Karya diajukan."
+                  ? "Karya peserta dari kelas yang kamu ampu muncul di sini setelah Kartu Karya diajukan."
                   : eligible
-                    ? "Sertifikatmu membuka penjualan untuk jalur tertentu. Mulai dari satu karya lengkap dengan izin sumber."
+                    ? "Sertifikatmu membuka penjualan untuk kelas tertentu. Mulai dari satu karya lengkap dengan izin sumber."
                     : "Karya muncul setelah sertifikat platform terbit dan profil penjual aktif."
             }
             action={
@@ -461,7 +461,7 @@ export function WorksLive() {
                 edit: openEdit,
               },
             )}
-            caption="Karya dengan pembuat, jalur, harga, status, dan tindakan"
+            caption="Karya dengan pembuat, kelas, harga, status, dan tindakan"
             searchPlaceholder="Cari karya, pembuat, atau Kartu Karya"
             getSearchText={(row) =>
               `${row.title} ${row.maker} ${row.workCard} ${row.pathId ?? ""} ${row.status}`
@@ -514,7 +514,7 @@ export function WorksLive() {
         tone={current ? workStamp(current).tone : undefined}
         description={
           current
-            ? `${current.maker} · ${current.pathId ?? "tanpa jalur"}`
+            ? `${current.maker} · ${current.pathId ?? "tanpa kelas"}`
             : undefined
         }
         footer={
@@ -602,7 +602,7 @@ export function WorksLive() {
           </DialogHeader>
           {action?.kind === "bulk" ? (
             <div>
-              <Label htmlFor="bulk-path">Jalur</Label>
+              <Label htmlFor="bulk-path">Kelas</Label>
               <select
                 id="bulk-path"
                 value={action.pathId}
@@ -611,7 +611,7 @@ export function WorksLive() {
                 }
                 className="mt-1.5 min-h-11 w-full border border-ink/25 bg-paper-2 px-2 text-[11px]"
               >
-                <option value="">Pilih jalur</option>
+                <option value="">Pilih kelas</option>
                 {Array.from(
                   new Set(rows.map((work) => work.pathId).filter(Boolean)),
                 ).map((pathId) => (
@@ -689,7 +689,7 @@ export function WorksLive() {
                     : action.kind === "resume"
                       ? "Karya diterbitkan ulang"
                       : action.kind === "bulk"
-                        ? "Karya pada jalur dijeda"
+                        ? "Karya pada kelas dijeda"
                         : "Karya dijeda",
                 )
               }}
@@ -839,13 +839,13 @@ function WorkFormDialog({
       next.title = "Judul minimal 3 karakter."
     }
     if (!values.pathId) {
-      next.pathId = "Pilih jalur."
+      next.pathId = "Pilih kelas."
     } else if (!pathEligible) {
       next.pathId =
-        "Jalur ini tidak memiliki sertifikat terbit atau cakupan pengajar."
+        "Kelas ini tidak memiliki sertifikat terbit atau cakupan pengajar."
     }
     if (!teacherPath && values.pathId && !values.certificateId) {
-      next.certificateId = "Pilih sertifikat terbit untuk jalur ini."
+      next.certificateId = "Pilih sertifikat terbit untuk kelas ini."
     }
     if (!values.price || Number(values.price) <= 0) {
       next.price = "Harga harus lebih dari 0."
@@ -1010,7 +1010,7 @@ function WorkFormDialog({
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <Label htmlFor="work-path">Jalur bersertifikat</Label>
+              <Label htmlFor="work-path">Kelas bersertifikat</Label>
               <select
                 id="work-path"
                 value={values.pathId}
@@ -1019,7 +1019,7 @@ function WorkFormDialog({
                 className="mt-1.5 min-h-11 w-full border border-ink/25 bg-paper-2 px-2 text-[11px]"
               >
                 <option value="" disabled>
-                  Pilih jalur
+                  Pilih kelas
                 </option>
                 {pathOptions.map((pathId) => (
                   <option key={pathId} value={pathId}>
@@ -1430,7 +1430,7 @@ function WorkDetail({ work }: { work: WorkListingView }) {
             { label: "Pembuat", value: work.maker },
             { label: "Peran", value: work.makerRole },
             { label: "Pengajar", value: work.teacher || "Belum diisi" },
-            { label: "Jalur", value: work.pathId ?? "Belum diisi" },
+            { label: "Kelas", value: work.pathId ?? "Belum diisi" },
             {
               label: "Sertifikat",
               value: work.certificateCode ?? work.certificateId ?? "Belum diisi",

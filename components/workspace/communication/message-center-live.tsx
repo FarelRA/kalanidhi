@@ -1191,7 +1191,7 @@ export function MessageCenterLive() {
                     Cakupan
                   </dt>
                   <dd className="mt-0.5 text-[11px] leading-snug">
-                    {active?.pathId ?? "Tanpa jalur"}
+                    {active?.pathId ?? "Tanpa kelas"}
                   </dd>
                 </div>
                 <div>

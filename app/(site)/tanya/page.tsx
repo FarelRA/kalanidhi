@@ -136,7 +136,7 @@ export default async function ConsultPage({
         ? workHref(work.slug)
         : PUBLIC_ROUTES.home
   const returnLabel = path
-    ? "Kembali ke jalur"
+    ? "Kembali ke kelas"
     : teacher
       ? "Kembali ke profil pengajar"
       : work
@@ -171,7 +171,7 @@ export default async function ConsultPage({
                       />
                       <div className="min-w-0">
                         <p className="text-[9px] font-bold uppercase tracking-[0.07em] text-ink-muted">
-                          Jalur
+                          Kelas
                         </p>
                         <Link
                           href={pathHref(path.slug)}
@@ -248,7 +248,7 @@ export default async function ConsultPage({
                   href={PUBLIC_ROUTES.interest}
                   className="font-semibold text-copper-dark underline underline-offset-2"
                 >
-                  Lihat daftar jalur dan karya
+                  Lihat daftar kelas dan karya
                 </Link>
                 .
               </p>

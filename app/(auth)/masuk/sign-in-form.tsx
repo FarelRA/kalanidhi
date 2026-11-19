@@ -177,17 +177,17 @@ function SignInFormView({
             Satu ruang kerja
           </p>
           <h1 className="mt-3 font-heading text-[clamp(2.2rem,4vw,3.5rem)] leading-[0.98] tracking-[-0.02em]">
-            Mulai dari kelas ini. Nanti kamu yang mengajari.
+            Buka layarmu, Kenali Budayamu.
           </h1>
           <p className="mt-5 text-[13px] leading-relaxed text-paper/70">
             Belajar, dinilai pengajar, menerima sertifikat platform dan Kartu
-            Karya, lalu kembali sebagai pengajar, penilai, atau pemasok.
+            Karya, lalu membawa hasilnya ke pembeli.
           </p>
           <dl className="mt-8 grid grid-cols-3 gap-3 border-t border-paper/15 pt-5">
             {[
-              ["Belajar", "Jalur dan tugas"],
+              ["Belajar", "Kelas dan tugas"],
+              ["Dinilai", "Catatan pengajar"],
               ["Berkarya", "Kartu Karya"],
-              ["Kembali", "Jalur baru"],
             ].map(([label, note]) => (
               <div key={label}>
                 <dt className="text-[8px] font-bold uppercase tracking-[0.12em] text-brass">

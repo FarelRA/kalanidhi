@@ -8,7 +8,7 @@ KalaNidhi Digital is a place where cultural knowledge is passed hand to hand. Th
 
 The product is a closed loop, and the page is built around it:
 
-**Belajar → dinilai pengajar → sertifikat platform + Kartu Karya → berkarya atau berjualan → kembali mengajar, menilai, atau memasok → jalur baru lahir.**
+**Belajar → dinilai pengajar → sertifikat platform + Kartu Karya → berkarya atau berjualan → kembali mengajar, menilai, atau memasok → kelas baru lahir.**
 
 The one memorable artifact is the **stepped bench rail** in the loop section: five numbered steps that walk diagonally down the bench, four open rows, and a copper return block that closes the loop. No diagram, no illustration — the order itself is the graphic. The second artifact is the **Kartu Karya tag** pinned over the hero photograph. Everything else stays disciplined.
 
@@ -65,14 +65,14 @@ One arrival gesture: the hero photograph settles from a slight rotation and the 
 
 The loop is the second section and the centre of gravity. It is built from type and rules, not artwork.
 
-- Five steps: **Belajar, Dinilai, Tersertifikat, Berkarya, Kembali mengajar**.
-- A vertical hairline labelled **alur kerja** anchors the left edge; each step indents further right, so the sequence reads as a walk along the bench rather than a row of cards.
-- Steps 01–04 use outlined copper numerals, a small icon chip, and a hairline divider; the step counter sits quietly at the right edge.
-- Step 05 breaks the pattern: an offset copper block labelled **Jalur kembali**, with the return note set beside the step and the honest caveat beneath it.
-- The return path is a door, not a promise: graduates can apply as teaching assistants, assessors, or suppliers, and each filled door opens a new path.
+- Five steps: **Belajar, Dinilai, Tersertifikat, Berkarya, Ikut mengajar**.
+- A vertical hairline labelled **cara kerja** anchors the left edge; each step indents further right, so the sequence reads as a walk along the bench rather than a row of cards.
+- All five steps use outlined copper numerals, a small icon chip, and a hairline divider; the step counter sits quietly at the right edge.
+- The optional return note sits below the list as a small footnote labelled **Setelah lulus**, not as a highlighted card.
+- The return path is optional: graduates may apply as teaching assistants, assessors, or suppliers when a class needs them. Learning stays the main story.
 - No arrows, no SVG, no illustration. If the order needs a picture to be understood, the copy is wrong.
 
-The same loop is echoed in the FAQ, the closing section, and the footer description. A first-time visitor sees the return path before the catalog.
+The same loop appears in the FAQ and the about page. A first-time visitor sees learning and making first, with the return path mentioned only as an optional next step.
 
 ## Catalog breadth
 

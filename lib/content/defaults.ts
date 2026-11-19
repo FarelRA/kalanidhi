@@ -6,7 +6,7 @@
 export const CONTENT_FALLBACKS = {
   loop: {
     returnCaveat:
-      "Jalur kembali tidak menjanjikan semua lulusan mengajar. Peran ini disiapkan untuk pengajar pendamping, penilai tugas, atau pemasok bahan. Setiap peran yang terisi membuka jalur baru.",
+      "Tidak semua lulusan menjadi pengajar. Peran ini dibuka sesuai kebutuhan kelas.",
   },
   ethicsCard: {
     emptyState:
@@ -18,7 +18,7 @@ export const CONTENT_FALLBACKS = {
       regionLabel: "Daerah",
       levelLabel: "Level",
       emptyState:
-        "Belum ada jalur terbit di Convex. Jalur akan muncul di sini setelah kurikulum, pengajar, dan angkatan pertama tersedia.",
+        "Belum ada kelas terbit di Convex. Kelas akan muncul di sini setelah kurikulum, pengajar, dan angkatan pertama tersedia.",
     },
     teachers: {
       emptyState:

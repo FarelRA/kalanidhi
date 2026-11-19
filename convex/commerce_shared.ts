@@ -158,7 +158,7 @@ export async function assertSellerScope(
   if (!viewer.sellScopes.includes(pathId)) {
     commerceError(
       "OUT_OF_SCOPE",
-      `Jalur ${pathId} berada di luar cakupan penjual.`,
+      `Kelas ${pathId} berada di luar cakupan penjual.`,
     )
   }
   return user

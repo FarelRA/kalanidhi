@@ -49,8 +49,8 @@ export const navItems: NavItem[] = [
   {
     href: "/ruang/belajar",
     label: "Belajar",
-    teacherLabel: "Kohort & jalur",
-    adminLabel: "Jalur & kohort",
+    teacherLabel: "Kohort & kelas",
+    adminLabel: "Kelas & kohort",
     shortLabel: "Belajar",
     group: "Belajar & mengajar",
     icon: BookOpen,

@@ -13,7 +13,7 @@ export function OpenPaths({
 }) {
   return (
     <section
-      id="jalur"
+      id="kelas"
       aria-labelledby="paths-title"
       className="border-b border-ink/15 bg-cream py-16 sm:py-20 lg:py-24"
     >

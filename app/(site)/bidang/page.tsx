@@ -139,7 +139,7 @@ export default async function FieldsPage() {
 
         <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-ink/20 pt-6">
           <p className="text-[12px] leading-relaxed text-ink-soft">
-            Bidang yang sudah terbuka punya jalur dengan pengajar dan kurikulum.
+            Bidang yang sudah terbuka punya kelas dengan pengajar dan kurikulum.
           </p>
           <Link
             href={PUBLIC_ROUTES.paths}

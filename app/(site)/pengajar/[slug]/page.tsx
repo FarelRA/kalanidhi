@@ -119,7 +119,7 @@ export default async function TeacherDetailPage({
                 ["Pengalaman", teacher.experience],
                 ["Fokus", teacher.focus],
                 ["Komunitas", teacher.community],
-                ["Jalur", teacher.path],
+                ["Kelas", teacher.path],
               ].map(([label, value]) => (
                 <div key={label}>
                   <dt className="text-[9px] font-bold uppercase tracking-[0.07em] text-ink-muted">
@@ -161,11 +161,11 @@ export default async function TeacherDetailPage({
               className="flex items-center gap-2 font-heading text-[1.45rem]"
             >
               <Route className="size-4 text-copper-dark" aria-hidden="true" />
-              Jalur yang diampu
+              Kelas yang diampu
             </h2>
             {teacher.paths.length === 0 ? (
               <p className="mt-3 border border-ink/20 bg-paper-2 px-4 py-3 text-[12px] leading-relaxed text-ink-muted">
-                Belum ada jalur terbit yang tertaut ke pengajar ini.
+                Belum ada kelas terbit yang tertaut ke pengajar ini.
               </p>
             ) : (
               <ul className="mt-3 border-t border-ink/20">

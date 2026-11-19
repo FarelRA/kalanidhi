@@ -140,9 +140,9 @@ export async function certificateOverview(
     replacedByCode: replacedBy?.publicCode ?? null,
     scope:
       certificate.status === "issued"
-        ? "Membuka cakupan penjualan untuk jalur ini."
+        ? "Membuka cakupan penjualan untuk kelas ini."
         : certificate.status === "revoked"
-          ? "Cakupan penjualan untuk jalur ini dicabut."
+          ? "Cakupan penjualan untuk kelas ini dicabut."
           : "Diganti dengan kode publik terbaru.",
     events: eventRows
       .sort((a, b) => a.createdAt - b.createdAt)

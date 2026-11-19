@@ -64,19 +64,19 @@ const ALT_BY_FILENAME = {
   "panduan-perawatan-produk-bambu.jpg":
     "Plat panduan perawatan produk bambu batik, empat langkah merawat, yaitu lap dengan kain kering, jangan rendam, hindari panas langsung, dan simpan di tempat kering",
   "path-batik-bambu.jpg":
-    "Plat tipografi jalur Batik Bambu, judul besar, keterangan Krebet, Sendangsari, Pajangan, Bantul, dan garis tembaga di atas kertas krem",
+    "Plat tipografi kelas Batik Bambu, judul besar, keterangan Krebet, Sendangsari, Pajangan, Bantul, dan garis tembaga di atas kertas krem",
   "path-pranatacara.jpg":
-    "Plat tipografi jalur Seni Pembawa Acara Tradisi Jawa, tata wicara, urutan acara, dan etiket panggung, dengan garis tembaga",
+    "Plat tipografi kelas Seni Pembawa Acara Tradisi Jawa, tata wicara, urutan acara, dan etiket panggung, dengan garis tembaga",
   "path-gerabah-bantul.jpg":
-    "Plat tipografi jalur Kriya Gerabah Bantul, membentuk, mengeringkan, dan membakar gerabah Kasongan",
+    "Plat tipografi kelas Kriya Gerabah Bantul, membentuk, mengeringkan, dan membakar gerabah Kasongan",
   "path-aksara-jawa.jpg":
-    "Plat tipografi jalur Aksara Jawa, dari hanacaraka sampai kalimat utuh tanpa spasi, Kota Yogyakarta",
+    "Plat tipografi kelas Aksara Jawa, dari hanacaraka sampai kalimat utuh tanpa spasi, Kota Yogyakarta",
   "path-batik-tulis-giriloyo.jpg":
-    "Plat tipografi jalur Batik Tulis, materi batik tulis di atas kain sedang disiapkan, Giriloyo, Wukirsari, Imogiri, Bantul",
+    "Plat tipografi kelas Batik Tulis, materi batik tulis di atas kain sedang disiapkan, Giriloyo, Wukirsari, Imogiri, Bantul",
   "path-tari-kreasi.jpg":
-    "Plat tipografi jalur Tari Kreasi, gerak murni dan maknawi, ruang-waktu-tenaga, Kota Yogyakarta dan Sleman",
+    "Plat tipografi kelas Tari Kreasi, gerak murni dan maknawi, ruang-waktu-tenaga, Kota Yogyakarta dan Sleman",
   "path-kuliner-nusantara.jpg":
-    "Plat tipografi jalur Kuliner Nusantara, gastronomi, identitas, dan pelestarian makanan, Kota Yogyakarta dan Kulon Progo",
+    "Plat tipografi kelas Kuliner Nusantara, gastronomi, identitas, dan pelestarian makanan, Kota Yogyakarta dan Kulon Progo",
   "teacher-hardjono.jpg":
     "Plat tipografi pengajar Bambang Hardjono, label pengajar, nama besar, dan keterangan pengajar batik halus Giriloyo",
   "teacher-sriningsih.jpg":
@@ -108,7 +108,7 @@ const ALT_BY_FILENAME = {
   "lesson-mola.jpg":
     "Plat pelajaran Mola, memindahkan pola, dengan keterangan Batik Bambu, Krebet, Bantul, dan garis tembaga",
   "lesson-canting.jpg":
-    "Plat pelajaran Canting, memegang dan meneteskan malam, dengan keterangan tekanan, suhu, dan jarak titik pada jalur Batik Bambu",
+    "Plat pelajaran Canting, memegang dan meneteskan malam, dengan keterangan tekanan, suhu, dan jarak titik pada kelas Batik Bambu",
   "motif-larangan-yogyakarta-1.jpg":
     "Plat lembar Motif Larangan Yogyakarta, delapan kotak bergaris tembaga berlabel Parang, Kawung, Ceplok, Mega Mendung, Lereng, Semen, Truntum, dan Sido Mukti",
 }

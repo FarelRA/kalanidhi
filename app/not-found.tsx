@@ -15,7 +15,7 @@ export default function NotFound() {
       </h1>
       <p className="body-copy mt-4 max-w-md">
         Alamat yang kamu buka mungkin sudah berpindah. Kembali ke beranda untuk
-        melihat jalur belajar dan karya yang tersedia.
+        melihat kelas belajar dan karya yang tersedia.
       </p>
       <div className="mt-7 flex flex-col gap-2.5 sm:flex-row">
         <Button asChild size="lg">

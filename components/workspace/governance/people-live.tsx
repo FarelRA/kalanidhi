@@ -620,7 +620,7 @@ function PersonDrawer({
                   <dd className="text-right text-ink">{detail.teacher.experience}</dd>
                 </div>
                 <div className="flex justify-between gap-3">
-                  <dt className="text-ink-muted">Jalur</dt>
+                  <dt className="text-ink-muted">Kelas</dt>
                   <dd className="text-right text-ink">
                     {detail.teacher.pathIds.join(", ") || "-"}
                   </dd>
@@ -773,7 +773,7 @@ function PersonDrawer({
             >
               <p className="text-[11.5px] leading-relaxed text-ink-soft">
                 Akun ini sudah berperan pengajar tetapi belum punya berkas.
-                Lengkapi berkas agar jalur dan verifikasinya tercatat.
+                Lengkapi berkas agar kelas dan verifikasinya tercatat.
               </p>
               <Button
                 size="sm"
@@ -1058,7 +1058,7 @@ function PersonDrawer({
               />
             </div>
             <div className="sm:col-span-2">
-              <Label htmlFor="teacher-path">Jalur</Label>
+              <Label htmlFor="teacher-path">Kelas</Label>
               <select
                 id="teacher-path"
                 value={teacherDraft.pathId}

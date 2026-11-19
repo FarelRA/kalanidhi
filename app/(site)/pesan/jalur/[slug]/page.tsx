@@ -25,7 +25,7 @@ export async function generateMetadata({
   const { slug } = await params
   const path = await getPublicPath(slug)
   return {
-    title: path ? `Pesan ${path.title}` : "Checkout jalur",
+    title: path ? `Pesan ${path.title}` : "Checkout kelas",
     robots: { index: false, follow: false },
   }
 }
@@ -42,7 +42,7 @@ export default async function PathCheckoutPage({
       <div className="shell py-16">
         <div className="mx-auto max-w-xl border border-ink/25 bg-paper-2 p-6 sm:p-9">
           <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-copper-dark">
-            Checkout jalur
+            Checkout kelas
           </p>
           <h1 className="heading-section mt-2 text-[clamp(1.9rem,4vw,2.8rem)]">
             Checkout belum tersambung.
@@ -67,7 +67,7 @@ export default async function PathCheckoutPage({
       <div className="shell py-16">
         <div className="mx-auto max-w-xl border border-ink/25 bg-paper-2 p-6 sm:p-9">
           <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-copper-dark">
-            Checkout jalur
+            Checkout kelas
           </p>
           <h1 className="heading-section mt-2 text-[clamp(1.9rem,4vw,2.8rem)]">
             Masuk belum tersambung.
@@ -80,7 +80,7 @@ export default async function PathCheckoutPage({
             href={pathHref(slug)}
             className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
           >
-            Kembali ke jalur
+            Kembali ke kelas
           </Link>
         </div>
       </div>
@@ -98,7 +98,7 @@ export default async function PathCheckoutPage({
   try {
     viewer = await auth.fetchAuthQuery(api.access.getViewer)
   } catch (error) {
-    console.error("[pesan/jalur] Could not resolve checkout viewer.", error)
+    console.error("[pesan/kelas] Could not resolve checkout viewer.", error)
     viewer = null
   }
 
@@ -107,7 +107,7 @@ export default async function PathCheckoutPage({
       <div className="shell py-16">
         <div className="mx-auto max-w-xl border border-ink/25 bg-paper-2 p-6 sm:p-9">
           <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-copper-dark">
-            Checkout jalur
+            Checkout kelas
           </p>
           <h1 className="heading-section mt-2 text-[clamp(1.9rem,4vw,2.8rem)]">
             Profil akun belum siap.
@@ -120,7 +120,7 @@ export default async function PathCheckoutPage({
             href={pathHref(slug)}
             className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
           >
-            Kembali ke jalur
+            Kembali ke kelas
           </Link>
         </div>
       </div>
@@ -135,20 +135,20 @@ export default async function PathCheckoutPage({
       <div className="shell py-16">
         <div className="mx-auto max-w-xl border border-ink/25 bg-paper-2 p-6 sm:p-9">
           <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-copper-dark">
-            Jalur belajar
+            Kelas belajar
           </p>
           <h1 className="heading-section mt-2 text-[clamp(1.9rem,4vw,2.8rem)]">
             Pembelian belum dibuka.
           </h1>
           <p className="mt-3 text-[13px] leading-relaxed text-ink-soft">
-            Jalur ini belum memiliki harga atau kurikulum yang siap dibeli.
+            Kelas ini belum memiliki harga atau kurikulum yang siap dibeli.
             Hubungi pengelola untuk informasi ketersediaan.
           </p>
           <Link
             href={pathHref(path.slug)}
             className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
           >
-            Kembali ke jalur
+            Kembali ke kelas
           </Link>
         </div>
       </div>
@@ -165,7 +165,7 @@ export default async function PathCheckoutPage({
           className="inline-flex items-center gap-2 text-[10.5px] font-semibold text-ink-muted hover:text-copper-dark"
         >
           <ArrowLeft className="size-3.5" aria-hidden="true" />
-          Kembali ke jalur
+          Kembali ke kelas
         </Link>
 
         <div className="mt-6 grid gap-8 lg:grid-cols-12 lg:gap-12">
@@ -182,7 +182,7 @@ export default async function PathCheckoutPage({
               ) : null}
             </div>
             <p className="mt-3 text-[9.5px] font-bold uppercase tracking-[0.1em] text-copper-dark">
-              Jalur belajar · {path.region}
+              Kelas belajar · {path.region}
             </p>
             <h1
               id="checkout-title"

@@ -203,7 +203,7 @@ async function assertCertificateForPath(
   ) {
     commerceError(
       "CERTIFICATE_REQUIRED",
-      "Sertifikat tidak sah atau berada di jalur lain.",
+      "Sertifikat tidak sah atau berada di kelas lain.",
     )
   }
   return certificate
@@ -607,7 +607,7 @@ export const createWork = mutation({
     } else if (!viewer.entitlements.teach) {
       commerceError(
         "CERTIFICATE_REQUIRED",
-        "Penjual peserta wajib menyertakan sertifikat jalur.",
+        "Penjual peserta wajib menyertakan sertifikat kelas.",
       )
     }
 
@@ -725,7 +725,7 @@ export const updateWork = mutation({
     }
 
     const nextPathId = args.pathId ?? work.pathId
-    if (!nextPathId) commerceError("INVALID_WORK", "Jalur karya wajib diisi.")
+    if (!nextPathId) commerceError("INVALID_WORK", "Kelas asal karya wajib diisi.")
     assertScope(viewer, "sell", nextPathId)
 
     const pathChanged = args.pathId !== undefined && args.pathId !== work.pathId
@@ -739,7 +739,7 @@ export const updateWork = mutation({
     } else if (pathChanged && !viewer.entitlements.teach) {
       commerceError(
         "CERTIFICATE_REQUIRED",
-        "Perubahan jalur memerlukan sertifikat terbit pada jalur baru.",
+        "Perubahan kelas memerlukan sertifikat terbit pada kelas baru.",
       )
     }
 
@@ -824,7 +824,7 @@ export const submitWork = mutation({
     if (card.status !== "draft" && card.status !== "paused") {
       commerceError("INVALID_STATE", "Karya ini sudah diajukan.")
     }
-    if (!work.pathId) commerceError("INVALID_WORK", "Jalur karya wajib diisi.")
+    if (!work.pathId) commerceError("INVALID_WORK", "Kelas asal karya wajib diisi.")
     assertScope(viewer, "sell", work.pathId)
     const readiness = workReadiness(
       work,
@@ -857,7 +857,7 @@ export const confirmWork = mutation({
     const { viewer } = await requireViewer(ctx, "works.review")
     const work = await ctx.db.get(args.workId)
     if (!work) notFound("Karya tidak ditemukan.")
-    if (!work.pathId) commerceError("INVALID_WORK", "Jalur karya tidak tercatat.")
+    if (!work.pathId) commerceError("INVALID_WORK", "Kelas asal karya tidak tercatat.")
     assertScope(viewer, "teach", work.pathId)
     const card = await workCardFor(ctx, work._id)
     if (!card || card.status !== "submitted") {
@@ -871,7 +871,7 @@ export const confirmWork = mutation({
       action: "commerce.work.confirm",
       entityType: "works",
       entityId: work._id,
-      reason: "Pengajar mengonfirmasi karya dalam jalur yang diampu.",
+      reason: "Pengajar mengonfirmasi karya dalam kelas yang diampu.",
       after: { pathId: work.pathId },
     })
     return null
@@ -919,7 +919,7 @@ export const publishWork = mutation({
       await workImageReady(ctx, work),
     )
     if (!readiness.ready) incompleteWorkError(readiness.missing)
-    if (!work.pathId) commerceError("INVALID_WORK", "Jalur karya wajib diisi.")
+    if (!work.pathId) commerceError("INVALID_WORK", "Kelas asal karya wajib diisi.")
     if (!work.makerId) commerceError("INVALID_WORK", "Pembuat karya tidak tercatat.")
     await assertSellerScope(ctx, work.makerId, work.pathId)
 
@@ -995,7 +995,7 @@ export const resumeWork = mutation({
       await workImageReady(ctx, work),
     )
     if (!readiness.ready) incompleteWorkError(readiness.missing)
-    if (!work.pathId) commerceError("INVALID_WORK", "Jalur karya wajib diisi.")
+    if (!work.pathId) commerceError("INVALID_WORK", "Kelas asal karya wajib diisi.")
     if (!work.makerId) commerceError("INVALID_WORK", "Pembuat karya tidak tercatat.")
     await assertSellerScope(ctx, work.makerId, work.pathId)
 
@@ -1048,7 +1048,7 @@ export const bulkPauseWorks = mutation({
     const { viewer } = await requireViewer(ctx, "works.moderate")
     const reason = assertReason(args.reason, "Alasan penjedaan massal")
     if (!args.pathId && !args.makerId) {
-      commerceError("INVALID_INPUT", "Sebutkan jalur atau pembuat karya.")
+      commerceError("INVALID_INPUT", "Sebutkan kelas atau pembuat karya.")
     }
 
     const rows = args.makerId
@@ -1152,20 +1152,20 @@ export const createOrder = mutation({
         .query("paths")
         .withIndex("by_slug", (q) => q.eq("slug", args.slug))
         .unique()
-      if (!path || path.status === "archived") notFound("Jalur tidak ditemukan.")
+      if (!path || path.status === "archived") notFound("Kelas tidak ditemukan.")
       if (path.comingSoon || path.price === null || path.price <= 0) {
-        commerceError("PATH_UNAVAILABLE", "Jalur ini belum dapat dibeli.")
+        commerceError("PATH_UNAVAILABLE", "Kelas ini belum dapat dibeli.")
       }
       if (!path.teacherId) {
-        commerceError("PATH_UNAVAILABLE", "Jalur belum memiliki pengajar.")
+        commerceError("PATH_UNAVAILABLE", "Kelas belum memiliki pengajar.")
       }
 
       const seller = await ctx.db.get(path.teacherId as Id<"users">)
       if (!seller || seller.status !== "active") {
-        commerceError("PATH_UNAVAILABLE", "Pengajar jalur tidak tersedia.")
+        commerceError("PATH_UNAVAILABLE", "Pengajar kelas tidak tersedia.")
       }
       if (seller._id === user._id || seller.email.toLowerCase() === buyerEmail) {
-        commerceError("SELF_DEALING", "Tidak dapat membeli jalur sendiri.")
+        commerceError("SELF_DEALING", "Tidak dapat membeli kelas sendiri.")
       }
 
       sellerId = seller._id

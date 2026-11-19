@@ -37,7 +37,7 @@ const GROUPS: { id: string; label: string; path: string[] }[] = [
   { id: "hero", label: "Hero", path: ["hero"] },
   { id: "traction", label: "Capaian", path: ["traction"] },
   { id: "loop", label: "Alur belajar", path: ["loop"] },
-  { id: "catalog", label: "Peta bidang", path: ["catalog"] },
+  { id: "catalog", label: "Bidang budaya", path: ["catalog"] },
   { id: "mangsa", label: "Musim", path: ["mangsa"] },
   { id: "ethics", label: "Etika dan bagi hasil", path: ["ethics"] },
   { id: "institution", label: "Institusi", path: ["institution"] },
@@ -402,7 +402,7 @@ export function ContentCmsLive() {
       <PageHeader
         eyebrow="Konten"
         title="Halaman depan, dari ruang kerja ini."
-        description="Halaman ini hanya untuk copywriting. Data pengajar, jalur, karya, testimoni, bidang, dan FAQ dibaca langsung dari tabel Convex. Pilih yang tampil di halaman pilihan landing. Setiap perubahan copy disimpan sebagai revisi lalu diterbitkan atau dibalik."
+        description="Halaman ini hanya untuk copywriting. Data pengajar, kelas, karya, testimoni, bidang, dan FAQ dibaca langsung dari tabel Convex. Pilih yang tampil di halaman pilihan landing. Setiap perubahan copy disimpan sebagai revisi lalu diterbitkan atau dibalik."
         meta={
           <div className="flex flex-wrap items-center gap-2">
             <StatusStamp
@@ -750,7 +750,7 @@ export function ContentCmsLive() {
               <div className="mt-3 grid gap-1.5 sm:grid-cols-2">
                 <div className="border border-ink/15 bg-paper-2 px-2 py-1.5 text-[10px]">
                   <span className="font-semibold text-ink">
-                    {activeDraft.featured.pathSlugs.length} jalur dipilih
+                    {activeDraft.featured.pathSlugs.length} kelas dipilih
                   </span>
                 </div>
                 <div className="border border-ink/15 bg-paper-2 px-2 py-1.5 text-[10px]">
@@ -859,7 +859,7 @@ function RevisionDrawer({
                 <dd className="text-right text-ink">{revision.value.hero.title.join(" ")}</dd>
               </div>
               <div className="flex justify-between gap-3">
-                <dt className="text-ink-muted">Jalur dipilih</dt>
+                <dt className="text-ink-muted">Kelas dipilih</dt>
                 <dd className="text-ink">{revision.value.featured.pathSlugs.length}</dd>
               </div>
               <div className="flex justify-between gap-3">

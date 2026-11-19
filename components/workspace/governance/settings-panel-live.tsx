@@ -933,7 +933,7 @@ export function SettingsPanelLive() {
             </p>
             <p className="mt-2 text-[9.5px] leading-relaxed text-ink-muted">
               Klaim cakupan nasional tidak dipakai. Praktisi dari wilayah lain dapat
-              mengajukan jalur.
+              mengajukan kelas.
             </p>
           </Panel>
           <Panel

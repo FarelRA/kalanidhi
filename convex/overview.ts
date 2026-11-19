@@ -282,7 +282,7 @@ async function orderTitle(
   }
   if (order.pathId) {
     const titles = await pathTitles(ctx, [order.pathId])
-    return titles.get(order.pathId) ?? "Pesanan jalur"
+    return titles.get(order.pathId) ?? "Pesanan kelas"
   }
   return "Pesanan"
 }
