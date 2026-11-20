@@ -77,7 +77,7 @@ export function cohortCode(key: CohortKey): string {
 /** Work slugs, used by commerce, work cards, and audit trails. */
 export const WORK_SLUGS = {
   nampanBatikBambu: "nampan-batik-bambu",
-  boxTisuBatikBambu: "box-tisu-batik-bambu",
+  kotakBundarBatikBambu: "kotak-bundar-batik-bambu",
   hiasanDindingBatikBambu: "hiasan-dinding-batik-bambu",
   pranatacaraSiraman: "pranatacara-siraman",
   jasaTulisAksara: "jasa-tulis-aksara",

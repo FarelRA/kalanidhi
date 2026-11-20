@@ -14,10 +14,7 @@ import {
 import { seedEmail } from "../content/identities"
 import { resolveMediaStorage } from "../lib/media"
 
-export const MESSAGING_IMAGE_FILES = [
-  "hasil-latihan.jpg",
-  "panduan-perawatan-produk-bambu.jpg",
-] as const
+export const MESSAGING_IMAGE_FILES = ["chat-lembar-pola.webp"] as const
 
 function pairKey(a: string, b: string): string {
   return [a, b].sort().join("|")
@@ -105,7 +102,7 @@ export const seedMessagingBatch = internalMutation({
         {
           senderId: sri._id,
           kind: "text" as const,
-          body: "Sari, foto latihan garisnya sudah saya lihat. Tekanan canting di bagian lengkung kanan masih terlalu kuat. Coba turunkan sedikit suhu malam.",
+          body: "Sari, untuk latihan Sabtu bawa lembar pola yang sudah kamu gambar. Ulangan di lengkung kanan masih perlu dilonggarkan.",
           createdAt: clock.ago(3),
         },
         {
@@ -123,13 +120,13 @@ export const seedMessagingBatch = internalMutation({
         {
           senderId: sari._id,
           kind: "image" as const,
-          body: "Ini hasil setelah suhu malam saya turunkan.",
+          body: "Ini lembar pola yang saya gambar untuk silinder kemarin.",
           createdAt: clock.ago(1),
         },
         {
           senderId: sri._id,
           kind: "text" as const,
-          body: "Garisnya sudah jauh lebih rata. Untuk Sabtu bawa bilah bambu 40 cm, kita latihan lengkung ganda.",
+          body: "Polanya sudah rapi. Untuk Sabtu bawa bilah bambu 40 cm, kita latihan lengkung ganda.",
           createdAt: clock.ago(0.8),
         },
         {
@@ -173,11 +170,11 @@ export const seedMessagingBatch = internalMutation({
         if (message.kind === "image") {
           const assetId = await ctx.db.insert("messageAssets", {
             messageId,
-            storageId: await resolveMediaStorage(ctx, "hasil-latihan.jpg", "image"),
+            storageId: await resolveMediaStorage(ctx, "chat-lembar-pola.webp", "image"),
             senderId: message.senderId,
             kind: "image",
-            filename: "hasil-latihan.jpg",
-            mimeType: "image/jpeg",
+            filename: "chat-lembar-pola.webp",
+            mimeType: "image/webp",
             size: 48_000,
             width: 1200,
             height: 900,
@@ -203,7 +200,7 @@ export const seedMessagingBatch = internalMutation({
             previousBody:
               "Sari, foto latihan garisnya sudah saya lihat. Tekanan canting masih terlalu kuat.",
             nextBody:
-              "Sari, foto latihan garisnya sudah saya lihat. Tekanan canting di bagian lengkung kanan masih terlalu kuat. Coba turunkan sedikit suhu malam.",
+              "Sari, untuk latihan Sabtu bawa lembar pola yang sudah kamu gambar. Ulangan di lengkung kanan masih perlu dilonggarkan.",
             createdAt: clock.ago(3) + 5 * 60_000,
           })
           await ctx.db.patch(messageId, { editedAt: clock.ago(3) + 5 * 60_000 })
@@ -389,12 +386,6 @@ export const seedMessagingBatch = internalMutation({
         },
         {
           senderId: anisa._id,
-          kind: "image" as const,
-          body: "Sudah saya kirim panduan perawatan produk bambunya.",
-          createdAt: clock.ago(19),
-        },
-        {
-          senderId: anisa._id,
           kind: "text" as const,
           body: "Hindari sinar matahari langsung, lipat dengan kertas bebas asam, dan cuci dengan sabun lembut.",
           createdAt: clock.ago(18.6),
@@ -402,7 +393,7 @@ export const seedMessagingBatch = internalMutation({
         {
           senderId: sari._id,
           kind: "text" as const,
-          body: "Sudah saya catat. Terima kasih, Mbak. Nanti saya kabari kalau mau pesan box tisu.",
+          body: "Sudah saya catat. Terima kasih, Mbak. Nanti saya kabari kalau mau pesan kotak bundar.",
           createdAt: clock.ago(18),
         },
       ]) {
@@ -414,25 +405,6 @@ export const seedMessagingBatch = internalMutation({
           createdAt: message.createdAt,
         })
         messages += 1
-        if (message.kind === "image") {
-          const assetId = await ctx.db.insert("messageAssets", {
-            messageId,
-            storageId: await resolveMediaStorage(
-              ctx,
-              "panduan-perawatan-produk-bambu.jpg",
-              "image",
-            ),
-            senderId: message.senderId,
-            kind: "image",
-            filename: "panduan-perawatan-produk-bambu.jpg",
-            mimeType: "image/jpeg",
-            size: 62_000,
-            width: 1080,
-            height: 1350,
-            createdAt: message.createdAt,
-          })
-          await ctx.db.patch(messageId, { assetId })
-        }
         for (const member of [sari, anisa]) {
           await ctx.db.insert("messageReceipts", {
             messageId,

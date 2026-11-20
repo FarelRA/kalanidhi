@@ -22,7 +22,7 @@ import {
 import { MESSAGING_IMAGE_FILES } from "./domains/messaging"
 
 /** Bumped whenever the seed's shape changes; stored on every run row. */
-export const SEED_VERSION = "2026-11-seed-v4"
+export const SEED_VERSION = "2026-11-seed-v5"
 
 /** A run whose last heartbeat is younger than this still owns the lock. */
 const LOCK_TTL_MS = 10 * 60_000

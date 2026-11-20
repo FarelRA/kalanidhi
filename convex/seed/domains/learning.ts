@@ -348,7 +348,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     key: "dimas-bbm-final",
     studentKey: "dimas",
     cohortKey: cohortKey("bbm2025_02"),
-    taskTitle: "Kotak tisu uji dari bambu mentah sampai finishing",
+    taskTitle: "Kotak bundar uji dari bambu mentah sampai finishing",
     status: "approved",
     score: 89,
     feedback:
@@ -356,7 +356,7 @@ const SUBMISSIONS: SeedSubmission[] = [
     submittedDaysAgo: 348,
     assessedDaysAgo: 343,
     revisionCount: 0,
-    evidenceText: "Foto detail titik dan foto keseluruhan kotak tisu.",
+    evidenceText: "Foto detail titik dan foto keseluruhan kotak bundar.",
   },
   {
     key: "purnomo-bbm-final",

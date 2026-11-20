@@ -45,11 +45,12 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Batik bambu adalah cara menghias permukaan bambu dengan malam panas sebagai perintang warna. Malam, atau lilin batik, menutup bagian yang ingin tetap terang, bagian yang tidak tertutup menerima pewarna. Setelah warna cukup, malam dilepas dengan air panas, proses yang disebut nglorod. Canting adalah alat pena berisi malam, mbabar berarti mewarnai di atas motif, nembok berarti menutup motif dengan malam, dan mepe berarti mengeringkan. Pada kain, malam meresap ke serat. Pada bambu, permukaan luar lebih keras dan menahan malam di permukaan, sedangkan ujung potong dan serat terbuka menyerap lebih banyak. Karena itu garis di bambu harus rapat dan diperiksa dari arah cahaya miring, bukan dari tembusnya malam ke sisi belakang, tutup dua kali dan uji pada potongan sisa. Kelas ini memakai materi Paguyuban Batik Tulis Giriloyo (2022) yang kami pegang untuk kain, lalu menyesuaikannya untuk bambu dengan rujukan Fitinline (2013), profil Desa Wisata Krebet di Jadesta Kementerian Pariwisata, dan artikel karakteristik batang bambu di Jurnal Hutan Tropis Universitas Mulawarman. Krebet dikenal sebagai desa batik kayu, sebagian pengrajin di sana juga membatik bambu. Urutan kerja kelas ini, pilih bambu, rebus, keringkan, amplas, pola, nglowongi (garis), ngisen-isen (isian), mbabar (warna motif), nembok (tutup motif), warna dasar, nglorod, mepe, finishing, dan periksa. Alat yang dipakai, tidak ada, cukup catatan dan alat tulis. Langkah kerja, 1) baca pelajaran ini, 2) tulis tiga perbedaan kain dan bambu, 3) tulis urutan empat belas langkah di atas dari ingatan. Keselamatan kerja, malam panas dan kompor dibahas di modul alat, jangan mencoba sendiri sebelum alat dan ventilasi siap. Kesalahan umum, mengira malam meresap seperti di kain, lalu membuat garis tipis yang bocor saat diwarnai. Perbaiki dengan menutup garis dua kali dan menguji pada potongan sisa. Tugas, tulis tiga perbedaan, satu alasan mengapa uji potongan bambu wajib, dan urutan empat belas langkah. Kriteria, tiga perbedaan tepat, alasan menyebut ujung potong dan serat terbuka, dan urutan lengkap.",
           estimatedMinutes: 15,
           accessLevel: "public",
+          mediaFile: "lesson-bambu-pengertian.webp",
         },
         {
           title: "Memilih bambu yang layak dibatik",
           kind: "text",
-          body: "Bambu yang terlalu muda banyak mengandung air dan pati, mudah berjamur, dan berubah bentuk, bambu yang terlalu tua mudah pecah. Artikel karakteristik batang bambu di Jurnal Hutan Tropis Universitas Mulawarman, yang mengutip Troya dan Xu (2014), menyebut batang siap pakai pada umur 3 sampai 5 tahun. Pilih batang yang lurus, kulit bersih, tidak berlubang kumbang, tidak berjamur, dan tidak retak di ruas. Untuk nampan atau panel, siapkan bilah dengan lebar dan panjang sesuai benda kerja, untuk box tisu, anyaman bambu lebih mudah dibatik rata. Alat yang dipakai, gergaji atau pisau raut, meteran, kapur penanda, sarung tangan, dan masker. Langkah kerja, 1) periksa rumpun dan pilih batang umur 3 sampai 5 tahun, 2) potong dengan alat tajam, arahkan mata pisau menjauh dari tangan, 3) buang ruas yang retak atau berlubang, 4) potong menjadi bilah sesuai ukuran, lalu beri label tanggal dan asal, 5) catat tebal bilah karena tebal menentukan lama perebusan dan pengeringan. Keselamatan kerja, sarung tangan untuk serpihan, masker saat memotong, dan alas kaki tertutup. Jangan memotong bambu yang ditopang lutut. Kesalahan umum, memilih bambu hijau karena mudah dipotong, gejalanya bercak hijau dan bau asam setelah beberapa hari. Perbaiki dengan mengganti bilah, bukan menutupinya dengan cat. Tugas, pilih tiga batang, tolak satu dengan alasan tertulis, foto dan catat umur serta ukuran. Kriteria, tiga catatan lengkap dan satu penolakan beralasan.",
+          body: "Bambu yang terlalu muda banyak mengandung air dan pati, mudah berjamur, dan berubah bentuk, bambu yang terlalu tua mudah pecah. Artikel karakteristik batang bambu di Jurnal Hutan Tropis Universitas Mulawarman, yang mengutip Troya dan Xu (2014), menyebut batang siap pakai pada umur 3 sampai 5 tahun. Pilih batang yang lurus, kulit bersih, tidak berlubang kumbang, tidak berjamur, dan tidak retak di ruas. Untuk nampan atau panel, siapkan bilah dengan lebar dan panjang sesuai benda kerja, untuk kotak bundar, anyaman bambu lebih mudah dibatik rata. Alat yang dipakai, gergaji atau pisau raut, meteran, kapur penanda, sarung tangan, dan masker. Langkah kerja, 1) periksa rumpun dan pilih batang umur 3 sampai 5 tahun, 2) potong dengan alat tajam, arahkan mata pisau menjauh dari tangan, 3) buang ruas yang retak atau berlubang, 4) potong menjadi bilah sesuai ukuran, lalu beri label tanggal dan asal, 5) catat tebal bilah karena tebal menentukan lama perebusan dan pengeringan. Keselamatan kerja, sarung tangan untuk serpihan, masker saat memotong, dan alas kaki tertutup. Jangan memotong bambu yang ditopang lutut. Kesalahan umum, memilih bambu hijau karena mudah dipotong, gejalanya bercak hijau dan bau asam setelah beberapa hari. Perbaiki dengan mengganti bilah, bukan menutupinya dengan cat. Tugas, pilih tiga batang, tolak satu dengan alasan tertulis, foto dan catat umur serta ukuran. Kriteria, tiga catatan lengkap dan satu penolakan beralasan.",
           estimatedMinutes: 20,
           accessLevel: "public",
         },
@@ -73,6 +74,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Alat dan bahan menentukan apakah malam bisa mengalir stabil. Canting punya tiga bagian, nyamplung sebagai wadah malam, cucuk sebagai corong, dan pegangan. Wajan kecil menampung malam di atas kompor, gawangan atau rak penopang menjaga bambu tetap datar dan tidak menyentuh meja. Alat yang dipakai, satu canting halus, satu canting sedang, wajan kecil, kompor, gawangan atau rak penopang, pensil, penghapus, kuas untuk colet, kain perca untuk uji, dan penjepit. Bahan yang dipakai, malam, pewarna, sarung tangan, masker, dan celemek. Jangan memakai canting yang cucuknya bengkok. Langkah kerja, 1) letakkan kompor di permukaan stabil dan jauh dari kain, 2) isi wajan dengan malam secukupnya, jangan sampai meluap, 3) panaskan dengan api kecil, 4) uji aliran pada kain perca atau potongan bambu sisa, 5) susun alat dalam jangkauan tangan, dan letakkan wadah air dingin untuk pertolongan pertama luka bakar. Keselamatan kerja, ruang berangin, jangan tinggalkan malam panas tanpa pengawasan, jangan meniup cucuk yang panas, dan jangan menyiram api malam dengan air, tutup wajan untuk memadamkan. Kesalahan umum, api terlalu besar sampai malam berasap dan menghitam, atau canting tersumbat karena malam dingin. Perbaiki dengan menurunkan api dan membersihkan cucuk dengan peniti secara hati-hati. Tugas, foto meja kerja dan isi daftar periksa 10 butir. Kriteria, 10 dari 10 butir terpenuhi.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-alat.webp",
         },
       ],
     },
@@ -85,18 +87,17 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Motif Giriloyo yang bisa dipindahkan",
           kind: "text",
-          body: "Motif adalah bahasa bentuk. Materi Giriloyo yang kami pegang menyebut delapan motif larangan Keraton Yogyakarta, Huk, Kawung Alit Gurdha, Parang Klithik, Parang Barong, Parang Gendreh, Parang Rusak Barong, Semen Ageng Sawat Gurdha, dan Rujak Senthe, beserta status larangannya. Sumber tidak menjelaskan aturan pemakaian, karena itu kelas ini tidak mengajarkannya sebagai pola siap pakai. Nama bentuk lain yang dipakai di kelas, seperti parang dan kawung, adalah contoh bentuk umum, bukan kutipan daftar sumber. Cecek adalah titik kecil rapat, isen-isen adalah isian yang membuat bidang lebih hidup. Pilih motif geometris sederhana untuk latihan bambu, dan jangan memakai motif sakral sebagai hiasan sembarangan. Alat yang dipakai, pensil, kertas, dan penggaris. Foto pada pelajaran ini adalah lembar motif larangan dari materi Giriloyo untuk kain, gambar dipakai sebagai rujukan nama dan bentuk, bukan contoh permukaan bambu. Langkah kerja, 1) pilih dua motif geometris, 2) jiplak bentuknya di kertas, 3) tulis nama dan asal motif, 4) tandai bagian yang akan diulang. Keselamatan kerja, tidak ada alat panas, gunakan pensil yang tidak tajam. Kesalahan umum, menyalin motif terlalu rapat sehingga garis canting menyatu, atau menganggap semua motif boleh dipakai. Perbaiki dengan menyederhanakan ulangan. Tugas, cocokkan delapan nama motif larangan dengan gambarnya. Kriteria, 7 dari 8 benar dan dua motif latihan diberi nama.",
+          body: "Motif adalah bahasa bentuk. Materi Giriloyo yang kami pegang menyebut delapan motif larangan Keraton Yogyakarta, Huk, Kawung Alit Gurdha, Parang Klithik, Parang Barong, Parang Gendreh, Parang Rusak Barong, Semen Ageng Sawat Gurdha, dan Rujak Senthe, beserta status larangannya. Sumber tidak menjelaskan aturan pemakaian, karena itu kelas ini tidak mengajarkannya sebagai pola siap pakai. Nama bentuk lain yang dipakai di kelas, seperti parang dan kawung, adalah contoh bentuk umum, bukan kutipan daftar sumber. Cecek adalah titik kecil rapat, isen-isen adalah isian yang membuat bidang lebih hidup. Pilih motif geometris sederhana untuk latihan bambu, dan jangan memakai motif sakral sebagai hiasan sembarangan. Alat yang dipakai, pensil, kertas, dan penggaris. Langkah kerja, 1) pilih dua motif geometris, 2) jiplak bentuknya di kertas, 3) tulis nama dan asal motif, 4) tandai bagian yang akan diulang. Keselamatan kerja, tidak ada alat panas, gunakan pensil yang tidak tajam. Kesalahan umum, menyalin motif terlalu rapat sehingga garis canting menyatu, atau menganggap semua motif boleh dipakai. Perbaiki dengan menyederhanakan ulangan. Tugas, tulis delapan nama motif larangan dan dua contoh bentuk umum yang dipakai di kelas. Kriteria, 7 dari 8 benar dan dua motif latihan diberi nama.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
-          mediaFile: "motif-larangan-yogyakarta-1.jpg",
         },
         {
           title: "Mola, menggambar pola di bambu",
           kind: "text",
-          body: "Mola berarti membuat desain dengan pensil sebelum malam diteteskan. Di bambu, garis pensil hanya menjadi pemandu, karena permukaannya tidak menyerap, garis harus tipis dan tidak menekan. Arah serat bambu juga menentukan, garis yang mengikuti serat lebih mudah rapi daripada garis yang memotong serat. Alat yang dipakai, pensil 2B atau lebih keras, penghapus lunak, penggaris, kertas pola, dan bilah bambu yang sudah diamplas. Langkah kerja, 1) bersihkan permukaan dari debu, 2) tentukan titik tengah benda kerja, 3) gambar satu ulangan motif utuh dengan tekanan ringan, 4) periksa proporsi dari jarak satu langkah, 5) hapus garis bantu sebelum membatik. Foto pada pelajaran ini berasal dari materi Giriloyo yang menunjukkan latihan pola di atas kain, alat dan cara memindahkan garis sama, tetapi urutan kain tidak dipakai sebagai urutan bambu. Keselamatan kerja, pensil dan penggaris tidak panas, tetapi jagalah ujung penggaris agar tidak melukai tangan. Kesalahan umum, garis terlalu tebal sehingga tidak bisa dihapus dan mengganggu warna, atau motif keluar dari bidang. Perbaiki dengan mengulang pola di kertas sebelum menyentuh bambu. Tugas, salin satu ulangan motif pada bilah 20 x 30 cm. Kriteria, proporsi mirip, garis tipis, dan tidak ada garis bantu yang tertinggal.",
+          body: "Mola berarti membuat desain dengan pensil sebelum malam diteteskan. Di bambu, garis pensil hanya menjadi pemandu, karena permukaannya tidak menyerap, garis harus tipis dan tidak menekan. Arah serat bambu juga menentukan, garis yang mengikuti serat lebih mudah rapi daripada garis yang memotong serat. Alat yang dipakai, pensil 2B atau lebih keras, penghapus lunak, penggaris, kertas pola, dan bilah bambu yang sudah diamplas. Langkah kerja, 1) bersihkan permukaan dari debu, 2) tentukan titik tengah benda kerja, 3) gambar satu ulangan motif utuh dengan tekanan ringan, 4) periksa proporsi dari jarak satu langkah, 5) hapus garis bantu sebelum membatik. Foto pada pelajaran ini menunjukkan tangan menggambar pola di atas silinder bambu yang sudah dibalut kertas. Keselamatan kerja, pensil dan penggaris tidak panas, tetapi jagalah ujung penggaris agar tidak melukai tangan. Kesalahan umum, garis terlalu tebal sehingga tidak bisa dihapus dan mengganggu warna, atau motif keluar dari bidang. Perbaiki dengan mengulang pola di kertas sebelum menyentuh bambu. Tugas, salin satu ulangan motif pada bilah 20 x 30 cm. Kriteria, proporsi mirip, garis tipis, dan tidak ada garis bantu yang tertinggal.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
-          mediaFile: "lesson-mola.jpg",
+          mediaFile: "lesson-mola.webp",
         },
         {
           title: "Bidang kerja, ulangan, dan raport",
@@ -104,6 +105,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Bidang kerja adalah area yang benar-benar dibatik, ulangan adalah satu unit motif yang diulang, raport adalah kotak bantu berukuran sama untuk menjaga ulangan tetap sejajar. Menentukan ketiganya sebelum menggambar mencegah motif terpotong di tepi nampan. Alat yang dipakai, penggaris, kertas, pensil, dan benda kerja. Langkah kerja, 1) ukur bidang kerja dan sisakan tepi sekitar satu sentimeter agar motif tidak jatuh di lengkung, 2) buat kotak raport di kertas, 3) gambar satu ulangan di dalam kotak, 4) jiplak ke titik ulang berikutnya, 5) periksa sambungan dengan melipat kertas. Untuk nampan bulat, bagi bidang menjadi empat atau delapan bagian yang sama. Keselamatan kerja, tidak ada bahan panas. Kesalahan umum, titik ulang bergeser sedikit demi sedikit sehingga motif miring di ujung, atau ulangan terlalu besar sampai terpotong. Perbaiki dengan membuat raport baru dan mengukur ulang dari titik tengah. Tugas, buat tiga kotak raport 10 x 10 cm dan satu denah bidang nampan. Kriteria, tiga kotak sama ukuran, denah menunjukkan tepi aman, dan ulangan tidak terpotong.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-bidang.webp",
         },
         {
           title: "Pola pada bidang lengkung dan anyaman",
@@ -111,6 +113,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Bidang bambu tidak selalu datar. Nampan punya bibir melengkung, anyaman punya celah, dan panel punya rusuk. Pola yang sama bisa berubah bentuk saat dipindahkan ke bidang lengkung, jadi ukur keliling dan gambar pola di kertas yang mengikuti bidang. Alat yang dipakai, kertas lunak, pensil, selotip kertas, dan gunting. Langkah kerja, 1) tentukan jenis bidang, datar, lengkung, atau anyaman, 2) untuk bidang lengkung, tempelkan kertas lalu jiplak bentuknya, 3) gambar ulangan di kertas itu, bukan di kertas datar, 4) potong dan coba pasang tanpa lem, 5) pindahkan garis ke bambu dengan tekanan ringan. Pada anyaman, hindari garis panjang yang melintasi celah karena malam akan jatuh ke bawah. Keselamatan kerja, gunting tajam, arahkan menjauh dari tangan. Kesalahan umum, pola terlihat miring setelah dipasang, atau garis patah di celah anyaman. Perbaiki dengan membagi pola menjadi bagian kecil yang mengikuti rusuk. Tugas, bungkus satu nampan dengan kertas pola dan unggah foto pola terpasang. Kriteria, pola mengikuti lengkung, tidak terpotong, dan garis tidak melintasi celah anyaman tanpa penopang.",
           estimatedMinutes: 15,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-lengkung.webp",
         },
         {
           title: "Latihan pola",
@@ -118,6 +121,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Latihan ini menyatukan pilihan motif, mola, dan pembagian bidang pada benda kerja sungguhan. Pilih satu motif geometris sederhana, misalnya parang sederhana atau kawung, lalu gambar satu ulangan yang bersambung ke tepi bidang. Alat yang dipakai, bilah atau nampan yang sudah kering dan diamplas, pensil, penghapus, penggaris, dan kertas pola. Langkah kerja, 1) siapkan benda kerja dan bersihkan debu, 2) tempelkan pola kertas bila bidang lengkung, 3) gambar satu ulangan utuh, 4) ulangi ke dua titik berikutnya, 5) periksa dari jarak satu langkah dan dari arah cahaya miring. Keselamatan kerja, tidak ada bahan panas pada tahap ini, jauhkan benda kerja dari lantai basah. Kesalahan umum, langsung menggambar seluruh bidang tanpa satu ulangan yang benar, atau menghapus garis dengan keras sampai serat rusak. Perbaiki dengan berhenti setelah satu ulangan dan memeriksanya bersama pengajar. Tugas, unggah foto keseluruhan dan satu foto detail pola. Kriteria, motif terbaca, ulangan bersambung, proporsi wajar, dan permukaan tidak rusak karena penghapus.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-latihan-pola.webp",
         },
       ],
     },
@@ -130,10 +134,10 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Nglowongi, garis malam pertama",
           kind: "text",
-          body: "Nglowongi adalah pelilitan malam tahap pertama, mengikuti garis pensil dengan canting. Di kain, malam harus menembus sisi belakang, di bambu, malam menempel di permukaan dan ujung potong menyerap lebih banyak, sehingga pemeriksaan dilakukan dari kilap dan kerapatan garis, bukan dari tembusnya malam. Garis yang tipis atau terputus akan bocor saat diwarnai. Alat yang dipakai, canting, malam, wajan dan kompor, potongan bambu untuk uji, serta lampu yang bisa dimiringkan. Langkah kerja, 1) panaskan malam dengan api kecil, 2) uji aliran pada potongan bambu sisa, 3) pegang canting seperti pensil dan mulai dari garis lurus pendek, 4) lanjutkan ke lengkung dengan kecepatan tetap, 5) periksa dari arah cahaya miring, tandai bagian yang tipis. Foto pada pelajaran ini adalah ilustrasi proses canting di atas kain, alat dan geraknya sama, tetapi permukaan bambu menerima malam dengan cara yang berbeda. Keselamatan kerja, malam panas, api, dan uap, pakai sarung tangan dan kerjakan di ruang berangin. Kesalahan umum, malam terlalu panas sampai melebar, atau terlalu dingin sampai menggumpal dan putus. Perbaiki dengan menurunkan atau menaikkan api sedikit, lalu uji lagi di potongan sisa. Tugas, melilin garis lurus 20 cm dan satu lengkung, unggah foto dua arah cahaya. Kriteria, garis tidak putus, tidak melebar, dan tidak ada bagian mengkilap yang tipis.",
+          body: "Nglowongi adalah pelilitan malam tahap pertama, mengikuti garis pensil dengan canting. Di kain, malam harus menembus sisi belakang, di bambu, malam menempel di permukaan dan ujung potong menyerap lebih banyak, sehingga pemeriksaan dilakukan dari kilap dan kerapatan garis, bukan dari tembusnya malam. Garis yang tipis atau terputus akan bocor saat diwarnai. Alat yang dipakai, canting, malam, wajan dan kompor, potongan bambu untuk uji, serta lampu yang bisa dimiringkan. Langkah kerja, 1) panaskan malam dengan api kecil, 2) uji aliran pada potongan bambu sisa, 3) pegang canting seperti pensil dan mulai dari garis lurus pendek, 4) lanjutkan ke lengkung dengan kecepatan tetap, 5) periksa dari arah cahaya miring, tandai bagian yang tipis. Foto pada pelajaran ini menunjukkan ujung canting meneteskan malam pada garis di atas anyaman bambu. Keselamatan kerja, malam panas, api, dan uap, pakai sarung tangan dan kerjakan di ruang berangin. Kesalahan umum, malam terlalu panas sampai melebar, atau terlalu dingin sampai menggumpal dan putus. Perbaiki dengan menurunkan atau menaikkan api sedikit, lalu uji lagi di potongan sisa. Tugas, melilin garis lurus 20 cm dan satu lengkung, unggah foto dua arah cahaya. Kriteria, garis tidak putus, tidak melebar, dan tidak ada bagian mengkilap yang tipis.",
           estimatedMinutes: 25,
           accessLevel: "enrolled",
-          mediaFile: "lesson-canting.jpg",
+          mediaFile: "lesson-canting.webp",
         },
         {
           title: "Menutup celah garis",
@@ -141,6 +145,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Nerusi adalah istilah kain, melilin sisi belakang kain pada bagian yang belum tertembus canting, sehingga malam menembus sampai dua sisi. Istilah itu tidak dipakai sebagai langkah bambu karena bambu tidak punya sisi belakang kain yang perlu ditembus. Pada bambu, pekerjaan yang setara disebut menutup celah, merapikan tepi garis dan pori yang belum tertutup agar warna tidak bocor. Alat yang dipakai, canting, malam, wajan, kompor, dan kain bersih untuk menyerap malam berlebih. Langkah kerja, 1) tunggu garis pertama dingin, 2) periksa celah di bawah cahaya miring, 3) tambahkan malam tipis pada celah, jangan sekali tebal, 4) ulangi pemeriksaan setelah dingin, 5) buang serpihan malam dengan hati-hati. Keselamatan kerja, ujung canting tetap panas walau malam di wadah tidak mendidih, jangan menyentuhnya. Kesalahan umum, menumpuk malam terlalu tebal sehingga garis melebar dan retak saat kering. Perbaiki dengan mengerok tipis memakai alat tumpul, lalu menutup ulang. Tugas, tutup lima sentimeter garis yang sudah dililin dan periksa dari dua arah cahaya. Kriteria, tidak ada celah, garis tidak melebar, dan permukaan tidak retak.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-celah.webp",
         },
         {
           title: "Ngisen-isen, isian pada bambu",
@@ -148,6 +153,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Ngisen-isen adalah mengisi bidang kosong supaya motif lebih kaya, bukan menambah motif baru di atasnya. Isian dapat berupa titik cecek atau garis pendek rapat. Pada bambu, jarak titik harus tetap karena permukaan yang keras membuat malam mudah menggumpal di satu titik. Alat yang dipakai, canting halus, malam, penggaris, dan potongan bambu latihan. Langkah kerja, 1) pilih satu bidang kosong, 2) tentukan arah isian mengikuti serat, 3) buat deret titik lima sentimeter dengan jarak tetap, 4) bandingkan dengan deret berikutnya, 5) berhenti sebelum bidang terlihat penuh. Keselamatan kerja, sama seperti membatik, jangan mengisi sambil berdiri di lantai licin. Kesalahan umum, titik saling menempel sehingga menjadi garis tebal, atau isian memenuhi seluruh bidang sampai motif utama tenggelam. Perbaiki dengan mengurangi jumlah titik dan menjaga jarak. Tugas, unggah lembar latihan tiga baris isian pada potongan bambu. Kriteria, jarak titik konsisten, garis pendek rapi, dan motif utama tetap terbaca.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-isen.webp",
         },
         {
           title: "Memegang canting dan berhenti dengan bersih",
@@ -155,6 +161,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Keterampilan memegang canting lebih menentukan daripada kerumitan motif. Pegang seperti pensil, dengan siku ditopang meja agar gerak stabil. Mulai dan berhenti dengan mengangkat canting perlahan supaya tidak ada ekor malam. Alat yang dipakai, canting, malam, wajan, kompor, potongan bambu, dan kain perca. Langkah kerja, 1) panaskan malam dan uji aliran, 2) buat enam baris lurus pendek, 3) buat enam lengkung, 4) akhiri setiap garis dengan mengangkat canting perlahan, 5) periksa ujung garis, lalu ulangi yang paling buruk. Keselamatan kerja, jangan meniup cucuk untuk mempercepat aliran, uap malam bisa mengiritasi. Jangan meninggalkan kompor menyala. Kesalahan umum, menekan canting terlalu kuat sampai malam meluap, atau berhenti mendadak sehingga ada tetesan. Perbaiki dengan mengurangi tekanan dan mengangkat perlahan. Tugas, unggah enam baris latihan di potongan bambu. Kriteria, enam bentuk bersih, tidak ada cabang tak sengaja, dan ujung garis tidak menetes.",
           estimatedMinutes: 25,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-canting-pegangan.webp",
         },
         {
           title: "Latihan nglowongi dan menutup celah",
@@ -162,6 +169,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Latihan ini menggabungkan nglowongi dan menutup celah pada satu pola utuh. Tujuannya bukan kecepatan, tetapi memastikan setiap garis tertutup sebelum warna masuk. Alat yang dipakai, benda kerja berpola, canting, malam, wajan, kompor, dan lampu miring. Langkah kerja, 1) mulai dari garis utama, lalu isian, 2) periksa seluruh garis dari arah cahaya miring, 3) tutup celah dengan malam tipis, 4) uji satu sudut kecil dengan pewarna pada potongan sisa, 5) perbaiki bagian yang bocor sebelum melanjutkan. Keselamatan kerja, jangan menumpuk benda kerja yang masih panas, letakkan di rak tahan panas. Kesalahan umum, langsung memberi warna sebelum malam dingin, atau melewatkan garis di tepi lengkung. Perbaiki dengan menunggu dingin dan memeriksa per bagian. Tugas, unggah benda kerja setelah nglowongi dan menutup celah. Kriteria, semua garis tertutup, tidak ada malam yang melebar, dan uji warna tidak menembus bagian bermalam.",
           estimatedMinutes: 30,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-latihan-garis.webp",
         },
       ],
     },
@@ -174,9 +182,10 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Mbabar, warna pertama pada bambu",
           kind: "text",
-          body: "Mbabar berarti mewarnai setelah malam selesai. Materi Giriloyo memakai istilah ini untuk mencelup kain, pada bambu, sumber tidak menentukan apakah warna disemprot, dicolet, atau dicelup, jadi kelas ini memakai colet dengan kuas agar warna terkendali di permukaan yang kecil. Warna pertama adalah warna motif yang nanti ditutup malam. Soga adalah sebutan warna cokelat dari kulit tingi dan jambal yang dipakai di Giriloyo, di kelas ini kamu boleh memakai pewarna sintetis atau alami, dan istilah soga hanya menunjukkan arah warna, bukan keharusan bahan. Alat yang dipakai, pewarna, kuas atau spons, wadah, sarung tangan, masker, dan potongan uji. Langkah kerja, 1) uji warna pada potongan sisa, 2) beri warna tipis merata, jangan menggenang, 3) keringkan di tempat teduh, 4) periksa apakah warna masuk ke bagian bermalam, 5) catat takaran dan waktu. Keselamatan kerja, sarung tangan dan ventilasi, jangan mencampur pewarna di wadah makanan. Kesalahan umum, warna menumpuk di serat atau merembes di bawah malam yang tipis. Perbaiki dengan mengurangi larutan dan menutup ulang malam. Tugas, warnai satu bilah latihan satu warna, unggah foto sebelum dan sesudah. Kriteria, warna rata, malam tidak rusak, dan tidak ada rembesan di garis.",
+          body: "Mbabar berarti mewarnai setelah malam selesai. Materi Giriloyo memakai istilah ini untuk mencelup kain, pada bambu, sumber tidak menentukan apakah warna disemprot, dicolet, atau dicelup, jadi kelas ini membuka kedua cara, colet untuk bidang sempit dan celup untuk benda kerja kecil, lalu kamu memilih satu cara yang paling terkendali. Warna pertama adalah warna motif yang nanti ditutup malam. Soga adalah sebutan warna cokelat dari kulit tingi dan jambal yang dipakai di Giriloyo, di kelas ini kamu boleh memakai pewarna sintetis atau alami, dan istilah soga hanya menunjukkan arah warna, bukan keharusan bahan. Alat yang dipakai, pewarna, kuas atau spons, wadah, sarung tangan, masker, dan potongan uji. Langkah kerja, 1) uji warna pada potongan sisa, 2) beri warna tipis merata, jangan menggenang, 3) keringkan di tempat teduh, 4) periksa apakah warna masuk ke bagian bermalam, 5) catat takaran dan waktu. Keselamatan kerja, sarung tangan dan ventilasi, jangan mencampur pewarna di wadah makanan. Kesalahan umum, warna menumpuk di serat atau merembes di bawah malam yang tipis. Perbaiki dengan mengurangi larutan dan menutup ulang malam. Tugas, warnai satu bilah latihan satu warna, unggah foto sebelum dan sesudah. Kriteria, warna rata, malam tidak rusak, dan tidak ada rembesan di garis.",
           estimatedMinutes: 25,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-mbabar.webp",
         },
         {
           title: "Nembok, menutup motif dengan malam",
@@ -184,6 +193,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Setelah warna motif kering, motif itu harus ditutup malam agar warna dasar tidak mengubahnya (Fitinline, 2013). Langkah ini disebut nembok, menutup bagian yang sudah berwarna, bukan nglowongi ulang seluruh bidang. Alat yang dipakai, canting sedang, malam, wajan, kompor, dan kuas bersih. Langkah kerja, 1) pastikan warna benar-benar kering, 2) tutup seluruh bidang berwarna dengan malam, mulai dari tepi, 3) periksa celah di bawah cahaya miring, 4) tambahkan malam pada celah, 5) biarkan dingin sebelum warna dasar. Keselamatan kerja, jangan memanaskan benda kerja yang masih basah, uap pelarut bisa mengiritasi. Kesalahan umum, menutup terlalu cepat saat warna masih basah sehingga malam tidak menempel, atau meninggalkan celah di tepi motif. Perbaiki dengan mengeringkan lebih lama dan menutup ulang. Tugas, tutup satu motif berwarna dan unggah foto. Kriteria, seluruh bidang berwarna tertutup, tidak ada celah, dan warna di bawahnya tidak berubah.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-nembok.webp",
         },
         {
           title: "Warna dasar",
@@ -191,6 +201,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Warna dasar adalah warna yang mengisi bagian yang tidak ditutup malam. Setelah warna dasar, kontras antara motif dan latar terlihat. Pilih warna dasar yang lebih gelap atau lebih terang dari warna motif, lalu uji pada potongan sisa. Alat yang dipakai, pewarna, kuas, sarung tangan, masker, dan wadah. Langkah kerja, 1) bersihkan permukaan dari sisa malam, 2) uji warna pada potongan, 3) beri warna dasar tipis merata, 4) ulangi setelah kering bila perlu, 5) periksa tepi malam, pastikan tidak ada rembesan. Keselamatan kerja, ventilasi dan sarung tangan, jauhkan pewarna dari mata. Kesalahan umum, warna dasar terlalu pekat sampai menutupi tekstur bambu, atau terlalu encer sampai belang. Perbaiki dengan mengulang tipis, bukan sekali tebal. Tugas, beri warna dasar pada benda kerja dan unggah foto. Kriteria, warna rata, kontras motif terbaca, dan tidak ada rembesan di bawah malam.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-warna-dasar.webp",
         },
         {
           title: "Colet atau celup untuk bambu",
@@ -205,6 +216,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Latihan dua warna menguji apakah malam benar-benar menahan warna pertama saat warna kedua masuk. Pilih dua warna yang kontras, misalnya cokelat dan biru, lalu kerjakan pada satu bidang kecil. Alat yang dipakai, dua pewarna, kuas, malam, canting, dan potongan uji. Langkah kerja, 1) warnai motif dengan warna pertama, 2) keringkan, 3) tutup motif dengan malam, 4) beri warna dasar, 5) nglorod pada modul berikutnya, lalu periksa hasilnya. Keselamatan kerja, jangan mencampur wadah warna, beri label. Kesalahan umum, warna kedua merembes karena malam tipis, atau warna pertama pudar karena terlalu banyak air. Perbaiki dengan menutup malam lebih rapat dan mengurangi air. Tugas, unggah benda kerja dua warna sebelum nglorod. Kriteria, dua warna terpisah jelas, tidak ada rembesan, dan malam tetap utuh.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-dua-warna.webp",
         },
       ],
     },
@@ -220,6 +232,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Nglorod adalah melepas malam dengan air panas (Fitinline, 2013). Malam yang mencair akan mengapung, lalu permukaan diangkat dan diperiksa. Alat yang dipakai, wadah besar, air, sumber api, penjepit, sarung tangan tahan panas, dan tempat penirisan. Langkah kerja, 1) didihkan air yang cukup untuk merendam benda, 2) masukkan benda dengan penjepit, jangan dengan tangan, 3) aduk perlahan sampai malam lepas, 4) angkat dan tiriskan, 5) periksa sisa malam, ulangi bila perlu. Mulai dari 5 sampai 10 menit, ulangi bila malam masih melekat. Sumber tidak memberi durasi tetap, jadi catat versimu. Keselamatan kerja, air mendidih dan malam panas, kerjakan di luar ruangan atau dengan ventilasi paksa, pakai sarung tangan, jangan menambah air ke wadah berminyak. Jangan membuang malam panas ke saluran air. Kesalahan umum, air tidak cukup panas sehingga malam hanya berpindah, atau benda terlalu lama sehingga permukaan berubah. Perbaiki dengan mengganti air panas dan mengulang sebentar. Tugas, unggah foto proses dan catat suhu serta waktu versimu. Kriteria, malam lepas dari seluruh bidang dan prosedur keselamatan terlihat.",
           estimatedMinutes: 25,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-nglorod.webp",
         },
         {
           title: "Mepe dan memeriksa sisa malam",
@@ -227,6 +240,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Mepe berarti mengeringkan setelah sisa malam dibersihkan. Pada bambu, jangan merendam lama, cukup bilas atau usap dengan kain lembap sampai sisa malam hilang, lalu keringkan di tempat teduh. Sisa malam terlihat sebagai bercak putih atau permukaan yang terasa lengket. Alat yang dipakai, kain lembut, air bersih, sikat halus, dan rak berangin. Langkah kerja, 1) bilas atau usap sisa malam, 2) sikat pelan searah serat, 3) keringkan di tempat teduh, 4) balik agar kedua sisi kering, 5) periksa bercak di bawah cahaya miring. Keselamatan kerja, lantai sekitar wadah bisa licin karena malam, seka segera. Kesalahan umum, menjemur di bawah matahari langsung sampai bambu retak, atau meninggalkan sisa malam di celah anyaman. Perbaiki dengan mengeringkan di tempat teduh dan menyikat halus. Tugas, unggah foto benda basah dan kering. Kriteria, tidak ada bercak malam, permukaan kering rata, dan tidak retak.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-mepe.webp",
         },
         {
           title: "Finishing dan pelapisan",
@@ -234,6 +248,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Finishing melindungi warna dan memudahkan perawatan. Fitinline menyebut pelapisan sistem NC untuk produk batik bambu agar mudah dibersihkan tanpa air tanpa merusak warna. Ikuti petunjuk pada kemasan bahan yang kamu pakai, jangan mencampur merek atau menambah pelarut tanpa petunjuk. Alat yang dipakai, pelapis NC, kuas bersih, wadah, respirator organik tipe A, sarung tangan, kacamata, dan potongan uji. Langkah kerja, 1) pastikan permukaan benar-benar kering, 2) uji pada potongan sisa, 3) aplikasikan lapisan tipis merata, 4) keringkan sesuai petunjuk kemasan, 5) ulangi tipis bila perlu. Keselamatan kerja, pelapis dan pelarut mudah terbakar serta beruap, kerjakan di luar ruangan atau dengan ventilasi paksa, jauh dari api dan percikan listrik, pakai respirator organik tipe A dan sarung tangan. Pelapis NC untuk dekorasi, jangan dipakai pada wadah makanan kecuali produsen menyatakan aman kontak pangan. Kesalahan umum, lapisan terlalu tebal sehingga menetes dan menutupi motif, atau dikerjakan saat lembap sehingga keruh. Perbaiki dengan mengeringkan dan mengamplas tipis bagian yang menetes sebelum melapisi ulang. Tugas, buat papan uji tiga lapisan tipis dan unggah fotonya. Kriteria, lapisan rata, tidak menetes, dan warna tidak berubah.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-finishing.webp",
         },
         {
           title: "Memeriksa mutu produk",
@@ -241,6 +256,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Pemeriksaan mutu dilakukan sebelum produk difoto untuk Kartu Karya. Periksa bentuk, permukaan, warna, motif, sisa malam, dan pelapisan. Alat yang dipakai, lampu, kain bersih, penggaris, dan daftar periksa. Langkah kerja, 1) periksa bentuk, tidak melengkung atau retak, 2) periksa permukaan, tidak ada serat terangkat, 3) periksa warna, rata dan tidak belang, 4) periksa motif, garis tertutup dan ulangan sejajar, 5) periksa sisa malam dan lapisan. Nilai sendiri sebelum pengajar menilai, lalu bandingkan selisihnya. Keselamatan kerja, tidak ada bahan panas pada tahap ini. Kesalahan umum, hanya melihat dari satu arah cahaya, atau menilai dari foto kecil. Perbaiki dengan memeriksa di bawah cahaya miring dan dari dua sisi. Tugas, unggah produk jadi dan penilaian diri enam butir. Kriteria, 5 dari 6 butir terpenuhi dan selisih nilai diri tidak lebih dari satu tingkat.",
           estimatedMinutes: 15,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-mutu.webp",
         },
         {
           title: "Keselamatan kerja dan limbah",
@@ -248,6 +264,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Keselamatan kerja berlaku dari merebus sampai melapisi. Keselamatan kerja, risiko utamanya air mendidih, malam panas, api kompor, alat tajam, debu amplas, dan uap pelarut. Alat yang dipakai, sarung tangan tahan panas, masker debu, masker organik untuk pelapis, kacamata, celemek, dan alas kaki tertutup. Langkah kerja, 1) tata meja jauh dari jangkauan anak, 2) nyalakan api kecil dan jangan tinggalkan, 3) sediakan penutup wajan untuk memadamkan api malam, 4) bersihkan debu dengan kain lembap, bukan ditiup, 5) simpan malam sisa setelah dingin, jangan ke saluran air. Untuk luka bakar ringan, alirkan air dingin dan hentikan latihan bila melepuh. Kesalahan umum, memakai air untuk memadamkan api malam, atau mengamplas tanpa masker. Perbaiki dengan menutup wajan dan bekerja di ruang berangin. Tugas, isi daftar periksa keselamatan 12 butir dan foto tempat kerja. Kriteria, 12 dari 12 butir terpenuhi.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-keselamatan.webp",
         },
       ],
     },
@@ -260,9 +277,10 @@ const MODULES: Record<string, SeedModule[]> = {
         {
           title: "Memilih benda kerja",
           kind: "text",
-          body: "Benda kerja menentukan ukuran, ketebalan, dan tingkat kesulitan. Fitinline menyebut nampan, box tisu, dan hiasan dinding sebagai produk batik bambu, profil Desa Wisata Krebet juga menampilkan nampan bambu batik. Untuk latihan pertama, pilih satu benda yang bidangnya mudah dijangkau canting. Alat yang dipakai, benda kerja kering dan diamplas, penggaris, pensil, dan kertas. Langkah kerja, 1) pilih nampan, box tisu, atau panel, 2) ukur bidang kerja, 3) gambar denah di kertas, 4) tentukan motif yang muat, 5) catat bahan dan alat yang dibutuhkan. Keselamatan kerja, tidak ada bahan panas pada tahap memilih. Kesalahan umum, memilih bidang anyaman untuk latihan pertama karena terlihat mudah, padahal celah membuat malam jatuh. Perbaiki dengan memulai dari bilah atau panel datar. Tugas, unggah sketsa benda kerja dan daftar bahan. Kriteria, ukuran jelas, motif muat, dan bahan tercatat.",
+          body: "Benda kerja menentukan ukuran, ketebalan, dan tingkat kesulitan. Fitinline menyebut nampan, kotak bundar, dan hiasan dinding sebagai produk batik bambu, profil Desa Wisata Krebet juga menampilkan nampan bambu batik. Untuk latihan pertama, pilih satu benda yang bidangnya mudah dijangkau canting. Alat yang dipakai, benda kerja kering dan diamplas, penggaris, pensil, dan kertas. Langkah kerja, 1) pilih nampan, kotak bundar, atau panel, 2) ukur bidang kerja, 3) gambar denah di kertas, 4) tentukan motif yang muat, 5) catat bahan dan alat yang dibutuhkan. Keselamatan kerja, tidak ada bahan panas pada tahap memilih. Kesalahan umum, memilih bidang anyaman untuk latihan pertama karena terlihat mudah, padahal celah membuat malam jatuh. Perbaiki dengan memulai dari bilah atau panel datar. Tugas, unggah sketsa benda kerja dan daftar bahan. Kriteria, ukuran jelas, motif muat, dan bahan tercatat.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-benda.webp",
         },
         {
           title: "Menyusun catatan proses",
@@ -270,6 +288,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Kartu Karya membutuhkan riwayat proses, bukan hanya foto hasil. Catat tanggal, bahan, ukuran, dan perubahan yang kamu lakukan di setiap tahap. Alat yang dipakai, kamera ponsel, buku catatan, dan label tanggal. Langkah kerja, 1) foto bahan sebelum diolah, 2) foto setiap tahap utama, 3) catat waktu dan kondisi yang bisa memengaruhi hasil, 4) simpan file dengan nama yang mudah dicari, 5) susun urutan foto sebelum diunggah. Platform memakai catatan ini untuk menilai proses, jadi jangan mengedit foto sampai hilang detail. Keselamatan kerja, jangan memotret di dekat kompor menyala. Kesalahan umum, hanya memotret hasil akhir, atau mencatat angka tanpa satuan. Perbaiki dengan mengulang dokumentasi pada latihan berikutnya. Tugas, unggah enam foto bertanggal dan satu lembar catatan bahan. Kriteria, enam tahap terlihat dan catatan memuat bahan, ukuran, serta tanggal.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-catatan.webp",
         },
         {
           title: "Menghitung bahan dan biaya",
@@ -277,6 +296,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Menghitung bahan membuat harga karya masuk akal. Pisahkan bahan habis pakai, alat yang dipakai berulang, dan waktu kerja. Alat yang dipakai, catatan belanja, timbangan kecil, dan kalkulator. Langkah kerja, 1) daftar bahan untuk satu benda, 2) catat harga satuan dan jumlah yang dipakai, 3) hitung sisa bahan yang terbuang, 4) tambahkan biaya alat secara wajar, 5) tentukan harga setelah membandingkan dengan karya sejenis. Jangan mengarang angka, gunakan nota atau harga pasar yang kamu catat. Keselamatan kerja, tidak ada. Kesalahan umum, lupa menghitung malam, pelapis, dan kemasan, atau mencampur biaya satu kali percobaan dengan biaya produksi. Perbaiki dengan menghitung per benda. Tugas, unggah tabel biaya satu benda. Kriteria, semua bahan tercatat, ada harga satuan, dan ada perkiraan sisa.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-biaya.webp",
         },
         {
           title: "Merawat produk batik bambu",
@@ -291,6 +311,7 @@ const MODULES: Record<string, SeedModule[]> = {
           body: "Ujian akhir adalah satu produk bambu dari bahan mentah sampai pelapisan. Kerjakan seluruh urutan yang dipelajari, pilih bambu, rebus, keringkan, amplas, pola, nglowongi, ngisen-isen, mbabar, nembok, warna dasar, nglorod, mepe, finishing, dan periksa. Alat yang dipakai, seluruh peralatan modul 1 sampai 5 dan alat pelindung. Langkah kerja, 1) siapkan benda kerja dan catatan, 2) kerjakan pola dan malam, 3) warnai dan tutup motif, 4) nglorod dan keringkan, 5) lapisi lalu periksa mutu. Hentikan pekerjaan bila merasa pusing, terbakar, atau ruangan berasap. Keselamatan kerja, protokol modul 5 berlaku penuh. Kesalahan umum, terburu-buru di nglorod lalu melapisi permukaan yang masih lembap, atau melupakan foto proses. Perbaiki dengan mengeringkan ulang dan melengkapi dokumentasi. Tugas, unggah produk jadi, foto setiap tahap proses, dan penilaian diri. Kriteria, produk lulus enam butir mutu, dokumentasi lengkap, dan prosedur keselamatan terlihat.",
           estimatedMinutes: 20,
           accessLevel: "enrolled",
+          mediaFile: "lesson-bambu-ujian.webp",
         },
       ],
     },

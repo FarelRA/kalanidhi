@@ -276,34 +276,53 @@ const SEED_IMAGE_METADATA: Record<
   string,
   { width: number; height: number; credit: string }
 > = {
-  "hasil-latihan.jpg": { width: 1200, height: 900, credit: "Arsip KalaNidhi Digital" },
-  "hero-canting.jpg": { width: 1600, height: 900, credit: "Arsip KalaNidhi Digital" },
-  "lesson-canting.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
-  "lesson-mola.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
-  "motif-larangan-yogyakarta-1.jpg": { width: 1600, height: 1200, credit: "Arsip KalaNidhi Digital" },
-  "og-kalanidhi.jpg": { width: 1200, height: 630, credit: "Arsip KalaNidhi Digital" },
-  "panduan-perawatan-produk-bambu.jpg": { width: 1080, height: 1350, credit: "Arsip KalaNidhi Digital" },
-  "path-aksara-jawa.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
-  "path-batik-bambu.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
-  "path-batik-tulis-giriloyo.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
-  "path-gerabah-bantul.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
-  "path-kuliner-nusantara.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
-  "path-pranatacara.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
-  "path-tari-kreasi.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
-  "teacher-gerabah.jpg": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
-  "teacher-hardjono.jpg": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
-  "teacher-kuliner-nusantara.jpg": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
-  "teacher-sriningsih.jpg": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
-  "teacher-sudarsono.jpg": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
-  "teacher-suwardi.jpg": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
-  "teacher-tari-kreasi.jpg": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
-  "work-aksara.jpg": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
-  "work-bambu-box-tisu.jpg": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
-  "work-bambu-hiasan.jpg": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
-  "work-bambu-nampan.jpg": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
-  "work-kuliner-nusantara.jpg": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
-  "work-pranatacara.jpg": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
-  "work-tari-kreasi.jpg": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
+  "chat-lembar-pola.webp": { width: 1200, height: 900, credit: "Dokumentasi kelas Batik Bambu" },
+  "hero-canting.webp": { width: 1600, height: 900, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-canting.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-pengertian.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-alat.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-bidang.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-lengkung.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-latihan-pola.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-celah.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-isen.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-canting-pegangan.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-latihan-garis.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-mbabar.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-nembok.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-warna-dasar.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-dua-warna.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-nglorod.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-mepe.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-finishing.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-mutu.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-keselamatan.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-benda.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-catatan.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-biaya.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-bambu-ujian.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "lesson-mola.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "path-aksara-jawa.webp": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
+  "path-batik-bambu.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "path-batik-tulis-giriloyo.webp": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
+  "path-gerabah-bantul.webp": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
+  "path-kuliner-nusantara.webp": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
+  "path-pranatacara.webp": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
+  "path-tari-kreasi.webp": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
+  "teacher-gerabah.webp": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
+  "teacher-hardjono.webp": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
+  "teacher-kuliner-nusantara.webp": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
+  "teacher-sriningsih.webp": { width: 1200, height: 1500, credit: "Dokumentasi kelas Batik Bambu" },
+  "teacher-sudarsono.webp": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
+  "teacher-suwardi.webp": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
+  "teacher-tari-kreasi.webp": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
+  "work-aksara.webp": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
+  "work-bambu-kotak-bundar.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "work-bambu-hiasan.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "work-bambu-nampan.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
+  "work-kuliner-nusantara.webp": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
+  "work-pranatacara.webp": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
+  "work-tari-kreasi.webp": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
 }
 
 /**
@@ -363,19 +382,16 @@ async function pruneSeedImages(
     if (firstForFilename) seen.add(asset.filename)
     if (firstForFilename || referenced.has(asset._id)) {
       kept.push(asset.filename)
+      // Only backfill what the uploader could not read. It now records real
+      // dimensions from the optimized WebP, so never overwrite those.
       const metadata = SEED_IMAGE_METADATA[asset.filename]
-      if (
-        metadata &&
-        (asset.width !== metadata.width ||
-          asset.height !== metadata.height ||
-          asset.credit !== metadata.credit)
-      ) {
-        if (!dryRun) {
-          await ctx.db.patch(asset._id, {
-            width: metadata.width,
-            height: metadata.height,
-            credit: metadata.credit,
-          })
+      if (metadata) {
+        const patch: { width?: number; height?: number; credit?: string } = {}
+        if (!asset.width && metadata.width) patch.width = metadata.width
+        if (!asset.height && metadata.height) patch.height = metadata.height
+        if (!asset.credit && metadata.credit) patch.credit = metadata.credit
+        if (!dryRun && Object.keys(patch).length > 0) {
+          await ctx.db.patch(asset._id, patch)
         }
       }
       continue

@@ -203,7 +203,7 @@ describe("seed runtime", () => {
     })
     expect(counts.messaging).toEqual({
       conversations: 10,
-      messages: 49,
+      messages: 48,
       calls: 4,
     })
     expect(counts.auth).toEqual({ accounts: 0, unavailable: true })

@@ -78,10 +78,10 @@ export const siteSeed: SeedSiteCopy = {
     ],
     category: "education",
     image: {
-      imageFile: "og-kalanidhi.jpg",
-      width: 1200,
-      height: 630,
-      alt: "Plat KalaNidhi Digital, belajar praktik budaya Nusantara",
+      imageFile: "hero-canting.webp",
+      width: 1600,
+      height: 900,
+      alt: "Canting meneteskan malam di atas nampan anyaman bambu",
     },
   },
   header: {
@@ -108,10 +108,10 @@ export const siteSeed: SeedSiteCopy = {
     primaryCta: "Pilih kelas yang terbuka",
     secondaryCta: "Lihat cara kerjanya",
     plate: {
-      imageFile: "hero-canting.jpg",
-      alt: "Tangan membatik dengan canting di atas kain",
-      caption: "Ilustrasi proses canting di atas kain",
-      note: "Arsip platform",
+      imageFile: "hero-canting.webp",
+      alt: "Canting meneteskan malam di atas nampan anyaman bambu",
+      caption: "Canting meneteskan malam di atas anyaman bambu",
+      note: "Dokumentasi kelas Batik Bambu",
     },
     workCard: {
       title: "Kartu Karya",
@@ -720,7 +720,7 @@ export const pathsSeed: SeedLearningPath[] = [
     weeks: 6,
     tasks: 6,
     price: 1_250_000,
-    imageFile: "path-batik-bambu.jpg",
+    imageFile: "path-batik-bambu.webp",
     tags: ["Paket bahan disiapkan platform", "Sertifikat platform"],
     outcome:
       "Satu nampan atau panel bambu batik hasil sendiri, lengkap dengan catatan proses dari pemilihan bambu sampai pelapisan untuk Kartu Karya.",
@@ -745,7 +745,7 @@ export const pathsSeed: SeedLearningPath[] = [
     weeks: 4,
     tasks: 3,
     price: 980_000,
-    imageFile: "path-pranatacara.jpg",
+    imageFile: "path-pranatacara.webp",
     tags: ["Kelas live", "Sertifikat platform"],
     outcome:
       "Rekaman praktik dengan susunan acara lengkap, catatan pengajar, dan sertifikat platform.",
@@ -769,7 +769,7 @@ export const pathsSeed: SeedLearningPath[] = [
     tasks: 0,
     price: null,
     priceLabel: "Sedang disusun",
-    imageFile: "path-gerabah-bantul.jpg",
+    imageFile: "path-gerabah-bantul.webp",
     tags: ["Sedang disusun"],
     outcome:
       "Pengantar membentuk gerabah di roda putar, mengolah tanah liat Kasongan, dan membakar di tungku. Kurikulum sedang disusun bersama pengrajin Kasongan.",
@@ -792,7 +792,7 @@ export const pathsSeed: SeedLearningPath[] = [
     weeks: 5,
     tasks: 6,
     price: 650_000,
-    imageFile: "path-aksara-jawa.jpg",
+    imageFile: "path-aksara-jawa.webp",
     tags: ["Belajar mandiri", "Sertifikat platform", "Tanpa paket bahan"],
     outcome:
       "Menulis satu paragraf pendek dalam aksara Jawa dengan sandhangan, pasangan, dan tanda baca yang benar, serta membacanya dengan lafal yang tepat.",
@@ -818,7 +818,7 @@ export const pathsSeed: SeedLearningPath[] = [
     tasks: 0,
     price: null,
     priceLabel: "Sedang disusun",
-    imageFile: "path-batik-tulis-giriloyo.jpg",
+    imageFile: "path-batik-tulis-giriloyo.webp",
     tags: ["Sedang disusun", "Materi sumber belum tersedia"],
     outcome:
       "Kelas batik tulis di atas kain belum dibuka. Materi sumber dari Paguyuban Batik Tulis Giriloyo masih disiapkan dan belum diterbitkan sebagai modul, jadi belum ada kurikulum yang bisa dijanjikan.",
@@ -843,7 +843,7 @@ export const pathsSeed: SeedLearningPath[] = [
     weeks: 5,
     tasks: 5,
     price: 850_000,
-    imageFile: "path-tari-kreasi.jpg",
+    imageFile: "path-tari-kreasi.webp",
     tags: ["Belajar mandiri", "Rekaman ponsel", "Sertifikat platform"],
     outcome:
       "Satu kreasi tari dua menit untuk solo atau duet, lengkap dengan skor gerak tertulis dan rekaman pertunjukan yang dinilai pengajar.",
@@ -870,7 +870,7 @@ export const pathsSeed: SeedLearningPath[] = [
     weeks: 5,
     tasks: 5,
     price: 750_000,
-    imageFile: "path-kuliner-nusantara.jpg",
+    imageFile: "path-kuliner-nusantara.webp",
     tags: ["Belajar mandiri", "Praktik dapur rumahan", "Sertifikat platform"],
     outcome:
       "Satu menu terdokumentasi dengan cerita, satu hidangan yang dimasak sendiri (geblek atau tumpeng mini), dan satu catatan langkah pelestarian.",
@@ -903,7 +903,7 @@ export const teachersSeed: SeedTeacher[] = [
     focus: "Batik tulis dan pewarnaan soga",
     path: "Batik Tulis",
     community: "Perajin batik tulis Giriloyo",
-    imageFile: "teacher-hardjono.jpg",
+    imageFile: "teacher-hardjono.webp",
     verified: true,
   },
   {
@@ -923,7 +923,7 @@ export const teachersSeed: SeedTeacher[] = [
     focus: "Batik bambu, pemilihan bambu, canting, dan pewarnaan",
     path: "Batik Bambu",
     community: "Perajin batik bambu, Bantul",
-    imageFile: "teacher-sriningsih.jpg",
+    imageFile: "teacher-sriningsih.webp",
     verified: true,
   },
   {
@@ -943,7 +943,7 @@ export const teachersSeed: SeedTeacher[] = [
     focus: "Pembawa acara adat dan protokol",
     path: "Seni Pembawa Acara Tradisi Jawa",
     community: "Pembawa acara tradisi Jawa, Yogyakarta",
-    imageFile: "teacher-sudarsono.jpg",
+    imageFile: "teacher-sudarsono.webp",
     verified: true,
   },
   {
@@ -963,7 +963,7 @@ export const teachersSeed: SeedTeacher[] = [
     focus: "Gerabah bentuk, roda putar, dan pembakaran",
     path: "Kriya Gerabah Bantul",
     community: "Pengrajin gerabah Kasongan",
-    imageFile: "teacher-gerabah.jpg",
+    imageFile: "teacher-gerabah.webp",
     verified: false,
   },
   {
@@ -983,7 +983,7 @@ export const teachersSeed: SeedTeacher[] = [
     focus: "Aksara Jawa, tembang, dan tata tulis",
     path: "Aksara Jawa, Membaca dan Menulis",
     community: "Pengajar aksara Jawa, Yogyakarta",
-    imageFile: "teacher-suwardi.jpg",
+    imageFile: "teacher-suwardi.webp",
     verified: true,
   },
   {
@@ -1003,7 +1003,7 @@ export const teachersSeed: SeedTeacher[] = [
     focus: "Tari kreasi, gerak, ruang, waktu, dan komposisi",
     path: "Tari Kreasi",
     community: "Sanggar tari komunitas, Sleman",
-    imageFile: "teacher-tari-kreasi.jpg",
+    imageFile: "teacher-tari-kreasi.webp",
     verified: true,
   },
   {
@@ -1023,7 +1023,7 @@ export const teachersSeed: SeedTeacher[] = [
     focus: "Kuliner Nusantara, bahan lokal, teknik, dan cerita hidangan",
     path: "Kuliner Nusantara",
     community: "Komunitas kuliner dan UMKM Kulon Progo",
-    imageFile: "teacher-kuliner-nusantara.jpg",
+    imageFile: "teacher-kuliner-nusantara.webp",
     verified: true,
   },
 ]
@@ -1049,17 +1049,17 @@ export const worksSeed: SeedWork[] = [
     techniqueNote: "Canting pada bilah bambu",
     workCard: "KN-8821",
     description:
-      "Nampan bambu dengan motif geometris yang disusun ulang dari pola klasik Giriloyo. Malam dipakai sebagai perintang warna, motif ditutup malam sebelum warna dasar, lalu nglorod dan pelapisan akhir. Harga mencakup bilah bambu pilihan, malam, pewarna, pelapis, dan kerja canting. Tampilan Kartu Karya memakai ilustrasi tipografi, bukan foto produk.",
-    imageFile: "work-bambu-nampan.jpg",
+      "Nampan bambu dengan motif bunga dan titik yang disusun rapat. Malam dipakai sebagai perintang warna, motif ditutup malam sebelum warna dasar, lalu nglorod dan pelapisan akhir. Harga mencakup bilah bambu pilihan, malam, pewarna, pelapis, dan kerja canting.",
+    imageFile: "work-bambu-nampan.webp",
   },
   {
-    slug: "box-tisu-batik-bambu",
+    slug: "kotak-bundar-batik-bambu",
     makerKey: "dimas",
     pathSlug: "batik-bambu",
     certificateKey: "dimas",
     permission:
       "Izin publikasi karya tercatat dari pembuat untuk pengelola platform",
-    title: "Box Tisu Batik Bambu",
+    title: "Kotak Bundar Bertutup Batik Bambu",
     category: "batik",
     kind: "product",
     maker: "Dimas Yoga Pratama",
@@ -1067,13 +1067,13 @@ export const worksSeed: SeedWork[] = [
     teacher: "Sri Sriningsih",
     region: "Bantul",
     price: 275_000,
-    unit: "Kotak tisu bambu, 22 x 12 x 8 cm",
+    unit: "Kotak bambu bundar bertutup, diameter 14 cm",
     technique: "Tulis dan colet",
     techniqueNote: "Titik canting pada anyaman bambu",
     workCard: "KN-9014",
     description:
-      "Kotak tisu dari anyaman bambu dengan titik canting rapat dan dua warna. Motif ditutup malam sebelum warna dasar, lalu nglorod dan pelapisan akhir. Harga mencakup anyaman bambu, malam, pewarna, pelapis, dan kerja canting. Kartu bahan dan panduan perawatan tanpa rendam disertakan, tampilan Kartu Karya memakai ilustrasi tipografi.",
-    imageFile: "work-bambu-box-tisu.jpg",
+      "Kotak bundar dari anyaman bambu dengan tutup penuh, titik canting rapat, dan dua warna. Motif ditutup malam sebelum warna dasar, lalu nglorod dan pelapisan akhir. Harga mencakup anyaman bambu, malam, pewarna, pelapis, dan kerja canting. Kartu bahan dan panduan perawatan tanpa rendam disertakan.",
+    imageFile: "work-bambu-kotak-bundar.webp",
   },
   {
     slug: "hiasan-dinding-batik-bambu",
@@ -1095,8 +1095,8 @@ export const worksSeed: SeedWork[] = [
     techniqueNote: "Canting dan colet dua warna",
     workCard: "KN-9147",
     description:
-      "Panel bambu untuk dinding dengan motif lereng klasik yang disusun ulang, bukan motif sakral. Motif ditutup malam sebelum warna dasar, lalu nglorod dan pelapisan akhir. Harga mencakup bilah bambu pilihan, malam, pewarna, pelapis, dan kerja canting. Tampilan Kartu Karya memakai ilustrasi tipografi, bukan foto produk.",
-    imageFile: "work-bambu-hiasan.jpg",
+      "Panel bambu untuk dinding dengan motif geometris berulang yang disusun ulang, bukan motif sakral. Motif ditutup malam sebelum warna dasar, lalu nglorod dan pelapisan akhir. Harga mencakup bilah bambu pilihan, malam, pewarna, pelapis, dan kerja canting.",
+    imageFile: "work-bambu-hiasan.webp",
   },
   {
     slug: "pranatacara-siraman",
@@ -1120,7 +1120,7 @@ export const worksSeed: SeedWork[] = [
     workCard: "KN-JS-014",
     description:
       "Permintaan booking untuk rangkaian siraman dan midodareni. Susunan acara dikonfirmasi bersama praktisi.",
-    imageFile: "work-pranatacara.jpg",
+    imageFile: "work-pranatacara.webp",
   },
   {
     slug: "jasa-tulis-aksara",
@@ -1144,7 +1144,7 @@ export const worksSeed: SeedWork[] = [
     workCard: "KN-AKS-021",
     description:
       "Penerimaan pesanan tulisan tangan aksara Jawa untuk undangan, papan nama, dan label. Setiap naskah dikirim sebagai foto resolusi tinggi dengan ejaan Latin dan catatan pasangan.",
-    imageFile: "work-aksara.jpg",
+    imageFile: "work-aksara.webp",
   },
   {
     slug: "tari-kreasi-acara-keluarga",
@@ -1168,7 +1168,7 @@ export const worksSeed: SeedWork[] = [
     workCard: "KN-TRI-031",
     description:
       "Penampilan tari kreasi dua menit untuk acara keluarga, dengan pilihan solo atau duet. Gerak disusun dari motif yang dipelajari di kelas, lalu disesuaikan dengan durasi dan ruang acara. Harga mencakup latihan bersama penyelenggara, iringan musik siap pakai, dan satu kali tampil. Rekaman pertunjukan dan skor gerak diserahkan setelah acara.",
-    imageFile: "work-tari-kreasi.jpg",
+    imageFile: "work-tari-kreasi.webp",
   },
   {
     slug: "geblek-renteng-beku",
@@ -1191,7 +1191,7 @@ export const worksSeed: SeedWork[] = [
     workCard: "KN-KUL-042",
     description:
       "Geblek Kulon Progo bentuk angka delapan, digoreng lalu dibekukan dalam paket isi sepuluh keping. Bahan utamanya tapioka dan bawang putih, teksturnya kenyal dengan bagian luar yang renyah setelah digoreng ulang. Paket disertai kartu bahan, tanggal produksi, dan cara menggoreng ulang dari beku. Bentuk terhubung dimaknai sebagai persatuan dalam narasi budaya yang dikutip laporan, bukan makna baku.",
-    imageFile: "work-kuliner-nusantara.jpg",
+    imageFile: "work-kuliner-nusantara.webp",
   },
 ]
 
