@@ -146,6 +146,9 @@ export const profile = query({
   args: {},
   handler: async (ctx): Promise<ProfileSettingsView> => {
     const { user, viewer } = await currentUser(ctx)
+    const identity = await ctx.auth.getUserIdentity()
+    const authSessionId = (identity as { sessionId?: string } | null)
+      ?.sessionId
     const preferenceKey = `profile.preferences.${user._id}`
     const [preferenceRow, consents, sessions] = await Promise.all([
       readSetting(ctx, preferenceKey),
@@ -180,7 +183,10 @@ export const profile = query({
         lastSeenAt: session.lastSeenAt,
         expiresAt: session.expiresAt,
         revokedAt: session.revokedAt ?? null,
-        current: !session.revokedAt && session.expiresAt > Date.now(),
+        current:
+          session.authSessionId === authSessionId &&
+          !session.revokedAt &&
+          session.expiresAt > Date.now(),
       }))
 
     return {

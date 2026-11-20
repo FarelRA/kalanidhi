@@ -61,6 +61,7 @@ import type * as seed_lib_identity from "../seed/lib/identity.js";
 import type * as seed_lib_lookup from "../seed/lib/lookup.js";
 import type * as seed_lib_media from "../seed/lib/media.js";
 import type * as seed_run from "../seed/run.js";
+import type * as session_guard from "../session_guard.js";
 import type * as settings from "../settings.js";
 import type * as stats from "../stats.js";
 import type * as support from "../support.js";
@@ -134,6 +135,7 @@ declare const fullApi: ApiFromModules<{
   "seed/lib/lookup": typeof seed_lib_lookup;
   "seed/lib/media": typeof seed_lib_media;
   "seed/run": typeof seed_run;
+  session_guard: typeof session_guard;
   settings: typeof settings;
   stats: typeof stats;
   support: typeof support;
