@@ -110,7 +110,11 @@ export default async function OrderStatusPage({
           id="status-title"
           className="heading-section mt-2 text-[clamp(2rem,4vw,3rem)]"
         >
-          {order.paidAt ? "Pesanan dibayar." : "Selesaikan pembayaran."}
+          {order.status === "refunded" || payment?.status === "refunded"
+            ? "Dana dikembalikan."
+            : order.paidAt
+              ? "Pesanan dibayar."
+              : "Selesaikan pembayaran."}
         </h1>
         <p className="body-copy mt-3 max-w-2xl">
           Halaman ini diperbarui dari catatan pesanan, bukan dari laporan
