@@ -2,8 +2,6 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { connection } from "next/server"
-import { Suspense } from "react"
 import {
   ArrowRight,
   Check,
@@ -13,33 +11,36 @@ import {
 
 import { CulturalSources } from "@/components/landing/cultural-sources"
 import { LessonReader } from "@/components/landing/lesson-reader"
-import { Button } from "@/components/ui/button"
-import { api } from "@/convex/_generated/api"
-import type { Viewer } from "@/lib/access/viewer"
-import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
 import { buildPageMetadata } from "@/lib/content/metadata"
 import { publishedTeacherName } from "@/lib/content/people"
 import {
-  enrollHref,
   interestHref,
   pathHref,
   PUBLIC_ROUTES,
 } from "@/lib/content/routes"
 import type {
   PublicCohortSummary,
-  PublicPathDetail,
-  SiteData,
 } from "@/lib/content/types"
 import {
   getPublicPath,
+  getPublicPaths,
   getPublicTeachers,
   getSiteData,
 } from "@/lib/convex/server"
-import { formatIDR } from "@/lib/format"
+
+import { PathEnrollment } from "./enrollment"
 
 export const instant = false
+export const ensureStatic = "navigation"
 
 type Params = { slug: string }
+
+export async function generateStaticParams(): Promise<Params[]> {
+  const paths = await getPublicPaths()
+  return paths.length > 0
+    ? paths.map((path) => ({ slug: path.slug }))
+    : [{ slug: "__placeholder__" }]
+}
 
 const cohortLabels: Record<PublicCohortSummary["status"], string> = {
   draft: "Draf",
@@ -57,18 +58,6 @@ function formatDate(value: number): string {
   }).format(new Date(value))
 }
 
-async function getViewerOrNull(): Promise<Viewer | null> {
-  if (!isAuthConfigured()) return null
-  try {
-    const auth = getAuthServer()
-    if (!(await auth.isAuthenticated())) return null
-    return await auth.fetchAuthQuery(api.access.getViewer)
-  } catch (error) {
-    console.error("[kelas] Could not resolve auth session.", error)
-    return null
-  }
-}
-
 export async function generateMetadata({
   params,
 }: {
@@ -76,9 +65,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const path = await getPublicPath(slug)
-  if (!path) {
-    return { title: "Kelas tidak ditemukan", robots: { index: false } }
-  }
+  if (!path) notFound()
   return buildPageMetadata(pathHref(path.slug), {
     title: path.title,
     description: path.subtitle,
@@ -194,13 +181,7 @@ export default async function PathDetailPage({
               ))}
             </dl>
 
-            <Suspense
-              fallback={
-                <PathEnrollmentView path={path} copy={copy} viewer={null} />
-              }
-            >
-              <PathEnrollment path={path} copy={copy} />
-            </Suspense>
+            <PathEnrollment path={path} copy={copy} />
           </div>
         </div>
 
@@ -370,126 +351,3 @@ export default async function PathDetailPage({
   )
 }
 
-async function PathEnrollment({
-  path,
-  copy,
-}: {
-  path: PublicPathDetail
-  copy: SiteData["sections"]["paths"]
-}) {
-  // The session read is request-time only; without this the prerender starts
-  // the auth fetch and React rejects it once the static shell is done.
-  await connection()
-  const viewer = await getViewerOrNull()
-  return <PathEnrollmentView path={path} copy={copy} viewer={viewer} />
-}
-
-/**
- * Viewer-dependent purchase state. It sits behind a Suspense boundary so the
- * static shell keeps the signed-out CTA while the session is read per request.
- */
-function PathEnrollmentView({
-  path,
-  copy,
-  viewer,
-}: {
-  path: PublicPathDetail
-  copy: SiteData["sections"]["paths"]
-  viewer: Viewer | null
-}) {
-  const signedIn = Boolean(viewer)
-  const enrolled = Boolean(
-    viewer?.enrollments.some(
-      (enrollment) =>
-        enrollment.pathId === path.slug &&
-        (enrollment.status === "active" || enrollment.status === "completed"),
-    ),
-  )
-  const purchasable = !path.comingSoon && path.price !== null && path.price > 0
-  const checkoutHref = enrollHref(path.slug)
-  const primaryHref = path.comingSoon
-    ? interestHref({ path: path.slug, intent: "notify" })
-    : enrolled
-      ? PUBLIC_ROUTES.learning
-      : purchasable
-        ? signedIn
-          ? checkoutHref
-          : `${PUBLIC_ROUTES.signIn}?next=${encodeURIComponent(checkoutHref)}`
-        : signedIn
-          ? PUBLIC_ROUTES.learning
-          : `${PUBLIC_ROUTES.signIn}?next=${encodeURIComponent(PUBLIC_ROUTES.learning)}`
-  const primaryLabel = path.comingSoon
-    ? copy.plannedCta
-    : enrolled
-      ? "Buka ruang belajar"
-      : purchasable
-        ? signedIn
-          ? "Beli kelas ini"
-          : "Masuk untuk membeli"
-        : signedIn
-          ? "Mulai belajar"
-          : "Masuk untuk mendaftar"
-
-  return (
-    <>
-      <div className="mt-6">
-        <p className="text-[9.5px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-          {path.comingSoon ? copy.statusLabel : copy.priceLabel}
-        </p>
-        <p className="mt-1 font-heading text-[2rem] leading-none">
-          {path.comingSoon
-            ? (path.priceLabel ?? copy.curriculumPending)
-            : path.price
-              ? formatIDR(path.price)
-              : path.priceLabel}
-        </p>
-        {enrolled ? (
-          <p className="mt-2 inline-flex items-center gap-1.5 border border-moss/40 bg-moss/10 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-[0.08em] text-ink-soft">
-            <Check className="size-3 text-moss" aria-hidden="true" />
-            Sudah terdaftar
-          </p>
-        ) : null}
-      </div>
-
-      <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-        <Button asChild size="lg">
-          <Link href={primaryHref}>
-            {primaryLabel}
-            <ArrowRight aria-hidden="true" />
-          </Link>
-        </Button>
-        <Button asChild variant="outline" size="lg" className="border-ink/35">
-          <Link
-            href={interestHref({
-              path: path.slug,
-              intent: path.comingSoon ? "notify" : "student",
-            })}
-          >
-            {copy.openCta}
-          </Link>
-        </Button>
-      </div>
-      {!signedIn && !path.comingSoon ? (
-        <p className="mt-2 text-[10.5px] leading-relaxed text-ink-muted">
-          Masuk dengan akun peserta untuk{" "}
-          {purchasable ? "membeli" : "memulai"} kelas ini. Belum punya akun?{" "}
-          <Link
-            href={`${PUBLIC_ROUTES.signUp}?next=${encodeURIComponent(
-              purchasable ? checkoutHref : PUBLIC_ROUTES.learning,
-            )}`}
-            className="font-semibold text-copper-dark underline underline-offset-2"
-          >
-            Daftar peserta
-          </Link>
-          .
-        </p>
-      ) : null}
-      {enrolled ? (
-        <p className="mt-2 text-[10.5px] leading-relaxed text-ink-muted">
-          Kamu sudah terdaftar di kelas ini. Lanjutkan pelajaran dari ruang
-          belajar.
-        </p>
-      ) : null}
-    </>
-  )
-}

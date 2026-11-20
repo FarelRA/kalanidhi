@@ -666,6 +666,53 @@ export const verifyPayoutAccount = mutation({
   },
 })
 
+export const listPayoutAccounts = query({
+  args: { userId: v.optional(v.id("users")) },
+  handler: async (ctx, args) => {
+    const current = await currentViewer(ctx)
+    if (!current) commerceError("UNAUTHENTICATED", "Masuk diperlukan.")
+    const verifier = current.viewer.capabilities.includes("people.manage")
+    const release =
+      current.viewer.capabilities.includes("payouts.release")
+    if (
+      !verifier &&
+      !release &&
+      !current.viewer.capabilities.includes("payouts.view.own")
+    ) {
+      commerceError("FORBIDDEN", "Akun ini tidak memiliki akses rekening payout.")
+    }
+    const userId = verifier
+      ? (args.userId ?? null)
+      : (current.user._id as Id<"users">)
+
+    const rows = userId
+      ? await ctx.db
+          .query("payoutAccounts")
+          .withIndex("by_userId", (q) => q.eq("userId", userId))
+          .collect()
+      : await ctx.db.query("payoutAccounts").collect()
+
+    const users = await Promise.all(rows.map((row) => ctx.db.get(row.userId)))
+    return rows
+      .map((row, index) => ({
+        id: row._id,
+        userId: row.userId,
+        userName: users[index]?.name ?? "Tidak ditemukan",
+        provider: row.provider,
+        bankCode: row.bankCode,
+        accountName: row.accountName,
+        accountNumberMasked: row.accountNumberMasked,
+        accountRef: row.accountRef,
+        status: row.status,
+        verifiedBy: row.verifiedBy ?? null,
+        verifiedAt: row.verifiedAt ?? null,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+      }))
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+  },
+})
+
 /* ---------------------------------------------------------------- refunds */
 
 async function toRefundView(

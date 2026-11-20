@@ -132,7 +132,7 @@ function InterestCatalog({
         <PublicPageIntro
           eyebrow="Daftar minat"
           title="Pilih kelas atau karya."
-          description="Daftar minat langsung membuka halaman checkout. WhatsApp adalah identitas utama, email opsional untuk salinan."
+          description="Masuk ke akun untuk checkout dengan identitas akun, lalu bayar lewat QRIS. Untuk kelas yang belum dibuka, catat minat dan kami beri tahu saat pendaftaran dibuka."
         />
 
         <div className="mt-8 flex flex-wrap items-center gap-3 border border-ink/20 bg-paper-2 p-4">
@@ -141,8 +141,8 @@ function InterestCatalog({
             aria-hidden="true"
           />
           <p className="text-[11.5px] leading-relaxed text-ink-soft">
-            Kami menghubungi lewat WhatsApp. Email hanya dipakai bila kamu ingin
-            salinan tertulis.
+            Checkout memakai akun yang sedang masuk. Notifikasi pembayaran dan
+            status pesanan dikirim ke email atau WhatsApp pada akun tersebut.
           </p>
           <Link
             href={consultHref({ intent: "consultation" })}
@@ -362,7 +362,7 @@ function TeacherChooser({ teacher }: { teacher: PublicTeacherDetail }) {
         <PublicPageIntro
           eyebrow="Daftar minat"
           title={`Kelas ${teacher.name}.`}
-          description="Pilih kelas yang ingin kamu daftar. Setiap pilihan langsung membuka checkout."
+          description="Masuk ke akun untuk checkout kelas yang sudah dibuka. Kelas yang belum dibuka bisa dicatat minatnya, dan kami hubungi saat pendaftaran tersedia."
         />
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
@@ -426,7 +426,8 @@ function TeacherChooser({ teacher }: { teacher: PublicTeacherDetail }) {
             aria-hidden="true"
           />
           <p className="text-[11.5px] leading-relaxed text-ink-soft">
-            Belum yakin kelas mana? Tanya dulu lewat WhatsApp.
+            Belum yakin kelas mana? Tanya dulu lewat WhatsApp. Untuk kelas yang
+            belum dibuka, catat minat agar kami kabari saat checkout tersedia.
           </p>
           <Link
             href={consultHref({

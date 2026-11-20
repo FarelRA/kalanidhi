@@ -50,7 +50,8 @@ export const seedSettings = internalMutation({
       })
     }
 
-    for (const user of [admin, sari, bambang, anisa]) {
+    const profileUsers = [admin, sari, bambang, anisa]
+    for (const user of profileUsers) {
       await ctx.db.insert("settings", {
         key: `profile.preferences.${user._id}`,
         value: {
@@ -356,7 +357,14 @@ export const seedSettings = internalMutation({
       }
     }
 
-    return { settings: settings.length, flows: Object.keys(FLOW_SPECS).length }
+    return {
+      // `settings` is the total row count; the split keeps platform config
+      // separate from per-user profile preferences.
+      settings: settings.length + profileUsers.length,
+      platformSettings: settings.length,
+      profilePreferences: profileUsers.length,
+      flows: Object.keys(FLOW_SPECS).length,
+    }
   },
 })
 

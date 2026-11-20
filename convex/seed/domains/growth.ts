@@ -1102,7 +1102,7 @@ export const seedGrowthBatch = internalMutation({
         orderIdempotencyKey: `growth-idem-${input.code}`,
         paymentIdempotencyKey: `idem_${input.code}`,
         cancelledAt:
-          input.status === "cancelled" ? input.paidAt : undefined,
+          input.status === "cancelled" ? input.paidAt + 2 * DAY : undefined,
         cancelReason:
           input.status === "cancelled"
             ? "Peserta mengundurkan diri, biaya tidak dikembalikan."
@@ -1923,8 +1923,10 @@ export const seedGrowth = internalAction({
     messaging: { conversations: number; messages: number; calls: number }
   }> => {
     const now = args.now
-    // A fresh cache key per action run keeps reruns from reading stale rows.
-    const cacheKey = `${now}:${Math.random().toString(36).slice(2)}`
+    // Deterministic cache key: reset the module cache at the start of every
+    // action so a replay anchored to the same `now` cannot reuse stale rows.
+    growthContext = undefined
+    const cacheKey = `${now}:seed-growth`
     let signups = 0
     let leads = 0
     let enrollments = 0

@@ -61,7 +61,9 @@ export const seedPeople = internalMutation({
           userAgent: USER_AGENTS[1],
           createdAt: clock.ago(1),
           lastSeenAt: clock.ago(0),
-          expiresAt: clock.ahead(30),
+          // Historical device: keep the row for the account history, but never
+          // present it as a live session.
+          expiresAt: clock.now - HOUR,
           onlyIfMissing: true,
         },
         authLog: {
@@ -200,7 +202,8 @@ export const seedPeople = internalMutation({
             authSessionId: `seed-session-${seed.key}`,
             createdAt: clock.ago(Math.max(1, seed.lastActiveDaysAgo + 1)),
             lastSeenAt: clock.ago(seed.lastActiveDaysAgo),
-            expiresAt: clock.ahead(30),
+            // Historical device, not an active session in the settings panel.
+            expiresAt: clock.now - HOUR,
           },
           authLog: {
             ipHash: `seed-ip-${index}`,

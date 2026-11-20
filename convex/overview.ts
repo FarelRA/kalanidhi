@@ -1,6 +1,5 @@
 import type { Viewer } from "../lib/access/viewer"
 import type {
-  OverviewCertificate,
   OverviewCohort,
   OverviewEarnings,
   OverviewEnrollment,
@@ -239,8 +238,14 @@ async function enrollmentOverview(
   const completedLessons = pathLessons.lessons.filter((lesson) =>
     completedIds.has(lesson._id),
   ).length
-  const nextLesson =
-    pathLessons.lessons.find((lesson) => !completedIds.has(lesson._id)) ?? null
+  const certificate = enrollment.certificateId
+    ? await ctx.db.get(enrollment.certificateId)
+    : null
+  const nextLessonTitle =
+    certificate?.status === "revoked"
+      ? "Sertifikat dicabut"
+      : (pathLessons.lessons.find((lesson) => !completedIds.has(lesson._id))
+          ?.title ?? null)
 
   const [cohort, pathTitle] = await Promise.all([
     enrollment.cohortId ? ctx.db.get(enrollment.cohortId) : null,
@@ -260,7 +265,7 @@ async function enrollmentOverview(
         : 0,
     completedLessons,
     totalLessons,
-    nextLesson: nextLesson?.title ?? null,
+    nextLesson: nextLessonTitle,
     enrolledAt: enrollment.enrolledAt,
     completedAt: enrollment.completedAt ?? null,
     deadlineAt: enrollment.deadlineAt ?? null,
@@ -315,20 +320,28 @@ async function studentSection(
     .query("certificates")
     .withIndex("by_studentId", (q) => q.eq("studentId", userId))
     .take(50)
-  const issued = certificates
-    .filter((certificate) => certificate.status === "issued")
+  // Revoked certificates still belong to the learner's credential history.
+  // Replaced rows are superseded by the replacement certificate.
+  const activeCertificates = certificates
+    .filter((certificate) => certificate.status !== "replaced")
     .sort((a, b) => b.issuedAt - a.issuedAt)
   const certificateTitles = await pathTitles(
     ctx,
-    issued.map((certificate) => certificate.pathId),
+    activeCertificates.map((certificate) => certificate.pathId),
   )
-  const latestCertificate: OverviewCertificate | null = issued[0]
+  const latestCertificate = activeCertificates[0]
     ? {
-        id: issued[0]._id,
-        publicCode: issued[0].publicCode,
+        id: activeCertificates[0]._id,
+        publicCode: activeCertificates[0].publicCode,
         pathTitle:
-          certificateTitles.get(issued[0].pathId) ?? issued[0].pathId,
-        issuedAt: issued[0].issuedAt,
+          certificateTitles.get(activeCertificates[0].pathId) ??
+          activeCertificates[0].pathId,
+        issuedAt: activeCertificates[0].issuedAt,
+        status: activeCertificates[0].status,
+        statusLabel:
+          activeCertificates[0].status === "revoked"
+            ? "Sertifikat dicabut"
+            : "Sertifikat terbit",
       }
     : null
 
@@ -354,7 +367,7 @@ async function studentSection(
     enrollments,
     pendingSubmissions,
     awaitingAssessment,
-    issuedCertificates: issued.length,
+    issuedCertificates: activeCertificates.length,
     latestCertificate,
     recentOrders,
   }
@@ -526,10 +539,15 @@ async function sellerSection(
   }
 }
 
-function roleFor(viewer: Viewer): ViewerOverviewRole {
+function roleFor(
+  viewer: Viewer,
+  hasEnrollments: boolean,
+): ViewerOverviewRole {
   if (viewer.entitlements.operate) return "operator"
   if (viewer.entitlements.teach) return "teacher"
-  if (viewer.sellerProfile) return "seller"
+  // A seller who also studies keeps the student overview; the seller section
+  // stays available on the same payload.
+  if (viewer.sellerProfile && !hasEnrollments) return "seller"
   return "student"
 }
 
@@ -544,9 +562,8 @@ export const viewerOverview = query({
     const viewer = await requireWorkspaceViewer(ctx)
     const now = nowMs()
     const userId = userIdOf(viewer)
-    const role = roleFor(viewer)
-
     const enrollmentRows = await studentEnrollments(ctx, userId)
+    const role = roleFor(viewer, enrollmentRows.length > 0)
     const enrolledCohortIds = new Set(
       enrollmentRows
         .map((enrollment) => enrollment.cohortId)
@@ -586,7 +603,9 @@ export const viewerOverview = query({
         role === "student" ? await studentSection(ctx, viewer) : null,
       teacher:
         role === "teacher" ? await teacherSection(ctx, viewer, now) : null,
-      seller: role === "seller" ? await sellerSection(ctx, viewer) : null,
+      seller: viewer.sellerProfile
+        ? await sellerSection(ctx, viewer)
+        : null,
     }
   },
 })

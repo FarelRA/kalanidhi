@@ -1270,7 +1270,7 @@ const MODULES: Record<string, SeedModule[]> = {
 }
 
 /** Lesson media filenames the seed expects to find in `mediaAssets`. */
-const CURRICULUM_MEDIA_FILES: string[] = Array.from(
+export const CURRICULUM_MEDIA_FILES: string[] = Array.from(
   new Set(
     Object.values(MODULES)
       .flat()
@@ -1317,8 +1317,16 @@ export const seedCurriculum = internalMutation({
           const mediaAssetIds: Id<"mediaAssets">[] = []
           // A lesson names its own image file; a non-text lesson must attach one.
           if (lesson.mediaFile) {
+            // A lesson may attach audio or video, so resolve against its own
+            // kind instead of assuming every attachment is an image.
+            const mediaKind =
+              lesson.kind === "audio" || lesson.kind === "video"
+                ? lesson.kind
+                : lesson.kind === "file"
+                  ? "document"
+                  : "image"
             mediaAssetIds.push(
-              await resolveMediaAsset(ctx, lesson.mediaFile, "image"),
+              await resolveMediaAsset(ctx, lesson.mediaFile, mediaKind),
             )
           }
           await ctx.db.insert("lessons", {
@@ -1337,8 +1345,12 @@ export const seedCurriculum = internalMutation({
           lessonCount += 1
         }
       }
-      // `paths.modules` mirrors published curriculum, never seed copy.
-      await ctx.db.patch(path._id, { modules: publishedModules })
+      // `paths.modules` mirrors the curriculum that exists. A planned path has
+      // draft modules, so counting only published rows would report 0 and hide
+      // the work in progress. The path copy labels that curriculum as planned.
+      await ctx.db.patch(path._id, {
+        modules: isDraft ? modules.length : publishedModules,
+      })
     }
 
     return { modules: moduleCount, lessons: lessonCount }

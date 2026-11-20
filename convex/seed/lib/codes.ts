@@ -91,8 +91,15 @@ export function workSlug(key: WorkKey): string {
   return requireCode(WORK_SLUGS, key, "workSlugs")
 }
 
-/** Order codes, used by commerce and the audit trail. */
-export const ORDER_CODES = {
+/**
+ * Pre-renumber order code inputs, used by commerce before growth exists.
+ *
+ * These are temporary invoice numbers. `renumberOrders` assigns the final
+ * `KN-2026-NNNNNN` codes by `createdAt` after every order (including growth)
+ * is inserted, then rewrites payment, event, and payout references. Do not use
+ * this registry to look up a live order; use the order row's `code`.
+ */
+export const ORDER_CODE_INPUTS = {
   order1: "KN-2026-000008",
   order2: "KN-2026-000009",
   order3: "KN-2026-000011",
@@ -108,10 +115,13 @@ export const ORDER_CODES = {
   order13: "KN-2026-000012",
 } as const
 
-export type OrderKey = keyof typeof ORDER_CODES
+/** @deprecated Use `ORDER_CODE_INPUTS`; kept for seed callers. */
+export const ORDER_CODES = ORDER_CODE_INPUTS
+
+export type OrderKey = keyof typeof ORDER_CODE_INPUTS
 
 export function orderCode(key: OrderKey): string {
-  return requireCode(ORDER_CODES, key, "orderCodes")
+  return requireCode(ORDER_CODE_INPUTS, key, "orderCodes")
 }
 
 /** Certificate serials double as the public verification code. */

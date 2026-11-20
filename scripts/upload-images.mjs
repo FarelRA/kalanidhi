@@ -121,6 +121,49 @@ function altFor(filename) {
     .trim()
 }
 
+/**
+ * Known pixel dimensions for the typographic plates in `seed/images`. These
+ * are the intrinsic sizes of the checked-in files, not a crop or target size.
+ */
+const DIMENSIONS_BY_FILENAME = {
+  "hasil-latihan.jpg": [1200, 900],
+  "hero-canting.jpg": [1600, 900],
+  "lesson-canting.jpg": [1600, 1000],
+  "lesson-mola.jpg": [1600, 1000],
+  "motif-larangan-yogyakarta-1.jpg": [1600, 1200],
+  "og-kalanidhi.jpg": [1200, 630],
+  "panduan-perawatan-produk-bambu.jpg": [1080, 1350],
+  "path-aksara-jawa.jpg": [1600, 1000],
+  "path-batik-bambu.jpg": [1600, 1000],
+  "path-batik-tulis-giriloyo.jpg": [1600, 1000],
+  "path-gerabah-bantul.jpg": [1600, 1000],
+  "path-kuliner-nusantara.jpg": [1600, 1000],
+  "path-pranatacara.jpg": [1600, 1000],
+  "path-tari-kreasi.jpg": [1600, 1000],
+  "teacher-gerabah.jpg": [1200, 1500],
+  "teacher-hardjono.jpg": [1200, 1500],
+  "teacher-kuliner-nusantara.jpg": [1200, 1500],
+  "teacher-sriningsih.jpg": [1200, 1500],
+  "teacher-sudarsono.jpg": [1200, 1500],
+  "teacher-suwardi.jpg": [1200, 1500],
+  "teacher-tari-kreasi.jpg": [1200, 1500],
+  "work-aksara.jpg": [1400, 760],
+  "work-bambu-box-tisu.jpg": [1400, 760],
+  "work-bambu-hiasan.jpg": [1400, 760],
+  "work-bambu-nampan.jpg": [1400, 760],
+  "work-kuliner-nusantara.jpg": [1400, 760],
+  "work-pranatacara.jpg": [1400, 760],
+  "work-tari-kreasi.jpg": [1400, 760],
+}
+
+/** Every plate is an in-house KalaNidhi Digital asset. */
+const CREDIT = "Arsip KalaNidhi Digital"
+
+function dimensionsFor(filename) {
+  const [width, height] = DIMENSIONS_BY_FILENAME[filename] ?? []
+  return width && height ? { width, height } : {}
+}
+
 const entries = await readdir(imageDir, { withFileTypes: true })
 const files = entries
   .filter((entry) => entry.isFile())
@@ -164,10 +207,20 @@ for (const filename of files) {
     mimeType,
     size: bytes.byteLength,
     alt: altFor(filename),
+    credit: CREDIT,
+    ...dimensionsFor(filename),
   })
 
   uploaded += 1
   console.log(`uploaded ${filename} -> ${assetId}`)
 }
+
+const pruned = await client.mutation(api.media.pruneSeedImageUploads, {
+  token,
+  keepFilenames: files,
+})
+console.log(
+  `Registry cleanup. ${pruned.archived} stale/duplicate row(s) archived, ${pruned.active} active seed image(s).`,
+)
 
 console.log(`Done. ${uploaded} image(s) registered in mediaAssets.`)

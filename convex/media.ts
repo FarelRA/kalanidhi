@@ -167,6 +167,9 @@ type SeedImageArgs = {
   mimeType: string
   size: number
   alt: string
+  width?: number
+  height?: number
+  credit?: string
 }
 
 /**
@@ -192,14 +195,20 @@ async function insertSeedImage(ctx: MutationCtx, args: SeedImageArgs) {
     .query("mediaAssets")
     .withIndex("by_kind", (q) => q.eq("kind", "image"))
     .collect()
-  const match = existing.find(
-    (asset) => asset.filename === filename && asset.status === "active",
-  )
+  const match = existing
+    .filter((asset) => asset.filename === filename && asset.status === "active")
+    .sort((a, b) => {
+      if (a.createdAt !== b.createdAt) return a.createdAt - b.createdAt
+      return String(a._id).localeCompare(String(b._id))
+    })[0]
   if (match) {
     await ctx.db.patch(match._id, {
       storageId: args.storageId,
       mimeType: args.mimeType,
       size: args.size,
+      width: args.width ?? match.width,
+      height: args.height ?? match.height,
+      credit: args.credit ?? match.credit,
       alt: args.alt.trim() || match.alt,
     })
     return match._id
@@ -211,7 +220,10 @@ async function insertSeedImage(ctx: MutationCtx, args: SeedImageArgs) {
     filename,
     mimeType: args.mimeType,
     size: args.size,
+    width: args.width,
+    height: args.height,
     alt: args.alt.trim() || filename,
+    credit: args.credit,
     status: "active",
     uploadedBy: "system",
     createdAt: now(),
@@ -225,6 +237,9 @@ export const registerSeedImage = internalMutation({
     mimeType: v.string(),
     size: v.number(),
     alt: v.string(),
+    width: v.optional(v.number()),
+    height: v.optional(v.number()),
+    credit: v.optional(v.string()),
   },
   handler: async (ctx, args) => await insertSeedImage(ctx, args),
 })
@@ -243,11 +258,163 @@ export const registerSeedImageUpload = mutation({
     mimeType: v.string(),
     size: v.number(),
     alt: v.string(),
+    width: v.optional(v.number()),
+    height: v.optional(v.number()),
+    credit: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     assertSeedSecret(args.token)
     return await insertSeedImage(ctx, args)
   },
+})
+
+/**
+ * Known intrinsic metadata for the checked-in seed plates. The uploader reads
+ * the same values, and the seed-run prune backfills them for an older registry.
+ */
+const SEED_IMAGE_METADATA: Record<
+  string,
+  { width: number; height: number; credit: string }
+> = {
+  "hasil-latihan.jpg": { width: 1200, height: 900, credit: "Arsip KalaNidhi Digital" },
+  "hero-canting.jpg": { width: 1600, height: 900, credit: "Arsip KalaNidhi Digital" },
+  "lesson-canting.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
+  "lesson-mola.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
+  "motif-larangan-yogyakarta-1.jpg": { width: 1600, height: 1200, credit: "Arsip KalaNidhi Digital" },
+  "og-kalanidhi.jpg": { width: 1200, height: 630, credit: "Arsip KalaNidhi Digital" },
+  "panduan-perawatan-produk-bambu.jpg": { width: 1080, height: 1350, credit: "Arsip KalaNidhi Digital" },
+  "path-aksara-jawa.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
+  "path-batik-bambu.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
+  "path-batik-tulis-giriloyo.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
+  "path-gerabah-bantul.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
+  "path-kuliner-nusantara.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
+  "path-pranatacara.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
+  "path-tari-kreasi.jpg": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
+  "teacher-gerabah.jpg": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
+  "teacher-hardjono.jpg": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
+  "teacher-kuliner-nusantara.jpg": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
+  "teacher-sriningsih.jpg": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
+  "teacher-sudarsono.jpg": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
+  "teacher-suwardi.jpg": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
+  "teacher-tari-kreasi.jpg": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
+  "work-aksara.jpg": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
+  "work-bambu-box-tisu.jpg": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
+  "work-bambu-hiasan.jpg": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
+  "work-bambu-nampan.jpg": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
+  "work-kuliner-nusantara.jpg": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
+  "work-pranatacara.jpg": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
+  "work-tari-kreasi.jpg": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
+}
+
+/**
+ * Archives duplicate and stale seed images without touching an asset that a
+ * content row still references. The uploader calls this after registering the
+ * files on disk, so the live registry converges on one active row per file.
+ */
+async function pruneSeedImages(
+  ctx: MutationCtx,
+  keepFilenames: string[],
+  dryRun: boolean,
+): Promise<{ archived: number; active: number; kept: string[] }> {
+  const keep = new Set(keepFilenames.map((name) => name.trim()))
+  // Prune every kind, not just images. A stale audio or video row would
+  // otherwise survive every reseed and break the one-file-one-row invariant.
+  const assets = await ctx.db.query("mediaAssets").collect()
+
+  const [works, paths, teachers, lessons, site, revisions] = await Promise.all([
+    ctx.db.query("works").collect(),
+    ctx.db.query("paths").collect(),
+    ctx.db.query("teachers").collect(),
+    ctx.db.query("lessons").collect(),
+    ctx.db.query("siteContent").collect(),
+    ctx.db.query("contentRevisions").collect(),
+  ])
+  const referenced = new Set<string>()
+  for (const row of works) if (row.imageAssetId) referenced.add(row.imageAssetId)
+  for (const row of paths) if (row.imageAssetId) referenced.add(row.imageAssetId)
+  for (const row of teachers) {
+    if (row.imageAssetId) referenced.add(row.imageAssetId)
+  }
+  for (const row of lessons) {
+    for (const id of row.mediaAssetIds) referenced.add(id)
+  }
+  const contentText = JSON.stringify([site, revisions])
+  for (const asset of assets) {
+    if (referenced.has(asset._id)) continue
+    for (const url of await urlsFor(ctx, asset)) {
+      if (contentText.includes(url)) {
+        referenced.add(asset._id)
+        break
+      }
+    }
+  }
+
+  const seen = new Set<string>()
+  const active = assets
+    .filter((asset) => asset.status === "active")
+    .sort((a, b) => {
+      if (a.createdAt !== b.createdAt) return a.createdAt - b.createdAt
+      return String(a._id).localeCompare(String(b._id))
+    })
+  let archived = 0
+  const kept: string[] = []
+  for (const asset of active) {
+    const firstForFilename = keep.has(asset.filename) && !seen.has(asset.filename)
+    if (firstForFilename) seen.add(asset.filename)
+    if (firstForFilename || referenced.has(asset._id)) {
+      kept.push(asset.filename)
+      const metadata = SEED_IMAGE_METADATA[asset.filename]
+      if (
+        metadata &&
+        (asset.width !== metadata.width ||
+          asset.height !== metadata.height ||
+          asset.credit !== metadata.credit)
+      ) {
+        if (!dryRun) {
+          await ctx.db.patch(asset._id, {
+            width: metadata.width,
+            height: metadata.height,
+            credit: metadata.credit,
+          })
+        }
+      }
+      continue
+    }
+    archived += 1
+    if (!dryRun) await ctx.db.patch(asset._id, { status: "archived" })
+  }
+
+  return {
+    archived,
+    active: active.length - archived,
+    kept: Array.from(new Set(kept)).sort(),
+  }
+}
+
+export const pruneSeedImageUploads = mutation({
+  args: {
+    token: v.optional(v.string()),
+    keepFilenames: v.array(v.string()),
+    dryRun: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    assertSeedSecret(args.token)
+    return await pruneSeedImages(
+      ctx,
+      args.keepFilenames,
+      args.dryRun ?? false,
+    )
+  },
+})
+
+/** Seed-run wrapper; the uploader uses the public token-guarded variant. */
+export const pruneSeedImagesInternal = internalMutation({
+  args: {
+    keepFilenames: v.array(v.string()),
+    dryRun: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) =>
+    await pruneSeedImages(ctx, args.keepFilenames, args.dryRun ?? false),
 })
 
 export const generateUploadUrl = mutation({

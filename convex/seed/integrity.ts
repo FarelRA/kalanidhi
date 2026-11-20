@@ -13,6 +13,7 @@ export type SeedSnapshot = {
   users: Doc<"users">[]
   sessions: Doc<"sessions">[]
   mediaAssets: Doc<"mediaAssets">[]
+  contentRevisions: Doc<"contentRevisions">[]
   paths: Doc<"paths">[]
   pathModules: Doc<"pathModules">[]
   lessons: Doc<"lessons">[]
@@ -62,6 +63,7 @@ export async function loadSeedSnapshot(ctx: SeedDb): Promise<SeedSnapshot> {
     users,
     sessions,
     mediaAssets,
+    contentRevisions,
     paths,
     pathModules,
     lessons,
@@ -95,6 +97,7 @@ export async function loadSeedSnapshot(ctx: SeedDb): Promise<SeedSnapshot> {
     ctx.db.query("users").collect(),
     ctx.db.query("sessions").collect(),
     ctx.db.query("mediaAssets").collect(),
+    ctx.db.query("contentRevisions").collect(),
     ctx.db.query("paths").collect(),
     ctx.db.query("pathModules").collect(),
     ctx.db.query("lessons").collect(),
@@ -130,6 +133,7 @@ export async function loadSeedSnapshot(ctx: SeedDb): Promise<SeedSnapshot> {
     users,
     sessions,
     mediaAssets,
+    contentRevisions,
     paths,
     pathModules,
     lessons,
@@ -237,6 +241,12 @@ export function checkSeedIntegrity(snapshot: SeedSnapshot): SeedViolation[] {
   const enrollmentIds = idSet(snapshot.enrollments)
   const submissionIds = idSet(snapshot.submissions)
   const assetIds = idSet(snapshot.submissionAssets)
+  const mediaAssetIds = idSet(snapshot.mediaAssets)
+  const activeMediaAssetIds = new Set(
+    snapshot.mediaAssets
+      .filter((row) => row.status === "active")
+      .map((row) => row._id as string),
+  )
   const assessmentIds = idSet(snapshot.assessments)
   const certificateIds = idSet(snapshot.certificates)
   const orderIds = idSet(snapshot.orders)
@@ -339,6 +349,76 @@ export function checkSeedIntegrity(snapshot: SeedSnapshot): SeedViolation[] {
       targetTable: "certificates",
     })
   }
+  for (const row of snapshot.paths) {
+    checkRef(violations, {
+      code: "FK_PATH_MEDIA",
+      table: "paths",
+      rowId: row._id,
+      field: "imageAssetId",
+      value: row.imageAssetId,
+      target: mediaAssetIds,
+      targetTable: "mediaAssets",
+    })
+  }
+  for (const row of snapshot.teachers) {
+    checkRef(violations, {
+      code: "FK_TEACHER_MEDIA",
+      table: "teachers",
+      rowId: row._id,
+      field: "imageAssetId",
+      value: row.imageAssetId,
+      target: mediaAssetIds,
+      targetTable: "mediaAssets",
+    })
+  }
+  for (const row of snapshot.works) {
+    checkRef(violations, {
+      code: "FK_WORK_MEDIA",
+      table: "works",
+      rowId: row._id,
+      field: "imageAssetId",
+      value: row.imageAssetId,
+      target: mediaAssetIds,
+      targetTable: "mediaAssets",
+    })
+  }
+  for (const row of snapshot.lessons) {
+    for (const assetId of row.mediaAssetIds) {
+      checkRef(violations, {
+        code: "FK_LESSON_MEDIA",
+        table: "lessons",
+        rowId: row._id,
+        field: "mediaAssetIds",
+        value: assetId,
+        target: mediaAssetIds,
+        targetTable: "mediaAssets",
+      })
+    }
+  }
+  const referencedMedia = new Set<string>()
+  for (const row of snapshot.paths) {
+    if (row.imageAssetId) referencedMedia.add(row.imageAssetId)
+  }
+  for (const row of snapshot.teachers) {
+    if (row.imageAssetId) referencedMedia.add(row.imageAssetId)
+  }
+  for (const row of snapshot.works) {
+    if (row.imageAssetId) referencedMedia.add(row.imageAssetId)
+  }
+  for (const row of snapshot.lessons) {
+    for (const assetId of row.mediaAssetIds) referencedMedia.add(assetId)
+  }
+  for (const assetId of referencedMedia) {
+    if (mediaAssetIds.has(assetId) && !activeMediaAssetIds.has(assetId)) {
+      violation(violations, {
+        code: "MEDIA_REFERENCED_ARCHIVED",
+        table: "mediaAssets",
+        rowId: assetId,
+        message: "A content row references an archived media asset.",
+      })
+    }
+  }
+
   for (const row of snapshot.workCards) {
     checkRef(violations, {
       code: "FK_CARD_WORK",
@@ -868,6 +948,84 @@ export function checkSeedIntegrity(snapshot: SeedSnapshot): SeedViolation[] {
     })
   }
 
+  // Renumbered text references ------------------------------------------
+  const orderCodes = new Set(snapshot.orders.map((row) => row.code))
+  const codePattern = /KN-\d{4}-\d{6}/g
+  const checkCodeText = (input: {
+    table: string
+    rowId: string
+    field: string
+    value: string | undefined
+  }) => {
+    if (!input.value) return
+    for (const code of input.value.match(codePattern) ?? []) {
+      if (orderCodes.has(code)) continue
+      violation(violations, {
+        code: "FK_ORDER_CODE_TEXT",
+        table: input.table,
+        rowId: input.rowId,
+        message: `${input.table}.${input.field} references missing order ${code}.`,
+        evidence: { [input.field]: input.value, code },
+      })
+    }
+  }
+  for (const row of snapshot.orders) {
+    checkCodeText({
+      table: "orders",
+      rowId: row._id,
+      field: "idempotencyKey",
+      value: row.idempotencyKey,
+    })
+  }
+  for (const row of snapshot.payments) {
+    checkCodeText({
+      table: "payments",
+      rowId: row._id,
+      field: "providerReference",
+      value: row.providerReference,
+    })
+    checkCodeText({
+      table: "payments",
+      rowId: row._id,
+      field: "providerChargeId",
+      value: row.providerChargeId,
+    })
+    checkCodeText({
+      table: "payments",
+      rowId: row._id,
+      field: "qrString",
+      value: row.qrString,
+    })
+    checkCodeText({
+      table: "payments",
+      rowId: row._id,
+      field: "idempotencyKey",
+      value: row.idempotencyKey,
+    })
+  }
+  for (const row of snapshot.paymentEvents) {
+    checkCodeText({
+      table: "paymentEvents",
+      rowId: row._id,
+      field: "eventId",
+      value: row.eventId,
+    })
+    checkCodeText({
+      table: "paymentEvents",
+      rowId: row._id,
+      field: "providerReference",
+      value: row.providerReference,
+    })
+  }
+  for (const row of snapshot.payouts) {
+    checkCodeText({
+      table: "payouts",
+      rowId: row._id,
+      field: "reference",
+      value: row.reference,
+    })
+  }
+
   // Uniqueness -----------------------------------------------------------
   checkUnique(violations, {
     code: "UNIQUE_USER_EMAIL",
@@ -968,6 +1126,26 @@ export function checkSeedIntegrity(snapshot: SeedSnapshot): SeedViolation[] {
       value: row.key,
     })),
   })
+  checkUnique(violations, {
+    code: "UNIQUE_MEDIA_ACTIVE_FILENAME",
+    table: "mediaAssets",
+    field: "filename",
+    rows: snapshot.mediaAssets
+      .filter((row) => row.status === "active")
+      .map((row) => ({ _id: row._id, value: row.filename })),
+  })
+
+  for (const revision of snapshot.contentRevisions) {
+    if (revision.status !== "scheduled") continue
+    if (revision.scheduledFor === undefined) {
+      violation(violations, {
+        code: "CONTENT_SCHEDULED_FOR_MISSING",
+        table: "contentRevisions",
+        rowId: revision._id,
+        message: `Scheduled revision v${revision.version} has no scheduledFor.`,
+      })
+    }
+  }
 
   // Lookup maps ----------------------------------------------------------
   const enrollmentById = new Map(
@@ -1053,6 +1231,19 @@ export function checkSeedIntegrity(snapshot: SeedSnapshot): SeedViolation[] {
         table: "orders",
         rowId: order._id,
         message: `${order.code} is cancelled without cancelledAt.`,
+      })
+    }
+    if (
+      order.cancelledAt !== undefined &&
+      order.paidAt !== undefined &&
+      order.cancelledAt <= order.paidAt
+    ) {
+      violation(violations, {
+        code: "CHRONO_ORDER_CANCELLED",
+        table: "orders",
+        rowId: order._id,
+        message: `${order.code} was cancelled before or at the instant it was paid.`,
+        evidence: { paidAt: order.paidAt, cancelledAt: order.cancelledAt },
       })
     }
     if (
@@ -1357,6 +1548,33 @@ export function checkSeedIntegrity(snapshot: SeedSnapshot): SeedViolation[] {
   }
 
   for (const enrollment of snapshot.enrollments) {
+    if (enrollment.status !== "pending_payment") {
+      const classOrders = snapshot.orders.filter(
+        (order) =>
+          order.buyerUserId === enrollment.studentId &&
+          order.pathId === enrollment.pathId &&
+          itemByOrder.get(order._id as string)?.kind === "path",
+      )
+      if (classOrders.length === 0) {
+        violation(violations, {
+          code: "ENROLLMENT_ORDER_MISSING",
+          table: "enrollments",
+          rowId: enrollment._id,
+          message: "Paid enrollment has no matching class order.",
+        })
+      } else if (
+        !classOrders.some((order) =>
+          snapshot.payments.some((payment) => payment.orderId === order._id),
+        )
+      ) {
+        violation(violations, {
+          code: "ENROLLMENT_PAYMENT_MISSING",
+          table: "enrollments",
+          rowId: enrollment._id,
+          message: "Enrollment class order has no payment.",
+        })
+      }
+    }
     const cohort = enrollment.cohortId
       ? cohortById.get(enrollment.cohortId as string)
       : undefined
@@ -1646,6 +1864,44 @@ export function checkSeedIntegrity(snapshot: SeedSnapshot): SeedViolation[] {
           endsAt: session.endsAt,
           startDate: cohort.startDate,
           endDate: cohort.endDate,
+        },
+      })
+    }
+  }
+
+  // Seed auth mapping ----------------------------------------------------
+  const userByEmail = new Map(
+    snapshot.users.map((row) => [row.email.toLowerCase(), row]),
+  )
+  checkUnique(violations, {
+    code: "UNIQUE_SEED_AUTH_EMAIL",
+    table: "seedAuthAccounts",
+    field: "email",
+    rows: snapshot.seedAuthAccounts.map((row) => ({
+      _id: row._id,
+      value: row.email.toLowerCase(),
+    })),
+  })
+  for (const row of snapshot.seedAuthAccounts) {
+    const user = userByEmail.get(row.email.toLowerCase())
+    if (!user) {
+      violation(violations, {
+        code: "SEED_AUTH_USER_MISSING",
+        table: "seedAuthAccounts",
+        rowId: row._id,
+        message: `Seed auth mapping for ${row.email} has no user.`,
+      })
+      continue
+    }
+    if (user.authUserId !== row.authUserId) {
+      violation(violations, {
+        code: "SEED_AUTH_SUBJECT_MISMATCH",
+        table: "seedAuthAccounts",
+        rowId: row._id,
+        message: `Seed auth mapping for ${row.email} does not match the user subject.`,
+        evidence: {
+          mapped: row.authUserId,
+          user: user.authUserId,
         },
       })
     }

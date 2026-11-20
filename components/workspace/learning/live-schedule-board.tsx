@@ -90,7 +90,7 @@ export function LiveScheduleBoard() {
     },
     {
       id: "attendees",
-      header: "Peserta",
+      header: "Peserta aktif",
       cell: (row) => (
         <span className="text-[11px] tabular-nums">{row.attendees}</span>
       ),

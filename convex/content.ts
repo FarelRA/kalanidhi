@@ -1025,14 +1025,19 @@ export const getPublicLesson = query({
     const enrollment = viewer?.enrollments.find(
       (item) => item.pathId === path.slug && item.status === "active",
     )
-    const progress = enrollment && viewer
-      ? await ctx.db
-          .query("lessonProgress")
-          .withIndex("by_user_lesson", (q) =>
-            q.eq("userId", viewer.userId as Id<"users">).eq("lessonId", lesson._id),
-          )
-          .unique()
-      : null
+    // Progress is scoped to the enrollment, so a repeat learner in a second
+    // cohort does not collide with the first cohort's rows.
+    const progress =
+      enrollment && viewer
+        ? ((
+            await ctx.db
+              .query("lessonProgress")
+              .withIndex("by_enrollment", (q) =>
+                q.eq("enrollmentId", enrollment.id as Id<"enrollments">),
+              )
+              .collect()
+          ).find((item) => item.lessonId === lesson._id) ?? null)
+        : null
 
     return {
       ...base,
@@ -1252,7 +1257,13 @@ async function revisionSummaries(
     .query("contentRevisions")
     .withIndex("by_key", (q) => q.eq("key", CONTENT_KEY))
     .collect()
+  return await summariseRevisions(ctx, revisions)
+}
 
+async function summariseRevisions(
+  ctx: AnyCtx,
+  revisions: Doc<"contentRevisions">[],
+): Promise<ContentRevisionSummary[]> {
   const authorIds = Array.from(new Set(revisions.map((item) => item.authorId)))
   const users = await Promise.all(
     authorIds.map(async (id) => {
@@ -1306,32 +1317,35 @@ async function currentLock(ctx: AnyCtx): Promise<ContentLockView | null> {
 }
 
 export const getAdminState = query({
-  args: {},
+  args: { nonce: v.optional(v.number()) },
   handler: async (ctx): Promise<ContentAdminState> => {
     const { viewer } = await requireAdmin(ctx, "content.publish")
-    const [revisions, site] = await Promise.all([
-      revisionSummaries(ctx),
+    const [revisionDocs, site] = await Promise.all([
+      ctx.db
+        .query("contentRevisions")
+        .withIndex("by_key", (q) => q.eq("key", CONTENT_KEY))
+        .collect(),
       ctx.db
         .query("siteContent")
         .withIndex("by_key", (q) => q.eq("key", CONTENT_KEY))
         .unique(),
     ])
+    const revisions = await summariseRevisions(ctx, revisionDocs)
 
     const draft = revisions.find((item) => item.status === "draft") ?? null
     const published = revisions.find((item) => item.status === "published") ?? null
-    let draftValue: ContentDocument | null = null
-
-    if (draft) {
-      const document = await ctx.db
-        .query("contentRevisions")
-        .withIndex("by_key_version", (q) =>
-          q.eq("key", CONTENT_KEY).eq("version", draft.version),
-        )
-        .unique()
-      draftValue = document?.value ? normalizeContentDocument(document.value) : null
-    } else {
-      draftValue = await assemblePublishedContent(ctx)
-    }
+    const draftDoc = draft
+      ? revisionDocs.find((item) => item.version === draft.version)
+      : null
+    const draftValue: ContentDocument | null = draftDoc?.value
+      ? normalizeContentDocument(draftDoc.value)
+      : site
+        ? await resolveStoredCopy(
+            ctx,
+            site.value as StoredContentValue,
+            new Map(),
+          )
+        : null
 
     const lock = await currentLock(ctx)
     return {
@@ -1342,6 +1356,26 @@ export const getAdminState = query({
       revisions,
       lock: lock ? { ...lock, mine: lock.holderId === viewer.userId } : null,
     }
+  },
+})
+
+/** Lightweight revision picker for takedown and other admin selectors. */
+export const listRevisionOptions = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx, "content.publish")
+    const revisions = await ctx.db
+      .query("contentRevisions")
+      .withIndex("by_key", (q) => q.eq("key", CONTENT_KEY))
+      .collect()
+    return revisions
+      .sort((a, b) => b.version - a.version)
+      .map((revision) => ({
+        id: revision._id as string,
+        version: revision.version,
+        status: revision.status,
+        note: revision.note,
+      }))
   },
 })
 
@@ -1356,14 +1390,19 @@ export const getRevision = query({
       )
       .unique()
     if (!document) return null
+    const author = await ctx.db
+      .get(document.authorId as Id<"users">)
+      .catch(() => null)
     return {
       id: document._id,
       version: document.version,
       status: document.status,
       note: document.note,
       authorId: document.authorId,
+      authorName: author?.name ?? document.authorId,
       createdAt: document.createdAt,
       publishedAt: document.publishedAt ?? null,
+      scheduledFor: document.scheduledFor ?? null,
       value: normalizeContentDocument(document.value),
     }
   },
@@ -1609,8 +1648,16 @@ export const publish = mutation({
       }
     }
 
+    if (args.scheduledFor !== undefined && !Number.isFinite(args.scheduledFor)) {
+      throw new ConvexError({
+        code: "INVALID_SCHEDULE",
+        message: "Waktu terbit terjadwal tidak sah. Pilih tanggal dan jam lagi.",
+      })
+    }
+
     const timestamp = now()
-    if (args.scheduledFor && args.scheduledFor > timestamp) {      await ctx.db.patch(revision._id, {
+    if (args.scheduledFor && args.scheduledFor > timestamp) {
+      await ctx.db.patch(revision._id, {
         status: "scheduled",
         scheduledFor: args.scheduledFor,
         note,
@@ -1732,8 +1779,11 @@ export const runScheduledPublish = internalMutation({
       .query("contentRevisions")
       .withIndex("by_status", (q) => q.eq("status", "scheduled"))
       .collect()
+    // A scheduled revision without a date would otherwise wait forever. Treat
+    // it as due so the cron repairs the row instead of silently stalling it.
     const due = revisions.filter(
-      (item) => item.scheduledFor !== undefined && item.scheduledFor <= timestamp,
+      (item) =>
+        item.scheduledFor === undefined || item.scheduledFor <= timestamp,
     )
     const published: number[] = []
     const failed: number[] = []
@@ -1759,7 +1809,33 @@ export const runScheduledPublish = internalMutation({
         continue
       }
 
-      await applyContentDocument(ctx, validation.data)
+      try {
+        await applyContentDocument(ctx, validation.data)
+      } catch (error) {
+        // A missing media asset used to abort the whole cron transaction, so
+        // the revision stayed "scheduled" and retried forever. Persist the
+        // failure and return the revision to draft instead.
+        failed.push(revision.version)
+        await ctx.db.patch(revision._id, {
+          status: "draft",
+          scheduledFor: undefined,
+        })
+        await appendAudit(ctx, {
+          actorId: "system",
+          actorRole: "system",
+          action: "content.scheduledPublishFailed",
+          entityType: "contentRevisions",
+          entityId: revision._id,
+          reason:
+            error instanceof Error
+              ? `Penerbitan terjadwal gagal. ${error.message}`
+              : "Penerbitan terjadwal gagal.",
+          severity: "error",
+          after: { version: revision.version },
+        })
+        continue
+      }
+
       await ctx.db.patch(revision._id, {
         status: "published",
         publishedAt: timestamp,

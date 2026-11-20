@@ -8,7 +8,7 @@ import type {
   LogRow,
 } from "../lib/admin/types"
 import { requireAdmin } from "./admin_context"
-import type { Id } from "./_generated/dataModel"
+import type { Doc, Id } from "./_generated/dataModel"
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"
 import { severityValidator } from "./tables/common"
 
@@ -64,6 +64,84 @@ function maskPhone(value: string): string {
   return digits.length > 4 ? `***${digits.slice(-4)}` : "***"
 }
 
+const ENTITY_LABELS: Record<string, string> = {
+  auditLogs: "Audit",
+  auth: "Autentikasi",
+  authLogs: "Autentikasi",
+  breakGlassGrants: "Akses darurat",
+  calls: "Panggilan",
+  certificates: "Sertifikat",
+  content: "Konten",
+  contentLocks: "Kunci konten",
+  contentRevisions: "Revisi konten",
+  conversations: "Percakapan",
+  culturalSources: "Sumber budaya",
+  faqs: "FAQ",
+  flowDefinitions: "Definisi proses",
+  impersonationSessions: "Sesi pratinjau",
+  leads: "Lead",
+  mediaAssets: "Aset media",
+  moderation: "Moderasi",
+  notifications: "Notifikasi",
+  payments: "Pembayaran",
+  privacyRequests: "Permintaan privasi",
+  siteContent: "Konten landing",
+  stats: "Statistik",
+  takedownRequests: "Takedown",
+  users: "Akun",
+  workCards: "Kartu karya",
+  works: "Karya",
+}
+
+function entityLabel(entityType: string): string {
+  if (ENTITY_LABELS[entityType]) return ENTITY_LABELS[entityType]
+  const spaced = entityType
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .trim()
+  if (!spaced) return "Catatan"
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1)
+}
+
+async function userNamesFor(
+  ctx: QueryCtx | MutationCtx,
+  ids: (string | null | undefined)[],
+): Promise<Map<string, string>> {
+  const unique = Array.from(
+    new Set(
+      ids.filter(
+        (id): id is string => Boolean(id) && id !== "system",
+      ),
+    ),
+  )
+  const users = await Promise.all(
+    unique.map(async (id) => {
+      try {
+        return await ctx.db.get(id as Id<"users">)
+      } catch {
+        return null
+      }
+    }),
+  )
+  return new Map(
+    unique.map((id, index) => [id, users[index]?.name ?? "Akun tidak ditemukan"]),
+  )
+}
+
+function displayActor(
+  id: string | null | undefined,
+  names: Map<string, string>,
+): string | null {
+  if (!id) return null
+  if (id === "system") return "Sistem"
+  return names.get(id) ?? "Akun tidak ditemukan"
+}
+
+type InternalLogRow = LogRow & {
+  actorId?: string | null
+  entityType?: string
+}
+
 function inRange(
   timestamp: number,
   filter: { from?: number; to?: number },
@@ -73,11 +151,11 @@ function inRange(
   return true
 }
 
-function matchesQuery(row: LogRow, q?: string): boolean {
+function matchesQuery(row: InternalLogRow, q?: string): boolean {
   if (!q) return true
   const needle = q.trim().toLowerCase()
   if (!needle) return true
-  return `${row.actor ?? ""} ${row.action} ${row.entity} ${row.entityId ?? ""} ${row.detail} ${row.requestId ?? ""}`
+  return `${row.actor ?? ""} ${row.action} ${row.entity} ${row.entityType ?? ""} ${row.entityId ?? ""} ${row.detail} ${row.requestId ?? ""}`
     .toLowerCase()
     .includes(needle)
 }
@@ -94,11 +172,17 @@ type LogFilters = {
   q?: string
 }
 
-function filterRows(rows: LogRow[], filters: LogFilters): LogRow[] {
+function filterRows(
+  rows: InternalLogRow[],
+  filters: LogFilters,
+): InternalLogRow[] {
   return rows
     .filter((row) => {
-      if (filters.actorId && row.actor !== filters.actorId) return false
-      if (filters.entityType && !row.entity.startsWith(filters.entityType)) {
+      if (filters.actorId && row.actorId !== filters.actorId) return false
+      if (
+        filters.entityType &&
+        !(row.entityType ?? row.entity).startsWith(filters.entityType)
+      ) {
         return false
       }
       if (filters.entityId && row.entityId !== filters.entityId) return false
@@ -118,22 +202,20 @@ function severityForStatus(status: string): LogRow["severity"] {
 }
 
 async function auditRows(
-  ctx: QueryCtx | MutationCtx,
+  rows: Doc<"auditLogs">[],
   filters: LogFilters,
-): Promise<LogRow[]> {
-  const rows = await ctx.db
-    .query("auditLogs")
-    .withIndex("by_createdAt")
-    .order("desc")
-    .take(500)
+  names: Map<string, string>,
+): Promise<InternalLogRow[]> {
   return filterRows(
     rows.map((row) => ({
       id: row._id,
       kind: "audit" as const,
       label: "Audit",
-      actor: row.actorId ?? null,
+      actorId: row.actorId ?? null,
+      actor: displayActor(row.actorId, names),
       action: row.action,
-      entity: row.entityType,
+      entityType: row.entityType,
+      entity: entityLabel(row.entityType),
       entityId: row.entityId ?? null,
       severity: row.severity,
       requestId: row.requestId ?? null,
@@ -150,11 +232,20 @@ async function collectRows(
   filters: LogFilters,
 ): Promise<LogListResult> {
   if (kind === "audit") {
+    const rows = await ctx.db
+      .query("auditLogs")
+      .withIndex("by_createdAt")
+      .order("desc")
+      .take(500)
+    const names = await userNamesFor(
+      ctx,
+      rows.map((row) => row.actorId),
+    )
     return {
       kind,
       available: true,
       note: null,
-      rows: await auditRows(ctx, filters),
+      rows: await auditRows(rows, filters, names),
     }
   }
 
@@ -164,6 +255,10 @@ async function collectRows(
       .withIndex("by_createdAt")
       .order("desc")
       .take(500)
+    const names = await userNamesFor(
+      ctx,
+      rows.map((row) => row.userId ?? row.authUserId),
+    )
     return {
       kind,
       available: true,
@@ -173,9 +268,11 @@ async function collectRows(
           id: row._id,
           kind,
           label: "Auth",
-          actor: row.userId ?? row.authUserId ?? null,
+          actorId: row.userId ?? row.authUserId ?? null,
+          actor: displayActor(row.userId ?? row.authUserId, names),
           action: row.kind,
-          entity: "auth",
+          entityType: "auth",
+          entity: entityLabel("auth"),
           entityId: row.userId ?? null,
           severity:
             row.kind === "failed_sign_in"
@@ -205,9 +302,11 @@ async function collectRows(
           id: row._id,
           kind,
           label: "Pembayaran",
+          actorId: null,
           actor: null,
           action: row.kind,
-          entity: "payments",
+          entityType: "payments",
+          entity: entityLabel("payments"),
           entityId: row.paymentId ?? row.orderId ?? null,
           severity:
             row.kind === "failed" ? ("error" as const) : ("info" as const),
@@ -233,9 +332,11 @@ async function collectRows(
           id: row._id,
           kind,
           label: "Notifikasi",
+          actorId: null,
           actor: null,
           action: `${row.channel}:${row.status}`,
-          entity: "notifications",
+          entityType: "notifications",
+          entity: entityLabel("notifications"),
           entityId: row._id,
           severity: severityForStatus(row.status),
           requestId: null,
@@ -257,6 +358,10 @@ async function collectRows(
 
   if (kind === "calls") {
     const rows = await ctx.db.query("callEvents").collect()
+    const names = await userNamesFor(
+      ctx,
+      rows.map((row) => row.actorId),
+    )
     return {
       kind,
       available: true,
@@ -266,9 +371,11 @@ async function collectRows(
           id: row._id,
           kind,
           label: "Panggilan",
-          actor: row.actorId ?? null,
+          actorId: row.actorId ?? null,
+          actor: displayActor(row.actorId, names),
           action: row.kind,
-          entity: "calls",
+          entityType: "calls",
+          entity: entityLabel("calls"),
           entityId: row.callId,
           severity: "info" as const,
           requestId: null,
@@ -282,6 +389,10 @@ async function collectRows(
 
   if (kind === "moderation") {
     const rows = await ctx.db.query("messageFlags").collect()
+    const names = await userNamesFor(
+      ctx,
+      rows.map((row) => row.reportedBy),
+    )
     return {
       kind,
       available: true,
@@ -291,9 +402,11 @@ async function collectRows(
           id: row._id,
           kind,
           label: "Moderasi",
-          actor: row.reportedBy,
+          actorId: row.reportedBy,
+          actor: displayActor(row.reportedBy, names),
           action: `flag:${row.status}`,
-          entity: "moderation",
+          entityType: "moderation",
+          entity: entityLabel("moderation"),
           entityId: row.messageId,
           severity: row.status === "open" ? ("warning" as const) : ("info" as const),
           requestId: null,
@@ -311,6 +424,10 @@ async function collectRows(
       .withIndex("by_createdAt")
       .order("desc")
       .take(500)
+    const names = await userNamesFor(
+      ctx,
+      rows.map((row) => row.authorId),
+    )
     return {
       kind,
       available: true,
@@ -320,9 +437,11 @@ async function collectRows(
           id: row._id,
           kind,
           label: "Konten",
-          actor: row.authorId,
+          actorId: row.authorId,
+          actor: displayActor(row.authorId, names),
           action: `revision:${row.status}`,
-          entity: "content",
+          entityType: "content",
+          entity: entityLabel("content"),
           entityId: String(row.version),
           severity: "info" as const,
           requestId: null,
@@ -408,7 +527,8 @@ export const get = query({
       after,
       correlation: {
         requestId: row.requestId,
-        entityType: row.entity,
+        entityType:
+          (row as InternalLogRow).entityType ?? row.entity,
         entityId: row.entityId,
         events: related.slice(0, 20),
       },

@@ -44,6 +44,7 @@ import {
 import type { CertificateOverview } from "@/lib/workspace/phase2-types"
 import type { StatusTone } from "@/lib/workspace/types"
 import { formatWorkspaceDate } from "@/lib/workspace/format"
+import { errorMessage } from "@/components/workspace/governance/error-message"
 
 function iso(ms: number) {
   return new Date(ms).toISOString()
@@ -119,8 +120,7 @@ export function LiveCredentialBoard() {
       setSelected(null)
     } catch (error) {
       toast.error("Pencabutan gagal", {
-        description:
-          error instanceof Error ? error.message : "Alasan minimal 8 karakter.",
+        description: errorMessage(error, "Alasan minimal 8 karakter."),
       })
     }
   }
@@ -140,8 +140,7 @@ export function LiveCredentialBoard() {
       setSelected(null)
     } catch (error) {
       toast.error("Penggantian gagal", {
-        description:
-          error instanceof Error ? error.message : "Alasan minimal 8 karakter.",
+        description: errorMessage(error, "Alasan minimal 8 karakter."),
       })
     }
   }

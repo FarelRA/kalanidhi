@@ -29,9 +29,11 @@ function orderTone(status: string): StatusTone {
 function PaymentBlock({
   payment,
   token,
+  orderStatus,
 }: {
   payment: PaymentIntentView | null
   token: string
+  orderStatus: string
 }) {
   const [copied, setCopied] = React.useState(false)
   const [qrImage, setQrImage] = React.useState<{
@@ -79,7 +81,18 @@ function PaymentBlock({
   }
 
   const manual = payment.provider === "manual_transfer"
-  const settled = payment.status === "paid"
+  const refunded = orderStatus === "refunded" || payment.status === "refunded"
+  const settled = payment.status === "paid" && !refunded
+  const expired =
+    !settled &&
+    !refunded &&
+    (payment.status === "expired" ||
+      (payment.status === "pending" && payment.isLate))
+  const statusLabel = refunded
+    ? "Dana dikembalikan"
+    : expired
+      ? "Kedaluwarsa"
+      : (PAYMENT_STATUS_LABELS[payment.status] ?? payment.status)
 
   async function copyPayload() {
     if (!qrPayload) return
@@ -113,15 +126,38 @@ function PaymentBlock({
           ) : null}
         </div>
         <StatusStamp
-          label={PAYMENT_STATUS_LABELS[payment.status] ?? payment.status}
-          tone={settled ? "done" : payment.status === "pending" ? "wait" : "muted"}
+          label={statusLabel}
+          tone={
+            settled
+              ? "done"
+              : refunded
+                ? "muted"
+                : expired
+                  ? "danger"
+                  : payment.status === "pending"
+                    ? "wait"
+                    : "muted"
+          }
         />
       </div>
 
-      {settled ? (
+      {refunded ? (
+        <p className="mt-4 border border-moss/40 bg-moss/10 px-3 py-2 text-[11px] text-ink-soft">
+          Dana sudah dikembalikan ke pembeli. Pembayaran awal{" "}
+          {formatCommerceDateTime(payment.paidAt)} tetap tercatat, dan pesanan
+          ditutup sebagai refund penuh.
+        </p>
+      ) : settled ? (
         <p className="mt-4 border border-moss/40 bg-moss/10 px-3 py-2 text-[11px] text-ink-soft">
           Pembayaran diterima {formatCommerceDateTime(payment.paidAt)}. Pesanan
           diteruskan ke penjual.
+        </p>
+      ) : expired ? (
+        <p className="mt-4 border border-destructive/30 bg-destructive/5 px-3 py-2 text-[11px] leading-relaxed text-ink-soft">
+          Tagihan ini sudah kedaluwarsa sejak{" "}
+          {formatCommerceDateTime(payment.expiresAt)}. Hubungi pengelola dengan
+          kode {payment.orderCode} bila dana sudah terlanjur dikirim. Pembayaran
+          terlambat dicocokkan manual.
         </p>
       ) : payment.status === "pending" ? (
         <div className="mt-4 grid gap-3 sm:grid-cols-[180px_1fr]">
@@ -258,10 +294,26 @@ function Summary({
               </p>
             </div>
             <StatusStamp
-              label={ORDER_STATUS_LABELS[order.status] ?? order.status}
+              label={
+                order.status === "refunded"
+                  ? "Dana dikembalikan"
+                  : (ORDER_STATUS_LABELS[order.status] ?? order.status)
+              }
               tone={orderTone(order.status)}
             />
           </div>
+          {order.status === "refunded" ? (
+            <div className="mt-4 border border-moss/40 bg-moss/10 px-4 py-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-copper-dark">
+                Dana dikembalikan
+              </p>
+              <p className="mt-1 text-[11.5px] leading-relaxed text-ink-soft">
+                Refund penuh untuk pesanan ini sudah dibayarkan ke pembeli.
+                Pesanan ditutup dan tidak lagi menunggu pengiriman atau
+                penyelesaian.
+              </p>
+            </div>
+          ) : null}
           <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-ink/15 pt-3 text-[11px]">
             <div>
               <dt className="text-[9px] font-bold uppercase tracking-[0.07em] text-ink-muted">
@@ -298,7 +350,11 @@ function Summary({
           </p>
         </div>
 
-        <PaymentBlock payment={payment} token={token} />
+        <PaymentBlock
+          payment={payment}
+          token={token}
+          orderStatus={order.status}
+        />
       </div>
 
       <div className="space-y-5 lg:col-span-5">

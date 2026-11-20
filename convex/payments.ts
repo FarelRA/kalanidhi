@@ -9,7 +9,14 @@ import type {
   SettlementResult,
 } from "../lib/commerce/types"
 import type { Doc, Id } from "./_generated/dataModel"
-import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"
+import { internal } from "./_generated/api"
+import {
+  internalMutation,
+  mutation,
+  query,
+  type MutationCtx,
+  type QueryCtx,
+} from "./_generated/server"
 import { enqueueWebhookDelivery } from "./dispatch"
 import {
   assertInternalKey,
@@ -83,7 +90,12 @@ async function toIntentView(
     gatewayFee: payment.gatewayFee ?? null,
     qrString: payment.qrString ?? null,
     qrImageUrl: payment.qrImageUrl ?? null,
-    status: payment.status,
+    // A full refund keeps the original payment row `paid`; project the single
+    // refund model here so old refunded rows and new refunds look identical.
+    status:
+      order.status === "refunded" && payment.status === "paid"
+        ? "refunded"
+        : payment.status,
     reconciliationState: payment.reconciliationState ?? "none",
     reconciliationReason: payment.reconciliationReason ?? null,
     expiresAt: payment.expiresAt,
@@ -163,6 +175,7 @@ export const createIntent = mutation({
     }
 
     const timestamp = now()
+    const expiresAt = timestamp + PAYMENT_TTL_SECONDS * 1000
     const paymentId = await ctx.db.insert("payments", {
       orderId: order._id,
       provider: "gopay_qris",
@@ -170,11 +183,17 @@ export const createIntent = mutation({
       baseAmount: order.baseAmount,
       uniqueAmount: order.baseAmount,
       status: "pending",
-      expiresAt: timestamp + PAYMENT_TTL_SECONDS * 1000,
+      expiresAt,
       reconciliationState: "none",
       createdAt: timestamp,
       updatedAt: timestamp,
     })
+    // Expire even when no operator opens the console.
+    await ctx.scheduler.runAt(
+      expiresAt + PAYMENT_SKEW_MS,
+      internal.payments.expireIntent,
+      { paymentId },
+    )
 
     await ctx.db.patch(order._id, {
       status: "awaiting_payment",
@@ -254,6 +273,12 @@ export const attachCharge = mutation({
       status: "awaiting_payment",
       updatedAt: timestamp,
     })
+    // The gateway may extend or shorten the charge window.
+    await ctx.scheduler.runAt(
+      args.expiresAt + PAYMENT_SKEW_MS,
+      internal.payments.expireIntent,
+      { paymentId: payment._id },
+    )
 
     const updated = await ctx.db.get(payment._id)
     if (!updated) notFound("Intent tidak ditemukan.")
@@ -1013,6 +1038,38 @@ export const recordGatewayFee = mutation({
     })
 
     return { paymentId: payment._id, gatewayFee: args.gatewayFee }
+  },
+})
+
+/** Scheduled single-intent expiry; safe to run more than once. */
+export const expireIntent = internalMutation({
+  args: { paymentId: v.id("payments") },
+  handler: async (ctx, args) => {
+    const payment = await ctx.db.get(args.paymentId)
+    if (!payment || payment.status !== "pending") return { expired: false }
+    if (payment.expiresAt + PAYMENT_SKEW_MS > now()) return { expired: false }
+    const timestamp = now()
+    await ctx.db.patch(payment._id, {
+      status: "expired",
+      updatedAt: timestamp,
+      lastReconciledAt: timestamp,
+    })
+    const existing = await ctx.db
+      .query("paymentEvents")
+      .withIndex("by_eventId", (q) => q.eq("eventId", `expired:${payment._id}`))
+      .first()
+    if (!existing) {
+      await ctx.db.insert("paymentEvents", {
+        eventId: `expired:${payment._id}`,
+        paymentId: payment._id,
+        orderId: payment.orderId,
+        kind: "expired",
+        amount: payment.uniqueAmount,
+        payload: { reason: "expired" },
+        createdAt: timestamp,
+      })
+    }
+    return { expired: true }
   },
 })
 

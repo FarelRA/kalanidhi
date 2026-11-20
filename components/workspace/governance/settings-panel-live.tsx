@@ -17,6 +17,7 @@ import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import { WORKSPACE_ROLE_LABELS } from "@/lib/access/capabilities"
 import {
   API_KEY_STATUS_LABELS,
   CONSENT_KINDS,
@@ -32,6 +33,7 @@ import {
 } from "@/lib/settings/options"
 import type { AdminSettingsState } from "@/lib/settings/types"
 import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
+import { errorMessage } from "./error-message"
 
 const tabs = [
   { id: "profile", label: "Profil" },
@@ -113,7 +115,7 @@ export function SettingsPanelLive() {
       toast(message)
     } catch (error) {
       toast("Tindakan gagal", {
-        description: error instanceof Error ? error.message : "Coba lagi.",
+        description: errorMessage(error),
       })
     }
   }
@@ -395,7 +397,16 @@ export function SettingsPanelLive() {
               <ul className="border-t border-ink/10 px-4 py-2">
                 {adminState.invites.map((pending) => (
                   <li key={pending.id} className="py-1.5 text-[10px] text-ink-muted">
-                    Undangan {pending.email} · {pending.roles.join(", ")} · berlaku sampai{" "}
+                    Undangan {pending.email} ·{" "}
+                    {pending.roles
+                      .map(
+                        (role) =>
+                          WORKSPACE_ROLE_LABELS[
+                            role as keyof typeof WORKSPACE_ROLE_LABELS
+                          ] ?? role,
+                      )
+                      .join(", ")}{" "}
+                    · berlaku sampai{" "}
                     {new Intl.DateTimeFormat("id-ID", { dateStyle: "short" }).format(new Date(pending.expiresAt))}
                   </li>
                 ))}

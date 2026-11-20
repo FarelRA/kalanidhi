@@ -13,12 +13,20 @@ import {
   teacherHref,
   workHref,
 } from "@/lib/content/routes"
-import { getPublicTeacher, getSiteData } from "@/lib/convex/server"
+import { getPublicTeacher, getPublicTeachers, getSiteData } from "@/lib/convex/server"
 import { formatIDR } from "@/lib/format"
 
 export const instant = false
+export const ensureStatic = "navigation"
 
 type Params = { slug: string }
+
+export async function generateStaticParams(): Promise<Params[]> {
+  const teachers = await getPublicTeachers()
+  return teachers.length > 0
+    ? teachers.map((teacher) => ({ slug: teacher.slug }))
+    : [{ slug: "__placeholder__" }]
+}
 
 export async function generateMetadata({
   params,
@@ -27,9 +35,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const teacher = await getPublicTeacher(slug)
-  if (!teacher) {
-    return { title: "Pengajar tidak ditemukan", robots: { index: false } }
-  }
+  if (!teacher) notFound()
   return buildPageMetadata(teacherHref(teacher.slug), {
     title: teacher.name,
     description: `${teacher.specialty}, ${teacher.region}. ${teacher.focus}.`,

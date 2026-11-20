@@ -10,7 +10,7 @@ export const instant = false
 export const metadata: Metadata = {
   title: "Daftar peserta",
   description:
-    "Buat akun peserta KalaNidhi Digital. WhatsApp menjadi identitas utama, email untuk pemulihan akun.",
+    "Buat akun peserta KalaNidhi Digital. WhatsApp menjadi identitas utama, email untuk pemberitahuan dan verifikasi akun.",
   robots: {
     index: false,
     follow: false,

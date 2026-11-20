@@ -444,7 +444,13 @@ async function toOrderView(
     consentAt: order.consentAt ?? null,
     claimedAt: order.claimedAt ?? null,
     paymentId: payment?._id ?? null,
-    paymentStatus: payment?.status ?? null,
+    // One refund model across old and new rows: a fully refunded order projects
+    // the payment as refunded even when the stored payment row is still `paid`
+    // (the original money movement is never edited).
+    paymentStatus:
+      order.status === "refunded" && payment?.status === "paid"
+        ? "refunded"
+        : (payment?.status ?? null),
     payoutId: payout?._id ?? null,
     refundId: refund?._id ?? null,
     disputeId: dispute?._id ?? null,
@@ -1288,7 +1294,7 @@ export const getOrderByToken = query({
     const order = await findByToken(ctx, args.token)
     if (!order) return null
 
-    const [work, path, seller] = await Promise.all([
+    const [work, path, seller, refunds] = await Promise.all([
       order.workId ? ctx.db.get(order.workId) : null,
       order.pathId && !order.workId
         ? ctx.db
@@ -1297,8 +1303,17 @@ export const getOrderByToken = query({
             .unique()
         : null,
       findUser(ctx, order.sellerId),
+      ctx.db
+        .query("refunds")
+        .withIndex("by_orderId", (q) => q.eq("orderId", order._id))
+        .collect(),
     ])
     if (!work && !path) return null
+    const refundPaidAt =
+      refunds
+        .filter((refund) => refund.status === "paid")
+        .sort((a, b) => (b.paidAt ?? b.createdAt) - (a.paidAt ?? a.createdAt))[0]
+        ?.paidAt ?? null
 
     const timeline: OrderTimelineEntry[] = [
       { status: "draft", label: ORDER_STATUS_LABELS.draft, at: order.createdAt },
@@ -1327,6 +1342,14 @@ export const getOrderByToken = query({
         status: "completed",
         label: ORDER_STATUS_LABELS.completed,
         at: order.completedAt ?? null,
+      },
+      {
+        status: "refunded",
+        label: "Dana dikembalikan",
+        at:
+          order.status === "refunded"
+            ? (refundPaidAt ?? order.updatedAt)
+            : null,
       },
     ]
 
@@ -1371,12 +1394,25 @@ export const listOrders = query({
         .order("desc")
         .take(200)
     } else if (viewer.capabilities.includes("orders.sell")) {
-      rows = await ctx.db
+      const sales = await ctx.db
         .query("orders")
         .withIndex("by_sellerId", (q) =>
           q.eq("sellerId", viewer.userId as Id<"users">),
         )
         .collect()
+      // A seller is also a buyer. Include their own purchases so the seller
+      // workspace does not hide orders they placed with another maker.
+      const purchases = viewer.capabilities.includes("orders.buy")
+        ? await ctx.db
+            .query("orders")
+            .withIndex("by_buyerUserId", (q) =>
+              q.eq("buyerUserId", viewer.userId as Id<"users">),
+            )
+            .collect()
+        : []
+      const byId = new Map<string, Doc<"orders">>()
+      for (const order of [...sales, ...purchases]) byId.set(order._id, order)
+      rows = [...byId.values()]
     } else if (
       viewer.capabilities.includes("orders.buy") ||
       viewer.capabilities.includes("orders.read.own")

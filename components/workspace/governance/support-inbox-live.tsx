@@ -4,6 +4,7 @@ import * as React from "react"
 import { CheckCircle2, Clock3, LockKeyhole, Send, ShieldAlert } from "lucide-react"
 import { toast } from "sonner"
 import { useMutation, useQuery } from "convex/react"
+import { errorMessage } from "./error-message"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -125,7 +126,7 @@ export function SupportInboxLive() {
       toast(message)
     } catch (error) {
       toast("Tindakan gagal", {
-        description: error instanceof Error ? error.message : "Coba lagi.",
+        description: errorMessage(error),
       })
     }
   }

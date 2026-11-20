@@ -28,6 +28,7 @@ import {
 import type { LogKind, LogRow } from "@/lib/admin/types"
 import type { StatusTone } from "@/lib/workspace/types"
 import { useMutation, useQuery } from "convex/react"
+import { errorMessage } from "./error-message"
 
 const TABS: { id: LogKind; label: string }[] = LOG_KINDS.map((kind) => ({
   id: kind,
@@ -81,7 +82,7 @@ export function LogLive() {
       })
     } catch (error) {
       toast("Ekspor gagal", {
-        description: error instanceof Error ? error.message : "Coba lagi.",
+        description: errorMessage(error),
       })
     }
   }

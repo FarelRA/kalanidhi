@@ -24,6 +24,7 @@ import { SegmentedTabs } from "@/components/workspace/data/segmented-tabs"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import { api } from "@/convex/_generated/api"
+import { CONTENT_REVISION_STATUS_LABELS } from "@/lib/content/status"
 import type { Id } from "@/convex/_generated/dataModel"
 import {
   ACCESS_LEVELS,
@@ -46,6 +47,7 @@ import type {
   PrivacyRequestView,
   TakedownView,
 } from "@/lib/governance/types"
+import { errorMessage } from "./error-message"
 
 function breakGlassEntityLabel(entityType: string): string {
   return (
@@ -63,9 +65,12 @@ export function GovernanceBoardLive() {
   const [community, setCommunity] = React.useState("")
   const [sourceName, setSourceName] = React.useState("")
   const [permissionRef, setPermissionRef] = React.useState("")
+  const [permissionDate, setPermissionDate] = React.useState("")
   const [attribution, setAttribution] = React.useState("")
   const [sourceAccessLevel, setSourceAccessLevel] =
     React.useState<AccessLevel>("community")
+  const [takedownType, setTakedownType] =
+    React.useState<TakedownView["targetType"]>("work")
   const [takedownTarget, setTakedownTarget] = React.useState("")
   const [takedownName, setTakedownName] = React.useState("")
   const [takedownContact, setTakedownContact] = React.useState("")
@@ -96,6 +101,22 @@ export function GovernanceBoardLive() {
   const breakGlass = useQuery(api.governance.listBreakGlass, allowed ? {} : "skip")
   const people = useQuery(api.people.list, allowed ? {} : "skip")
   const works = useQuery(api.commerce.listWorks, allowed ? {} : "skip")
+  const revisionOptions = useQuery(
+    api.content.listRevisionOptions,
+    allowed && takedownType === "content" ? {} : "skip",
+  )
+  const mediaOptions = useQuery(
+    api.media.listAssets,
+    allowed && takedownType === "media" ? {} : "skip",
+  )
+  const conversationOptions = useQuery(
+    api.messaging.listConversations,
+    allowed && takedownType === "conversation" ? {} : "skip",
+  )
+  const certificateOptions = useQuery(
+    api.certificates.listRegistry,
+    allowed && takedownType === "certificate" ? {} : "skip",
+  )
 
   const createSource = useMutation(api.governance.createCulturalSource)
   const withdrawSource = useMutation(api.governance.withdrawCulturalSource)
@@ -118,10 +139,47 @@ export function GovernanceBoardLive() {
       setReason("")
     } catch (error) {
       toast("Tindakan gagal", {
-        description: error instanceof Error ? error.message : "Coba lagi.",
+        description: errorMessage(error),
       })
     }
   }
+
+  const takedownOptions: { id: string; label: string }[] = React.useMemo(() => {
+    if (takedownType === "work") {
+      return (works ?? []).map((work) => ({ id: work.id, label: work.title }))
+    }
+    if (takedownType === "content") {
+      return (revisionOptions ?? []).map((revision) => ({
+        id: revision.id,
+        label: `Versi ${revision.version} · ${CONTENT_REVISION_STATUS_LABELS[revision.status]} · ${revision.note}`,
+      }))
+    }
+    if (takedownType === "media") {
+      return (mediaOptions ?? []).map((asset) => ({
+        id: asset.id,
+        label: `${asset.filename} · ${asset.kind}`,
+      }))
+    }
+    if (takedownType === "conversation") {
+      return (conversationOptions ?? []).map((conversation) => ({
+        id: conversation.id,
+        label: conversation.title,
+      }))
+    }
+    return (certificateOptions ?? []).map((certificate) => ({
+      id: certificate.id,
+      label: `${certificate.serial} · ${certificate.studentName}`,
+    }))
+  }, [
+    takedownType,
+    works,
+    revisionOptions,
+    mediaOptions,
+    conversationOptions,
+    certificateOptions,
+  ])
+
+  const takedownTypeLabel = TAKEDOWN_TARGET_LABELS[takedownType].toLowerCase()
 
   if (!allowed) {
     return (
@@ -438,7 +496,7 @@ export function GovernanceBoardLive() {
       {tab === "sources" ? (
         <div className="space-y-4">
           <Panel eyebrow="Sumber baru" title="Catat izin komunitas">
-            <div className="grid gap-3 md:grid-cols-5">
+            <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-6">
               <div>
                 <Label htmlFor="source-community">Komunitas</Label>
                 <Input id="source-community" value={community} onChange={(event) => setCommunity(event.target.value)} className="mt-1.5" />
@@ -450,6 +508,10 @@ export function GovernanceBoardLive() {
               <div>
                 <Label htmlFor="source-ref">Dokumen izin</Label>
                 <Input id="source-ref" value={permissionRef} onChange={(event) => setPermissionRef(event.target.value)} className="mt-1.5" />
+              </div>
+              <div>
+                <Label htmlFor="source-date">Tanggal izin</Label>
+                <Input id="source-date" type="date" value={permissionDate} onChange={(event) => setPermissionDate(event.target.value)} className="mt-1.5" />
               </div>
               <div>
                 <Label htmlFor="source-attribution">Atribusi</Label>
@@ -474,20 +536,28 @@ export function GovernanceBoardLive() {
             <Button
               size="sm"
               className="mt-3"
-              disabled={!community || !sourceName || !permissionRef || !attribution}
+              disabled={!community || !sourceName || !permissionRef || !permissionDate || !attribution || reason.trim().length < 4}
               onClick={() =>
                 void run(async () => {
+                  const permissionTimestamp = new Date(
+                    `${permissionDate}T00:00:00+07:00`,
+                  ).getTime()
+                  if (!Number.isFinite(permissionTimestamp)) {
+                    throw new Error("Tanggal izin tidak sah.")
+                  }
                   await createSource({
                     community,
                     sourceName,
                     permissionDocumentRef: permissionRef,
-                    permissionDate: Date.now(),
+                    permissionDate: permissionTimestamp,
                     accessLevel: sourceAccessLevel,
                     attribution,
+                    reason,
                   })
                   setCommunity("")
                   setSourceName("")
                   setPermissionRef("")
+                  setPermissionDate("")
                   setAttribution("")
                 }, "Sumber budaya dicatat.")
               }
@@ -513,13 +583,31 @@ export function GovernanceBoardLive() {
       {tab === "takedowns" ? (
         <div className="space-y-4">
           <Panel eyebrow="Permintaan baru" title="Takedown">
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-4">
+              <div>
+                <Label htmlFor="takedown-type">Jenis target</Label>
+                <select
+                  id="takedown-type"
+                  value={takedownType}
+                  onChange={(event) => {
+                    setTakedownType(event.target.value as TakedownView["targetType"])
+                    setTakedownTarget("")
+                  }}
+                  className="mt-1.5 flex h-9 w-full border border-ink/20 bg-paper-2 px-2 text-[12px]"
+                >
+                  {Object.entries(TAKEDOWN_TARGET_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div>
                 <Label htmlFor="takedown-target">Target</Label>
                 <select id="takedown-target" value={takedownTarget} onChange={(event) => setTakedownTarget(event.target.value)} className="mt-1.5 flex h-9 w-full border border-ink/20 bg-paper-2 px-2 text-[12px]">
-                  <option value="">Pilih karya</option>
-                  {(works ?? []).map((work) => (
-                    <option key={work.id} value={work.id}>{work.title}</option>
+                  <option value="">Pilih {takedownTypeLabel}</option>
+                  {takedownOptions.map((option) => (
+                    <option key={option.id} value={option.id}>{option.label}</option>
                   ))}
                 </select>
               </div>
@@ -538,11 +626,11 @@ export function GovernanceBoardLive() {
               disabled={!takedownTarget || !takedownName || !takedownContact || reason.trim().length < 4}
               onClick={() =>
                 void run(async () => {
-                  const work = (works ?? []).find((item) => item.id === takedownTarget)
+                  const option = takedownOptions.find((item) => item.id === takedownTarget)
                   await createTakedown({
-                    targetType: "work",
+                    targetType: takedownType,
                     targetId: takedownTarget,
-                    targetLabel: work?.title ?? takedownTarget,
+                    targetLabel: option?.label ?? takedownTarget,
                     requesterName: takedownName,
                     requesterContact: takedownContact,
                     reason,
@@ -740,7 +828,7 @@ export function GovernanceBoardLive() {
                     )
                   } catch (error) {
                     toast("Gagal mencatat akses", {
-                      description: error instanceof Error ? error.message : "Coba lagi.",
+                      description: errorMessage(error),
                     })
                   }
                 }}
@@ -794,10 +882,16 @@ export function GovernanceBoardLive() {
                 value={formatDate(sourceDetail.permissionDate)}
               />
               <DetailRow label="Atribusi" value={sourceDetail.attribution} />
-              <DetailRow label="Akses" value={sourceDetail.accessLevel} />
+              <DetailRow label="Akses" value={ACCESS_LEVEL_LABELS[sourceDetail.accessLevel]} />
               <DetailRow
                 label="Status penarikan"
-                value={sourceDetail.withdrawalStatus}
+                value={
+                  sourceDetail.withdrawalStatus === "active"
+                    ? "Aktif"
+                    : sourceDetail.withdrawalStatus === "withdrawn"
+                      ? "Ditarik"
+                      : "Diminta ditarik"
+                }
               />
               <DetailRow
                 label="Diminta ditarik"
@@ -842,7 +936,7 @@ export function GovernanceBoardLive() {
             </DialogTitle>
             <DialogDescription>
               {privacyDetail
-                ? `${privacyDetail.kind} · ${privacyDetail.requesterEmail}`
+                ? `${PRIVACY_REQUEST_KIND_LABELS[privacyDetail.kind]} · ${PRIVACY_STATUS_LABELS[privacyDetail.status]} · ${privacyDetail.requesterEmail}`
                 : "Permintaan privasi"}
             </DialogDescription>
           </DialogHeader>

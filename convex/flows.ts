@@ -180,7 +180,9 @@ export async function definitionFor(
 }
 
 export const listDefinitions = query({
-  args: {},
+  // `nonce` lets the UI resubscribe after a failed execution without changing
+  // the result shape. The value itself is intentionally ignored.
+  args: { nonce: v.optional(v.number()) },
   handler: async (ctx): Promise<FlowDefinitionView[]> => {
     await requireAdmin(ctx, "flows.manage")
     return await Promise.all(FLOW_KEYS.map((key) => definitionFor(ctx, key)))
@@ -259,6 +261,42 @@ const NEXT_ACTION: Record<FlowKey, string> = {
 async function userNameMap(ctx: FlowContext): Promise<Map<string, string>> {
   const users = await ctx.db.query("users").collect()
   return new Map(users.map((user) => [user._id, user.name]))
+}
+
+/**
+ * The stuck board needs a name and an SLA for every flow, not the full
+ * transition and automation definitions. Reading those tables once keeps the
+ * all-flow query well below the function execution budget.
+ */
+async function flowConfigs(
+  ctx: FlowContext,
+): Promise<Map<FlowKey, { name: string; slaMinutes: number }>> {
+  const [definitions, policies] = await Promise.all([
+    ctx.db.query("flowDefinitions").collect(),
+    ctx.db.query("slaPolicies").collect(),
+  ])
+  const definitionByKey = new Map(
+    definitions.map((definition) => [definition.key, definition] as const),
+  )
+  const activePolicies = policies
+    .filter((policy) => policy.active)
+    .sort((a, b) => b.updatedAt - a.updatedAt)
+
+  return new Map(
+    FLOW_KEYS.map((key) => {
+      const spec = flowSpec(key)
+      const configured = activePolicies.find((policy) => policy.flowKey === key)
+      return [
+        key,
+        {
+          name: definitionByKey.get(key)?.name ?? spec.name,
+          slaMinutes: flowSlaMinutes(
+            configured?.targetMinutes ?? spec.sla.targetMinutes,
+          ),
+        },
+      ] as const
+    }),
+  )
 }
 
 async function loadRecords(
@@ -496,44 +534,56 @@ export const overview = query({
 })
 
 export const stuckRecords = query({
-  args: { flowKey: v.optional(flowKeyValidator) },
+  args: {
+    flowKey: v.optional(flowKeyValidator),
+    nonce: v.optional(v.number()),
+  },
   handler: async (ctx, args): Promise<StuckRecordView[]> => {
     await requireAdmin(ctx, "flows.manage")
     const keys = args.flowKey ? [assertFlowKey(args.flowKey)] : FLOW_KEYS
-    const rows: StuckRecordView[] = []
-    for (const key of keys) {
-      const definition = await definitionFor(ctx, key)
-      const records = await loadRecords(ctx, key)
-      const slaMinutes = flowSlaMinutes(definition.sla.targetMinutes)
-      const names = await userNameMap(ctx)
-      const timestamp = Date.now()
-      const stuckStates = new Set(STUCK_STATES[key])
-      for (const record of records) {
-        if (!stuckStates.has(record.state)) continue
-        const ageMinutes = Math.max(
-          0,
-          Math.floor((timestamp - record.createdAt) / MINUTE_MS),
-        )
-        const dueAt = record.createdAt + slaMinutes * MINUTE_MS
-        rows.push({
-          flowKey: key,
-          flowName: definition.name,
-          recordId: record.recordId,
-          label: record.label,
-          state: record.state,
-          stateLabel: stateLabel(key, record.state),
-          ageMinutes,
-          ownerId: record.ownerId,
-          ownerName: record.ownerId
-            ? (names.get(record.ownerId) ?? "Tanpa nama")
-            : null,
-          dueAt,
-          overdue: timestamp > dueAt,
-          nextAction: NEXT_ACTION[key],
-        })
-      }
-    }
-    return rows.sort((a, b) => b.ageMinutes - a.ageMinutes)
+    const timestamp = Date.now()
+    const [names, configs] = await Promise.all([
+      userNameMap(ctx),
+      flowConfigs(ctx),
+    ])
+
+    const perFlow = await Promise.all(
+      keys.map(async (key) => {
+        const config = configs.get(key) ?? {
+          name: flowSpec(key).name,
+          slaMinutes: flowSlaMinutes(flowSpec(key).sla.targetMinutes),
+        }
+        const records = await loadRecords(ctx, key)
+        const stuckStates = new Set(STUCK_STATES[key])
+        return records
+          .filter((record) => stuckStates.has(record.state))
+          .map((record): StuckRecordView => {
+            const ageMinutes = Math.max(
+              0,
+              Math.floor((timestamp - record.createdAt) / MINUTE_MS),
+            )
+            const dueAt = record.createdAt + config.slaMinutes * MINUTE_MS
+            return {
+              flowKey: key,
+              flowName: config.name,
+              recordId: record.recordId,
+              label: record.label,
+              state: record.state,
+              stateLabel: stateLabel(key, record.state),
+              ageMinutes,
+              ownerId: record.ownerId,
+              ownerName: record.ownerId
+                ? (names.get(record.ownerId) ?? "Tanpa nama")
+                : null,
+              dueAt,
+              overdue: timestamp > dueAt,
+              nextAction: NEXT_ACTION[key],
+            }
+          })
+      }),
+    )
+
+    return perFlow.flat().sort((a, b) => b.ageMinutes - a.ageMinutes)
   },
 })
 

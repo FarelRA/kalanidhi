@@ -2,37 +2,28 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { connection } from "next/server"
-import { Suspense } from "react"
-import { ArrowRight, ShieldCheck } from "lucide-react"
+import { ShieldCheck } from "lucide-react"
 
 import { CulturalSources } from "@/components/landing/cultural-sources"
-import type { PublicWorkView } from "@/lib/commerce/types"
 import { formatIDR } from "@/lib/format"
-import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
 import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
-import { getPublicWork } from "@/lib/commerce/server"
+import { getPublicWork, getPublicWorks } from "@/lib/commerce/server"
 import { buildPageMetadata } from "@/lib/content/metadata"
 import { getSiteData } from "@/lib/convex/server"
-import {
-  buyHref,
-  interestHref,
-  PUBLIC_ROUTES,
-  workHref,
-} from "@/lib/content/routes"
+import { PUBLIC_ROUTES, workHref } from "@/lib/content/routes"
+
+import { WorkPurchase } from "./purchase"
 
 export const instant = false
+export const ensureStatic = "navigation"
 
 type Params = { slug: string }
 
-async function isSignedIn(): Promise<boolean> {
-  if (!isAuthConfigured()) return false
-  try {
-    return await getAuthServer().isAuthenticated()
-  } catch (error) {
-    console.error("[karya] Could not resolve auth session.", error)
-    return false
-  }
+export async function generateStaticParams(): Promise<Params[]> {
+  const works = await getPublicWorks()
+  return works.length > 0
+    ? works.map((work) => ({ slug: work.slug }))
+    : [{ slug: "__placeholder__" }]
 }
 
 export async function generateMetadata({
@@ -42,9 +33,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const work = await getPublicWork(slug)
-  if (!work) {
-    return { title: "Karya tidak ditemukan" }
-  }
+  if (!work) notFound()
   return buildPageMetadata(workHref(work.slug), {
     title: work.title,
     description: work.description.slice(0, 160),
@@ -151,11 +140,7 @@ export default async function WorkDetailPage({
               {work.permission}
             </p>
 
-            <Suspense
-              fallback={<WorkPurchaseView work={work} signedIn={false} />}
-            >
-              <WorkPurchase work={work} />
-            </Suspense>
+            <WorkPurchase work={work} />
           </div>
         </div>
 
@@ -206,67 +191,10 @@ export default async function WorkDetailPage({
         </section>
 
         <div className="mt-6">
-          <CulturalSources
-            sources={workSources}
-            title={directSources.length > 0 ? "Sumber karya" : "Sumber kelas"}
-          />
+          <CulturalSources sources={workSources} title="Sumber karya" />
         </div>
       </section>
     </div>
   )
 }
 
-async function WorkPurchase({ work }: { work: PublicWorkView }) {
-  // Reading the session during prerender makes the auth fetch reject once the
-  // static shell is done, so resolve it only when a request arrives.
-  await connection()
-  const signedIn = await isSignedIn()
-  return <WorkPurchaseView work={work} signedIn={signedIn} />
-}
-
-function WorkPurchaseView({
-  work,
-  signedIn,
-}: {
-  work: PublicWorkView
-  signedIn: boolean
-}) {
-  const checkoutHref = signedIn
-    ? buyHref(work.slug)
-    : `${PUBLIC_ROUTES.signIn}?next=${encodeURIComponent(buyHref(work.slug))}`
-
-  return (
-    <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        {work.priceLabel ? (
-          <p className="text-[9.5px] font-bold uppercase tracking-[0.08em] text-ink-muted">
-            {work.priceLabel}
-          </p>
-        ) : null}
-        <p className="mt-1 font-heading text-[1.9rem] leading-none">
-          {formatIDR(work.price)}
-        </p>
-      </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <Link
-          href={interestHref({
-            work: work.slug,
-            intent: "consultation",
-          })}
-          className="inline-flex min-h-12 items-center gap-2 border border-ink/35 px-5 text-[11px] font-bold uppercase tracking-[0.08em] text-ink transition-colors hover:border-copper-dark hover:text-copper-dark"
-        >
-          Tanya karya ini
-        </Link>
-        {work.purchasable ? (
-          <Link
-            href={checkoutHref}
-            className="inline-flex min-h-12 items-center gap-2 border border-ink bg-ink px-5 text-[11px] font-bold uppercase tracking-[0.08em] text-paper transition-colors hover:bg-ink-2"
-          >
-            {signedIn ? "Beli karya ini" : "Masuk untuk membeli"}
-            <ArrowRight aria-hidden="true" className="size-4" />
-          </Link>
-        ) : null}
-      </div>
-    </div>
-  )
-}

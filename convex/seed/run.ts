@@ -8,19 +8,46 @@ import {
   internalQuery,
 } from "../_generated/server"
 import { DAY, jakartaDayStart, SEED_START } from "./lib/clock"
+import {
+  pathsSeed,
+  siteSeed,
+  teachersSeed,
+  worksSeed,
+} from "./content/data"
+import {
+  CURRICULUM_IMAGE_FILES,
+  CURRICULUM_MEDIA_FILES,
+} from "./domains/curriculum"
+import { MESSAGING_IMAGE_FILES } from "./domains/messaging"
 
 /** Bumped whenever the seed's shape changes; stored on every run row. */
-export const SEED_VERSION = "2026-11-seed-v3"
+export const SEED_VERSION = "2026-11-seed-v4"
 
-/** A run younger than this still owns the lock. */
+/** A run whose last heartbeat is younger than this still owns the lock. */
 const LOCK_TTL_MS = 10 * 60_000
+
+/** Every media file the seed expects to keep active, one row per filename. */
+const SEED_MEDIA_FILES = Array.from(
+  new Set([
+    siteSeed.hero.plate.imageFile,
+    siteSeed.metadata.image.imageFile,
+    ...pathsSeed.map((path) => path.imageFile),
+    ...teachersSeed.map((teacher) => teacher.imageFile),
+    ...worksSeed.map((work) => work.imageFile),
+    ...CURRICULUM_IMAGE_FILES,
+    ...CURRICULUM_MEDIA_FILES,
+    ...MESSAGING_IMAGE_FILES,
+  ]),
+)
 
 /**
  * Acquires the seed lock and opens a run row.
  *
- * A `running` row younger than `LOCK_TTL_MS` means another run is in flight,
- * so the caller throws `SEED_RUNNING`. An older one is a crash leftover: it is
- * closed as failed so the new run can proceed.
+ * The lock is measured from the last heartbeat, not from `startedAt`: the
+ * action writes `finishedAt` as a heartbeat on every step while running. A
+ * `running` row with a recent heartbeat means another run is in flight, so the
+ * caller throws `SEED_RUNNING`. An older one is a crash leftover: it is closed
+ * as failed so the new run can proceed.
  */
 export const beginRun = internalMutation({
   args: { now: v.number(), version: v.string() },
@@ -30,7 +57,12 @@ export const beginRun = internalMutation({
       .withIndex("by_status", (q) => q.eq("status", "running"))
       .collect()
     for (const row of running) {
-      if (row.startedAt > args.now - LOCK_TTL_MS) {
+      // While running, `finishedAt` doubles as the last-activity heartbeat.
+      const lastActivity = Math.max(
+        row.startedAt,
+        row.finishedAt ?? row.startedAt,
+      )
+      if (lastActivity > args.now - LOCK_TTL_MS) {
         throw new ConvexError({
           code: "SEED_RUNNING",
           message: `Seed lain masih berjalan sejak ${new Date(row.startedAt).toISOString()} (langkah ${row.step}).`,
@@ -53,9 +85,14 @@ export const beginRun = internalMutation({
 })
 
 export const setStep = internalMutation({
-  args: { runId: v.id("seedRuns"), step: v.string() },
+  args: { runId: v.id("seedRuns"), step: v.string(), now: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.runId, { step: args.step })
+    // Heartbeat the lock on every step; `finishedAt` is only meaningful once
+    // the run completes or fails, so a running row can use it as last activity.
+    await ctx.db.patch(args.runId, {
+      step: args.step,
+      finishedAt: args.now ?? Date.now(),
+    })
   },
 })
 
@@ -99,6 +136,37 @@ export const status = internalQuery({
 })
 
 /**
+ * Readiness signal for `runIfEmpty`. A `complete` run row alone is not enough:
+ * a process can die after writing the row but before every domain committed, or
+ * an operator can clear one table by hand. The seed is ready to skip only when
+ * each key table has at least one row.
+ */
+export const readiness = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    const checks = {
+      users: (await ctx.db.query("users").first()) !== null,
+      paths: (await ctx.db.query("paths").first()) !== null,
+      pathModules: (await ctx.db.query("pathModules").first()) !== null,
+      lessons: (await ctx.db.query("lessons").first()) !== null,
+      cohorts: (await ctx.db.query("cohorts").first()) !== null,
+      enrollments: (await ctx.db.query("enrollments").first()) !== null,
+      orders: (await ctx.db.query("orders").first()) !== null,
+      payments: (await ctx.db.query("payments").first()) !== null,
+      siteContent:
+        (await ctx.db
+          .query("siteContent")
+          .withIndex("by_key", (q) => q.eq("key", "site"))
+          .first()) !== null,
+    }
+    return {
+      ready: Object.values(checks).every(Boolean),
+      checks,
+    }
+  },
+})
+
+/**
  * Full reseed.
  *
  * The wall clock is read exactly once; every mutation and action receives that
@@ -118,7 +186,7 @@ export const run = internalAction({
     })
 
     const step = async <T>(name: string, fn: () => Promise<T>): Promise<T> => {
-      await ctx.runMutation(internal.seed.run.setStep, { runId, step: name })
+      await ctx.runMutation(internal.seed.run.setStep, { runId, step: name, now })
       return await fn()
     }
 
@@ -132,6 +200,14 @@ export const run = internalAction({
           cleared = result.done
         }
       })
+      // The registry lives outside CLEAR_TABLES, so stale and duplicate seed
+      // rows survive a reseed. Archive them now, keeping every filename the
+      // seed uses and every asset a content row still references.
+      await step("media", () =>
+        ctx.runMutation(internal.media.pruneSeedImagesInternal, {
+          keepFilenames: SEED_MEDIA_FILES,
+        }),
+      )
       await step("people", () =>
         ctx.runMutation(internal.seed.domains.people.seedPeople, { now }),
       )
@@ -193,6 +269,9 @@ export const run = internalAction({
         ctx.runMutation(internal.seed.domains.audit.seedAudit, { now }),
       )
       // Provision Better Auth subjects before integrity checks the final users.
+      // The operator's admin account is created by Better Auth itself and keeps
+      // its real subject, so `seedAuthAccounts` intentionally has no admin
+      // mapping; only placeholder seed accounts are mapped here.
       const auth = await step("auth", () =>
         ctx.runAction(internal.seed.domains.auth.seedAuthAccounts, { now }),
       )
@@ -238,17 +317,17 @@ export const run = internalAction({
 /**
  * Seeds only when there is nothing trustworthy to keep.
  *
- * A `complete` run plus a `siteContent` row means skip. A `failed` run (or no
- * run at all) means the last attempt left a half-seeded database, so clear and
- * run again.
+ * A `complete` run plus every key table populated means skip. A `failed` run,
+ * no run at all, or a complete row with missing tables means the last attempt
+ * left a half-seeded database, so clear and run again.
  */
 export const runIfEmpty = internalAction({
   args: {},
   handler: async (ctx): Promise<{ seeded: boolean }> => {
     const latest = await ctx.runQuery(internal.seed.run.status, {})
     if (latest?.status === "complete") {
-      const existing = await ctx.runQuery(internal.seed.domains.content.hasContent, {})
-      if (existing) return { seeded: false }
+      const { ready } = await ctx.runQuery(internal.seed.run.readiness, {})
+      if (ready) return { seeded: false }
     }
     await ctx.runAction(internal.seed.run.run, {})
     return { seeded: true }

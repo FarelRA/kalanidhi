@@ -1,21 +1,29 @@
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import { notFound, redirect } from "next/navigation"
+import { notFound } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 
-import { CheckoutForm } from "@/components/commerce/checkout-form"
-import { api } from "@/convex/_generated/api"
-import { getAuthServer, isAuthConfigured } from "@/lib/auth-server"
 import { SPLIT_PERCENTAGES, splitAmount } from "@/lib/commerce/money"
 import { isCommerceConfigured } from "@/lib/commerce/server"
-import { enrollHref, pathHref, PUBLIC_ROUTES } from "@/lib/content/routes"
-import { getPublicPath } from "@/lib/convex/server"
+import { pathHref, PUBLIC_ROUTES } from "@/lib/content/routes"
+import { getPublicPath, getPublicPaths } from "@/lib/convex/server"
 import { formatIDR } from "@/lib/format"
+import { isAuthConfigured } from "@/lib/auth-server"
+
+import { CheckoutGate } from "../../checkout-gate"
 
 export const instant = false
+export const ensureStatic = "navigation"
 
 type Params = { slug: string }
+
+export async function generateStaticParams(): Promise<Params[]> {
+  const paths = await getPublicPaths()
+  return paths.length > 0
+    ? paths.map((path) => ({ slug: path.slug }))
+    : [{ slug: "__placeholder__" }]
+}
 
 export async function generateMetadata({
   params,
@@ -24,8 +32,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const path = await getPublicPath(slug)
+  if (!path) notFound()
   return {
-    title: path ? `Pesan ${path.title}` : "Checkout kelas",
+    title: `Pesan ${path.title}`,
     robots: { index: false, follow: false },
   }
 }
@@ -36,6 +45,8 @@ export default async function PathCheckoutPage({
   params: Promise<Params>
 }) {
   const { slug } = await params
+  const path = await getPublicPath(slug)
+  if (!path) notFound()
 
   if (!isCommerceConfigured()) {
     return (
@@ -86,66 +97,6 @@ export default async function PathCheckoutPage({
       </div>
     )
   }
-
-  const auth = getAuthServer()
-  if (!(await auth.isAuthenticated())) {
-    redirect(
-      `${PUBLIC_ROUTES.signIn}?next=${encodeURIComponent(enrollHref(slug))}`,
-    )
-  }
-
-  let viewer
-  try {
-    viewer = await auth.fetchAuthQuery(api.access.getViewer)
-  } catch (error) {
-    console.error("[pesan/kelas] Could not resolve checkout viewer.", error)
-    viewer = null
-  }
-
-  if (viewer) {
-    const existingEnrollment = viewer.enrollments.find(
-      (enrollment) =>
-        enrollment.pathId === slug &&
-        (enrollment.status === "active" ||
-          enrollment.status === "completed" ||
-          enrollment.status === "pending_payment"),
-    )
-    if (existingEnrollment) {
-      redirect(
-        existingEnrollment.status === "pending_payment"
-          ? `${PUBLIC_ROUTES.workspace}/pesanan`
-          : PUBLIC_ROUTES.learning,
-      )
-    }
-  }
-
-  if (!viewer) {
-    return (
-      <div className="shell py-16">
-        <div className="mx-auto max-w-xl border border-ink/25 bg-paper-2 p-6 sm:p-9">
-          <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-copper-dark">
-            Checkout kelas
-          </p>
-          <h1 className="heading-section mt-2 text-[clamp(1.9rem,4vw,2.8rem)]">
-            Profil akun belum siap.
-          </h1>
-          <p className="mt-3 text-[13px] leading-relaxed text-ink-soft">
-            Sesi masuk ada, tetapi profil pembeli belum terbentuk. Hubungi
-            pengelola untuk menyelesaikan profil akun sebelum membeli.
-          </p>
-          <Link
-            href={pathHref(slug)}
-            className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
-          >
-            Kembali ke kelas
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
-  const path = await getPublicPath(slug)
-  if (!path) notFound()
 
   if (path.comingSoon || path.price === null || path.price <= 0) {
     return (
@@ -281,16 +232,11 @@ export default async function PathCheckoutPage({
           </div>
 
           <div className="lg:col-span-7">
-            <CheckoutForm
+            <CheckoutGate
               kind="path"
               slug={path.slug}
               title={path.title}
               price={path.price}
-              identity={{
-                name: viewer.name,
-                email: viewer.email,
-                whatsapp: viewer.whatsapp ?? viewer.phone,
-              }}
             />
           </div>
         </div>

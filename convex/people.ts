@@ -13,6 +13,7 @@ import { viewerForUser } from "./access"
 import { now, requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
 import type { Doc } from "./_generated/dataModel"
+import { hasLiveSession, revokeAuthSession } from "./users"
 import { mutation, query, type QueryCtx, type MutationCtx } from "./_generated/server"
 
 const tabValidator = v.union(
@@ -34,6 +35,21 @@ function roleLabel(roles: WorkspaceRole[]): string {
   if (roles.includes("teacher")) parts.push("Pengajar")
   if (roles.includes("student")) parts.push("Peserta")
   return parts.length > 0 ? parts.join(" · ") : "Tanpa peran"
+}
+
+async function requireAdminSession(
+  ctx: QueryCtx | MutationCtx,
+  capability: Parameters<typeof requireAdmin>[1],
+) {
+  const context = await requireAdmin(ctx, capability)
+  const identity = await ctx.auth.getUserIdentity()
+  if (!identity || !(await hasLiveSession(ctx, identity))) {
+    throw new ConvexError({
+      code: "SESSION_REVOKED",
+      message: "Sesi ini sudah berakhir. Masuk kembali.",
+    })
+  }
+  return context
 }
 
 type PersonContext = {
@@ -94,7 +110,10 @@ function toSummary(
         certificate.studentId === user._id && certificate.status === "issued",
     ).length,
     sessions: context.sessions.filter(
-      (session) => session.userId === user._id && !session.revokedAt,
+      (session) =>
+        session.userId === user._id &&
+        !session.revokedAt &&
+        session.expiresAt > Date.now(),
     ).length,
   }
 }
@@ -116,7 +135,7 @@ export const list = query({
     region: v.optional(v.string()),
   },
   handler: async (ctx, args): Promise<PersonSummary[]> => {
-    await requireAdmin(ctx, "people.read")
+    await requireAdminSession(ctx, "people.read")
     const context = await loadContext(ctx)
     const tab = args.tab ?? "users"
 
@@ -155,7 +174,7 @@ function recordView(
 export const get = query({
   args: { userId: v.id("users") },
   handler: async (ctx, args): Promise<PersonDetail | null> => {
-    await requireAdmin(ctx, "people.read")
+    await requireAdminSession(ctx, "people.read")
     const user = await ctx.db.get(args.userId)
     if (!user) return null
 
@@ -334,7 +353,7 @@ export const get = query({
 export const reactivate = mutation({
   args: { userId: v.id("users"), reason: v.string() },
   handler: async (ctx, args) => {
-    const { viewer } = await requireAdmin(ctx, "people.manage")
+    const { viewer } = await requireAdminSession(ctx, "people.manage")
     const reason = requireReason(args.reason)
     const user = await ctx.db.get(args.userId)
     if (!user) {
@@ -366,7 +385,7 @@ export const reactivate = mutation({
 export const revokeSessions = mutation({
   args: { userId: v.id("users"), reason: v.string() },
   handler: async (ctx, args) => {
-    const { viewer } = await requireAdmin(ctx, "people.manage")
+    const { viewer } = await requireAdminSession(ctx, "people.manage")
     const reason = requireReason(args.reason)
     const sessions = await ctx.db
       .query("sessions")
@@ -376,6 +395,7 @@ export const revokeSessions = mutation({
     let revoked = 0
     for (const session of sessions) {
       if (session.revokedAt) continue
+      await revokeAuthSession(ctx, session.authSessionId)
       await ctx.db.patch(session._id, {
         revokedAt: timestamp,
         revokedBy: viewer.userId,
@@ -410,7 +430,7 @@ export const verifyTeacher = mutation({
     pathIds: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    const { viewer } = await requireAdmin(ctx, "people.manage")
+    const { viewer } = await requireAdminSession(ctx, "people.manage")
     const reason = requireReason(args.reason)
     const teacher = await ctx.db.get(args.teacherId)
     if (!teacher) {
@@ -504,7 +524,7 @@ export const setTeacherPublication = mutation({
     reason: v.string(),
   },
   handler: async (ctx, args) => {
-    const { viewer } = await requireAdmin(ctx, "people.manage")
+    const { viewer } = await requireAdminSession(ctx, "people.manage")
     const reason = requireReason(args.reason)
     const teacher = await ctx.db.get(args.teacherId)
     if (!teacher) {
@@ -572,7 +592,7 @@ export const createTeacherProfile = mutation({
     reason: v.string(),
   },
   handler: async (ctx, args) => {
-    const { viewer } = await requireAdmin(ctx, "people.manage")
+    const { viewer } = await requireAdminSession(ctx, "people.manage")
     const reason = requireReason(args.reason)
     const user = await ctx.db.get(args.userId)
     if (!user) {
@@ -673,7 +693,7 @@ export const activateSeller = mutation({
     reason: v.string(),
   },
   handler: async (ctx, args) => {
-    const { viewer } = await requireAdmin(ctx, "people.manage")
+    const { viewer } = await requireAdminSession(ctx, "people.manage")
     const reason = requireReason(args.reason)
     const user = await ctx.db.get(args.userId)
     if (!user) {

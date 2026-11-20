@@ -158,6 +158,7 @@ export const createCulturalSource = mutation({
     accessLevel: accessLevelValidator,
     attribution: v.string(),
     notes: v.optional(v.string()),
+    reason: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { viewer } = await requireAdmin(ctx, "governance.manage")
@@ -165,13 +166,16 @@ export const createCulturalSource = mutation({
     const sourceName = args.sourceName.trim()
     const reference = args.permissionDocumentRef.trim()
     const attribution = args.attribution.trim()
+    const reason = args.reason
+      ? requireReason(args.reason)
+      : `Sumber budaya ${sourceName} dicatat.`
     if (!community || !sourceName || !reference || !attribution) {
       fail(
         "INVALID_SOURCE",
         "Komunitas, nama sumber, dokumen izin, dan atribusi wajib diisi.",
       )
     }
-    if (args.permissionDate <= 0) {
+    if (!Number.isFinite(args.permissionDate) || args.permissionDate <= 0) {
       fail("INVALID_SOURCE", "Tanggal izin tidak sah.")
     }
     if (args.workId) {
@@ -203,10 +207,11 @@ export const createCulturalSource = mutation({
       action: "governance.source.create",
       entityType: "culturalSources",
       entityId: sourceId,
-      reason: `Sumber budaya ${sourceName} dicatat.`,
+      reason,
       after: {
         community,
         permissionDocumentRef: reference,
+        permissionDate: args.permissionDate,
         accessLevel: args.accessLevel,
       },
     })

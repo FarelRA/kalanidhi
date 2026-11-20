@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useMutation } from "convex/react"
+import { useConvex, useMutation } from "convex/react"
 import { ArrowRight, KeyRound, MessageCircle } from "lucide-react"
 
 import { BrandLockup } from "@/components/brand/brand-mark"
@@ -18,12 +18,36 @@ function localizeAuthError(message: string, fallback: string): string {
   if (/invalid email or password/i.test(message)) {
     return "Email atau kata sandi tidak cocok."
   }
-  if (/user already exists/i.test(message)) {
+  if (/invalid (email|credentials)/i.test(message)) {
+    return "Email atau kata sandi tidak cocok."
+  }
+  if (/user already exists|email already (exists|registered|in use)/i.test(message)) {
     return "Email sudah terdaftar. Gunakan email lain."
+  }
+  if (/email.*not verified|verify your email/i.test(message)) {
+    return "Email belum diverifikasi. Periksa kotak masukmu."
+  }
+  if (/user not found|account not found/i.test(message)) {
+    return "Akun tidak ditemukan."
   }
   if (/invalid email/i.test(message)) return "Format email belum benar."
   if (/password/i.test(message) && /short|least/i.test(message)) {
     return "Kata sandi terlalu pendek."
+  }
+  if (/invalid password|password.*(incorrect|wrong)/i.test(message)) {
+    return "Kata sandi tidak cocok."
+  }
+  if (/too many (requests|attempts)/i.test(message)) {
+    return "Terlalu banyak percobaan. Coba lagi nanti."
+  }
+  if (/session (expired|not found)/i.test(message)) {
+    return "Sesi sudah berakhir. Silakan masuk lagi."
+  }
+  if (/failed to fetch|network|load failed/i.test(message)) {
+    return "Tidak dapat menghubungi server. Coba lagi."
+  }
+  if (/password/i.test(message) && /required/i.test(message)) {
+    return "Kata sandi wajib diisi."
   }
   return message || fallback
 }
@@ -43,6 +67,10 @@ type CompleteProfile = (args: {
   province: string
 }) => Promise<{ waUrl: string; expiresAt: number }>
 
+type CheckPhone = (args: {
+  phone: string
+}) => Promise<{ available: boolean; message: string | null }>
+
 export function SignInForm({
   nextPath,
   configured,
@@ -58,6 +86,7 @@ export function SignInForm({
         nextPath={nextPath}
         configured={false}
         completeProfile={null}
+        checkPhone={null}
         initialMode={initialMode}
       />
     )
@@ -75,11 +104,17 @@ function ConfiguredSignInForm({
   initialMode: Mode
 }) {
   const completeProfile = useMutation(api.users.completeProfile)
+  const convex = useConvex()
+  const checkPhone: CheckPhone = React.useCallback(
+    (args) => convex.query(api.users.checkPhoneAvailability, args),
+    [convex],
+  )
   return (
     <SignInFormView
       nextPath={nextPath}
       configured
       completeProfile={completeProfile}
+      checkPhone={checkPhone}
       initialMode={initialMode}
     />
   )
@@ -89,11 +124,13 @@ function SignInFormView({
   nextPath,
   configured,
   completeProfile,
+  checkPhone,
   initialMode,
 }: {
   nextPath: string
   configured: boolean
   completeProfile: CompleteProfile | null
+  checkPhone: CheckPhone | null
   initialMode: Mode
 }) {
   const router = useRouter()
@@ -130,6 +167,17 @@ function SignInFormView({
     setPending(true)
     try {
       if (mode === "signup") {
+        if (checkPhone) {
+          const availability = await checkPhone({ phone: phone.trim() })
+          if (!availability.available) {
+            setError(
+              availability.message ??
+                "Nomor WhatsApp ini tidak dapat dipakai.",
+            )
+            return
+          }
+        }
+
         const result = await authClient.signUp.email({
           name: name.trim() || email.split("@")[0],
           email: email.trim(),
@@ -151,11 +199,18 @@ function SignInFormView({
           return
         }
 
-        const profile = await completeProfile({
-          phone: phone.trim(),
-          province,
-        })
-        setWaUrl(profile.waUrl)
+        try {
+          const profile = await completeProfile({
+            phone: phone.trim(),
+            province,
+          })
+          setWaUrl(profile.waUrl)
+        } catch (caught) {
+          // The auth user exists by now. Remove it so a rejected profile
+          // cannot leave an orphaned account holding the email address.
+          await authClient.deleteUser({ password }).catch(() => undefined)
+          throw caught
+        }
         return
       }
 
@@ -170,8 +225,10 @@ function SignInFormView({
           message?: string
         } | null
         setError(
-          payload?.message ??
+          localizeAuthError(
+            payload?.message ?? "",
             "Nomor WhatsApp atau kata sandi tidak cocok.",
+          ),
         )
         return
       }
@@ -243,8 +300,8 @@ function SignInFormView({
             </h2>
             <p className="mt-2 text-[11.5px] leading-relaxed text-ink-muted">
               {mode === "signin"
-                ? "Gunakan nomor WhatsApp dan kata sandi akun KalaNidhi. Email hanya untuk pemulihan."
-                : "WhatsApp adalah identitas utama. Email tetap wajib untuk pemulihan dan pemberitahuan. Peran pengajar dan pengelola hanya melalui undangan."}
+                ? "Gunakan nomor WhatsApp dan kata sandi akun KalaNidhi. Email dipakai untuk pemberitahuan akun."
+                : "WhatsApp adalah identitas utama. Email tetap wajib untuk pemberitahuan dan verifikasi. Peran pengajar dan pengelola hanya melalui undangan."}
             </p>
 
             {!configured ? (
@@ -357,7 +414,7 @@ function SignInFormView({
                         placeholder="nama@email.com"
                       />
                       <span className="mt-1 block text-[9.5px] leading-relaxed text-ink-muted">
-                        Email sekunder, untuk pemulihan akun dan pemberitahuan.
+                        Email sekunder, untuk pemberitahuan dan verifikasi akun.
                       </span>
                     </label>
                   ) : null}

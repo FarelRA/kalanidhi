@@ -197,7 +197,8 @@ export const seedCredentials = internalMutation({
         provenance: work.region,
         permission: work.permission,
         accessLevel: "public",
-        status: "published",
+        // One card waits in teacher review so the review path is demonstrable.
+        status: work.slug === "geblek-renteng-beku" ? "submitted" : "published",
         createdAt: clock.ago(
           [323, 268, 213, 158, 103, 90, 60][index] ?? 60,
         ),

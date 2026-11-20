@@ -116,19 +116,25 @@ export const seedAuthAccounts = internalAction({
     let provisioned = 0
     for (const candidate of unmapped) {
       let authUserId: string | undefined
+      let created = false
       try {
-        const result = await auth.api.signUpEmail({
-          body: {
-            name: candidate.name,
-            email: candidate.email,
-            password: SEED_PASSWORD,
-          },
-        })
-        authUserId = (result as { user?: { id?: string } }).user?.id
+        // Look up first so an existing Better Auth account is never counted
+        // as a new provisioning.
+        authUserId = await findAuthUserByEmail(ctx, candidate.email)
         if (!authUserId) {
-          authUserId = await findAuthUserByEmail(ctx, candidate.email)
+          const result = await auth.api.signUpEmail({
+            body: {
+              name: candidate.name,
+              email: candidate.email,
+              password: SEED_PASSWORD,
+            },
+          })
+          authUserId = (result as { user?: { id?: string } }).user?.id
+          created = Boolean(authUserId)
+          if (!authUserId) {
+            authUserId = await findAuthUserByEmail(ctx, candidate.email)
+          }
         }
-        provisioned += 1
       } catch (error) {
         const message =
           error instanceof Error ? error.message : String(error)
@@ -161,6 +167,7 @@ export const seedAuthAccounts = internalAction({
           `Seed auth, Better Auth tidak mengembalikan id untuk ${candidate.email}.`,
         )
       }
+      if (created) provisioned += 1
       links.push({
         userId: candidate.userId as Id<"users">,
         email: candidate.email,
@@ -260,12 +267,25 @@ export const linkSeedAuthAccounts = internalMutation({
         duplicates += 1
       }
 
+      // Keep Better Auth's own flag in step with the Convex projection.
+      // Seeded addresses are treated as verified so the two sources agree.
+      try {
+        await ctx.runMutation(components.betterAuth.adapter.updateOne, {
+          input: {
+            model: "user",
+            where: [{ field: "_id", value: link.authUserId }],
+            update: { emailVerified: true, updatedAt: args.now },
+          },
+        })
+      } catch {
+        // A later reseed retries once the auth component is reachable.
+      }
+
       await ctx.db.patch(original._id, {
         authUserId: link.authUserId,
         emailVerified: true,
         updatedAt: args.now,
       })
-
       const email = normalizeSeedEmail(link.email)
       const existing = await ctx.db
         .query("seedAuthAccounts")
@@ -287,5 +307,80 @@ export const linkSeedAuthAccounts = internalMutation({
       linked += 1
     }
     return { linked, duplicates }
+  },
+})
+
+/**
+ * Neutralises the two accounts created by a live auth audit without deleting
+ * data or touching any other address. Run manually:
+ *
+ *   npx convex run seed/domains/auth:neutralizeAuditArtifacts
+ *
+ * The probe account is suspended and its sessions are revoked; the pending
+ * audit invite is revoked. Re-run after an audit recreates either row.
+ */
+export const neutralizeAuditArtifacts = internalMutation({
+  args: {
+    probeEmail: v.optional(v.string()),
+    inviteEmail: v.optional(v.string()),
+    now: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const timestamp = args.now ?? Date.now()
+    const probeEmail = (
+      args.probeEmail ?? "farel@kalanidhi.site"
+    ).toLowerCase()
+    const inviteEmail = (
+      args.inviteEmail ?? "audit.invite@example.com"
+    ).toLowerCase()
+
+    const users = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", probeEmail))
+      .collect()
+    let sessionsRevoked = 0
+    for (const user of users) {
+      const sessions = await ctx.db
+        .query("sessions")
+        .withIndex("by_userId", (q) => q.eq("userId", user._id))
+        .collect()
+      for (const session of sessions) {
+        if (session.revokedAt) continue
+        await ctx.db.patch(session._id, {
+          revokedAt: timestamp,
+          revokedReason: "Pembersihan akun probe audit.",
+        })
+        sessionsRevoked += 1
+      }
+      await ctx.db.patch(user._id, {
+        status: "suspended",
+        suspendedReason: "Akun probe audit dinetralkan.",
+        suspendedAt: timestamp,
+        updatedAt: timestamp,
+      })
+    }
+
+    const invites = await ctx.db
+      .query("invites")
+      .withIndex("by_email", (q) => q.eq("email", inviteEmail))
+      .collect()
+    let invitesRevoked = 0
+    for (const invite of invites) {
+      if (invite.status === "pending") {
+        await ctx.db.patch(invite._id, {
+          status: "revoked",
+          reason: "Undangan audit dicabut setelah pemeriksaan.",
+        })
+        invitesRevoked += 1
+      }
+    }
+
+    return {
+      probeEmail,
+      usersNeutralized: users.length,
+      sessionsRevoked,
+      inviteEmail,
+      invitesRevoked,
+    }
   },
 })

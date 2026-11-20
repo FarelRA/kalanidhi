@@ -1,8 +1,9 @@
 import type { TableNamesInDataModel } from "convex/server"
 
-import type { DataModel } from "../../_generated/dataModel"
+import type { DataModel, Doc } from "../../_generated/dataModel"
 import { internalMutation } from "../../_generated/server"
 import { SEED_ASSET_OWNER } from "../content/identities"
+import { isPlaceholderAuthId, normalizeSeedEmail } from "../lib/auth"
 
 const CLEAR_TABLES: TableNamesInDataModel<DataModel>[] = [
   "siteContent",
@@ -104,6 +105,19 @@ export const clearBatch = internalMutation({
       }
     }
 
+    // `seedAuthAccounts` survives clears, so it identifies accounts the seed
+    // owns even after Better Auth replaced their placeholder subject. Real
+    // signups are outside this scope and are kept. When the mapping is empty
+    // (legacy fixtures or a first run) fall back to the historical behaviour.
+    const mappings = await ctx.db.query("seedAuthAccounts").collect()
+    const seedEmails = new Set(
+      mappings.map((row) => normalizeSeedEmail(row.email)),
+    )
+    const hasSeedScope = seedEmails.size > 0
+    const isSeedUser = (user: Doc<"users">): boolean =>
+      isPlaceholderAuthId(user.authUserId) ||
+      seedEmails.has(normalizeSeedEmail(user.email))
+
     // Each pass must empty the table (or contain only preserved rows) before
     // the next one starts. A single `take(100)` used to leave the rest behind
     // once the growth seed pushed the user table past 100 rows.
@@ -113,6 +127,7 @@ export const clearBatch = internalMutation({
       let deleted = 0
       for (const user of users) {
         if (user.roles.includes("admin")) continue
+        if (hasSeedScope && !isSeedUser(user)) continue
         await ctx.db.delete(user._id)
         budget -= 1
         deleted += 1
@@ -127,7 +142,16 @@ export const clearBatch = internalMutation({
       let deleted = 0
       for (const session of sessions) {
         const user = await ctx.db.get(session.userId)
-        if (user && user.roles.includes("admin")) continue
+        const seedSession = session.authSessionId.startsWith("seed-session-")
+        if (
+          user &&
+          !seedSession &&
+          (user.roles.includes("admin") ||
+            !hasSeedScope ||
+            !isSeedUser(user))
+        ) {
+          continue
+        }
         await ctx.db.delete(session._id)
         budget -= 1
         deleted += 1

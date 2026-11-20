@@ -3,7 +3,7 @@
 import * as React from "react"
 import { ArrowRight, Download, Save, ShieldAlert } from "lucide-react"
 import { toast } from "sonner"
-import { useMutation, useQuery } from "convex/react"
+import { useMutation, useQuery_experimental } from "convex/react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,6 +23,7 @@ import {
 import type { FlowDefinitionView, StuckRecordView } from "@/lib/flows/types"
 import type { StatusTone } from "@/lib/workspace/types"
 import { cn } from "cn"
+import { errorMessage } from "./error-message"
 
 type StuckRow = StuckRecordView & { id: string }
 
@@ -36,9 +37,28 @@ function roleLabel(role: string): string {
     : role
 }
 
+/** Never round a sub-hour SLA down to "0 jam". */
+function formatMinutes(totalMinutes: number): string {
+  const minutes = Math.max(0, Math.round(totalMinutes))
+  if (minutes < 60) return `${minutes} menit`
+  const hours = Math.floor(minutes / 60)
+  const rest = minutes % 60
+  return rest > 0 ? `${hours} jam ${rest} menit` : `${hours} jam`
+}
+
 export function FlowBoardLive() {
-  const definitions = useQuery(api.flows.listDefinitions)
-  const stuck = useQuery(api.flows.stuckRecords, {})
+  const [retry, setRetry] = React.useState(0)
+  const definitionsState = useQuery_experimental({
+    query: api.flows.listDefinitions,
+    args: { nonce: retry },
+  })
+  const stuckState = useQuery_experimental({
+    query: api.flows.stuckRecords,
+    args: { nonce: retry },
+  })
+  const definitions =
+    definitionsState.status === "success" ? definitionsState.data : undefined
+  const stuck = stuckState.status === "success" ? stuckState.data : undefined
   const [activeKey, setActiveKey] = React.useState<string>("")
   const [selected, setSelected] = React.useState<StuckRecordView | null>(null)
   const [slaDraft, setSlaDraft] = React.useState<{
@@ -62,6 +82,20 @@ export function FlowBoardLive() {
       : active?.sla.escalationMinutes
         ? String(active.sla.escalationMinutes)
         : ""
+
+  if (definitionsState.status === "error") {
+    return (
+      <EmptyState
+        title="Definisi proses belum termuat"
+        description={`${errorMessage(definitionsState.error, "Permintaan melewati batas waktu.")} Papan proses memuat semua definisi sekaligus. Coba lagi.`}
+        action={
+          <Button size="sm" variant="outline" onClick={() => setRetry((value) => value + 1)}>
+            Coba lagi
+          </Button>
+        }
+      />
+    )
+  }
 
   if (definitions === undefined) {
     return <EmptyState title="Memuat definisi proses" description="Membaca definisi proses." />
@@ -92,7 +126,7 @@ export function FlowBoardLive() {
       })
     } catch (error) {
       toast("SLA gagal disimpan", {
-        description: error instanceof Error ? error.message : "Coba lagi.",
+        description: errorMessage(error),
       })
     }
   }
@@ -118,7 +152,7 @@ export function FlowBoardLive() {
       setToState("")
     } catch (error) {
       toast("Override gagal", {
-        description: error instanceof Error ? error.message : "Coba lagi.",
+        description: errorMessage(error),
       })
     }
   }
@@ -167,7 +201,7 @@ export function FlowBoardLive() {
             row.overdue ? "text-[#9a3423]" : "text-ink-soft",
           )}
         >
-          {Math.floor(row.ageMinutes / 60)} jam
+          {formatMinutes(row.ageMinutes)}
         </span>
       ),
     },
@@ -248,7 +282,7 @@ export function FlowBoardLive() {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <p className="text-[8px] font-bold uppercase tracking-[0.1em] text-copper-dark">
-                    {flow.states.length} keadaan · SLA {Math.round(flow.sla.targetMinutes / 60)} jam
+                    {flow.states.length} keadaan · SLA {formatMinutes(flow.sla.targetMinutes)}
                   </p>
                   <h2 className="mt-1 font-heading text-[1.1rem] leading-tight text-ink">
                     {flow.name}
@@ -386,6 +420,18 @@ export function FlowBoardLive() {
             </Panel>
           </div>
 
+          {stuckState.status === "error" ? (
+            <div className="flex flex-wrap items-center justify-between gap-3 border border-[#8a5a16]/40 bg-panel/50 px-3 py-2 text-[11px] leading-relaxed text-ink-soft">
+              <span>
+                Catatan macet belum termuat.{" "}
+                {errorMessage(stuckState.error, "Permintaan melewati batas waktu.")}
+              </span>
+              <Button size="sm" variant="outline" onClick={() => setRetry((value) => value + 1)}>
+                Muat ulang
+              </Button>
+            </div>
+          ) : null}
+
           <Panel eyebrow="Pemantauan" title="Catatan macet" bodyClassName="p-0">
             <DataTable
               rows={stuckRows}
@@ -426,7 +472,7 @@ export function FlowBoardLive() {
         title={selected?.label ?? ""}
         stamp={selected?.overdue ? "Lewat SLA" : "Dalam SLA"}
         tone={selected?.overdue ? "danger" : "wait"}
-        description={selected ? `${Math.floor(selected.ageMinutes / 60)} jam · pemilik ${selected.ownerName ?? "belum ada"}` : undefined}
+        description={selected ? `${formatMinutes(selected.ageMinutes)} · pemilik ${selected.ownerName ?? "belum ada"}` : undefined}
       >
         {selected ? (
           <div className="space-y-5">

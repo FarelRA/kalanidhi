@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { DataTable, type Column } from "@/components/workspace/data/data-table"
@@ -56,6 +57,29 @@ type PayoutAction =
   | { kind: "approve"; payout: PayoutView }
   | { kind: "release"; payout: PayoutView }
 
+type PayoutAccountRow = {
+  id: string
+  userId: string
+  userName: string
+  provider: "bank" | "gopay" | "other"
+  bankCode: string
+  accountName: string
+  accountNumberMasked: string
+  accountRef: string
+  status: "pending" | "verified" | "rejected" | "suspended"
+  verifiedBy: string | null
+  verifiedAt: number | null
+  createdAt: number
+  updatedAt: number
+}
+
+const ACCOUNT_STATUS_LABELS: Record<PayoutAccountRow["status"], string> = {
+  pending: "Menunggu verifikasi",
+  verified: "Terverifikasi",
+  rejected: "Ditolak",
+  suspended: "Ditangguhkan",
+}
+
 export function PayoutLedgerLive() {
   const { can } = useViewer()
   const payouts = useQuery(api.payouts.listPayouts, {})
@@ -68,6 +92,7 @@ export function PayoutLedgerLive() {
   const approvePayout = useMutation(api.payouts.approvePayout)
   const releasePayout = useMutation(api.payouts.releasePayout)
   const reversePayout = useMutation(api.payouts.reversePayout)
+  const accounts = useQuery(api.payouts.listPayoutAccounts, {})
 
   const release = can("payouts.release")
   const [tab, setTab] = React.useState("payouts")
@@ -78,7 +103,21 @@ export function PayoutLedgerLive() {
 
   const rows = payouts ?? []
   const entries = ledger ?? []
+  const accountRows = (accounts ?? []) as PayoutAccountRow[]
   const saleRows = rows.filter((row) => row.kind === "sale")
+  const teacherReversalsByOrder = new Map<string, number>()
+  for (const entry of entries) {
+    if (
+      entry.account === "teacher" &&
+      entry.entryType === "reversal" &&
+      entry.orderId
+    ) {
+      teacherReversalsByOrder.set(
+        entry.orderId,
+        (teacherReversalsByOrder.get(entry.orderId) ?? 0) + entry.amount,
+      )
+    }
+  }
   const totals = saleRows.reduce(
     (acc, row) => {
       if (row.status !== "reversed") {
@@ -91,9 +130,16 @@ export function PayoutLedgerLive() {
     },
     { gross: 0, teacher: 0, platform: 0, community: 0 },
   )
+  // Pending must be net of refund reversals, not the original sale share.
   const pendingTotal = saleRows
     .filter((row) => ["pending", "held", "approved"].includes(row.status))
-    .reduce((sum, row) => sum + row.teacherShare, 0)
+    .reduce(
+      (sum, row) =>
+        sum +
+        row.teacherShare -
+        (row.orderId ? (teacherReversalsByOrder.get(row.orderId) ?? 0) : 0),
+      0,
+    )
   const paidTotal = saleRows
     .filter((row) => row.status === "paid")
     .reduce((sum, row) => sum + (row.paidAmount ?? row.teacherShare), 0)
@@ -143,13 +189,21 @@ export function PayoutLedgerLive() {
 
       <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
         {[
-          ["Bruto pada tampilan", formatIDR(totals.gross), `${saleRows.length} baris`],
+          [
+            "Bruto sebelum refund",
+            formatIDR(totals.gross),
+            `${saleRows.length} baris, belum dikurangi pembalikan`,
+          ],
           [
             "Bagian pembuat",
             formatIDR(totals.teacher),
             `${TEACHER_SHARE_LABEL} dari bruto`,
           ],
-          ["Belum cair sebelum pembalikan", formatIDR(pendingTotal), "menunggu / ditahan / disetujui"],
+          [
+            "Belum cair (neto refund)",
+            formatIDR(pendingTotal),
+            "menunggu / ditahan / disetujui, setelah pembalikan refund",
+          ],
           ["Sudah cair", formatIDR(paidTotal), "payout berstatus dibayar"],
         ].map(([label, value, note]) => (
           <div key={label} className="border border-ink/20 bg-paper-2 p-4">
@@ -162,12 +216,20 @@ export function PayoutLedgerLive() {
         ))}
       </div>
 
+      <PayoutAccountPanel
+        accounts={accountRows}
+        manager={can("people.manage")}
+      />
+
       {!release && statement ? (
         <Panel eyebrow="Rekap" title={`Ringkasan ${statement.teacherName}`}>
           <dl className="grid gap-3 sm:grid-cols-3">
             {[
-              ["Penjualan bruto", formatIDR(statement.grossSales)],
+              ["Penjualan bruto sebelum refund", formatIDR(statement.grossSales)],
               ["Bagian pembuat", formatIDR(statement.teacherEarned)],
+              ["Bagian platform", formatIDR(statement.platformShare)],
+              ["Bagian komunitas", formatIDR(statement.communityShare)],
+              ["Biaya gerbang", formatIDR(statement.gatewayFees)],
               ["Sudah dibayar", formatIDR(statement.teacherPaid)],
               ["Pembalikan", formatIDR(statement.teacherReversed)],
               ["Saldo negatif", formatIDR(statement.teacherNegativeBalance)],
@@ -270,7 +332,7 @@ export function PayoutLedgerLive() {
           if (!open) setSelected(null)
         }}
         eyebrow="Payout"
-        title={selected?.reference ?? selected?.orderCode ?? ""}
+        title={selected?.orderCode ?? selected?.reference ?? ""}
         stamp={selected ? PAYOUT_STATUS_LABELS[selected.status] : undefined}
         tone={selected ? PAYOUT_STATUS_TONES[selected.status] : undefined}
         description={
@@ -462,6 +524,253 @@ export function PayoutLedgerLive() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+function PayoutAccountPanel({
+  accounts,
+  manager,
+}: {
+  accounts: PayoutAccountRow[]
+  manager: boolean
+}) {
+  const requestAccount = useMutation(api.payouts.requestPayoutAccount)
+  const verifyAccount = useMutation(api.payouts.verifyPayoutAccount)
+  const own = accounts[0] ?? null
+  const [pending, setPending] = React.useState(false)
+  const [verifyTarget, setVerifyTarget] =
+    React.useState<PayoutAccountRow | null>(null)
+  const [reason, setReason] = React.useState("")
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (pending) return
+    const form = new FormData(event.currentTarget)
+    setPending(true)
+    try {
+      await requestAccount({
+        provider: String(form.get("provider") ?? "bank") as PayoutAccountRow["provider"],
+        bankCode: String(form.get("bankCode") ?? "").trim(),
+        accountName: String(form.get("accountName") ?? "").trim(),
+        accountNumberMasked: String(form.get("accountNumberMasked") ?? "").trim(),
+        accountRef: String(form.get("accountRef") ?? "").trim(),
+      })
+      toast("Rekening payout disimpan", {
+        description: "Menunggu verifikasi pengelola sebelum pencairan.",
+      })
+    } catch (error) {
+      const data =
+        typeof error === "object" && error && "data" in error
+          ? (error as { data?: { message?: string } }).data
+          : undefined
+      toast("Rekening belum dapat disimpan", {
+        description: data?.message ?? "Periksa data rekening.",
+      })
+    } finally {
+      setPending(false)
+    }
+  }
+
+  async function verify() {
+    if (!verifyTarget || pending) return
+    setPending(true)
+    try {
+      await verifyAccount({
+        accountId: verifyTarget.id as never,
+        reason,
+      })
+      toast("Rekening diverifikasi")
+      setVerifyTarget(null)
+      setReason("")
+    } catch (error) {
+      const data =
+        typeof error === "object" && error && "data" in error
+          ? (error as { data?: { message?: string } }).data
+          : undefined
+      toast("Verifikasi belum dapat dijalankan", {
+        description: data?.message ?? "Periksa rekening dan alasan.",
+      })
+    } finally {
+      setPending(false)
+    }
+  }
+
+  return (
+    <Panel
+      eyebrow="Pencairan"
+      title={manager ? "Verifikasi rekening penjual" : "Rekening payout"}
+    >
+      {manager ? (
+        accounts.length === 0 ? (
+          <p className="text-[11px] text-ink-muted">
+            Belum ada penjual yang mengirim rekening.
+          </p>
+        ) : (
+          <ul className="divide-y divide-ink/10">
+            {accounts.map((account) => (
+              <li
+                key={account.id}
+                className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+              >
+                <div>
+                  <p className="text-[11.5px] font-semibold text-ink">
+                    {account.userName} · {account.accountName}
+                  </p>
+                  <p className="mt-0.5 text-[10px] text-ink-muted">
+                    {account.provider === "bank"
+                      ? account.bankCode
+                      : account.provider}{" "}
+                    · {account.accountNumberMasked} ·{" "}
+                    {ACCOUNT_STATUS_LABELS[account.status]}
+                  </p>
+                </div>
+                {account.status === "pending" ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setVerifyTarget(account)}
+                  >
+                    Verifikasi
+                  </Button>
+                ) : account.verifiedAt ? (
+                  <span className="text-[10px] text-ink-muted">
+                    {formatCommerceDateTime(account.verifiedAt)}
+                  </span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )
+      ) : (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 border border-ink/15 bg-cream/60 p-3">
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">
+                Status rekening
+              </p>
+              <p className="mt-1 text-[11.5px] font-semibold text-ink">
+                {own ? ACCOUNT_STATUS_LABELS[own.status] : "Belum diisi"}
+              </p>
+            </div>
+            {own ? (
+              <p className="text-[10px] text-ink-muted">
+                {own.provider === "bank" ? own.bankCode : own.provider} ·{" "}
+                {own.accountNumberMasked}
+              </p>
+            ) : null}
+          </div>
+          <form
+            key={own ? `${own.id}:${own.updatedAt}` : "new"}
+            onSubmit={submit}
+            className="grid gap-3 sm:grid-cols-2"
+          >
+            <div>
+              <Label htmlFor="payout-provider">Jenis rekening</Label>
+              <select
+                id="payout-provider"
+                name="provider"
+                defaultValue={own?.provider ?? "bank"}
+                className="mt-1.5 min-h-10 w-full border border-ink/25 bg-paper px-3 text-[12px]"
+              >
+                <option value="bank">Bank</option>
+                <option value="gopay">GoPay</option>
+                <option value="other">Lainnya</option>
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="payout-bank">Kode bank / penyedia</Label>
+              <Input
+                id="payout-bank"
+                name="bankCode"
+                defaultValue={own?.bankCode ?? ""}
+                placeholder="Misalnya BCA"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="payout-name">Nama pemilik rekening</Label>
+              <Input
+                id="payout-name"
+                name="accountName"
+                defaultValue={own?.accountName ?? ""}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="payout-number">Nomor rekening (masked)</Label>
+              <Input
+                id="payout-number"
+                name="accountNumberMasked"
+                defaultValue={own?.accountNumberMasked ?? ""}
+                placeholder="**** **** 1234"
+                required
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="payout-ref">Referensi vault</Label>
+              <Input
+                id="payout-ref"
+                name="accountRef"
+                defaultValue={own?.accountRef ?? ""}
+                placeholder="ID rekening pada penyimpanan aman"
+                required
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Button type="submit" disabled={pending}>
+                {own ? "Kirim ulang untuk verifikasi" : "Simpan rekening"}
+              </Button>
+              <p className="mt-2 text-[10px] leading-relaxed text-ink-muted">
+                Mengubah rekening mengembalikan status ke menunggu verifikasi.
+                Pencairan diblokir sampai pengelola memverifikasi.
+              </p>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <Dialog
+        open={Boolean(verifyTarget)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setVerifyTarget(null)
+            setReason("")
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Verifikasi rekening payout</DialogTitle>
+            <DialogDescription>
+              {verifyTarget
+                ? `${verifyTarget.userName} · ${verifyTarget.accountName} · ${verifyTarget.accountNumberMasked}`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <div>
+            <Label htmlFor="verify-account-reason">Alasan verifikasi</Label>
+            <Textarea
+              id="verify-account-reason"
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
+              className="mt-2 min-h-24"
+              placeholder="Cocokkan nama dan nomor rekening dengan dokumen penjual."
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setVerifyTarget(null)}>
+              Batal
+            </Button>
+            <Button
+              disabled={pending || reason.trim().length < 8}
+              onClick={() => void verify()}
+            >
+              Verifikasi rekening
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Panel>
   )
 }
 

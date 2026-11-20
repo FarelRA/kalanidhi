@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { PageHeader } from "@/components/workspace/data/page-header"
 import { Panel } from "@/components/workspace/data/panel"
 import { api } from "@/convex/_generated/api"
+import { errorMessage } from "@/components/workspace/governance/error-message"
 
 type FaqRow = {
   id: string
@@ -84,7 +85,7 @@ export function FaqManager() {
       setReason("")
     } catch (error) {
       toast("FAQ belum bisa disimpan", {
-        description: error instanceof Error ? error.message : "Coba lagi.",
+        description: errorMessage(error),
       })
     } finally {
       setPending(false)
@@ -103,7 +104,7 @@ export function FaqManager() {
       setReason("")
     } catch (error) {
       toast("FAQ belum bisa dihapus", {
-        description: error instanceof Error ? error.message : "Coba lagi.",
+        description: errorMessage(error),
       })
     } finally {
       setPending(false)
@@ -124,7 +125,7 @@ export function FaqManager() {
       toast("Urutan FAQ disimpan")
     } catch (error) {
       toast("Urutan belum bisa disimpan", {
-        description: error instanceof Error ? error.message : "Coba lagi.",
+        description: errorMessage(error),
       })
     } finally {
       setPending(false)

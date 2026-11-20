@@ -14,6 +14,7 @@ import { api } from "@/convex/_generated/api"
 import { downloadCsv } from "@/lib/admin/csv"
 import type { MetricHistoryPoint, MetricResult } from "@/lib/admin/types"
 import { useMutation, useQuery } from "convex/react"
+import { errorMessage } from "./error-message"
 
 function toDateInput(timestamp: number): string {
   const shifted = new Date(timestamp + 7 * 60 * 60 * 1_000)
@@ -26,22 +27,29 @@ function fromDateInput(value: string, endOfDay = false): number | undefined {
   return base.getTime()
 }
 
-function formatMetric(metric: MetricResult): string {
-  if (metric.value === null) return "Belum ada data"
-  if (metric.unit === "rupiah") {
+function formatMetricValue(
+  unit: MetricResult["unit"],
+  value: number,
+): string {
+  if (unit === "rupiah") {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
       currency: "IDR",
       maximumFractionDigits: 0,
-    }).format(metric.value)
+    }).format(value)
   }
-  if (metric.unit === "ratio") return `${(metric.value * 100).toFixed(1)}%`
-  if (metric.unit === "hours") return `${metric.value.toFixed(1)} jam`
-  if (metric.unit === "minutes") return `${metric.value.toFixed(0)} menit`
-  if (metric.unit === "days") return `${metric.value.toFixed(0)} hari`
+  if (unit === "ratio") return `${(value * 100).toFixed(1)}%`
+  if (unit === "hours") return `${value.toFixed(1)} jam`
+  if (unit === "minutes") return `${value.toFixed(0)} menit`
+  if (unit === "days") return `${value.toFixed(0)} hari`
   return new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(
-    metric.value,
+    value,
   )
+}
+
+function formatMetric(metric: MetricResult): string {
+  if (metric.value === null) return "Belum ada data"
+  return formatMetricValue(metric.unit, metric.value)
 }
 
 function formatHistoryValue(value: number): string {
@@ -79,17 +87,7 @@ function MetricTrend({ points }: { points: MetricHistoryPoint[] }) {
 
 function formatPrevious(metric: MetricResult): string {
   if (metric.previous === null) return "tanpa pembanding"
-  if (metric.unit === "ratio") return `sebelumnya ${(metric.previous * 100).toFixed(1)}%`
-  if (metric.unit === "rupiah") {
-    return `sebelumnya ${new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(metric.previous)}`
-  }
-  return `sebelumnya ${new Intl.NumberFormat("id-ID", {
-    maximumFractionDigits: 1,
-  }).format(metric.previous)}`
+  return `sebelumnya ${formatMetricValue(metric.unit, metric.previous)}`
 }
 
 export function StatsLive() {
@@ -133,7 +131,7 @@ export function StatsLive() {
       toast("Ekspor statistik tercatat")
     } catch (error) {
       toast("Ekspor gagal", {
-        description: error instanceof Error ? error.message : "Coba lagi.",
+        description: errorMessage(error),
       })
     }
   }

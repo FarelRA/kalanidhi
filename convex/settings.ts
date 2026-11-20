@@ -22,6 +22,7 @@ import { isHttpUrl, requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
 import { CONSENT_KINDS } from "../lib/settings/options"
 import type { Doc } from "./_generated/dataModel"
+import { hasLiveSession, revokeAuthSession } from "./users"
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"
 
 const NOTIFICATION_DEFAULTS: ProfilePreferences["notifications"] = {
@@ -88,6 +89,9 @@ async function currentUser(
 ): Promise<{ user: Doc<"users">; viewer: Awaited<ReturnType<typeof viewerForUser>> }> {
   const identity = await ctx.auth.getUserIdentity()
   if (!identity) fail("UNAUTHENTICATED", "Masuk diperlukan.")
+  if (!(await hasLiveSession(ctx, identity))) {
+    fail("SESSION_REVOKED", "Sesi ini sudah berakhir. Masuk kembali.")
+  }
   const user = await ctx.db
     .query("users")
     .withIndex("by_authUserId", (q) => q.eq("authUserId", identity.subject))
@@ -331,6 +335,7 @@ export const revokeSession = mutation({
     }
     if (session.revokedAt) return null
     const timestamp = Date.now()
+    await revokeAuthSession(ctx, session.authSessionId)
     await ctx.db.patch(session._id, {
       revokedAt: timestamp,
       revokedBy: viewer.userId,

@@ -233,6 +233,11 @@ export const createAuthOptions = (ctx: GenericCtx<DataModel>) => {
     emailAndPassword: {
       enabled: true,
     },
+    user: {
+      deleteUser: {
+        enabled: true,
+      },
+    },
     trustedOrigins: process.env.SITE_URL ? [process.env.SITE_URL] : [],
     plugins: [convex({ authConfig })],
   } satisfies BetterAuthOptions

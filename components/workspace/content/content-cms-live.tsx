@@ -30,8 +30,10 @@ import {
 } from "@/lib/content/status"
 import type { ContentDocument } from "@/lib/content/types"
 import { validateContentDocument } from "@/lib/validation/content"
-import { useMutation, useQuery } from "convex/react"
+import { useMutation, useQuery, useQuery_experimental } from "convex/react"
 import { cn } from "cn"
+import { errorMessage } from "@/components/workspace/governance/error-message"
+import { revalidatePublicLanding } from "@/app/ruang/konten/actions"
 
 const GROUPS: { id: string; label: string; path: string[] }[] = [
   { id: "hero", label: "Hero", path: ["hero"] },
@@ -283,7 +285,12 @@ function FieldNode({
 }
 
 export function ContentCmsLive() {
-  const state = useQuery(api.content.getAdminState)
+  const [retry, setRetry] = React.useState(0)
+  const stateResult = useQuery_experimental({
+    query: api.content.getAdminState,
+    args: { nonce: retry },
+  })
+  const state = stateResult.status === "success" ? stateResult.data : undefined
   const saveDraft = useMutation(api.content.saveDraft)
   const publish = useMutation(api.content.publish)
   const rollback = useMutation(api.content.rollback)
@@ -344,7 +351,7 @@ export function ContentCmsLive() {
       setNote("")
     } catch (error) {
       toast("Draf belum bisa disimpan", {
-        description: error instanceof Error ? error.message : "Periksa validasi.",
+        description: errorMessage(error, "Periksa validasi."),
       })
     }
   }
@@ -354,38 +361,68 @@ export function ContentCmsLive() {
       toast("Simpan draf terlebih dahulu")
       return
     }
+    const scheduled = scheduledFor
+      ? new Date(`${scheduledFor}:00+07:00`).getTime()
+      : undefined
+    if (scheduledFor && (!scheduled || !Number.isFinite(scheduled))) {
+      toast("Jadwal terbit tidak sah", {
+        description: "Pilih tanggal dan jam Asia/Jakarta yang valid.",
+      })
+      return
+    }
     try {
-      const scheduled = scheduledFor
-        ? new Date(`${scheduledFor}:00+07:00`).getTime()
-        : undefined
       await publish({
         version: state.draft.version,
         note: note || "Terbitkan dari editor",
         scheduledFor: scheduled,
         confirmSensitive,
       })
-      toast(
-        scheduled && scheduled > Date.now()
-          ? "Penerbitan dijadwalkan"
-          : "Konten diterbitkan",
-        {
-          description: scheduled
-            ? "Revisi akan terbit pada waktu Asia/Jakarta yang dipilih."
-            : "Landing publik memakai revisi ini.",
-        },
-      )
+      const isScheduled = Boolean(scheduled && scheduled > Date.now())
+      try {
+        await revalidatePublicLanding()
+      } catch {
+        // Publishing succeeded even when the cache hook is unavailable.
+      }
+      toast(isScheduled ? "Penerbitan dijadwalkan" : "Konten diterbitkan", {
+        description: isScheduled
+          ? "Revisi akan terbit pada waktu Asia/Jakarta yang dipilih oleh cron setiap lima menit."
+          : "Landing publik memakai revisi ini. Cache halaman diperbarui. Bila CDN masih menyimpan versi lama, tunggu sampai satu menit.",
+      })
       setPublishOpen(false)
       setScheduledFor("")
       setConfirmSensitive(false)
     } catch (error) {
       toast("Konten belum bisa diterbitkan", {
-        description: error instanceof Error ? error.message : "Periksa validasi.",
+        description: errorMessage(error, "Periksa validasi."),
       })
     }
   }
 
   async function openRevision(version: number) {
     setSelectedRevision(version)
+  }
+
+  if (stateResult.status === "error") {
+    return (
+      <div className="space-y-4">
+        <PageHeader eyebrow="Konten" title="Editor konten belum termuat." />
+        <div className="border border-[#8a5a16]/40 bg-panel/50 p-4">
+          <p className="text-[12px] leading-relaxed text-ink-soft">
+            {errorMessage(stateResult.error, "Permintaan melewati batas waktu.")}{" "}
+            Editor memuat seluruh riwayat revisi sekaligus. Coba lagi tanpa
+            menutup halaman.
+          </p>
+          <Button
+            size="sm"
+            variant="outline"
+            className="mt-3"
+            onClick={() => setRetry((value) => value + 1)}
+          >
+            Coba lagi
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   if (state === undefined || activeDraft === null) {
@@ -427,10 +464,12 @@ export function ContentCmsLive() {
               <Save aria-hidden="true" />
               Simpan draf
             </Button>
-            <Button onClick={() => setPublishOpen(true)} disabled={readOnly || !state.draft}>
-              <Send aria-hidden="true" />
-              Terbitkan
-            </Button>
+            {state.draft ? (
+              <Button onClick={() => setPublishOpen(true)} disabled={readOnly}>
+                <Send aria-hidden="true" />
+                Terbitkan
+              </Button>
+            ) : null}
           </>
         }
       />
@@ -577,6 +616,16 @@ export function ContentCmsLive() {
                         minute: "2-digit",
                       }).format(new Date(revision.createdAt))}
                     </span>
+                    {revision.scheduledFor ? (
+                      <span className="mt-0.5 block text-[8.5px] font-bold uppercase tracking-[0.05em] text-[#8a5a16]">
+                        Terbit{" "}
+                        {new Intl.DateTimeFormat("id-ID", {
+                          timeZone: "Asia/Jakarta",
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        }).format(new Date(revision.scheduledFor))}
+                      </span>
+                    ) : null}
                   </span>
                   <div className="flex flex-col gap-1">
                     <button
@@ -595,13 +644,17 @@ export function ContentCmsLive() {
                               version: revision.version,
                               note: `Balik ke v${revision.version}`,
                             })
+                            try {
+                              await revalidatePublicLanding()
+                            } catch {
+                              // The rollback is already committed.
+                            }
                             toast("Konten dibalik", {
-                              description: `Revisi baru dibuat dari v${revision.version}.`,
+                              description: `Revisi baru dibuat dari v${revision.version}. Landing publik memakai versi ini.`,
                             })
                           } catch (error) {
                             toast("Pembalikan gagal", {
-                              description:
-                                error instanceof Error ? error.message : "Coba lagi.",
+                              description: errorMessage(error),
                             })
                           }
                         }}
@@ -826,7 +879,7 @@ function RevisionDrawer({
             </div>
             <div>
               <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">Penulis</p>
-              <p className="mt-1 text-ink">{revision.authorId}</p>
+              <p className="mt-1 text-ink">{revision.authorName}</p>
             </div>
             <div>
               <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">Dibuat</p>
@@ -847,6 +900,18 @@ function RevisionDrawer({
                       dateStyle: "medium",
                       timeStyle: "short",
                     }).format(new Date(revision.publishedAt))
+                  : "-"}
+              </p>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted">Jadwal terbit</p>
+              <p className="mt-1 text-ink">
+                {revision.scheduledFor
+                  ? new Intl.DateTimeFormat("id-ID", {
+                      timeZone: "Asia/Jakarta",
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    }).format(new Date(revision.scheduledFor))
                   : "-"}
               </p>
             </div>

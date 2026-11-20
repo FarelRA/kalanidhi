@@ -38,6 +38,7 @@ import {
 } from "@/lib/leads/options"
 import type { StatusTone } from "@/lib/workspace/types"
 import { useMutation, useQuery } from "convex/react"
+import { errorMessage } from "./error-message"
 
 type View = "new" | "follow" | "institutions" | "done" | "spam" | "all"
 
@@ -98,7 +99,7 @@ export function LeadsLive() {
       setReason("")
     } catch (error) {
       toast("Tindakan gagal", {
-        description: error instanceof Error ? error.message : "Coba lagi.",
+        description: errorMessage(error),
       })
     }
   }
@@ -127,7 +128,7 @@ export function LeadsLive() {
       })
     } catch (error) {
       toast("Ekspor gagal", {
-        description: error instanceof Error ? error.message : "Coba lagi.",
+        description: errorMessage(error),
       })
     }
   }
@@ -603,7 +604,7 @@ function LeadDrawer({
                     toast("Catatan ditambahkan")
                   } catch (error) {
                     toast("Catatan gagal", {
-                      description: error instanceof Error ? error.message : "Coba lagi.",
+                      description: errorMessage(error),
                     })
                   }
                 }}

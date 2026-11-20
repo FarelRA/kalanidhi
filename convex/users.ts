@@ -13,6 +13,7 @@ import {
   requireCapability,
   viewerForUser,
 } from "./access"
+import { components } from "./_generated/api"
 import type { Doc, Id } from "./_generated/dataModel"
 import {
   internalMutation,
@@ -29,6 +30,42 @@ const VERIFICATION_TTL_MS = 15 * 60_000
 
 function now(): number {
   return Date.now()
+}
+
+/**
+ * The Convex JWT carries the Better Auth `sessionId` claim. A session that was
+ * revoked from the settings projection must stop resolving a viewer even while
+ * the cached JWT is still within its short lifetime.
+ */
+export async function hasLiveSession(
+  ctx: QueryCtx | MutationCtx,
+  identity: unknown,
+): Promise<boolean> {
+  const sessionId = (identity as { sessionId?: unknown } | null)?.sessionId
+  if (typeof sessionId !== "string" || !sessionId) return true
+  const session = await ctx.db
+    .query("sessions")
+    .withIndex("by_authSessionId", (q) => q.eq("authSessionId", sessionId))
+    .unique()
+  if (!session) return true
+  return !session.revokedAt && session.expiresAt > now()
+}
+
+/** Deletes the real Better Auth session so it can no longer be refreshed. */
+export async function revokeAuthSession(
+  ctx: MutationCtx,
+  authSessionId: string,
+): Promise<void> {
+  try {
+    await ctx.runMutation(components.betterAuth.adapter.deleteOne, {
+      input: {
+        model: "session",
+        where: [{ field: "_id", value: authSessionId }],
+      },
+    })
+  } catch {
+    // The local projection still blocks the session while the JWT is cached.
+  }
 }
 
 async function sha256Hex(value: string): Promise<string> {
@@ -116,6 +153,7 @@ async function currentUser(
 ): Promise<{ user: Doc<"users">; viewer: Viewer } | null> {
   const identity = await ctx.auth.getUserIdentity()
   if (!identity) return null
+  if (!(await hasLiveSession(ctx, identity))) return null
 
   const user = await ctx.db
     .query("users")
@@ -188,6 +226,42 @@ export const current = query({
   handler: async (ctx): Promise<Viewer | null> => {
     const currentAccount = await currentUser(ctx)
     return currentAccount?.viewer ?? null
+  },
+})
+
+/**
+ * Validates the login number before Better Auth creates an auth user, so a
+ * rejected number cannot leave an orphan account behind.
+ */
+export const checkPhoneAvailability = query({
+  args: { phone: v.string() },
+  handler: async (
+    ctx,
+    args,
+  ): Promise<{ available: boolean; message: string | null }> => {
+    let phone: string
+    try {
+      phone = normalizeIndonesianPhone(args.phone)
+    } catch (error) {
+      return {
+        available: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : "Nomor WhatsApp tidak sah.",
+      }
+    }
+    const duplicates = await ctx.db
+      .query("users")
+      .withIndex("by_phone", (q) => q.eq("phone", phone))
+      .collect()
+    if (duplicates.length > 0) {
+      return {
+        available: false,
+        message: "Nomor WhatsApp ini sudah dipakai akun lain.",
+      }
+    }
+    return { available: true, message: null }
   },
 })
 
@@ -577,6 +651,7 @@ export const suspend = mutation({
     let revoked = 0
     for (const session of sessions) {
       if (session.revokedAt) continue
+      await revokeAuthSession(ctx, session.authSessionId)
       await ctx.db.patch(session._id, {
         revokedAt: timestamp,
         revokedBy: viewer.userId,

@@ -36,6 +36,7 @@ import {
   formatCommerceDateTime,
   ORDER_STATUS_LABELS,
   PAYMENT_STATUS_LABELS,
+  PAYOUT_STATUS_LABELS,
   REFUND_STATUS_LABELS,
 } from "@/lib/commerce/format"
 import {
@@ -68,6 +69,10 @@ export function OrdersLive() {
   const orders = useQuery(api.commerce.listOrders, {})
   const refunds = useQuery(api.payouts.listRefunds, {})
   const disputes = useQuery(api.commerce.listOrderDisputes, {})
+  const payouts = useQuery(
+    api.payouts.listPayouts,
+    can("payouts.view.own") || can("payouts.release") ? {} : "skip",
+  )
 
   const startOrder = useMutation(api.commerce.startOrder)
   const deliverOrder = useMutation(api.commerce.deliverOrder)
@@ -132,6 +137,13 @@ export function OrdersLive() {
         !["awaiting_payment", "draft", "cancelled"].includes(order.status),
     )
     .reduce((sum, order) => sum + order.baseAmount, 0)
+  const refundedTotal = visible
+    .filter((order) => order.status === "refunded")
+    .reduce((sum, order) => sum + order.baseAmount, 0)
+  const netGross = gross - refundedTotal
+  const selectedPayout = selected?.payoutId
+    ? ((payouts ?? []).find((payout) => payout.id === selected.payoutId) ?? null)
+    : null
 
   function closeDialog() {
     setDialog(null)
@@ -186,7 +198,7 @@ export function OrdersLive() {
 
       <div className="grid gap-2.5 sm:grid-cols-3">
         {[
-          ["Nilai diproses", formatIDR(gross), `${visible.length} pesanan`],
+          ["Bruto sebelum refund", formatIDR(gross), `${visible.length} pesanan · neto ${formatIDR(netGross)}`],
           [
             "Menunggu pembayaran",
             String(visible.filter((order) => order.status === "awaiting_payment").length),
@@ -326,8 +338,9 @@ export function OrdersLive() {
             minWidth={860}
             footer={
               <p>
-                {visible.length} pesanan · nilai {formatIDR(gross)}. Baris ledger
-                tidak diedit. Koreksi memakai entri pembalik.
+                {visible.length} pesanan · bruto sebelum refund {formatIDR(gross)} ·
+                neto {formatIDR(netGross)}. Baris ledger tidak diedit. Koreksi
+                memakai entri pembalik.
               </p>
             }
           />
@@ -463,7 +476,14 @@ export function OrdersLive() {
                       ] ?? selected.paymentStatus)
                     : "Belum",
                 },
-                { label: "Payout", value: selected.payoutId ?? "Belum dijadwalkan" },
+                {
+                  label: "Payout",
+                  value: selectedPayout
+                    ? `${selectedPayout.orderCode ?? selectedPayout.reference ?? "Payout"} · ${PAYOUT_STATUS_LABELS[selectedPayout.status] ?? selectedPayout.status}`
+                    : selected.payoutId
+                      ? "Payout tercatat, rincian belum dimuat"
+                      : "Belum dijadwalkan",
+                },
                 {
                   label: "Dibatalkan",
                   value: selected.cancelledAt

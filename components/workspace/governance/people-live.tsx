@@ -52,6 +52,7 @@ import { ENROLLMENT_STATUS_LABELS } from "@/lib/learning/options"
 import type { PersonSummary } from "@/lib/admin/types"
 import type { StatusTone } from "@/lib/workspace/types"
 import { useMutation, useQuery } from "convex/react"
+import { errorMessage } from "./error-message"
 
 const INVITABLE_ROLES = WORKSPACE_ROLES.filter((role) => role !== "student")
 
@@ -115,7 +116,7 @@ export function PeopleLive() {
       setReason("")
     } catch (error) {
       toast("Tindakan gagal", {
-        description: error instanceof Error ? error.message : "Coba lagi.",
+        description: errorMessage(error),
       })
     }
   }
@@ -133,7 +134,7 @@ export function PeopleLive() {
       })
     } catch (error) {
       toast("Undangan gagal", {
-        description: error instanceof Error ? error.message : "Periksa email dan peran.",
+        description: errorMessage(error, "Periksa email dan peran."),
       })
     }
   }
@@ -980,8 +981,7 @@ function PersonDrawer({
                   setSellerOpen(false)
                 } catch (error) {
                   toast("Aktivasi gagal", {
-                    description:
-                      error instanceof Error ? error.message : "Periksa checklist.",
+                    description: errorMessage(error, "Periksa checklist."),
                   })
                 }
               }}
@@ -1138,8 +1138,7 @@ function PersonDrawer({
                   setTeacherOpen(false)
                 } catch (error) {
                   toast("Berkas gagal dibuat", {
-                    description:
-                      error instanceof Error ? error.message : "Periksa isian.",
+                    description: errorMessage(error, "Periksa isian."),
                   })
                 }
               }}

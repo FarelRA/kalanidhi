@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { PageHeader } from "@/components/workspace/data/page-header"
 import { Panel } from "@/components/workspace/data/panel"
 import { api } from "@/convex/_generated/api"
+import { errorMessage } from "@/components/workspace/governance/error-message"
 
 type Selection = {
   pathSlugs: string[]
@@ -65,8 +66,7 @@ export function FeaturedPanel() {
       setReason("")
     } catch (error) {
       toast("Gagal menyimpan pilihan", {
-        description:
-          error instanceof Error ? error.message : "Periksa pilihan.",
+        description: errorMessage(error, "Periksa pilihan."),
       })
     } finally {
       setPending(false)

@@ -7,7 +7,7 @@ import {
   buildPayoutAllocation,
   buildRefundReversal,
 } from "../lib/builders"
-import { orderCode, workSlug } from "../lib/codes"
+import { orderCode, pathSlug, workSlug } from "../lib/codes"
 import { createSeedClock, DAY, HOUR } from "../lib/clock"
 import { seedAdmin, userByEmail, workBySlug } from "../lib/lookup"
 import { seedEmail } from "../content/identities"
@@ -392,10 +392,96 @@ export const seedCommerce = internalMutation({
       })
     }
 
+    // Base-seeded enrollments predate commerce, so they need their own class
+    // order and payment. Pending-payment enrollments are intentionally unpaid.
+    const [baseEnrollments, cohorts, paths] = await Promise.all([
+      ctx.db.query("enrollments").collect(),
+      ctx.db.query("cohorts").collect(),
+      ctx.db.query("paths").collect(),
+    ])
+    const cohortById = new Map(cohorts.map((row) => [row._id as string, row]))
+    const pathBySlug = new Map(paths.map((row) => [row.slug, row]))
+    let enrollmentOrders = 0
+    for (const [index, enrollment] of baseEnrollments.entries()) {
+      if (enrollment.status === "pending_payment") continue
+      const cohort = enrollment.cohortId
+        ? cohortById.get(enrollment.cohortId as string)
+        : undefined
+      const path = pathBySlug.get(enrollment.pathId)
+      const student = await ctx.db.get(enrollment.studentId)
+      if (!cohort || !path || !student) continue
+      const paidAt = enrollment.enrolledAt
+      await buildPaidOrder(ctx, {
+        now: clock.now,
+        code: `KN-2026-${String(900_001 + index).padStart(6, "0")}`,
+        buyer: student,
+        sellerId: cohort.teacherId,
+        itemKind: "path",
+        pathId: enrollment.pathId,
+        title: `Kelas ${path.title}`,
+        baseAmount: path.price ?? 500_000,
+        createdAt: paidAt,
+        paidAt,
+        status:
+          enrollment.status === "completed" && enrollment.completedAt !== undefined
+            ? "completed"
+            : "paid",
+        deliveredAt:
+          enrollment.status === "completed" && enrollment.completedAt !== undefined
+            ? paidAt
+            : undefined,
+        completedAt:
+          enrollment.status === "completed" ? enrollment.completedAt : undefined,
+        gatewayFee: Math.round((path.price ?? 500_000) * 0.01),
+        note: `Pendaftaran ${cohort.code}.`,
+        tokenSeed: `seed-enrollment-token-${enrollment._id}`,
+        providerKey: `enrollment_${enrollment._id}`,
+        orderIdempotencyKey: `seed-enrollment-idem-${enrollment._id}`,
+        paymentIdempotencyKey: `idem_enrollment_${enrollment._id}`,
+        updatedAt: clock.now,
+      })
+      enrollmentOrders += 1
+    }
+
+    const bambang = await userByEmail(ctx, seedEmail("bambang"))
+    const bambangCohort = cohorts.find(
+      (row) => row.teacherId === bambang._id,
+    )
+    if (!bambangCohort) {
+      const startDate = clock.ahead(30)
+      const endDate = clock.ahead(90)
+      const cohortId = await ctx.db.insert("cohorts", {
+        code: "BTS-2026-01",
+        pathId: pathSlug("batikTulisSoga"),
+        teacherId: bambang._id,
+        title: "Batik Tulis Giriloyo, Angkatan Perdana",
+        startDate,
+        endDate,
+        capacity: 8,
+        timezone: "Asia/Jakarta",
+        status: "enrolling",
+        createdAt: clock.ago(20),
+        updatedAt: clock.now,
+      })
+      const assessmentAt = startDate + 45 * DAY
+      await ctx.db.insert("cohortSessions", {
+        cohortId,
+        title: "Penilaian akhir batik tulis",
+        kind: "assessment",
+        startsAt: assessmentAt,
+        endsAt: assessmentAt + 2 * HOUR,
+        timezone: "Asia/Jakarta",
+        roomId: "kalanidhi-bts-2026-01-1",
+        status: "scheduled",
+        createdAt: clock.ago(18),
+      })
+    }
+
     return {
-      orders: orderIds.size,
-      payments: paymentIds.size,
+      orders: orderIds.size + enrollmentOrders,
+      payments: paymentIds.size + enrollmentOrders,
       payouts: payoutIds.size,
+      enrollmentOrders,
     }
   },
 })

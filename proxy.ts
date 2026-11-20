@@ -11,11 +11,19 @@ export function proxy(request: NextRequest) {
     return new NextResponse(null, { status: 404 })
   }
 
+  // Order tokens are 64 lowercase hex characters. Reject a malformed token
+  // before the shell streams, so the response carries a real 404 instead of a
+  // soft 404 with a 200 status. Valid tokens are still resolved in the page.
+  const orderToken = request.nextUrl.pathname.match(/^\/pesanan\/([^/]+)$/)?.[1]
+  if (orderToken && !/^[0-9a-f]{64}$/.test(orderToken)) {
+    return new NextResponse(null, { status: 404 })
+  }
+
   const headers = new Headers(request.headers)
   headers.set("x-pathname", request.nextUrl.pathname)
   return NextResponse.next({ request: { headers } })
 }
 
 export const config = {
-  matcher: ["/ruang/:path*", "/images/:path*"],
+  matcher: ["/ruang/:path*", "/images/:path*", "/pesanan/:path*"],
 }

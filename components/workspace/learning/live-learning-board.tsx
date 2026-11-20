@@ -40,6 +40,7 @@ import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import { stateLabel } from "@/lib/flows/definitions"
 import {
   COHORT_STATUS_LABELS,
   COHORT_STATUS_TONES,
@@ -211,31 +212,42 @@ function StudentPaths({
   enrollments: EnrollmentOverview[]
   onSelect: (id: string) => void
 }) {
+  const withdrawn = enrollments.filter(
+    (item) => item.status === "withdrawn",
+  )
+
   if (paths.length === 0) {
     return (
-      <EmptyState
-        title="Belum ada kelas aktif"
-        description="Pendaftaranmu akan muncul di sini setelah diaktifkan pengelola. Kamu bisa melihat kelas yang terbuka di halaman publik."
-        action={
-          <Link
-            href="/kelas"
-            className="inline-flex min-h-9 items-center border border-ink bg-ink px-3 text-[10px] font-bold uppercase tracking-[0.06em] text-paper"
-          >
-            Lihat kelas
-          </Link>
-        }
-      />
+      <div className="space-y-4">
+        <EmptyState
+          title="Belum ada kelas aktif"
+          description="Pendaftaranmu akan muncul di sini setelah diaktifkan pengelola. Kamu bisa melihat kelas yang terbuka di halaman publik."
+          action={
+            <Link
+              href="/kelas"
+              className="inline-flex min-h-9 items-center border border-ink bg-ink px-3 text-[10px] font-bold uppercase tracking-[0.06em] text-paper"
+            >
+              Lihat kelas
+            </Link>
+          }
+        />
+        <WithdrawnHistory withdrawn={withdrawn} onSelect={onSelect} />
+      </div>
     )
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      {paths.map((path) => {
-        const pathEnrollments = enrollments.filter(
-          (item) => item.pathId === path.id,
-        )
-        const enrollment = pathEnrollments[0]
-        return (
+    <>
+      <div className="grid gap-4 lg:grid-cols-2">
+        {paths.map((path) => {
+          const pathEnrollments = enrollments.filter(
+            (item) => item.pathId === path.id && item.status !== "withdrawn",
+          )
+          const enrollment =
+            pathEnrollments.find((item) => item.status === "active") ??
+            pathEnrollments.find((item) => item.status === "completed") ??
+            pathEnrollments[0]
+          return (
           <article
             key={path.id}
             className="border border-ink/20 bg-paper-2 p-4 shadow-[3px_3px_0_rgba(32,19,13,0.06)]"
@@ -329,16 +341,77 @@ function StudentPaths({
             </dl>
             <div className="mt-3 flex flex-wrap gap-2">
               <Button asChild size="sm" className="flex-1">
-                <Link href="/ruang/tugas">Buka tugas</Link>
+                <Link href={`/kelas/${path.slug}`}>Buka materi</Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link href="/ruang/tugas">Tugas</Link>
               </Button>
               <Button asChild size="sm" variant="outline">
                 <Link href="/ruang/jadwal">Jadwal</Link>
               </Button>
             </div>
           </article>
-        )
-      })}
-    </div>
+          )
+        })}
+      </div>
+
+      <WithdrawnHistory withdrawn={withdrawn} onSelect={onSelect} />
+    </>
+  )
+}
+
+function WithdrawnHistory({
+  withdrawn,
+  onSelect,
+}: {
+  withdrawn: EnrollmentOverview[]
+  onSelect: (id: string) => void
+}) {
+  if (withdrawn.length === 0) return null
+
+  return (
+    <Panel
+      eyebrow="Riwayat"
+      title="Pendaftaran yang ditarik"
+      bodyClassName="p-0"
+    >
+      <ul className="divide-y divide-ink/10">
+        {withdrawn.map((item) => (
+          <li
+            key={item.id}
+            className="flex flex-wrap items-center gap-3 px-4 py-3"
+          >
+            <div className="min-w-0 flex-1">
+              <p className="text-[11.5px] font-semibold text-ink">
+                {item.pathTitle}
+              </p>
+              <p className="mt-0.5 text-[10px] text-ink-muted">
+                {item.cohortCode ?? "Tanpa kohort"}
+                {item.withdrawnAt
+                  ? ` · ditarik ${formatWorkspaceDate(iso(item.withdrawnAt))}`
+                  : ""}
+              </p>
+              {item.withdrawReason ? (
+                <p className="mt-1 text-[10px] leading-relaxed text-ink-soft">
+                  {item.withdrawReason}
+                </p>
+              ) : null}
+            </div>
+            <StatusStamp
+              label={enrollmentLabel(item.status)}
+              tone={enrollmentTone(item.status)}
+            />
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onSelect(item.id)}
+            >
+              Buka
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </Panel>
   )
 }
 
@@ -743,6 +816,11 @@ function PathDrawer({
               { label: "Tugas", value: `${path.tasks} tugas` },
             ]}
           />
+          <div className="mt-4">
+            <Button asChild size="sm">
+              <Link href={`/kelas/${path.slug}`}>Buka materi kelas</Link>
+            </Button>
+          </div>
           <DrawerSection title="Hasil belajar">
             <p className="text-[12px] leading-relaxed text-ink-soft">
               {path.outcome}
@@ -1806,7 +1884,7 @@ function EnrollmentDrawer({
               {
                 label: "Sertifikat",
                 value: detail.certificate
-                  ? detail.certificate.serial
+                  ? `${detail.certificate.serial} · ${detail.certificate.statusLabel}`
                   : "Belum terbit",
               },
               {
@@ -1921,7 +1999,7 @@ function EnrollmentDrawer({
                       {submission.code} · {submission.taskTitle}
                     </p>
                     <p className="mt-0.5 text-[9.5px] text-ink-muted">
-                      {submission.status} · tenggat{" "}
+                      {stateLabel("submission", submission.status)} · tenggat{" "}
                       {formatWorkspaceDate(iso(submission.dueAt))}
                     </p>
                   </li>

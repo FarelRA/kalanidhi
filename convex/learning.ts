@@ -22,7 +22,9 @@ import {
 const DAY_MS = 86_400_000
 const AT_RISK_DAYS = 14
 const DEFAULT_TIMEZONE = "Asia/Jakarta"
-const ACTIVE_ENROLLMENT_STATUSES = ["pending_payment", "active", "completed"] as const
+/** Learners who have settled payment and may attend sessions. */
+const PAID_ENROLLMENT_STATUSES = ["active", "completed"] as const
+const PAID_ENROLLMENT_STATUS_SET = new Set<string>(PAID_ENROLLMENT_STATUSES)
 
 type PathDoc = Doc<"paths">
 
@@ -117,18 +119,27 @@ async function enrollmentCounts(
   ctx: ResolverCtx,
   cohortId: Id<"cohorts">,
   now: number,
-): Promise<{ enrolled: number; completed: number; atRisk: number }> {
+): Promise<{
+  enrolled: number
+  registered: number
+  completed: number
+  atRisk: number
+}> {
   const enrollments = await ctx.db
     .query("enrollments")
     .withIndex("by_cohortId", (q) => q.eq("cohortId", cohortId))
     .collect()
-  const visible = enrollments.filter((item) =>
-    (ACTIVE_ENROLLMENT_STATUSES as readonly string[]).includes(item.status),
+  // Seats are reserved from the moment a learner registers, but only paid
+  // learners count as enrolled/attending.
+  const registered = enrollments.filter((item) => item.status !== "withdrawn")
+  const paid = registered.filter((item) =>
+    PAID_ENROLLMENT_STATUS_SET.has(item.status),
   )
   return {
-    enrolled: visible.length,
-    completed: visible.filter((item) => item.status === "completed").length,
-    atRisk: visible.filter((item) => isAtRisk(item, now)).length,
+    enrolled: paid.length,
+    registered: registered.length,
+    completed: paid.filter((item) => item.status === "completed").length,
+    atRisk: paid.filter((item) => isAtRisk(item, now)).length,
   }
 }
 
@@ -225,15 +236,21 @@ async function enrollmentOverviews(
         lastActiveAt: enrollment.lastActivityAt ?? enrollment.updatedAt,
         status: enrollment.status,
         nextTask:
-          certificate?.status === "issued"
-            ? "Sertifikat terbit"
-            : certificate?.status === "revoked"
-              ? "Sertifikat dicabut"
-              : total > 0 && completed >= total
-                ? "Menunggu penilaian akhir"
-                : completed > 0
-                  ? `Lanjut pelajaran ${completed + 1}`
-                  : "Mulai pelajaran pertama",
+          enrollment.status === "withdrawn"
+            ? "Pendaftaran ditarik"
+            : enrollment.status === "pending_payment"
+              ? "Menunggu pembayaran"
+              : certificate?.status === "issued"
+                ? "Sertifikat terbit"
+                : certificate?.status === "revoked"
+                  ? "Sertifikat dicabut"
+                  : certificate?.status === "replaced"
+                    ? "Sertifikat diganti"
+                    : total > 0 && completed >= total
+                      ? "Menunggu penilaian akhir"
+                      : completed > 0
+                        ? `Lanjut pelajaran ${completed + 1}`
+                        : "Mulai pelajaran pertama",
         certificateId: enrollment.certificateId ?? null,
         deadlineAt: enrollment.deadlineAt ?? null,
         withdrawnAt: enrollment.withdrawnAt ?? null,
@@ -571,9 +588,7 @@ export const listPaths = query({
         const relevantEnrollments = enrollments.filter(
           (enrollment) =>
             enrollment.pathId === path.slug &&
-            (ACTIVE_ENROLLMENT_STATUSES as readonly string[]).includes(
-              enrollment.status,
-            ),
+            PAID_ENROLLMENT_STATUS_SET.has(enrollment.status),
         )
         const completed = relevantEnrollments.filter(
           (enrollment) => enrollment.status === "completed",
@@ -824,7 +839,8 @@ export const listSessions = query({
       enrollments
         .filter(
           (item) =>
-            item.studentId === viewer.userId && item.status !== "withdrawn",
+            item.studentId === viewer.userId &&
+            PAID_ENROLLMENT_STATUS_SET.has(item.status),
         )
         .map((item) => item.cohortId)
         .filter(Boolean) as string[],
@@ -838,7 +854,7 @@ export const listSessions = query({
     const counts = new Map<string, number>()
     for (const enrollment of enrollments) {
       if (!enrollment.cohortId) continue
-      if (enrollment.status === "withdrawn") continue
+      if (!PAID_ENROLLMENT_STATUS_SET.has(enrollment.status)) continue
       counts.set(
         enrollment.cohortId,
         (counts.get(enrollment.cohortId) ?? 0) + 1,
@@ -1122,7 +1138,7 @@ export const createEnrollment = mutation({
 
     if (cohort) {
       const counts = await enrollmentCounts(ctx, cohort._id, nowMs())
-      if (counts.enrolled >= cohort.capacity) {
+      if (counts.registered >= cohort.capacity) {
         throw new ConvexError({
           code: "COHORT_FULL",
           message: "Kelas ini sudah penuh.",
@@ -1179,7 +1195,7 @@ export const activateEnrollment = mutation({
       const cohort = await ctx.db.get(enrollment.cohortId)
       if (cohort) {
         const counts = await enrollmentCounts(ctx, cohort._id, nowMs())
-        if (counts.enrolled >= cohort.capacity) {
+        if (counts.registered >= cohort.capacity) {
           throw new ConvexError({
             code: "COHORT_FULL",
             message: "Kelas ini sudah penuh.",
@@ -1384,7 +1400,7 @@ export const moveEnrollment = mutation({
       })
     }
     const counts = await enrollmentCounts(ctx, cohort._id, nowMs())
-    if (counts.enrolled >= cohort.capacity) {
+    if (counts.registered >= cohort.capacity) {
       throw new ConvexError({
         code: "COHORT_FULL",
         message: "Kohort tujuan sudah penuh.",
@@ -1505,15 +1521,17 @@ export const recordProgress = mutation({
     }
 
     const timestamp = nowMs()
-    const existing = await ctx.db
+    // Key progress by enrollment + lesson so a repeat learner in another
+    // cohort keeps an independent record.
+    const enrollmentProgress = await ctx.db
       .query("lessonProgress")
-      .withIndex("by_user_lesson", (q) =>
-        q.eq("userId", enrollment.studentId).eq("lessonId", lesson._id),
-      )
-      .unique()
+      .withIndex("by_enrollment", (q) => q.eq("enrollmentId", enrollment._id))
+      .collect()
+    const existing = enrollmentProgress.find(
+      (item) => item.lessonId === lesson._id,
+    )
     if (existing) {
       await ctx.db.patch(existing._id, {
-        enrollmentId: enrollment._id,
         state: args.state,
         completedAt:
           args.state === "completed"
@@ -1580,12 +1598,13 @@ export const recordAttendance = mutation({
       })
     }
     const timestamp = nowMs()
-    const existing = await ctx.db
+    const enrollmentProgress = await ctx.db
       .query("lessonProgress")
-      .withIndex("by_user_lesson", (q) =>
-        q.eq("userId", enrollment.studentId).eq("lessonId", lesson._id),
-      )
-      .unique()
+      .withIndex("by_enrollment", (q) => q.eq("enrollmentId", enrollment._id))
+      .collect()
+    const existing = enrollmentProgress.find(
+      (item) => item.lessonId === lesson._id,
+    )
     if (existing) {
       await ctx.db.patch(existing._id, {
         attendance: args.attendance,

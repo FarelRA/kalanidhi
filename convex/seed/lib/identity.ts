@@ -252,9 +252,7 @@ export async function insertSeedUser(
   }
 
   const consent = input.consentOverrides
-  const privacySource =
-    consent?.privacy?.source ??
-    (projection === "growth" ? "signup" : "signup")
+  const privacySource = consent?.privacy?.source ?? "signup"
   await ctx.db.insert("consents", {
     userId: user._id,
     kind: "privacy",

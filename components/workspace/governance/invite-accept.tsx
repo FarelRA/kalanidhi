@@ -13,6 +13,8 @@ import { PageHeader } from "@/components/workspace/data/page-header"
 import { Panel } from "@/components/workspace/data/panel"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import { api } from "@/convex/_generated/api"
+import { WORKSPACE_ROLE_LABELS } from "@/lib/access/capabilities"
+import { errorMessage } from "./error-message"
 
 export function InviteAccept() {
   const accept = useMutation(api.users.acceptInvite)
@@ -30,17 +32,21 @@ export function InviteAccept() {
     try {
       const next = await accept({ token: token.trim() })
       toast("Undangan diterima", {
-        description: `Peran aktif, ${next.roles.join(", ")}.`,
+        description: `Peran aktif, ${next.roles
+          .map(
+            (role) =>
+              WORKSPACE_ROLE_LABELS[
+                role as keyof typeof WORKSPACE_ROLE_LABELS
+              ] ?? role,
+          )
+          .join(", ")}.`,
       })
       setToken("")
       router.refresh()
       router.push("/ruang")
     } catch (error) {
       toast("Undangan gagal diterima", {
-        description:
-          error instanceof Error
-            ? error.message
-            : "Periksa token dan masa berlakunya.",
+        description: errorMessage(error, "Periksa token dan masa berlakunya."),
       })
     } finally {
       setPending(false)
