@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { headers } from "next/headers"
+import { connection } from "next/server"
 import { notFound } from "next/navigation"
 
 import {
@@ -34,6 +35,10 @@ export default async function OrderStatusPage({
   params: Promise<Params>
 }) {
   const { token } = await params
+
+  // Order status reads live payment state and the session cookie. It must be
+  // rendered per request, never captured in a prerendered shell.
+  await connection()
 
   if (!isCommerceConfigured()) {
     return (

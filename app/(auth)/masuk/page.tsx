@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
+import { connection } from "next/server"
 
 import { SignInForm } from "@/app/(auth)/masuk/sign-in-form"
 import { safeNextPath } from "@/lib/access/guard"
@@ -21,6 +22,9 @@ export default async function MasukPage({
 }: {
   searchParams: Promise<{ next?: string; mode?: string }>
 }) {
+  // Auth configuration is environment state. Rendering it per request keeps a
+  // build without credentials from baking the "not configured" branch in.
+  await connection()
   const params = await searchParams
   const nextPath = safeNextPath(params.next)
   const configured = isAuthConfigured()
