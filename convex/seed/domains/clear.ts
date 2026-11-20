@@ -127,6 +127,14 @@ export const clearBatch = internalMutation({
       let deleted = 0
       for (const user of users) {
         if (user.roles.includes("admin")) continue
+        // A deleted account is a tombstone kept only for audit continuity.
+        // It holds no data and would otherwise fail identity uniqueness.
+        if (user.status === "deleted") {
+          await ctx.db.delete(user._id)
+          budget -= 1
+          deleted += 1
+          continue
+        }
         if (hasSeedScope && !isSeedUser(user)) continue
         await ctx.db.delete(user._id)
         budget -= 1

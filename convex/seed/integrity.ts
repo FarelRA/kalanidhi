@@ -1027,23 +1027,28 @@ export function checkSeedIntegrity(snapshot: SeedSnapshot): SeedViolation[] {
   }
 
   // Uniqueness -----------------------------------------------------------
+  // Deleted accounts are tombstones. They share the empty phone field and
+  // must not compete with live identities.
+  const identityUsers = snapshot.users.filter(
+    (row) => row.status !== "deleted",
+  )
   checkUnique(violations, {
     code: "UNIQUE_USER_EMAIL",
     table: "users",
     field: "email",
-    rows: snapshot.users.map((row) => ({ _id: row._id, value: row.email })),
+    rows: identityUsers.map((row) => ({ _id: row._id, value: row.email })),
   })
   checkUnique(violations, {
     code: "UNIQUE_USER_PHONE",
     table: "users",
     field: "phone",
-    rows: snapshot.users.map((row) => ({ _id: row._id, value: row.phone })),
+    rows: identityUsers.map((row) => ({ _id: row._id, value: row.phone })),
   })
   checkUnique(violations, {
     code: "UNIQUE_USER_AUTH",
     table: "users",
     field: "authUserId",
-    rows: snapshot.users.map((row) => ({
+    rows: identityUsers.map((row) => ({
       _id: row._id,
       value: row.authUserId,
     })),
