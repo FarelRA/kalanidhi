@@ -17,7 +17,9 @@ coverage
 docs
 reference
 seed
-scripts
+# The build runs the prerender guard, so keep that one file in the context.
+scripts/*
+!scripts/check-prerender.mjs
 .icon-build
 **/*.md
 vitest.config.mts

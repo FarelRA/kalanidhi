@@ -1,4 +1,5 @@
 import type { TableNamesInDataModel } from "convex/server"
+import { v } from "convex/values"
 
 import type { DataModel, Doc } from "../../_generated/dataModel"
 import { internalMutation } from "../../_generated/server"
@@ -89,8 +90,15 @@ const CLEAR_TABLES: TableNamesInDataModel<DataModel>[] = [
 ]
 
 export const clearBatch = internalMutation({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    /**
+     * Operator-only escape hatch for a deliberate full reset. The seed passes
+     * `allowRealUsers` through so a destructive replay also removes real
+     * signups instead of leaving them without orders and certificates.
+     */
+    includeRealUsers: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
     let budget = 500
 
     for (const table of CLEAR_TABLES) {
@@ -135,7 +143,7 @@ export const clearBatch = internalMutation({
           deleted += 1
           continue
         }
-        if (hasSeedScope && !isSeedUser(user)) continue
+        if (hasSeedScope && !isSeedUser(user) && !args.includeRealUsers) continue
         await ctx.db.delete(user._id)
         budget -= 1
         deleted += 1
@@ -154,6 +162,7 @@ export const clearBatch = internalMutation({
         if (
           user &&
           !seedSession &&
+          !args.includeRealUsers &&
           (user.roles.includes("admin") ||
             !hasSeedScope ||
             !isSeedUser(user))

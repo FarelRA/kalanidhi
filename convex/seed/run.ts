@@ -229,7 +229,10 @@ export const run = internalAction({
       await step("clear", async () => {
         let cleared = false
         while (!cleared) {
-          const result = await ctx.runMutation(internal.seed.domains.clear.clearBatch)
+          const result = await ctx.runMutation(
+            internal.seed.domains.clear.clearBatch,
+            { includeRealUsers: args.allowRealUsers },
+          )
           cleared = result.done
         }
       })
