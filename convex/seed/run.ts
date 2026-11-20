@@ -7,6 +7,7 @@ import {
   internalMutation,
   internalQuery,
 } from "../_generated/server"
+import { isPlaceholderAuthId, normalizeSeedEmail } from "./lib/auth"
 import { DAY, jakartaDayStart, SEED_START } from "./lib/clock"
 import {
   pathsSeed,
@@ -50,8 +51,36 @@ const SEED_MEDIA_FILES = Array.from(
  * as failed so the new run can proceed.
  */
 export const beginRun = internalMutation({
-  args: { now: v.number(), version: v.string() },
+  args: {
+    now: v.number(),
+    version: v.string(),
+    allowRealUsers: v.optional(v.boolean()),
+  },
   handler: async (ctx, args): Promise<Id<"seedRuns">> => {
+    // A full seed clears every domain table. Preserving a real account row
+    // would leave that account without its orders, certificates, or messages,
+    // so refuse before touching anything unless the operator explicitly asks
+    // for a destructive replay.
+    const mappings = await ctx.db.query("seedAuthAccounts").collect()
+    const seedEmails = new Set(
+      mappings.map((row) => normalizeSeedEmail(row.email)),
+    )
+    const users = await ctx.db.query("users").collect()
+    const realUsers = users.filter(
+      (user) =>
+        !user.roles.includes("admin") &&
+        !isPlaceholderAuthId(user.authUserId) &&
+        !seedEmails.has(normalizeSeedEmail(user.email)),
+    )
+    if (realUsers.length > 0 && !args.allowRealUsers) {
+      throw new ConvexError({
+        code: "SEED_REAL_USERS_PRESENT",
+        message:
+          `Seed dihentikan karena ada ${realUsers.length} akun nyata. ` +
+          "Data akun itu bisa ikut terhapus. Jalankan ulang dengan allowRealUsers bila memang ingin mengganti seluruh data.",
+      })
+    }
+
     const running = await ctx.db
       .query("seedRuns")
       .withIndex("by_status", (q) => q.eq("status", "running"))
@@ -177,12 +206,15 @@ export const run = internalAction({
   args: {
     /** Test/ops replay hook; production reads the wall clock exactly once. */
     now: v.optional(v.number()),
+    /** Only set this when a destructive replay with real accounts is intended. */
+    allowRealUsers: v.optional(v.boolean()),
   },
   handler: async (ctx, args): Promise<Record<string, unknown>> => {
     const now = args.now ?? Date.now()
     const runId = await ctx.runMutation(internal.seed.run.beginRun, {
       now,
       version: SEED_VERSION,
+      allowRealUsers: args.allowRealUsers,
     })
 
     const step = async <T>(name: string, fn: () => Promise<T>): Promise<T> => {

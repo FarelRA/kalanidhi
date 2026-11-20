@@ -3,6 +3,7 @@ import { ConvexError } from "convex/values"
 import type { Capability } from "../lib/access/capabilities"
 import type { Viewer } from "../lib/access/viewer"
 import { requireCapability, viewerForUser } from "./access"
+import { liveIdentity } from "./session_guard"
 import type { Doc } from "./_generated/dataModel"
 import type { MutationCtx, QueryCtx } from "./_generated/server"
 
@@ -24,7 +25,7 @@ export type AdminContext = {
 export async function resolveViewer(
   ctx: QueryCtx | MutationCtx,
 ): Promise<AdminContext | null> {
-  const identity = await ctx.auth.getUserIdentity()
+  const identity = await liveIdentity(ctx)
   if (!identity) return null
 
   const user = await ctx.db

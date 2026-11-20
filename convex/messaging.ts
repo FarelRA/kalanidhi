@@ -2,6 +2,7 @@ import { paginationOptsValidator } from "convex/server"
 import { ConvexError, v, type GenericId } from "convex/values"
 
 import type { Viewer } from "../lib/access/viewer"
+import { liveIdentity } from "./session_guard"
 import {
   attachmentProblem,
   baseMimeType,
@@ -58,7 +59,7 @@ function fail(code: string, message: string): never {
 async function currentAccount(
   ctx: QueryCtx | MutationCtx,
 ): Promise<{ user: Doc<"users">; viewer: Viewer } | null> {
-  const identity = await ctx.auth.getUserIdentity()
+  const identity = await liveIdentity(ctx)
   if (!identity) return null
   const user = await ctx.db
     .query("users")

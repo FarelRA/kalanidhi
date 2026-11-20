@@ -3,6 +3,7 @@ import { ConvexError } from "convex/values"
 import type { Capability } from "../lib/access/capabilities"
 import type { Viewer } from "../lib/access/viewer"
 import { requireCapability, viewerForUser } from "./access"
+import { liveIdentity } from "./session_guard"
 import type { Doc } from "./_generated/dataModel"
 import type { MutationCtx, QueryCtx } from "./_generated/server"
 
@@ -10,7 +11,7 @@ type DomainCtx = QueryCtx | MutationCtx
 
 /** Resolves the viewer through the Phase 0 access contract, never a client argument. */
 export async function resolveViewer(ctx: DomainCtx): Promise<Viewer | null> {
-  const identity = await ctx.auth.getUserIdentity()
+  const identity = await liveIdentity(ctx)
   if (!identity) return null
 
   const user = await ctx.db
@@ -25,7 +26,7 @@ export async function resolveViewer(ctx: DomainCtx): Promise<Viewer | null> {
 export async function resolveViewerUser(
   ctx: DomainCtx,
 ): Promise<{ viewer: Viewer; user: Doc<"users"> } | null> {
-  const identity = await ctx.auth.getUserIdentity()
+  const identity = await liveIdentity(ctx)
   if (!identity) return null
 
   const user = await ctx.db

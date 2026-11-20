@@ -14,6 +14,7 @@ import {
   PRIVACY_REQUEST_KINDS,
 } from "../lib/governance/options"
 import { viewerForUser } from "./access"
+import { liveIdentity } from "./session_guard"
 import { requireAdmin, requireReason } from "./admin_context"
 import { appendAudit } from "./audit"
 import type { Doc, Id } from "./_generated/dataModel"
@@ -828,7 +829,7 @@ async function activeRetentionHold(
 async function resolvePrivacyViewer(
   ctx: QueryCtx | MutationCtx,
 ): Promise<{ user: Doc<"users">; viewer: Awaited<ReturnType<typeof viewerForUser>>; admin: boolean }> {
-  const identity = await ctx.auth.getUserIdentity()
+  const identity = await liveIdentity(ctx)
   if (!identity) fail("UNAUTHENTICATED", "Masuk diperlukan.")
   const user = await ctx.db
     .query("users")

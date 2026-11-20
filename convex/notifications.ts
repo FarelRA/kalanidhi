@@ -3,6 +3,7 @@ import { ConvexError, v } from "convex/values"
 import type { NotificationView } from "../lib/messaging/types"
 import type { WebhookDeliveryView } from "../lib/settings/types"
 import { requireCapability, viewerForUser } from "./access"
+import { liveIdentity } from "./session_guard"
 import { requireAdmin } from "./admin_context"
 import type { Viewer } from "../lib/access/viewer"
 import { internal } from "./_generated/api"
@@ -23,7 +24,7 @@ function now(): number {
 async function currentAccount(
   ctx: QueryCtx | MutationCtx,
 ): Promise<{ user: Doc<"users">; viewer: Viewer } | null> {
-  const identity = await ctx.auth.getUserIdentity()
+  const identity = await liveIdentity(ctx)
   if (!identity) return null
   const user = await ctx.db
     .query("users")

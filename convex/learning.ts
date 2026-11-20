@@ -178,11 +178,16 @@ async function completedLessonCount(
     .query("lessonProgress")
     .withIndex("by_enrollment", (q) => q.eq("enrollmentId", enrollmentId))
     .collect()
-  return progress.filter(
-    (item) =>
-      item.state === "completed" &&
-      (!lessonIds || lessonIds.has(item.lessonId)),
-  ).length
+  // A legacy duplicate row must not count the same lesson twice.
+  return new Set(
+    progress
+      .filter(
+        (item) =>
+          item.state === "completed" &&
+          (!lessonIds || lessonIds.has(item.lessonId)),
+      )
+      .map((item) => item.lessonId),
+  ).size
 }
 
 async function enrollmentOverviews(

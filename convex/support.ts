@@ -18,6 +18,7 @@ import type {
 import type { Doc, Id } from "./_generated/dataModel"
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"
 import { viewerForUser } from "./access"
+import { liveIdentity } from "./session_guard"
 import { appendAudit } from "./audit"
 
 const MINUTE_MS = 60_000
@@ -89,7 +90,7 @@ type SupportViewer = {
 async function resolveSupportViewer(
   ctx: QueryCtx | MutationCtx,
 ): Promise<SupportViewer> {
-  const identity = await ctx.auth.getUserIdentity()
+  const identity = await liveIdentity(ctx)
   if (!identity) fail("UNAUTHENTICATED", "Masuk diperlukan.")
   const user = await ctx.db
     .query("users")

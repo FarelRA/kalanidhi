@@ -501,11 +501,17 @@ async function resolveLearningPath(
   if (!image) return null
 
   const facts = snapshot ?? (await pathSnapshot(ctx, path.slug))
+  // Only a cohort a learner can actually join keeps a class public. A draft
+  // or cancelled cohort is internal and must not make an empty class appear.
+  const visibleCohorts = facts.cohorts.filter(
+    (cohort) =>
+      cohort.status !== "draft" && cohort.status !== "cancelled",
+  )
   if (
     !path.comingSoon &&
     (facts.modules.length === 0 ||
       facts.lessons.length === 0 ||
-      facts.cohorts.length === 0)
+      visibleCohorts.length === 0)
   ) {
     return null
   }

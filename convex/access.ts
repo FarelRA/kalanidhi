@@ -11,6 +11,7 @@ import type {
 } from "../lib/access/viewer"
 import type { Doc } from "./_generated/dataModel"
 import { query, type QueryCtx } from "./_generated/server"
+import { hasLiveSession } from "./session_guard"
 
 type DatabaseCtx = Pick<QueryCtx, "db">
 
@@ -113,34 +114,13 @@ export async function viewerForUser(
   })
 }
 
-/**
- * A revoked session must stop resolving a viewer even while its cached JWT is
- * still within its short lifetime. The Better Auth session id travels in the
- * Convex JWT, so the `sessions` projection can gate every workspace query.
- */
-async function sessionIsLive(
-  ctx: DatabaseCtx,
-  identity: unknown,
-): Promise<boolean> {
-  const sessionId = (identity as { sessionId?: unknown } | null)?.sessionId
-  if (typeof sessionId !== "string" || !sessionId) return true
-  const session = await ctx.db
-    .query("sessions")
-    .withIndex("by_authSessionId", (q) => q.eq("authSessionId", sessionId))
-    .unique()
-  // The Better Auth trigger projects sessions asynchronously. A brand-new
-  // session can briefly have no row, so only an existing row can block it.
-  if (!session) return true
-  return !session.revokedAt && session.expiresAt > Date.now()
-}
-
 /** Current viewer, or null when there is no application account yet. */
 export const getViewer = query({
   args: {},
   handler: async (ctx): Promise<Viewer | null> => {
     const identity = await ctx.auth.getUserIdentity()
     if (!identity) return null
-    if (!(await sessionIsLive(ctx, identity))) return null
+    if (!(await hasLiveSession(ctx, identity))) return null
 
     const user = await ctx.db
       .query("users")
