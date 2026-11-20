@@ -68,6 +68,7 @@ export const beginRun = internalMutation({
     const users = await ctx.db.query("users").collect()
     const realUsers = users.filter(
       (user) =>
+        user.status !== "deleted" &&
         !user.roles.includes("admin") &&
         !isPlaceholderAuthId(user.authUserId) &&
         !seedEmails.has(normalizeSeedEmail(user.email)),
