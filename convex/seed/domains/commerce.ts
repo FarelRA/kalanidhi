@@ -459,7 +459,9 @@ export const seedCommerce = internalMutation({
         endDate,
         capacity: 8,
         timezone: "Asia/Jakarta",
-        status: "enrolling",
+        // This cohort exists so the coming-soon teacher has a real teaching
+        // record. It stays internal until the curriculum is published.
+        status: "draft",
         createdAt: clock.ago(20),
         updatedAt: clock.now,
       })

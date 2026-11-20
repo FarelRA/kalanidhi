@@ -1098,15 +1098,22 @@ export const getPublicPath = query({
             accessLevel: lesson.accessLevel,
           })),
       })),
-      cohorts: snapshot.cohorts.map((cohort) => ({
-        code: cohort.code,
-        title: cohort.title,
-        startDate: cohort.startDate,
-        endDate: cohort.endDate,
-        capacity: cohort.capacity,
-        timezone: cohort.timezone,
-        status: cohort.status,
-      })),
+      // A draft or cancelled cohort is internal. Showing it publicly would
+      // advertise a class as open when it cannot be joined.
+      cohorts: snapshot.cohorts
+        .filter(
+          (cohort) =>
+            cohort.status !== "draft" && cohort.status !== "cancelled",
+        )
+        .map((cohort) => ({
+          code: cohort.code,
+          title: cohort.title,
+          startDate: cohort.startDate,
+          endDate: cohort.endDate,
+          capacity: cohort.capacity,
+          timezone: cohort.timezone,
+          status: cohort.status,
+        })),
     }
   },
 })
