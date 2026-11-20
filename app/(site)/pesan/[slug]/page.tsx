@@ -6,9 +6,8 @@ import { ArrowLeft } from "lucide-react"
 
 import { SPLIT_PERCENTAGES } from "@/lib/commerce/money"
 import { formatIDR } from "@/lib/format"
-import { getPublicWork, getPublicWorks, isCommerceConfigured } from "@/lib/commerce/server"
-import { PUBLIC_ROUTES, workHref } from "@/lib/content/routes"
-import { isAuthConfigured } from "@/lib/auth-server"
+import { getPublicWork, getPublicWorks } from "@/lib/commerce/server"
+import { workHref } from "@/lib/content/routes"
 
 import { CheckoutGate } from "../checkout-gate"
 
@@ -46,56 +45,6 @@ export default async function CheckoutPage({
   const { slug } = await params
   const work = await getPublicWork(slug)
   if (!work) notFound()
-
-  if (!isCommerceConfigured()) {
-    return (
-      <div className="shell py-16">
-        <div className="mx-auto max-w-xl border border-ink/25 bg-paper-2 p-6 sm:p-9">
-          <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-copper-dark">
-            Checkout
-          </p>
-          <h1 className="heading-section mt-2 text-[clamp(1.9rem,4vw,2.8rem)]">
-            Checkout belum tersambung.
-          </h1>
-          <p className="mt-3 text-[13px] leading-relaxed text-ink-soft">
-            Sistem pesanan belum dikonfigurasi pada lingkungan ini. Hubungi
-            pengelola melalui halaman kontak untuk menyelesaikan pesanan.
-          </p>
-          <Link
-            href={PUBLIC_ROUTES.home}
-            className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
-          >
-            Kembali ke beranda
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
-  if (!isAuthConfigured()) {
-    return (
-      <div className="shell py-16">
-        <div className="mx-auto max-w-xl border border-ink/25 bg-paper-2 p-6 sm:p-9">
-          <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-copper-dark">
-            Checkout
-          </p>
-          <h1 className="heading-section mt-2 text-[clamp(1.9rem,4vw,2.8rem)]">
-            Masuk belum tersambung.
-          </h1>
-          <p className="mt-3 text-[13px] leading-relaxed text-ink-soft">
-            Checkout memerlukan akun, tetapi layanan masuk belum dikonfigurasi
-            pada lingkungan ini. Hubungi pengelola untuk menyelesaikan pesanan.
-          </p>
-          <Link
-            href={workHref(slug)}
-            className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
-          >
-            Kembali ke karya
-          </Link>
-        </div>
-      </div>
-    )
-  }
 
   if (!work.purchasable) {
     return (

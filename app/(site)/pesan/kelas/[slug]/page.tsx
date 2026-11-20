@@ -5,11 +5,9 @@ import { notFound } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 
 import { SPLIT_PERCENTAGES, splitAmount } from "@/lib/commerce/money"
-import { isCommerceConfigured } from "@/lib/commerce/server"
-import { pathHref, PUBLIC_ROUTES } from "@/lib/content/routes"
+import { pathHref } from "@/lib/content/routes"
 import { getPublicPath, getPublicPaths } from "@/lib/convex/server"
 import { formatIDR } from "@/lib/format"
-import { isAuthConfigured } from "@/lib/auth-server"
 
 import { CheckoutGate } from "../../checkout-gate"
 
@@ -47,56 +45,6 @@ export default async function PathCheckoutPage({
   const { slug } = await params
   const path = await getPublicPath(slug)
   if (!path) notFound()
-
-  if (!isCommerceConfigured()) {
-    return (
-      <div className="shell py-16">
-        <div className="mx-auto max-w-xl border border-ink/25 bg-paper-2 p-6 sm:p-9">
-          <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-copper-dark">
-            Checkout kelas
-          </p>
-          <h1 className="heading-section mt-2 text-[clamp(1.9rem,4vw,2.8rem)]">
-            Checkout belum tersambung.
-          </h1>
-          <p className="mt-3 text-[13px] leading-relaxed text-ink-soft">
-            Sistem pesanan belum dikonfigurasi pada lingkungan ini. Hubungi
-            pengelola melalui halaman kontak untuk menyelesaikan pesanan.
-          </p>
-          <Link
-            href={PUBLIC_ROUTES.home}
-            className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
-          >
-            Kembali ke beranda
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
-  if (!isAuthConfigured()) {
-    return (
-      <div className="shell py-16">
-        <div className="mx-auto max-w-xl border border-ink/25 bg-paper-2 p-6 sm:p-9">
-          <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-copper-dark">
-            Checkout kelas
-          </p>
-          <h1 className="heading-section mt-2 text-[clamp(1.9rem,4vw,2.8rem)]">
-            Masuk belum tersambung.
-          </h1>
-          <p className="mt-3 text-[13px] leading-relaxed text-ink-soft">
-            Checkout memerlukan akun, tetapi layanan masuk belum dikonfigurasi
-            pada lingkungan ini. Hubungi pengelola untuk menyelesaikan pesanan.
-          </p>
-          <Link
-            href={pathHref(slug)}
-            className="mt-6 inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-paper"
-          >
-            Kembali ke kelas
-          </Link>
-        </div>
-      </div>
-    )
-  }
 
   if (path.comingSoon || path.price === null || path.price <= 0) {
     return (
