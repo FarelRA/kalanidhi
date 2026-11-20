@@ -31,13 +31,7 @@ export const renumberOrders = internalMutation({
     }
 
     function replaceCodes(value: string, map: Map<string, string>): string {
-      let output = value
-      for (const [oldCode, newCode] of map) {
-        if (oldCode !== newCode && output.includes(oldCode)) {
-          output = output.replaceAll(oldCode, newCode)
-        }
-      }
-      return output
+      return value.replace(/KN-\d{4}-\d{6}/g, (match) => map.get(match) ?? match)
     }
 
     const payments = await ctx.db.query("payments").collect()
