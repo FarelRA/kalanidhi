@@ -41,7 +41,7 @@ const photos = [
     name: "work-bambu-nampan",
     source: "work-bambu-nampan.jpg",
     ...LANDSCAPE,
-    subject: { left: 0.1, top: 0.38, width: 0.41, height: 0.56 },
+    subject: { left: 0.11, top: 0.38, width: 0.37, height: 0.56 },
     canvas: "blur",
   },
   {
