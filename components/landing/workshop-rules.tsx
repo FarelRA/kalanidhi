@@ -11,7 +11,13 @@ const shareStyles = [
   "bg-brass text-ink",
 ] as const
 
-export function WorkshopRules({ ethics }: { ethics: EthicsContent }) {
+export function WorkshopRules({
+  ethics,
+  showHeading = true,
+}: {
+  ethics: EthicsContent
+  showHeading?: boolean
+}) {
   return (
     <section
       id="etika"
@@ -19,17 +25,19 @@ export function WorkshopRules({ ethics }: { ethics: EthicsContent }) {
       className="wood-deep border-b border-ink/30 py-16 text-paper sm:py-20 lg:py-24"
     >
       <div className="shell">
-        <div className="grid gap-6 lg:grid-cols-12 lg:items-end">
-          <div className="lg:col-span-7">
-            <span className="stamp border-paper/35 text-paper">{ethics.label}</span>
-            <h2 id="ethics-title" className="heading-section mt-5 max-w-[18ch] text-paper">
-              {ethics.title}
-            </h2>
+        {showHeading ? (
+          <div className="grid gap-6 lg:grid-cols-12 lg:items-end">
+            <div className="lg:col-span-7">
+              <span className="stamp border-paper/35 text-paper">{ethics.label}</span>
+              <h2 id="ethics-title" className="heading-section mt-5 max-w-[18ch] text-paper">
+                {ethics.title}
+              </h2>
+            </div>
+            <p className="max-w-[34rem] text-[14.5px] leading-relaxed text-paper/70 lg:col-span-5">
+              {ethics.description}
+            </p>
           </div>
-          <p className="max-w-[34rem] text-[14.5px] leading-relaxed text-paper/70 lg:col-span-5">
-            {ethics.description}
-          </p>
-        </div>
+        ) : null}
 
         <div className="mt-12 grid gap-10 lg:mt-16 lg:grid-cols-12 lg:gap-12">
           <div className="lg:col-span-6">

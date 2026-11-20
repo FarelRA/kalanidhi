@@ -85,7 +85,7 @@ export default async function EthicsPage() {
         </div>
       </section>
 
-      <WorkshopRules ethics={data.ethics} />
+      <WorkshopRules ethics={data.ethics} showHeading={false} />
     </div>
   )
 }

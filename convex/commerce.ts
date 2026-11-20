@@ -32,7 +32,6 @@ import {
   notFound,
   now,
   ORDER_TOKEN_BYTES,
-  orderCode,
   randomToken,
   requireViewer,
   writeAudit,
@@ -252,6 +251,7 @@ async function cardForView(
     region: work.region,
     price: work.price,
     priceLabel: work.priceLabel ?? null,
+    pathId: work.pathId ?? null,
     unit: work.unit,
     technique: work.technique,
     techniqueNote: work.techniqueNote,
@@ -259,7 +259,6 @@ async function cardForView(
     description: work.description,
     image,
     imageAssetId: work.imageAssetId ?? null,
-    pathId: work.pathId ?? null,
     certificateId: work.certificateId ?? null,
     certificateCode: certificate?.publicCode ?? null,
     permission: card?.permission ?? work.permission ?? null,
@@ -351,6 +350,7 @@ async function publicWork(
     region: work.region,
     price: work.price,
     priceLabel: work.priceLabel ?? null,
+    pathId: work.pathId ?? null,
     unit: work.unit,
     technique: work.technique,
     techniqueNote: work.techniqueNote,
@@ -1086,6 +1086,19 @@ export const bulkPauseWorks = mutation({
 
 /* ----------------------------------------------------------------- orders */
 
+async function nextOrderCode(
+  ctx: Parameters<typeof findByToken>[0],
+): Promise<string> {
+  const orders = await ctx.db.query("orders").collect()
+  let highest = 0
+  for (const order of orders) {
+    const match = /^KN-\d{4}-(\d{6})$/.exec(order.code)
+    if (match) highest = Math.max(highest, Number(match[1]))
+  }
+  const year = new Date(now()).getUTCFullYear()
+  return `KN-${year}-${String(highest + 1).padStart(6, "0")}`
+}
+
 export const createOrder = mutation({
   args: {
     kind: v.union(v.literal("work"), v.literal("path")),
@@ -1205,14 +1218,14 @@ export const createOrder = mutation({
     }
 
     const timestamp = now()
-    let code = orderCode()
+    let code = await nextOrderCode(ctx)
     for (let attempt = 0; attempt < 5; attempt += 1) {
       const clash = await ctx.db
         .query("orders")
         .withIndex("by_code", (q) => q.eq("code", code))
         .unique()
       if (!clash) break
-      code = orderCode()
+      code = await nextOrderCode(ctx)
     }
 
     const token = randomToken(ORDER_TOKEN_BYTES)
@@ -1298,7 +1311,12 @@ export const getOrderByToken = query({
       {
         status: "in_progress",
         label: ORDER_STATUS_LABELS.in_progress,
-        at: order.paidAt ?? null,
+        at:
+          order.status === "in_progress" ||
+          order.status === "delivered" ||
+          order.status === "completed"
+            ? order.updatedAt
+            : null,
       },
       {
         status: "delivered",

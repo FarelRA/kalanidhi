@@ -102,6 +102,23 @@ export default async function PathCheckoutPage({
     viewer = null
   }
 
+  if (viewer) {
+    const existingEnrollment = viewer.enrollments.find(
+      (enrollment) =>
+        enrollment.pathId === slug &&
+        (enrollment.status === "active" ||
+          enrollment.status === "completed" ||
+          enrollment.status === "pending_payment"),
+    )
+    if (existingEnrollment) {
+      redirect(
+        existingEnrollment.status === "pending_payment"
+          ? `${PUBLIC_ROUTES.workspace}/pesanan`
+          : PUBLIC_ROUTES.learning,
+      )
+    }
+  }
+
   if (!viewer) {
     return (
       <div className="shell py-16">

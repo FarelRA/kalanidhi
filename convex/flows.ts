@@ -51,7 +51,7 @@ function fail(code: string, message: string): never {
 }
 
 export function assertFlowKey(value: string): FlowKey {
-  if (!isFlowKey(value)) fail("INVALID_FLOW", "Alur tidak dikenal.")
+  if (!isFlowKey(value)) fail("INVALID_FLOW", "Proses tidak dikenal.")
   return value
 }
 
@@ -550,7 +550,7 @@ function validateTransitions(
   const spec = flowSpec(flowKey)
   const states = new Set(spec.states.map((state) => state.key))
   if (transitions.length === 0) {
-    fail("INVALID_FLOW", "Alur harus memiliki setidaknya satu transisi.")
+    fail("INVALID_FLOW", "Proses harus memiliki setidaknya satu transisi.")
   }
   const seen = new Set<string>()
   for (const item of transitions) {
@@ -656,7 +656,7 @@ export const saveDefinition = mutation({
       action: "flows.definition.save",
       entityType: "flowDefinitions",
       entityId: flowKey,
-      reason: `Konfigurasi alur ${flowKey} versi ${version}`,
+      reason: `Konfigurasi proses ${flowKey} versi ${version}`,
       before: { version: existing?.version ?? 0, transitions: previous },
       after: { version, transitions: args.transitions },
     })
@@ -921,7 +921,7 @@ async function resolveOverrideTarget(
     default:
       fail(
         "OVERRIDE_UNSUPPORTED",
-        "Alur ini tidak mendukung override langsung dari papan alur.",
+        "Proses ini tidak mendukung override langsung dari papan proses.",
       )
   }
 }
@@ -949,7 +949,7 @@ export const manualOverride = mutation({
     if (!allowed) {
       fail(
         "INVALID_TRANSITION",
-        `Transisi ${target.from} → ${args.toState} tidak diizinkan oleh definisi alur.`,
+        `Transisi ${target.from} → ${args.toState} tidak diizinkan oleh definisi proses.`,
       )
     }
 

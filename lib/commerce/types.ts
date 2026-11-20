@@ -45,6 +45,7 @@ export type WorkListingView = {
   region: string
   price: number
   priceLabel: string | null
+  pathId: string | null
   unit: string
   technique: string
   techniqueNote: string
@@ -52,7 +53,6 @@ export type WorkListingView = {
   description: string
   image: string
   imageAssetId: string | null
-  pathId: string | null
   certificateId: string | null
   certificateCode: string | null
   permission: string | null
@@ -82,6 +82,7 @@ export type PublicWorkView = {
   region: string
   price: number
   priceLabel: string | null
+  pathId: string | null
   unit: string
   technique: string
   techniqueNote: string

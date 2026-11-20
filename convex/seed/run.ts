@@ -194,7 +194,7 @@ export const run = internalAction({
       )
       // Provision Better Auth subjects before integrity checks the final users.
       const auth = await step("auth", () =>
-        ctx.runAction(internal.seed.domains.auth.seedAuthAccounts, {}),
+        ctx.runAction(internal.seed.domains.auth.seedAuthAccounts, { now }),
       )
       // A broken seed must be `failed`, never `complete`.
       const integrity = await step("integrity", () =>

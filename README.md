@@ -171,7 +171,7 @@ convex/
   seed/lib/                Clock, kode, builder, lookup, media, dan helper bersama
   seed/integrity.ts        Pemeriksaan invarian setelah seed
 components/
-  landing/                 Section landing: hero, alur, bahan, kelas, pengajar,
+  landing/                 Section landing: hero, cara kerja, bahan, kelas, pengajar,
                            karya, etika, musim, institusi, catatan peserta, FAQ, penutup
   layout/                  Header, footer, preferensi hemat kuota dan bahasa
   overlays/                Provider dialog, lead dialog, info dialog, tombol overlay
@@ -256,7 +256,7 @@ dikenal sebagai desa batik kayu; sebagian pengrajinnya juga membatik bambu.
   dihormati.
 - **Tipografi sebagai identitas**: Fraunces untuk headline dan kutipan, Karla untuk UI.
   Label section memakai stempel kapital, bukan eyebrow dekoratif.
-- **Alur sebagai struktur**: lima langkah berurutan, dengan langkah terakhir
+- **Cara kerja sebagai struktur**: lima langkah berurutan, dengan langkah terakhir
   sebagai kesempatan tambahan setelah lulus, bukan tujuan utama.
 - **Konten tetap terbaca tanpa JS**: animasi memakai CSS dan tidak menyembunyikan konten.
 - **Aksesibilitas**: skip link, landmark, label form eksplisit, fokus terlihat, target
@@ -294,7 +294,7 @@ dikenal sebagai desa batik kayu; sebagian pengrajinnya juga membatik bambu.
 
 Situs publik mencakup landing, katalog bidang, kelas, pengajar, karya dan jasa, etika,
 verifikasi sertifikat, serta halaman pendaftaran dan pesanan. Ruang kerja `/ruang`
-sudah memuat alur belajar, tugas, kredensial, commerce, pesan, panggilan, konten, dan
+sudah memuat proses belajar, tugas, kredensial, commerce, pesan, panggilan, konten, dan
 tata kelola sesuai peran. Isi halaman bergantung pada data Convex hasil seed; panggilan
 live dan gateway pembayaran memerlukan layanan eksternal yang dijelaskan di
 `docs/self-hosting.md` dan `docs/payments-gateway.md`.

@@ -4,7 +4,13 @@ import type { MangsaContent } from "@/lib/content/types"
 
 const activityIcons = [Sprout, Droplets, LandPlot] as const
 
-export function SeasonNote({ mangsa }: { mangsa: MangsaContent }) {
+export function SeasonNote({
+  mangsa,
+  showHeading = true,
+}: {
+  mangsa: MangsaContent
+  showHeading?: boolean
+}) {
   return (
     <section
       id="mangsa"
@@ -12,13 +18,15 @@ export function SeasonNote({ mangsa }: { mangsa: MangsaContent }) {
       className="border-b border-ink/15 bg-cream-2 py-16 sm:py-20 lg:py-24"
     >
       <div className="shell grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-16">
-        <div className="lg:col-span-6">
-          <span className="stamp border-ink/35 text-ink">{mangsa.label}</span>
-          <h2 id="season-title" className="heading-section mt-5 max-w-[18ch]">
-            {mangsa.title}
-          </h2>
-          <p className="body-copy mt-5 max-w-[38rem]">{mangsa.description}</p>
-        </div>
+        {showHeading ? (
+          <div className="lg:col-span-6">
+            <span className="stamp border-ink/35 text-ink">{mangsa.label}</span>
+            <h2 id="season-title" className="heading-section mt-5 max-w-[18ch]">
+              {mangsa.title}
+            </h2>
+            <p className="body-copy mt-5 max-w-[38rem]">{mangsa.description}</p>
+          </div>
+        ) : null}
 
         <div className="lg:col-span-6">
           <div className="relative mx-auto max-w-[440px] border-2 border-ink bg-paper-2 p-5 shadow-[7px_7px_0_var(--teak)] sm:p-7 lg:rotate-[0.8deg]">

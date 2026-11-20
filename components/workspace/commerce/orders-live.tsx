@@ -97,6 +97,7 @@ export function OrdersLive() {
   const disputeRows = refunds ?? []
   const disputeQueue = disputes ?? []
 
+
   const tabs = [
     can("orders.buy") && {
       id: "buy",
@@ -116,7 +117,13 @@ export function OrdersLive() {
     },
   ].filter(Boolean) as { id: string; label: string; count?: number }[]
 
-  const active = tabs.some((item) => item.id === tab) ? tab : tabs[0]?.id ?? "buy"
+  const effectiveTab =
+    tab === "buy" && rows.length > 0 && myPurchases.length === 0 && mySales.length > 0
+      ? "sell"
+      : tab
+  const active = tabs.some((item) => item.id === effectiveTab)
+    ? effectiveTab
+    : (tabs[0]?.id ?? "buy")
   const visible =
     active === "buy" ? myPurchases : active === "sell" ? mySales : rows
   const gross = visible
@@ -164,7 +171,7 @@ export function OrdersLive() {
               ? "Pesanan dan pendapatan."
               : "Pembelian dan tanda terima."
         }
-        description="Data pesanan berasal dari Convex. Koreksi manual dan keputusan refund memerlukan alasan serta tercatat di audit."
+        description="Data pesanan berasal dari catatan platform. Koreksi manual dan keputusan refund memerlukan alasan serta tercatat di audit."
         actions={
           can("payments.manage") ? (
             <Button asChild>
@@ -261,7 +268,7 @@ export function OrdersLive() {
         </div>
       ) : orders === undefined ? (
         <Panel eyebrow="Pesanan" title="Memuat pesanan">
-          <p className="text-[11.5px] text-ink-soft">Mengambil data Convex…</p>
+          <p className="text-[11.5px] text-ink-soft">Memuat data…</p>
         </Panel>
       ) : visible.length === 0 ? (
         <EmptyState

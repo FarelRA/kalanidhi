@@ -77,13 +77,89 @@ export default async function VerificationPage({
   if (!certificate) {
     return (
       <VerificationShell>
-        <p className="text-[12.5px] leading-relaxed text-ink-soft">
+        <h1 className="font-heading text-[clamp(1.6rem,3.4vw,2.2rem)] leading-tight text-ink">
+          Kode tidak ditemukan.
+        </h1>
+        <p className="mt-2 text-[12.5px] leading-relaxed text-ink-soft">
           Kode <code className="border border-ink/15 bg-panel/40 px-1.5 py-0.5">{kode}</code>{" "}
-          tidak ditemukan dalam daftar sertifikat platform {siteName}.
+          tidak ada dalam daftar sertifikat atau Kartu Karya platform {siteName}.
         </p>
         <p className="mt-3 text-[11px] leading-relaxed text-ink-muted">
           Periksa kembali kode pada sertifikat. Kode publik berbeda dari nomor
           seri internal.
+        </p>
+      </VerificationShell>
+    )
+  }
+
+  if (certificate.kind === "work") {
+    const workStatus =
+      certificate.status === "published"
+        ? "Terbit"
+        : certificate.status === "paused"
+          ? "Dijeda"
+          : certificate.status === "sold_out"
+            ? "Habis"
+            : "Dalam proses"
+    const access =
+      certificate.accessLevel === "public"
+        ? "Publik"
+        : certificate.accessLevel === "community"
+          ? "Terbatas komunitas"
+          : "Terbatas"
+
+    return (
+      <VerificationShell>
+        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-ink/20 pb-4">
+          <div>
+            <p className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-copper-dark">
+              <BadgeCheck className="size-3.5" aria-hidden="true" />
+              Verifikasi Kartu Karya
+            </p>
+            <h1 className="mt-2 font-heading text-[clamp(1.8rem,4vw,2.6rem)] leading-tight text-ink">
+              {certificate.title}
+            </h1>
+            <p className="mt-1.5 text-[12px] text-ink-soft">
+              Dibuat oleh {certificate.makerName}
+            </p>
+          </div>
+          <span className="inline-flex items-center gap-1.5 border border-moss/40 bg-moss/10 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.09em] text-moss">
+            <span aria-hidden="true" className="inline-block size-1.5 bg-current" />
+            {workStatus}
+          </span>
+        </div>
+
+        <dl className="mt-5 grid gap-4 sm:grid-cols-2">
+          <Item label="Seri" value={certificate.serial} />
+          <Item label="Pembuat" value={certificate.makerName} />
+          <Item label="Teknik" value={certificate.technique} />
+          <Item label="Bahan" value={certificate.materials} />
+          <Item label="Asal" value={certificate.provenance} />
+          <Item label="Akses" value={access} />
+          <Item
+            label="Tanggal catat"
+            value={formatWorkspaceDate(
+              new Date(certificate.issuedAt).toISOString(),
+            )}
+          />
+          {certificate.certificatePublicCode ? (
+            <Item
+              label="Sertifikat"
+              value={certificate.certificatePublicCode}
+            />
+          ) : null}
+        </dl>
+
+        <p className="mt-5 border border-ink/20 bg-panel/30 p-3 text-[11.5px] leading-relaxed text-ink-soft">
+          {certificate.permission}
+        </p>
+
+        <p className="mt-6 flex items-start gap-2 border-t border-ink/15 pt-4 text-[10px] leading-relaxed text-ink-muted">
+          <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-copper-dark" aria-hidden="true" />
+          <span>
+            Kartu Karya mencatat pembuat, teknik, bahan, asal, dan izin sumber
+            budaya. Ini bukan sertifikasi pemerintah atau BNSP.
+          </span>
         </p>
       </VerificationShell>
     )

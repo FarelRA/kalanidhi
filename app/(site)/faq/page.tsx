@@ -41,7 +41,7 @@ export default async function FaqPage() {
           <div className="lg:col-span-7">
             {faqs.length === 0 ? (
               <p className="border border-ink/20 bg-paper-2 px-4 py-3 text-[12px] leading-relaxed text-ink-muted">
-                Belum ada pertanyaan umum yang terbit di Convex.
+                Belum ada pertanyaan umum yang terbit di platform.
               </p>
             ) : (
               <Accordion

@@ -49,13 +49,13 @@ export const siteSeed: SeedSiteCopy = {
     siteName: "KalaNidhi Digital",
     siteUrl: "https://kalanidhi.site",
     areaServed: "Daerah Istimewa Yogyakarta",
-    title: "KalaNidhi Digital | Buka layarmu, kenali budayamu",
+    title: "KalaNidhi Digital | Buka layarmu, Kenali Budayamu",
     description:
       "Platform belajar praktik budaya Nusantara di Yogyakarta. Kelas disusun bersama pengajar, tugas dinilai manusia, sertifikat bisa diverifikasi, dan karya punya Kartu Karya.",
-    ogTitle: "KalaNidhi Digital | Buka layarmu, kenali budayamu",
+    ogTitle: "KalaNidhi Digital | Buka layarmu, Kenali Budayamu",
     ogDescription:
       "Bidang budaya dipetakan, kelas belajar dibuka bertahap. Belajar langsung dari pengajar, dinilai manusia, lalu berkarya dengan Kartu Karya.",
-    twitterTitle: "KalaNidhi Digital | Buka layarmu, kenali budayamu",
+    twitterTitle: "KalaNidhi Digital | Buka layarmu, Kenali Budayamu",
     twitterDescription:
       "Kelas belajar praktik budaya Nusantara dengan penilaian pengajar dan sertifikat platform.",
     keywords: [
@@ -201,9 +201,9 @@ export const siteSeed: SeedSiteCopy = {
   sections: {
     paths: {
       label: "Kelas belajar",
-      title: "Kelas yang sudah terbuka.",
+      title: "Kelas belajar.",
       description:
-        "Setiap kelas punya pengajar, modul, dan tugas praktik yang dinilai manusia. Pilih yang paling dekat dengan minatmu sekarang.",
+        "Setiap kelas punya pengajar, modul, dan tugas praktik yang dinilai manusia. Kelas yang belum siap ditandai sedang disusun.",
       detailCta: "Buka rincian",
       openCta: "Daftar minat",
       plannedCta: "Catat minat",
@@ -216,7 +216,7 @@ export const siteSeed: SeedSiteCopy = {
       regionLabel: "Daerah",
       levelLabel: "Level",
       emptyState:
-        "Belum ada kelas terbit di Convex. Kelas akan muncul di sini setelah kurikulum, pengajar, dan angkatan pertama tersedia.",
+        "Belum ada kelas terbit di platform. Kelas akan muncul di sini setelah kurikulum, pengajar, dan angkatan pertama tersedia.",
     },
     teachers: {
       label: "Pengajar",
@@ -227,7 +227,7 @@ export const siteSeed: SeedSiteCopy = {
       dialogLabel: "Profil pengajar",
       askCta: "Tanya lewat formulir",
       emptyState:
-        "Belum ada pengajar terbit di Convex. Profil akan muncul di sini setelah pengajar menyelesaikan verifikasi dan publikasi.",
+        "Belum ada pengajar terbit di platform. Profil akan muncul di sini setelah pengajar menyelesaikan verifikasi dan publikasi.",
     },
     works: {
       label: "Karya dan jasa",
@@ -245,14 +245,14 @@ export const siteSeed: SeedSiteCopy = {
       techniqueLabel: "Teknik",
       regionLabel: "Daerah",
       emptyState:
-        "Belum ada karya terbit di Convex. Karya akan muncul di sini setelah Kartu Karya dan sertifikat platformnya terbit.",
+        "Belum ada karya terbit di platform. Karya akan muncul di sini setelah Kartu Karya dan sertifikat platformnya terbit.",
     },
     notes: {
       label: "Catatan peserta",
       title: "Catatan dari peserta.",
       description:
         "Catatan dari peserta dan mitra tentang pengalaman belajar, koreksi pengajar, dan karya yang mereka buat.",
-      emptyState: "Belum ada catatan peserta yang terbit di Convex.",
+      emptyState: "Belum ada catatan peserta yang terbit di platform.",
     },
     faq: {
       label: "Pertanyaan",
@@ -262,7 +262,7 @@ export const siteSeed: SeedSiteCopy = {
       policyCta: "Baca aturan sumber",
       askCta: "Tanya lewat formulir",
       askInterest: "Pertanyaan umum",
-      emptyState: "Belum ada pertanyaan umum yang terbit di Convex.",
+      emptyState: "Belum ada pertanyaan umum yang terbit di platform.",
     },
     closing: {
       label: "Mulai dari sini",
@@ -297,7 +297,7 @@ export const siteSeed: SeedSiteCopy = {
     label: "Aturan sumber dan bagi hasil",
     title: "Setiap pengetahuan mencantumkan nama, sumber, dan bagi hasil.",
     description:
-      "Kartu Sumber Budaya tampil di kelas, karya, dan pustaka. Isinya mencatat sumber materi, rujukan, tanggal pencatatan, tingkat akses, dan pembagian nilai ekonomi. Kami menuliskannya sebelum kamu memutuskan.",
+      "Kartu Sumber Budaya tampil di kelas dan karya. Isinya mencatat sumber materi, rujukan, tanggal pencatatan, tingkat akses, dan pembagian nilai ekonomi. Kami menuliskannya sebelum kamu memutuskan.",
     principles: [
       {
         title: "Sumber yang bisa dilacak",
@@ -348,7 +348,7 @@ export const siteSeed: SeedSiteCopy = {
       permissionLabel: "Sumber",
       referenceLabel: "Rujukan",
       emptyState:
-        "Belum ada catatan sumber budaya yang terbit di Convex. Izin dan atribusi akan tampil di sini setelah dicatat.",
+        "Belum ada catatan sumber budaya yang terbit di platform. Izin dan atribusi akan tampil di sini setelah dicatat.",
     },
   },
   institution: {

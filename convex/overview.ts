@@ -453,7 +453,14 @@ async function teacherSection(
         q.eq("cohortId", cohort._id).eq("status", "under_review"),
       )
       .take(200)
-    awaitingAssessment += submitted.length + underReview.length
+    const revisionRequested = await ctx.db
+      .query("submissions")
+      .withIndex("by_cohort_status", (q) =>
+        q.eq("cohortId", cohort._id).eq("status", "revision_requested"),
+      )
+      .take(200)
+    awaitingAssessment +=
+      submitted.length + underReview.length + revisionRequested.length
 
     const nextSession = await ctx.db
       .query("cohortSessions")

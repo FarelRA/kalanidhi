@@ -14,12 +14,28 @@ import { PROVINCES } from "@/lib/regions/provinces"
 
 type Mode = "signin" | "signup"
 
+function localizeAuthError(message: string, fallback: string): string {
+  if (/invalid email or password/i.test(message)) {
+    return "Email atau kata sandi tidak cocok."
+  }
+  if (/user already exists/i.test(message)) {
+    return "Email sudah terdaftar. Gunakan email lain."
+  }
+  if (/invalid email/i.test(message)) return "Format email belum benar."
+  if (/password/i.test(message) && /short|least/i.test(message)) {
+    return "Kata sandi terlalu pendek."
+  }
+  return message || fallback
+}
+
 function errorMessage(caught: unknown, fallback: string): string {
   if (caught && typeof caught === "object" && "data" in caught) {
     const data = (caught as { data?: { message?: string } }).data
-    if (data?.message) return data.message
+    if (data?.message) return localizeAuthError(data.message, fallback)
   }
-  return caught instanceof Error ? caught.message : fallback
+  return caught instanceof Error
+    ? localizeAuthError(caught.message, fallback)
+    : fallback
 }
 
 type CompleteProfile = (args: {
@@ -122,7 +138,10 @@ function SignInFormView({
 
         if (result.error) {
           setError(
-            result.error.message ?? "Tidak dapat mendaftar. Periksa data akun.",
+            localizeAuthError(
+              result.error.message ?? "",
+              "Tidak dapat mendaftar. Periksa data akun.",
+            ),
           )
           return
         }

@@ -86,7 +86,7 @@ The seeded catalog has five paths: the three open above, plus Kriya Gerabah Bant
 
 **Adaptation note.** The Batik Bambu curriculum is adapted from the Paguyuban Batik Tulis Giriloyo deck, which is written for batik tulis on cloth. What transfers is kept: classic Giriloyo motifs, wax as resist, dyeing, nglorod, and safety. Cloth-specific steps are replaced with the bamboo process described by Fitinline (select bamboo, boil, dry, sand, pattern, nglowongi, ngisen-isen, mbabar, nembok, base colour, nglorod, mepe, finishing, check). The lesson copy says plainly that the material we hold covers cloth only. The Krebet village profile at Jadesta (Kementerian Pariwisata) supports the location and the nampan bambu batik product; the bamboo-age reference is the Jurnal Hutan Tropis Universitas Mulawarman.
 
-Each tag carries a region and a short note. Open fields link to the paths section. The catalog is DIY-only: every region named is a kabupaten or kota inside Daerah Istimewa Yogyakarta, and practitioners from elsewhere can propose a new path but do not extend the base. Gerabah is about forming and firing vessels at Kasongan; Keramik stays a separate field about glaze and stoneware, still waiting for a teacher. New fields open when curriculum, permission, and a teacher are ready.
+Each tag carries a region and a short note. Open fields link to the paths section. The catalog is DIY-only: every region named is a kabupaten or kota inside Daerah Istimewa Yogyakarta, and practitioners from elsewhere can propose a new path but do not extend the base. Gerabah is about forming and firing vessels at Kasongan; Keramik stays a separate field, still waiting for a teacher. New fields open when curriculum, permission, and a teacher are ready.
 
 ## Copy voice
 

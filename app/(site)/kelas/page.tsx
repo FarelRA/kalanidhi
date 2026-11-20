@@ -52,6 +52,7 @@ export default async function PathsPage({
     <div className="bg-cream">
       <section aria-labelledby="paths-page-title" className="shell py-12 sm:py-16">
         <PublicPageIntro
+          id="paths-page-title"
           homeLabel={data.header.homeLabel}
           eyebrow={copy.label}
           title={copy.title}

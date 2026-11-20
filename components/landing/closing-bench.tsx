@@ -20,7 +20,7 @@ export function ClosingBench({
       <div className="shell relative z-10 grid gap-12 lg:grid-cols-12 lg:items-center">
         <div className="lg:col-span-7">
           <span className="stamp border-paper/35 text-paper">{copy.label}</span>
-          <h2 id="closing-title" className="heading-hero mt-6 max-w-[15ch] text-paper">
+          <h2 id="closing-title" className="heading-section mt-6 max-w-[15ch] text-paper">
             {copy.title}
           </h2>
           <p className="mt-6 max-w-[52ch] text-[15px] leading-relaxed text-paper/75">
@@ -62,7 +62,7 @@ export function ClosingBench({
             </dl>
           ) : (
             <p className="mt-10 max-w-xl border-t border-paper/20 pt-5 text-[11px] leading-relaxed text-paper/65">
-              Belum ada capaian yang bisa dihitung dari Convex.
+              Belum ada capaian yang bisa dihitung dari platform.
             </p>
           )}
 

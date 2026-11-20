@@ -1022,7 +1022,25 @@ export const getPublicLesson = query({
       }
     }
 
-    return { ...base, status: "unlocked", body: lesson.body }
+    const enrollment = viewer?.enrollments.find(
+      (item) => item.pathId === path.slug && item.status === "active",
+    )
+    const progress = enrollment && viewer
+      ? await ctx.db
+          .query("lessonProgress")
+          .withIndex("by_user_lesson", (q) =>
+            q.eq("userId", viewer.userId as Id<"users">).eq("lessonId", lesson._id),
+          )
+          .unique()
+      : null
+
+    return {
+      ...base,
+      status: "unlocked",
+      body: lesson.body,
+      enrollmentId: enrollment?.id,
+      progressState: progress?.state ?? "not_started",
+    }
   },
 })
 

@@ -1,4 +1,4 @@
-import { v } from "convex/values"
+import { ConvexError, v } from "convex/values"
 
 import type {
   AdminOverview,
@@ -8,7 +8,8 @@ import type {
   MetricsReport,
   OverviewQueueItem,
 } from "../lib/admin/types"
-import { now, requireAdmin, requireReason } from "./admin_context"
+import { now, requireAdmin, requireReason, resolveViewer } from "./admin_context"
+import { requireAnyCapability } from "./domainAccess"
 import { appendAudit } from "./audit"
 import type { Doc } from "./_generated/dataModel"
 import { mutation, query, type QueryCtx } from "./_generated/server"
@@ -686,17 +687,28 @@ function contentFreshnessDays(site: Doc<"siteContent"> | null): number | null {
   return Math.max(0, Math.floor((now() - site.updatedAt) / DAY_MS))
 }
 
+async function requireStatsViewer(ctx: Parameters<typeof resolveViewer>[0]) {
+  const context = await resolveViewer(ctx)
+  if (!context) {
+    throw new ConvexError({ code: "UNAUTHENTICATED", message: "Masuk diperlukan." })
+  }
+  return requireAnyCapability(context.viewer, ["stats.read", "stats.teach"])
+}
+
 export const metrics = query({
   args: { from: v.optional(v.number()), to: v.optional(v.number()) },
   handler: async (ctx, args): Promise<MetricsReport> => {
-    await requireAdmin(ctx, "stats.read")
+    await requireStatsViewer(ctx)
     const range = resolveRange(args.from, args.to)
     const data = await loadData(ctx)
     const current = computeSet(data, range)
     const previous = computeSet(data, previousRange(range))
     const definitions = buildMetrics(current, previous)
     const freshness = definitions.find((item) => item.key === "content_freshness")
-    if (freshness) freshness.value = contentFreshnessDays(data.site)
+    if (freshness) {
+      freshness.value = contentFreshnessDays(data.site)
+      if (freshness.value !== null) freshness.emptyReason = null
+    }
 
     return {
       generatedAt: now(),
@@ -718,7 +730,7 @@ function dateKey(timestamp: number): string {
 export const metricHistory = query({
   args: { from: v.optional(v.number()), to: v.optional(v.number()) },
   handler: async (ctx, args): Promise<MetricHistoryReport> => {
-    await requireAdmin(ctx, "stats.read")
+    await requireStatsViewer(ctx)
     const range = resolveRange(args.from, args.to)
     const fromDate = dateKey(range.from)
     const toDate = dateKey(range.to)
@@ -990,7 +1002,7 @@ export const exportMetrics = mutation({
     reason: v.string(),
   },
   handler: async (ctx, args) => {
-    const { viewer } = await requireAdmin(ctx, "stats.read")
+    const viewer = await requireStatsViewer(ctx)
     const reason = requireReason(args.reason)
     const range = resolveRange(args.from, args.to)
     const data = await loadData(ctx)
@@ -998,7 +1010,10 @@ export const exportMetrics = mutation({
     const previous = computeSet(data, previousRange(range))
     const definitions = buildMetrics(current, previous)
     const freshness = definitions.find((item) => item.key === "content_freshness")
-    if (freshness) freshness.value = contentFreshnessDays(data.site)
+    if (freshness) {
+      freshness.value = contentFreshnessDays(data.site)
+      if (freshness.value !== null) freshness.emptyReason = null
+    }
 
     await appendAudit(ctx, {
       actorId: viewer.userId,

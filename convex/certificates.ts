@@ -318,27 +318,66 @@ export const listRegistry = query({
 export const verifyPublic = query({
   args: { code: v.string() },
   handler: async (ctx, args) => {
-    const code = args.code.trim()
-    if (!code) return null
-    const certificate = await ctx.db
-      .query("certificates")
-      .withIndex("by_publicCode", (q) => q.eq("publicCode", code))
-      .unique()
-    if (!certificate) return null
-    const replacedBy = certificate.replacedBy
-      ? await ctx.db.get(certificate.replacedBy)
-      : null
+    const raw = args.code.trim()
+    if (!raw) return null
+    const candidates = Array.from(
+      new Set([raw, raw.toUpperCase(), raw.toLowerCase()]),
+    )
+    let certificate = null
+    for (const code of candidates) {
+      certificate = await ctx.db
+        .query("certificates")
+        .withIndex("by_publicCode", (q) => q.eq("publicCode", code))
+        .unique()
+      if (certificate) break
+    }
+    if (certificate) {
+      const replacedBy = certificate.replacedBy
+        ? await ctx.db.get(certificate.replacedBy)
+        : null
+      return {
+        kind: "certificate" as const,
+        publicCode: certificate.publicCode,
+        serial: certificate.serial,
+        studentName: certificate.snapshot.studentName,
+        pathTitle: certificate.snapshot.pathTitle,
+        teacherName: certificate.snapshot.teacherName,
+        issuedAt: certificate.issuedAt,
+        status: certificate.status,
+        assessmentScore: certificate.snapshot.assessmentScore,
+        revokedAt: certificate.revokedAt ?? null,
+        replacedByPublicCode: replacedBy?.publicCode ?? null,
+      }
+    }
+
+    let workCard = null
+    for (const code of candidates) {
+      workCard = await ctx.db
+        .query("workCards")
+        .withIndex("by_serial", (q) => q.eq("serial", code))
+        .unique()
+      if (workCard) break
+    }
+    if (!workCard) return null
+    const [maker, linkedCertificate] = await Promise.all([
+      ctx.db.get(workCard.makerId),
+      workCard.certificateId
+        ? ctx.db.get(workCard.certificateId)
+        : Promise.resolve(null),
+    ])
     return {
-      publicCode: certificate.publicCode,
-      serial: certificate.serial,
-      studentName: certificate.snapshot.studentName,
-      pathTitle: certificate.snapshot.pathTitle,
-      teacherName: certificate.snapshot.teacherName,
-      issuedAt: certificate.issuedAt,
-      status: certificate.status,
-      assessmentScore: certificate.snapshot.assessmentScore,
-      revokedAt: certificate.revokedAt ?? null,
-      replacedByPublicCode: replacedBy?.publicCode ?? null,
+      kind: "work" as const,
+      serial: workCard.serial,
+      title: workCard.title,
+      makerName: maker?.name ?? workCard.title,
+      technique: workCard.technique,
+      materials: workCard.materials,
+      provenance: workCard.provenance,
+      permission: workCard.permission,
+      accessLevel: workCard.accessLevel,
+      status: workCard.status,
+      issuedAt: workCard.createdAt,
+      certificatePublicCode: linkedCertificate?.publicCode ?? null,
     }
   },
 })

@@ -134,14 +134,14 @@ export default async function CheckoutPage({
       <div className="shell py-16">
         <div className="mx-auto max-w-xl border border-ink/25 bg-paper-2 p-6 sm:p-9">
           <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-copper-dark">
-            Karya kurasi
+            Karya
           </p>
           <h1 className="heading-section mt-2 text-[clamp(1.9rem,4vw,2.8rem)]">
             Pembelian belum dibuka.
           </h1>
           <p className="mt-3 text-[13px] leading-relaxed text-ink-soft">
-            Karya ini ditampilkan sebagai kurasi platform. Hubungi pengelola
-            untuk menghubungkan penjual dan membuka pembelian.
+            Karya ini belum bisa dibeli. Hubungi pengelola untuk membuka
+            pembelian.
           </p>
           <Link
             href={workHref(work.slug)}

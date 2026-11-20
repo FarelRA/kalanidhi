@@ -81,5 +81,6 @@ export const credentialTables = {
     .index("by_workId", ["workId"])
     .index("by_makerId", ["makerId"])
     .index("by_certificateId", ["certificateId"])
+    .index("by_serial", ["serial"])
     .index("by_status", ["status"]),
 }

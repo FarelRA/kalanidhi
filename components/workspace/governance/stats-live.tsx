@@ -230,7 +230,7 @@ export function StatsLive() {
             ))}
           </div>
 
-          <Panel eyebrow="Alur" title="Dari lead ke penjualan berulang">
+          <Panel eyebrow="Proses" title="Dari lead ke penjualan berulang">
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               {report.funnel.map((step) => (
                 <div key={step.key} className="border border-ink/15 bg-paper/40 p-2.5">

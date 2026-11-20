@@ -75,7 +75,15 @@ export function applySeoOverride(
   override: SeoOverride | null,
   siteName?: string | null,
 ): Metadata {
-  if (!override) return defaults
+  if (!override) {
+    if (
+      typeof defaults.title === "string" &&
+      titleIncludesSiteName(defaults.title, siteName)
+    ) {
+      return { ...defaults, title: { absolute: defaults.title } }
+    }
+    return defaults
+  }
 
   const overrideTitle = override.title || defaults.title
   const title =

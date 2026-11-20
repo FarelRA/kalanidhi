@@ -41,6 +41,7 @@ export type SeedSnapshot = {
   leadAssignments: Doc<"leadAssignments">[]
   dailyMetrics: Doc<"dailyMetrics">[]
   metricDefinitions: Doc<"metricDefinitions">[]
+  seedAuthAccounts: Doc<"seedAuthAccounts">[]
 }
 
 export type SeedViolation = {
@@ -89,6 +90,7 @@ export async function loadSeedSnapshot(ctx: SeedDb): Promise<SeedSnapshot> {
     leadAssignments,
     dailyMetrics,
     metricDefinitions,
+    seedAuthAccounts,
   ] = await Promise.all([
     ctx.db.query("users").collect(),
     ctx.db.query("sessions").collect(),
@@ -121,6 +123,7 @@ export async function loadSeedSnapshot(ctx: SeedDb): Promise<SeedSnapshot> {
     ctx.db.query("leadAssignments").collect(),
     ctx.db.query("dailyMetrics").collect(),
     ctx.db.query("metricDefinitions").collect(),
+    ctx.db.query("seedAuthAccounts").collect(),
   ])
 
   return {
@@ -155,6 +158,7 @@ export async function loadSeedSnapshot(ctx: SeedDb): Promise<SeedSnapshot> {
     leadAssignments,
     dailyMetrics,
     metricDefinitions,
+    seedAuthAccounts,
   }
 }
 
@@ -1648,7 +1652,12 @@ export function checkSeedIntegrity(snapshot: SeedSnapshot): SeedViolation[] {
   }
 
   // Public identity ------------------------------------------------------
+  const seededEmails = new Set(
+    snapshot.seedAuthAccounts.map((row) => row.email.toLowerCase()),
+  )
   for (const user of snapshot.users) {
+    if (user.roles.includes("admin")) continue
+    if (!seededEmails.has(user.email.toLowerCase())) continue
     if (user.province !== "DI Yogyakarta") {
       violation(violations, {
         code: "IDENTITY_PROVINCE",
@@ -1657,7 +1666,6 @@ export function checkSeedIntegrity(snapshot: SeedSnapshot): SeedViolation[] {
         message: "Seed user is outside D.I. Yogyakarta.",
       })
     }
-    if (user.roles.includes("admin")) continue
     if (!PUBLIC_EMAIL.test(user.email)) {
       violation(violations, {
         code: "IDENTITY_EMAIL",

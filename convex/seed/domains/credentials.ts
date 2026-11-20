@@ -148,7 +148,7 @@ export const seedCredentials = internalMutation({
             : undefined,
         revokeReason:
           final.status === "revoked"
-            ? "Sertifikat uji alur verifikasi dicabut setelah koreksi ejaan nama."
+            ? "Sertifikat uji proses verifikasi dicabut setelah koreksi ejaan nama."
             : undefined,
         revokedBy: final.status === "revoked" ? admin._id : undefined,
         actorId: final.status === "revoked" ? admin._id : undefined,

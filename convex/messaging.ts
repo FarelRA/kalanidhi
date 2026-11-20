@@ -843,7 +843,7 @@ const conversations = {
     handler: async (ctx, args): Promise<Id<"conversations">> => {
       const { user, viewer } = await requireViewer(ctx, "messages.read.own")
       if (isModerator(viewer)) {
-        fail("FORBIDDEN", "Admin memakai alur dukungan, bukan pesan langsung.")
+        fail("FORBIDDEN", "Admin memakai proses dukungan, bukan pesan langsung.")
       }
       if (args.peerUserId === user._id) {
         fail("SELF_DEALING", "Percakapan langsung memerlukan orang lain.")

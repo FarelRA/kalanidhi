@@ -347,7 +347,7 @@ export function WorksLive() {
               ? "Karya peserta yang kamu ampu."
               : "Karya yang kamu bawa ke pembeli."
         }
-        description={`Setiap karya membawa kelas, sertifikat, izin sumber budaya, dan bagi hasil ${SPLIT_PERCENTAGES.teacher}/${SPLIT_PERCENTAGES.platform}/${SPLIT_PERCENTAGES.community}. Data berasal dari catatan Convex.`}
+        description={`Setiap karya membawa kelas, sertifikat, izin sumber budaya, dan bagi hasil ${SPLIT_PERCENTAGES.teacher}/${SPLIT_PERCENTAGES.platform}/${SPLIT_PERCENTAGES.community}. Data berasal dari catatan platform.`}
         actions={
           eligible ? (
             <Button onClick={openCreate}>
@@ -390,7 +390,7 @@ export function WorksLive() {
 
       {works === undefined ? (
         <Panel eyebrow="Karya" title="Memuat catatan karya">
-          <p className="text-[11.5px] text-ink-soft">Mengambil data Convex…</p>
+          <p className="text-[11.5px] text-ink-soft">Memuat data…</p>
         </Panel>
       ) : visible.length === 0 ? (
         active === "mine" && !eligible && can("works.own") ? null : (
@@ -936,7 +936,7 @@ function WorkFormDialog({
           <DialogTitle>{work ? "Ubah karya" : "Buat karya"}</DialogTitle>
           <DialogDescription>
             {work
-              ? "Perbarui data karya selama masih draf atau dalam tinjauan. Foto disimpan di Convex storage."
+              ? "Perbarui data karya selama masih draf atau dalam tinjauan. Foto disimpan di penyimpanan platform."
               : "Karya baru masuk draf. Unggah foto, lengkapi izin dan provenans, lalu kirim untuk ditinjau."}
           </DialogDescription>
         </DialogHeader>
@@ -1211,11 +1211,11 @@ function WorkFormDialog({
                 <p>JPG, PNG, WebP, AVIF, atau GIF. Maksimal 10 MB.</p>
                 {uploading ? (
                   <p className="mt-1 font-semibold text-thread">
-                    Mengunggah ke Convex…
+                    Mengunggah…
                   </p>
                 ) : values.imageUrl ? (
                   <p className="mt-1 text-moss">
-                    Foto tersimpan di Convex storage.
+                    Foto tersimpan di penyimpanan platform.
                   </p>
                 ) : null}
               </div>
@@ -1397,10 +1397,10 @@ function WorkDrawerActions({
 function WorkDetail({ work }: { work: WorkListingView }) {
   return (
     <>
-      <DrawerSection title="Status alur">
+      <DrawerSection title="Status proses">
         <WorkStatusFlow work={work} />
         <p className="mt-2 text-[10.5px] text-ink-muted">
-          Langkah berikutnya, {nextActionLabel(work)}
+          Status, {nextActionLabel(work)}
         </p>
       </DrawerSection>
 

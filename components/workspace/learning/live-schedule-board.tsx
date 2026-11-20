@@ -126,7 +126,7 @@ export function LiveScheduleBoard() {
         title={can("schedule.manage") ? "Ketersediaan dan sesi." : "Jadwal yang menunggumu."}
         description={
           can("schedule.manage")
-            ? "Sesi kohort yang kamu ampu, dibaca langsung dari Convex. Zona waktu Asia/Jakarta."
+            ? "Sesi kohort yang kamu ampu, dibaca langsung dari platform. Zona waktu Asia/Jakarta."
             : "Sesi kohort dan panggilan yang sudah dijadwalkan. Tambahkan ke kalender perangkat."
         }
         meta={

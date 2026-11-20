@@ -1,6 +1,16 @@
 import { summarizeCulturalSource } from "@/lib/content/sources"
 import type { PublicCulturalSource } from "@/lib/content/types"
 
+const ACCESS_LABELS = {
+  public: "Publik",
+  community: "Terbatas komunitas",
+  restricted: "Terbatas",
+} as const
+
+function accessLabel(level: PublicCulturalSource["accessLevel"]): string {
+  return ACCESS_LABELS[level]
+}
+
 /** Compact source list for one class or one work, never the whole archive. */
 export function CulturalSources({
   sources,
@@ -48,6 +58,11 @@ export function CulturalSources({
               </p>
               <p className="mt-1 text-[10.5px] leading-relaxed text-ink/70">
                 {row.attribution}
+              </p>
+              <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] leading-snug text-ink-muted">
+                {row.dateLabel ? <span>Dicatat {row.dateLabel}</span> : null}
+                <span>{accessLabel(source.accessLevel)}</span>
+                {source.notes ? <span>{source.notes}</span> : null}
               </p>
               {row.reference ? (
                 <p className="mt-1 break-words text-[10.5px] leading-snug text-ink/70">

@@ -145,11 +145,11 @@ export function PayoutLedgerLive() {
         {[
           ["Bruto pada tampilan", formatIDR(totals.gross), `${saleRows.length} baris`],
           [
-            "Bagian pengrajin",
+            "Bagian pembuat",
             formatIDR(totals.teacher),
             `${TEACHER_SHARE_LABEL} dari bruto`,
           ],
-          ["Belum cair", formatIDR(pendingTotal), "menunggu / ditahan / disetujui"],
+          ["Belum cair sebelum pembalikan", formatIDR(pendingTotal), "menunggu / ditahan / disetujui"],
           ["Sudah cair", formatIDR(paidTotal), "payout berstatus dibayar"],
         ].map(([label, value, note]) => (
           <div key={label} className="border border-ink/20 bg-paper-2 p-4">
@@ -167,7 +167,7 @@ export function PayoutLedgerLive() {
           <dl className="grid gap-3 sm:grid-cols-3">
             {[
               ["Penjualan bruto", formatIDR(statement.grossSales)],
-              ["Bagian pengrajin", formatIDR(statement.teacherEarned)],
+              ["Bagian pembuat", formatIDR(statement.teacherEarned)],
               ["Sudah dibayar", formatIDR(statement.teacherPaid)],
               ["Pembalikan", formatIDR(statement.teacherReversed)],
               ["Saldo negatif", formatIDR(statement.teacherNegativeBalance)],
@@ -213,8 +213,8 @@ export function PayoutLedgerLive() {
             <DataTable
               rows={rows}
               columns={payoutColumns(setSelected, release, setAction)}
-              caption="Ledger payout dengan pengrajin, periode, bruto, bagian, status, dan jatuh tempo"
-              searchPlaceholder="Cari pengrajin, kode, atau referensi"
+              caption="Ledger payout dengan pembuat, periode, bruto, bagian, status, dan jatuh tempo"
+              searchPlaceholder="Cari pembuat, kode, atau referensi"
               getSearchText={(row) =>
                 `${row.teacherName} ${row.reference ?? ""} ${row.status}`
               }
@@ -325,11 +325,11 @@ export function PayoutLedgerLive() {
           <>
             <DetailGrid
               items={[
-                { label: "Pengrajin", value: selected.teacherName },
+                { label: "Pembuat", value: selected.teacherName },
                 { label: "Pesanan", value: selected.orderCode ?? "-" },
                 { label: "Jenis", value: PAYOUT_KIND_LABELS[selected.kind] },
                 { label: "Bruto", value: formatIDR(selected.gross) },
-                { label: "Bagian pengrajin", value: formatIDR(selected.teacherShare) },
+                { label: "Bagian pembuat", value: formatIDR(selected.teacherShare) },
                 { label: "Bagian platform", value: formatIDR(selected.platformShare) },
                 { label: "Bagian komunitas", value: formatIDR(selected.communityShare) },
                 {
@@ -485,7 +485,7 @@ function payoutColumns(
     },
     {
       id: "teacher",
-      header: "Pengrajin",
+      header: "Pembuat",
       cell: (row) => <span className="text-[11.5px]">{row.teacherName}</span>,
     },
     {

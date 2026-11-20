@@ -41,8 +41,8 @@ async function findAuthUserByEmail(
  * resolved through the component adapter instead of failing.
  */
 export const seedAuthAccounts = internalAction({
-  args: {},
-  handler: async (ctx): Promise<{
+  args: { now: v.number() },
+  handler: async (ctx, args): Promise<{
     accounts: number
     provisioned: number
     linked: number
@@ -73,7 +73,7 @@ export const seedAuthAccounts = internalAction({
       for (let start = 0; start < links.length; start += 20) {
         await ctx.runMutation(
           internal.seed.domains.auth.linkSeedAuthAccounts,
-          { links: links.slice(start, start + 20), now: Date.now() },
+          { links: links.slice(start, start + 20), now: args.now },
         )
       }
       for (const link of links) linkedEmails.add(link.email)

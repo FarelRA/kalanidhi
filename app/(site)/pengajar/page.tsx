@@ -36,7 +36,7 @@ export default async function TeachersPage() {
 
         {teachers.length === 0 ? (
           <p className="mt-12 max-w-xl border border-ink/25 bg-paper-2 p-5 text-[12.5px] leading-relaxed text-ink-soft">
-            Belum ada pengajar terbit di Convex. Profil akan muncul di sini
+            Belum ada pengajar terbit di platform. Profil akan muncul di sini
             setelah pengajar menyelesaikan verifikasi dan publikasi.
           </p>
         ) : (

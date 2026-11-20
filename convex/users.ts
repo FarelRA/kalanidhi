@@ -310,6 +310,14 @@ export const invite = mutation({
     const { viewer } = await requireOperator(ctx, "people.manage")
     assertRoles(args.roles)
 
+    const reason = args.reason.trim()
+    if (reason.length < 4) {
+      throw new ConvexError({
+        code: "REASON_REQUIRED",
+        message: "Alasan undangan wajib diisi minimal 4 karakter.",
+      })
+    }
+
     const email = args.email.trim().toLowerCase()
     if (!email.includes("@")) {
       throw new ConvexError({ code: "INVALID_EMAIL", message: "Email tidak sah." })
@@ -343,7 +351,7 @@ export const invite = mutation({
       tokenHash,
       status: "pending",
       invitedBy: viewer.userId,
-      reason: args.reason,
+      reason,
       expiresAt,
       createdAt: timestamp,
     })
@@ -354,7 +362,7 @@ export const invite = mutation({
       action: "users.invite",
       entityType: "invites",
       entityId: inviteId,
-      reason: args.reason,
+      reason,
       after: { email, roles: args.roles, expiresAt },
     })
 

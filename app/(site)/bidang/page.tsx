@@ -43,6 +43,7 @@ export default async function FieldsPage() {
     <div className="bg-cream">
       <section aria-labelledby="fields-page-title" className="shell py-12 sm:py-16">
         <PublicPageIntro
+          id="fields-page-title"
           homeLabel={data.header.homeLabel}
           eyebrow={catalog.label}
           title={catalog.title}
@@ -66,7 +67,7 @@ export default async function FieldsPage() {
 
         {total === 0 ? (
           <p className="mt-12 max-w-xl border border-ink/25 bg-paper-2 p-5 text-[12.5px] leading-relaxed text-ink-soft">
-            Belum ada bidang yang tercatat di Convex. Bidang akan muncul di sini
+            Belum ada bidang yang tercatat di platform. Bidang akan muncul di sini
             setelah pengajar dan kurikulumnya dipetakan.
           </p>
         ) : (
@@ -76,13 +77,16 @@ export default async function FieldsPage() {
                 (field) => field.status === group.status,
               )
               if (fields.length === 0) return null
+              const groupId = `group-${group.status
+                .toLowerCase()
+                .replace(/\s+/g, "-")}`
 
               return (
-                <section key={group.status} aria-labelledby={`group-${group.status}`}>
+                <section key={group.status} aria-labelledby={groupId}>
                   <div className="mb-5 flex flex-col gap-2 border-b border-ink/20 pb-3 sm:flex-row sm:items-end sm:justify-between">
                     <div className="flex items-baseline gap-3">
                       <h2
-                        id={`group-${group.status}`}
+                        id={groupId}
                         className="font-heading text-[1.45rem] leading-none"
                       >
                         {group.title}

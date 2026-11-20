@@ -3,12 +3,14 @@ import Link from "next/link"
 import { PUBLIC_ROUTES } from "@/lib/content/routes"
 
 export function PublicPageIntro({
+  id,
   eyebrow,
   title,
   description,
   homeLabel = "Beranda",
   children,
 }: {
+  id?: string
   eyebrow: string
   title: string
   description?: string
@@ -25,7 +27,9 @@ export function PublicPageIntro({
         <span>{eyebrow}</span>
       </nav>
       <span className="stamp mt-6 border-ink/35 text-ink">{eyebrow}</span>
-      <h1 className="heading-section mt-5 max-w-[20ch]">{title}</h1>
+      <h1 id={id} className="heading-section mt-5 max-w-[20ch]">
+        {title}
+      </h1>
       {description ? (
         <p className="body-copy mt-5 max-w-[42rem]">{description}</p>
       ) : null}

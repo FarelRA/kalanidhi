@@ -119,7 +119,7 @@ export function SettingsPanelLive() {
   }
 
   if (!profile) {
-    return <EmptyState title="Memuat pengaturan" description="Membaca profil dari Convex." />
+    return <EmptyState title="Memuat pengaturan" description="Membaca profil dari platform." />
   }
 
   const draft = profileDraft ?? {

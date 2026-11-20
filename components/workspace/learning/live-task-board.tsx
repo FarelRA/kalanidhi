@@ -22,6 +22,7 @@ import { SegmentedTabs } from "@/components/workspace/data/segmented-tabs"
 import { StatusStamp } from "@/components/workspace/data/status-stamp"
 import { useViewer } from "@/components/workspace/shell/viewer-provider"
 import { api } from "@/convex/_generated/api"
+import type { Id } from "@/convex/_generated/dataModel"
 import type {
   RubricInput,
   SubmissionDetail,
@@ -34,7 +35,10 @@ function iso(ms: number) {
 }
 
 export function LiveTaskBoard() {
-  const { can } = useViewer()
+  const { can, viewer } = useViewer()
+  const activeEnrollments = viewer.enrollments.filter(
+    (enrollment) => enrollment.status === "active",
+  )
   const [tab, setTab] = React.useState(
     can("submissions.grade") ? "queue" : "mine",
   )
@@ -102,6 +106,10 @@ export function LiveTaskBoard() {
         }
       />
 
+      {can("submissions.submit") && activeEnrollments.length > 0 ? (
+        <CreateTaskPanel enrollments={activeEnrollments} />
+      ) : null}
+
       <SegmentedTabs
         tabs={tabs}
         value={active ?? "mine"}
@@ -138,6 +146,91 @@ export function LiveTaskBoard() {
         canEscalate={can("submissions.escalate")}
       />
     </div>
+  )
+}
+
+function CreateTaskPanel({
+  enrollments,
+}: {
+  enrollments: { id: string; pathId: string }[]
+}) {
+  const createDraft = useMutation(api.assessments.createDraft)
+  const [enrollmentId, setEnrollmentId] = React.useState(enrollments[0]?.id ?? "")
+  const [title, setTitle] = React.useState("")
+  const [evidence, setEvidence] = React.useState("")
+  const [saving, setSaving] = React.useState(false)
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault()
+    if (!enrollmentId || !title.trim()) return
+    setSaving(true)
+    try {
+      await createDraft({
+        enrollmentId: enrollmentId as Id<"enrollments">,
+        taskTitle: title.trim(),
+        evidenceText: evidence.trim() || undefined,
+      })
+      setTitle("")
+      setEvidence("")
+      toast("Tugas baru dibuat.")
+    } catch (error) {
+      toast("Tugas gagal dibuat", {
+        description: error instanceof Error ? error.message : "Coba lagi.",
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Panel eyebrow="Tugas baru" title="Buat tugas dari kelas aktif.">
+      <p className="mb-3 text-[11.5px] leading-relaxed text-ink-soft">
+        Tulis judul tugas dan catatan proses. Pengajar akan menilai setelah
+        kamu mengirim.
+      </p>
+      <form onSubmit={submit} className="grid gap-3">
+        <div>
+          <Label htmlFor="new-task-enrollment">Kelas</Label>
+          <select
+            id="new-task-enrollment"
+            value={enrollmentId}
+            onChange={(event) => setEnrollmentId(event.target.value)}
+            className="mt-1 h-9 w-full border border-ink/25 bg-paper px-2 text-[12px]"
+          >
+            {enrollments.map((enrollment) => (
+              <option key={enrollment.id} value={enrollment.id}>
+                {enrollment.pathId}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <Label htmlFor="new-task-title">Judul tugas</Label>
+          <Input
+            id="new-task-title"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder="Misalnya, latihan lengkung ganda"
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <Label htmlFor="new-task-evidence">Catatan proses</Label>
+          <Textarea
+            id="new-task-evidence"
+            value={evidence}
+            onChange={(event) => setEvidence(event.target.value)}
+            placeholder="Tulis apa yang kamu kerjakan dan apa yang ingin dinilai."
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <Button type="submit" size="sm" disabled={saving || !title.trim()}>
+            {saving ? "Menyimpan…" : "Buat tugas"}
+          </Button>
+        </div>
+      </form>
+    </Panel>
   )
 }
 
@@ -671,7 +764,9 @@ function SubmissionDrawerContent({
                 </p>
               </div>
             </DrawerSection>
-          ) : canSubmit ? (
+          ) : canSubmit &&
+            (detail.status === "draft" ||
+              detail.status === "revision_requested") ? (
             <DrawerSection title="Catatan proses">
               <Label htmlFor="task-draft">Draf jawaban</Label>
               <Textarea
@@ -730,7 +825,9 @@ function SubmissionDrawerContent({
               </Button>
             </>
           ) : null}
-          {canSubmit ? (
+          {canSubmit &&
+          (detail.status === "draft" ||
+            detail.status === "revision_requested") ? (
             <>
               <Button
                 size="sm"

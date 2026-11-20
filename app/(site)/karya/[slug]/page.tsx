@@ -65,9 +65,16 @@ export default async function WorkDetailPage({
   const { slug } = await params
   const [work, data] = await Promise.all([getPublicWork(slug), getSiteData()])
   if (!work) notFound()
-  const workSources = data.culturalSources.filter(
+  const directSources = data.culturalSources.filter(
     (source) => source.workSlug === work.slug,
   )
+  const classSources =
+    directSources.length === 0 && work.pathId
+      ? data.culturalSources.filter(
+          (source) => source.pathSlug === work.pathId,
+        )
+      : []
+  const workSources = directSources.length > 0 ? directSources : classSources
 
   return (
     <div className="bg-cream">
@@ -77,7 +84,9 @@ export default async function WorkDetailPage({
             Beranda
           </Link>
           <span aria-hidden="true"> / </span>
-          <span>Karya</span>
+          <Link href={PUBLIC_ROUTES.works} className="hover:text-copper-dark">
+            Karya
+          </Link>
         </nav>
 
         <div className="mt-6 grid gap-8 lg:grid-cols-12 lg:gap-12">
@@ -120,7 +129,7 @@ export default async function WorkDetailPage({
                 ["Peran", work.makerRole],
                 ["Pengajar", work.teacher],
                 ["Teknik", work.technique],
-                ["Bahan", work.techniqueNote],
+                ["Catatan teknik", work.techniqueNote],
                 ["Satuan", work.unit],
               ].map(([label, value]) => (
                 <div key={label}>
@@ -176,7 +185,7 @@ export default async function WorkDetailPage({
           </div>
           <dl className="mt-3 grid gap-3 sm:grid-cols-3">
             {[
-              ["Pengrajin", SPLIT_PERCENTAGES.teacher, work.split.teacherShare],
+              ["Pembuat", SPLIT_PERCENTAGES.teacher, work.split.teacherShare],
               ["Platform", SPLIT_PERCENTAGES.platform, work.split.platformShare],
               ["Komunitas", SPLIT_PERCENTAGES.community, work.split.communityShare],
             ].map(([label, percent, value]) => (
@@ -197,7 +206,10 @@ export default async function WorkDetailPage({
         </section>
 
         <div className="mt-6">
-          <CulturalSources sources={workSources} />
+          <CulturalSources
+            sources={workSources}
+            title={directSources.length > 0 ? "Sumber karya" : "Sumber kelas"}
+          />
         </div>
       </section>
     </div>

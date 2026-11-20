@@ -48,6 +48,7 @@ function work(overrides: Partial<PublicWorkView> = {}): PublicWorkView {
     region: "Krebet, Bantul",
     price: 450_000,
     priceLabel: null,
+    pathId: "batik-bambu",
     unit: "nampan",
     technique: "Batik bambu",
     techniqueNote: "Canting pada bambu",

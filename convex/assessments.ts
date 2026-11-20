@@ -782,7 +782,10 @@ export const grade = mutation({
       .withIndex("by_submissionId", (q) => q.eq("submissionId", submission._id))
       .order("desc")
       .first()
-    if (existing?.status === "completed") {
+    if (
+      existing?.status === "completed" &&
+      submission.status !== "revision_requested"
+    ) {
       throw new ConvexError({
         code: "INVALID_TRANSITION",
         message: "Penilaian sudah selesai. Gunakan override dengan alasan.",

@@ -31,7 +31,7 @@ export default async function MangsaPage() {
         />
       </section>
 
-      <SeasonNote mangsa={data.mangsa} />
+      <SeasonNote mangsa={data.mangsa} showHeading={false} />
     </div>
   )
 }

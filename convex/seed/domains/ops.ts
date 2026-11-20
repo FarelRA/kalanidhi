@@ -581,7 +581,7 @@ export const seedOps = internalMutation({
         channel: "email" as const,
         template: "certificate.issued",
         title: "Sertifikat sudah terbit",
-        body: "Sertifikat KN-ANISA-2026 sudah terbit dan dapat diverifikasi publik.",
+        body: `Sertifikat ${certificate.publicCode} sudah terbit dan dapat diverifikasi publik.`,
         entityType: "certificates",
         entityId: certificate._id,
         readAt: clock.ago(326),

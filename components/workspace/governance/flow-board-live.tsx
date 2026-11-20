@@ -64,14 +64,14 @@ export function FlowBoardLive() {
         : ""
 
   if (definitions === undefined) {
-    return <EmptyState title="Memuat definisi alur" description="Membaca state machine dari Convex." />
+    return <EmptyState title="Memuat definisi proses" description="Membaca definisi proses." />
   }
 
   if (definitions.length === 0) {
     return (
       <EmptyState
-        title="Belum ada definisi alur"
-        description="Definisi bawaan tersedia di modul alur. Muat ulang atau periksa konfigurasi deployment."
+        title="Belum ada definisi proses"
+        description="Definisi bawaan tersedia di modul proses. Muat ulang atau periksa konfigurasi deployment."
       />
     )
   }
@@ -131,11 +131,11 @@ export function FlowBoardLive() {
     const url = URL.createObjectURL(blob)
     const anchor = document.createElement("a")
     anchor.href = url
-    anchor.download = "kalanidhi-alur.json"
+    anchor.download = "kalanidhi-proses.json"
     anchor.click()
     URL.revokeObjectURL(url)
     toast("Definisi diekspor", {
-      description: `${list.length} alur diekspor sebagai JSON.`,
+      description: `${list.length} proses diekspor sebagai JSON.`,
     })
   }
 
@@ -219,9 +219,9 @@ export function FlowBoardLive() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Alur"
-        title="Alur status dan perubahannya."
-        description="Definisi alur, penjaga transisi, SLA, otomasi, dan catatan macet dari tabel nyata. Override memerlukan alasan dan selalu masuk audit."
+        eyebrow="Proses"
+        title="Proses status dan perubahannya."
+        description="Definisi proses, penjaga transisi, SLA, otomasi, dan catatan macet dari tabel nyata. Override memerlukan alasan dan selalu masuk audit."
         actions={
           <Button variant="outline" onClick={exportDefinitions}>
             <Download aria-hidden="true" />
@@ -275,7 +275,7 @@ export function FlowBoardLive() {
 
         <div className="space-y-4 xl:col-span-8">
           <Panel
-            eyebrow="Alur status"
+            eyebrow="Proses status"
             title={active?.name ?? ""}
             bodyClassName="p-4"
             action={<StatusStamp label={`${active?.transitions.length ?? 0} transisi`} tone="progress" />}
@@ -390,8 +390,8 @@ export function FlowBoardLive() {
             <DataTable
               rows={stuckRows}
               columns={stuckColumns}
-              caption="Catatan macet lintas alur dengan umur, pemilik, dan langkah berikut"
-              searchPlaceholder="Cari catatan, alur, atau pemilik"
+              caption="Catatan macet lintas proses dengan umur, pemilik, dan langkah berikut"
+              searchPlaceholder="Cari catatan, proses, atau pemilik"
               getSearchText={(row) => `${row.label} ${row.flowName} ${row.ownerName ?? ""}`}
               minWidth={720}
               emptyTitle="Tidak ada catatan macet"
@@ -432,7 +432,7 @@ export function FlowBoardLive() {
           <div className="space-y-5">
             <DetailGrid
               items={[
-                { label: "Alur", value: selected.flowName },
+                { label: "Proses", value: selected.flowName },
                 { label: "Keadaan", value: selected.stateLabel },
                 { label: "Langkah berikut", value: selected.nextAction },
                 { label: "Pemilik", value: selected.ownerName ?? "Belum ada" },

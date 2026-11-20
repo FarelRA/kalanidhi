@@ -10,7 +10,7 @@ export const CONTENT_FALLBACKS = {
   },
   ethicsCard: {
     emptyState:
-      "Belum ada catatan sumber budaya yang terbit di Convex. Izin dan atribusi akan tampil di sini setelah dicatat.",
+      "Belum ada catatan sumber budaya yang terbit di platform. Izin dan atribusi akan tampil di sini setelah dicatat.",
   },
   sections: {
     paths: {
@@ -18,11 +18,11 @@ export const CONTENT_FALLBACKS = {
       regionLabel: "Daerah",
       levelLabel: "Level",
       emptyState:
-        "Belum ada kelas terbit di Convex. Kelas akan muncul di sini setelah kurikulum, pengajar, dan angkatan pertama tersedia.",
+        "Belum ada kelas terbit di platform. Kelas akan muncul di sini setelah kurikulum, pengajar, dan angkatan pertama tersedia.",
     },
     teachers: {
       emptyState:
-        "Belum ada pengajar terbit di Convex. Profil akan muncul di sini setelah pengajar menyelesaikan verifikasi dan publikasi.",
+        "Belum ada pengajar terbit di platform. Profil akan muncul di sini setelah pengajar menyelesaikan verifikasi dan publikasi.",
     },
     works: {
       openCta: "Buka karya",
@@ -32,14 +32,14 @@ export const CONTENT_FALLBACKS = {
       techniqueLabel: "Teknik",
       regionLabel: "Daerah",
       emptyState:
-        "Belum ada karya terbit di Convex. Karya akan muncul di sini setelah Kartu Karya dan sertifikat platformnya terbit.",
+        "Belum ada karya terbit di platform. Karya akan muncul di sini setelah Kartu Karya dan sertifikat platformnya terbit.",
     },
     notes: {
-      emptyState: "Belum ada catatan peserta yang terbit di Convex.",
+      emptyState: "Belum ada catatan peserta yang terbit di platform.",
     },
     faq: {
       askInterest: "Pertanyaan umum",
-      emptyState: "Belum ada pertanyaan umum yang terbit di Convex.",
+      emptyState: "Belum ada pertanyaan umum yang terbit di platform.",
     },
   },
   header: {

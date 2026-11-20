@@ -278,7 +278,7 @@ export function CallRoomLive({
         <PageHeader
           eyebrow="Panggilan"
           title="Menyiapkan ruang panggilan."
-          description="Memuat status panggilan dari Convex."
+          description="Memuat status panggilan dari platform."
         />
         <div className="flex min-h-40 items-center justify-center border border-ink/20 bg-paper-2">
           <Loader2 className="size-5 animate-spin text-ink-muted" aria-hidden="true" />

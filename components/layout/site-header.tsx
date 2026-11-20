@@ -4,6 +4,7 @@ import dynamic from "next/dynamic"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Menu, Search } from "lucide-react"
+import { useQuery } from "convex/react"
 import { useEffect, useRef, useState } from "react"
 
 import { BrandLockup } from "@/components/brand/brand-mark"
@@ -20,6 +21,7 @@ import type {
   NavigationItem,
   SearchCopy,
 } from "@/lib/content/types"
+import { api } from "@/convex/_generated/api"
 import { interestHref, PUBLIC_ROUTES, publicHref } from "@/lib/content/routes"
 import type { SearchGroup } from "@/lib/search"
 import { cn } from "cn"
@@ -43,6 +45,7 @@ export function SiteHeader({
   copy: HeaderCopy
   searchCopy: SearchCopy
 }) {
+  const viewer = useQuery(api.access.getViewer)
   const pathname = usePathname()
   const [searchOpen, setSearchOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -196,21 +199,29 @@ export function SiteHeader({
             </Button>
 
             <div className="ml-1 hidden items-center gap-1.5 border-l border-ink/20 pl-3 sm:flex">
-              <Button
-                asChild
-                variant="ghost"
-                size="sm"
-                className="px-2 text-ink-soft hover:text-ink"
-              >
-                <Link href={`${PUBLIC_ROUTES.signIn}${nextQuery}`}>
-                  {copy.loginCta}
-                </Link>
-              </Button>
-              <Button asChild size="sm">
-                <Link href={`${PUBLIC_ROUTES.signUp}${nextQuery}`}>
-                  {copy.registerCta}
-                </Link>
-              </Button>
+              {viewer ? (
+                <Button asChild size="sm">
+                  <Link href={PUBLIC_ROUTES.workspace}>Ruang kerja</Link>
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className="px-2 text-ink-soft hover:text-ink"
+                  >
+                    <Link href={`${PUBLIC_ROUTES.signIn}${nextQuery}`}>
+                      {copy.loginCta}
+                    </Link>
+                  </Button>
+                  <Button asChild size="sm">
+                    <Link href={`${PUBLIC_ROUTES.signUp}${nextQuery}`}>
+                      {copy.registerCta}
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
 
             <Button

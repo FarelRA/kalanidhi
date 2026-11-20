@@ -13,7 +13,7 @@ KalaNidhi is one closed loop:
 ```text
 Belajar → dinilai pengajar → sertifikat platform + Kartu Karya
         → berkarya / berjasa → kembali mengajar, menilai, atau memasok
-        → jalur baru lahir
+        → kelas baru lahir
 ```
 
 The workspace is not three separate dashboards. It is **one authenticated workspace** where role and entitlement decide what appears and what can be done.
@@ -61,7 +61,7 @@ sellActive = sell && sellerProfile.status === "active"
 | **Peserta** | `student` | `learn` | Belajar, Tugas, Kredensial |
 | **Peserta · Penjual** | `student` | `learn` + `sell` | + Menjual, Pesanan, Pendapatan |
 | **Pengajar · Penjual** | `teacher` | `teach` + `assess` + `sell` | + Mengajar, Penilaian, Kredensial kohort |
-| **Pengelola** | `admin` | `operate` | Semua data, konten, statistik, log, alur |
+| **Pengelola** | `admin` | `operate` | Semua data, konten, statistik, log, proses |
 
 Seller is an **earned, path-scoped entitlement**, never a stored role. Certificate revocation removes the scope automatically.
 
@@ -116,7 +116,7 @@ A certificate in Batik Bambu never authorizes selling pranatacara services.
 | Route | Capability | Student | Teacher | Admin |
 |---|---|---|---|---|
 | `/ruang` | authenticated | Ringkasan belajar | Ringkasan mengajar | Command center |
-| `/ruang/belajar` | `learn` / `cohorts.read.all` | Jalur & progres | Kohort saya | Semua jalur & kohort |
+| `/ruang/belajar` | `learn` / `cohorts.read.all` | Kelas & progres | Kohort saya | Semua kelas & kohort |
 | `/ruang/tugas` | `submissions.*` | Tugas saya | Antrean penilaian | Semua tugas + eskalasi |
 | `/ruang/kredensial` | `certificates.*` | Sertifikat saya | Sertifikat kohort | Registry + cabut |
 | `/ruang/karya` | `works.*` | Karya saya | Karya peserta | Moderasi |
@@ -1128,7 +1128,7 @@ app/
     orang/page.tsx
     konten/page.tsx
     statistik/page.tsx
-    alur/page.tsx
+    proses/page.tsx
     log/page.tsx
     dukungan/page.tsx
     tata-kelola/page.tsx

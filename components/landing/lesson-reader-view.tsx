@@ -120,6 +120,7 @@ export function LessonReaderView({
         <>
           <LessonBody body={lesson.body} />
           <LessonMediaList media={lesson.media} />
+          {actions ? <div className="mt-5">{actions}</div> : null}
         </>
       ) : (
         <div className="mt-4">

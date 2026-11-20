@@ -334,7 +334,7 @@ export function PaymentConsoleLive() {
             {
               label: "Intent menunggu",
               status: String(health?.pendingIntents ?? 0),
-              note: "Dihitung dari catatan Convex.",
+              note: "Dihitung dari catatan platform.",
               done: (health?.pendingIntents ?? 0) < 10,
             },
             {

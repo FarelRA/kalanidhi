@@ -227,11 +227,13 @@ async function enrollmentOverviews(
         nextTask:
           certificate?.status === "issued"
             ? "Sertifikat terbit"
-            : total > 0 && completed >= total
-              ? "Menunggu penilaian akhir"
-              : completed > 0
-                ? `Lanjut modul ${completed + 1}`
-                : "Mulai modul pertama",
+            : certificate?.status === "revoked"
+              ? "Sertifikat dicabut"
+              : total > 0 && completed >= total
+                ? "Menunggu penilaian akhir"
+                : completed > 0
+                  ? `Lanjut pelajaran ${completed + 1}`
+                  : "Mulai pelajaran pertama",
         certificateId: enrollment.certificateId ?? null,
         deadlineAt: enrollment.deadlineAt ?? null,
         withdrawnAt: enrollment.withdrawnAt ?? null,
@@ -875,7 +877,10 @@ export const listSessions = query({
           past: session.endsAt < now,
         }
       })
-      .sort((a, b) => a.startsAt - b.startsAt)
+      .sort((a, b) => {
+        if (a.past !== b.past) return a.past ? 1 : -1
+        return a.past ? b.startsAt - a.startsAt : a.startsAt - b.startsAt
+      })
   },
 })
 

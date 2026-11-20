@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useQuery } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import { ArrowRight, BookOpen, Lock } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { api } from "@/convex/_generated/api"
+import type { Id } from "@/convex/_generated/dataModel"
 import { interestHref, pathHref, PUBLIC_ROUTES } from "@/lib/content/routes"
 import type { PublicLessonSummary } from "@/lib/content/types"
 
@@ -42,7 +43,35 @@ export function LessonReader({
     open ? { pathSlug, lessonId: lesson.id } : "skip",
   )
   const viewer = useQuery(api.access.getViewer, open ? {} : "skip")
+  const recordProgress = useMutation(api.learning.recordProgress)
+  const [saving, setSaving] = React.useState(false)
+  const [saved, setSaved] = React.useState<string | null>(null)
   const signedIn = Boolean(viewer)
+
+  async function markProgress(
+    enrollmentId: string,
+    lessonId: string,
+    state: "in_progress" | "completed",
+  ) {
+    setSaving(true)
+    setSaved(null)
+    try {
+      await recordProgress({
+        enrollmentId: enrollmentId as Id<"enrollments">,
+        lessonId: lessonId as Id<"lessons">,
+        state,
+      })
+      setSaved(
+        state === "completed"
+          ? "Pelajaran ditandai selesai."
+          : "Pelajaran ditandai sedang dipelajari.",
+      )
+    } catch (error) {
+      setSaved(error instanceof Error ? error.message : "Progres gagal disimpan.")
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const signInHref = `${PUBLIC_ROUTES.signIn}?next=${encodeURIComponent(
     pathHref(pathSlug),
@@ -114,7 +143,53 @@ export function LessonReader({
           <LessonReaderView
             lesson={detail}
             actions={
-              detail.status === "locked" ? (
+              detail.status === "unlocked" && detail.enrollmentId ? (
+                <div className="flex flex-wrap items-center gap-3 border-t border-ink/15 pt-3">
+                  <p className="text-[10.5px] text-ink-muted">
+                    Status{" "}
+                    {detail.progressState === "completed"
+                      ? "selesai"
+                      : detail.progressState === "in_progress"
+                        ? "sedang dipelajari"
+                        : "belum dimulai"}
+                  </p>
+                  {detail.progressState !== "completed" ? (
+                    <Button
+                      size="sm"
+                      disabled={saving}
+                      onClick={() =>
+                        void markProgress(
+                          detail.enrollmentId as string,
+                          detail.lessonId,
+                          "completed",
+                        )
+                      }
+                    >
+                      Tandai selesai
+                    </Button>
+                  ) : null}
+                  {detail.progressState === "not_started" ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-ink/35"
+                      disabled={saving}
+                      onClick={() =>
+                        void markProgress(
+                          detail.enrollmentId as string,
+                          detail.lessonId,
+                          "in_progress",
+                        )
+                      }
+                    >
+                      Tandai sedang dipelajari
+                    </Button>
+                  ) : null}
+                  {saved ? (
+                    <p className="text-[10.5px] text-ink-soft">{saved}</p>
+                  ) : null}
+                </div>
+              ) : detail.status === "locked" ? (
                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                   {signedIn ? (
                     <Button asChild size="sm">

@@ -144,6 +144,8 @@ type PublicLessonDetailBase = {
 export type PublicLessonUnlocked = PublicLessonDetailBase & {
   status: "unlocked"
   body: string
+  enrollmentId?: string
+  progressState?: "not_started" | "in_progress" | "completed"
 }
 
 export type PublicLessonLocked = PublicLessonDetailBase & {

@@ -115,7 +115,7 @@ function AdminLiveOverview({ data }: { data: AdminOverview }) {
           action={
             <Button asChild variant="ghost" size="sm">
               <Link href="/ruang/proses">
-                Semua alur
+                Semua proses
                 <ArrowRight aria-hidden="true" />
               </Link>
             </Button>

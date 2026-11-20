@@ -148,7 +148,7 @@ export function LiveLearningBoard() {
         }
         description={
           can("operate")
-            ? "Data kelas, kohort, kapasitas, dan peserta dibaca langsung dari Convex."
+            ? "Data kelas, kohort, kapasitas, dan peserta dibaca langsung dari platform."
             : can("teach")
               ? "Roster, kapasitas, dan progres peserta pada kohort yang kamu ampu."
               : "Modul, tugas, dan langkah berikutnya pada kelas yang kamu ikuti."
@@ -168,7 +168,11 @@ export function LiveLearningBoard() {
       />
 
       {activeTab === "kelas" ? (
-        <StudentPaths paths={paths} enrollments={enrollments} />
+        <StudentPaths
+          paths={paths}
+          enrollments={enrollments}
+          onSelect={(id) => setEnrollmentId(id)}
+        />
       ) : null}
       {activeTab === "kohort" ? (
         <CohortTable cohorts={cohorts} onSelect={(row) => setCohortId(row.id)} />
@@ -201,15 +205,25 @@ export function LiveLearningBoard() {
 function StudentPaths({
   paths,
   enrollments,
+  onSelect,
 }: {
   paths: PathOverview[]
   enrollments: EnrollmentOverview[]
+  onSelect: (id: string) => void
 }) {
   if (paths.length === 0) {
     return (
       <EmptyState
         title="Belum ada kelas aktif"
-        description="Pendaftaranmu akan muncul di sini setelah diaktifkan pengelola."
+        description="Pendaftaranmu akan muncul di sini setelah diaktifkan pengelola. Kamu bisa melihat kelas yang terbuka di halaman publik."
+        action={
+          <Link
+            href="/kelas"
+            className="inline-flex min-h-9 items-center border border-ink bg-ink px-3 text-[10px] font-bold uppercase tracking-[0.06em] text-paper"
+          >
+            Lihat kelas
+          </Link>
+        }
       />
     )
   }
@@ -217,7 +231,10 @@ function StudentPaths({
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       {paths.map((path) => {
-        const enrollment = enrollments.find((item) => item.pathId === path.id)
+        const pathEnrollments = enrollments.filter(
+          (item) => item.pathId === path.id,
+        )
+        const enrollment = pathEnrollments[0]
         return (
           <article
             key={path.id}
@@ -272,6 +289,24 @@ function StudentPaths({
                 )}
               </div>
             </div>
+            {pathEnrollments.length > 1 ? (
+              <ul className="mt-3 space-y-1 border-t border-ink/15 pt-3">
+                {pathEnrollments.map((item) => (
+                  <li key={item.id}>
+                    <button
+                      type="button"
+                      onClick={() => onSelect(item.id)}
+                      className="flex w-full items-center justify-between gap-2 text-left text-[10.5px] text-ink-soft hover:text-ink"
+                    >
+                      <span>{item.cohortCode ?? item.pathId}</span>
+                      <span className="font-semibold">
+                        {enrollmentLabel(item.status)}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
             <dl className="mt-3 grid grid-cols-2 gap-3">
               <div>
                 <dt className="text-[8px] font-bold uppercase tracking-[0.08em] text-ink-muted">

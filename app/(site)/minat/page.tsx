@@ -168,7 +168,7 @@ function InterestCatalog({
 
           {paths.length === 0 ? (
             <p className="mt-6 max-w-xl border border-ink/25 bg-paper-2 p-5 text-[12.5px] leading-relaxed text-ink-soft">
-              Belum ada kelas yang terbit di Convex. Kelas akan muncul di sini
+              Belum ada kelas yang terbit di platform. Kelas akan muncul di sini
               setelah kurikulum dan pengajarnya tersedia.
             </p>
           ) : (
@@ -268,7 +268,7 @@ function InterestCatalog({
 
           {works.length === 0 ? (
             <p className="mt-6 max-w-xl border border-ink/25 bg-paper-2 p-5 text-[12.5px] leading-relaxed text-ink-soft">
-              Belum ada karya terbit di Convex. Karya akan muncul di sini setelah
+              Belum ada karya terbit di platform. Karya akan muncul di sini setelah
               Kartu Karya dan sertifikatnya terbit.
             </p>
           ) : (
