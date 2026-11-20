@@ -2,8 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useConvex, useMutation } from "convex/react"
+import { useConvex, useConvexAuth, useMutation } from "convex/react"
 import { ArrowRight, KeyRound, MessageCircle } from "lucide-react"
 
 import { BrandLockup } from "@/components/brand/brand-mark"
@@ -71,6 +70,15 @@ type CheckPhone = (args: {
   phone: string
 }) => Promise<{ available: boolean; message: string | null }>
 
+type WaitForAuth = () => Promise<boolean>
+
+/** A Convex mutation error carries its structured code in `data`. */
+function convexErrorCode(caught: unknown): string | null {
+  if (!caught || typeof caught !== "object" || !("data" in caught)) return null
+  const data = (caught as { data?: { code?: unknown } }).data
+  return typeof data?.code === "string" ? data.code : null
+}
+
 export function SignInForm({
   nextPath,
   configured,
@@ -87,6 +95,7 @@ export function SignInForm({
         configured={false}
         completeProfile={null}
         checkPhone={null}
+        waitForAuth={null}
         initialMode={initialMode}
       />
     )
@@ -105,16 +114,32 @@ function ConfiguredSignInForm({
 }) {
   const completeProfile = useMutation(api.users.completeProfile)
   const convex = useConvex()
+  const { isAuthenticated } = useConvexAuth()
+  const authedRef = React.useRef(isAuthenticated)
+  React.useEffect(() => {
+    authedRef.current = isAuthenticated
+  }, [isAuthenticated])
   const checkPhone: CheckPhone = React.useCallback(
     (args) => convex.query(api.users.checkPhoneAvailability, args),
     [convex],
   )
+  // Better Auth writes the session cookie first. The Convex client gets its
+  // token on the next auth render, so a mutation fired immediately after
+  // sign-up can still arrive unauthenticated. Wait for that render.
+  const waitForAuth: WaitForAuth = React.useCallback(async () => {
+    for (let attempt = 0; attempt < 80; attempt += 1) {
+      if (authedRef.current) return true
+      await new Promise((resolve) => setTimeout(resolve, 100))
+    }
+    return authedRef.current
+  }, [])
   return (
     <SignInFormView
       nextPath={nextPath}
       configured
       completeProfile={completeProfile}
       checkPhone={checkPhone}
+      waitForAuth={waitForAuth}
       initialMode={initialMode}
     />
   )
@@ -125,15 +150,16 @@ function SignInFormView({
   configured,
   completeProfile,
   checkPhone,
+  waitForAuth,
   initialMode,
 }: {
   nextPath: string
   configured: boolean
   completeProfile: CompleteProfile | null
   checkPhone: CheckPhone | null
+  waitForAuth: WaitForAuth | null
   initialMode: Mode
 }) {
-  const router = useRouter()
   const [mode, setMode] = React.useState<Mode>(initialMode)
   const [name, setName] = React.useState("")
   const [phone, setPhone] = React.useState("")
@@ -199,11 +225,30 @@ function SignInFormView({
           return
         }
 
+        // Let the auth store and Convex client see the new session before
+        // writing the profile. Without this the mutation can race the token.
+        await authClient
+          .getSession({ query: { disableCookieCache: true } })
+          .catch(() => null)
+        await waitForAuth?.()
+
         try {
-          const profile = await completeProfile({
-            phone: phone.trim(),
-            province,
-          })
+          let profile: Awaited<ReturnType<CompleteProfile>> | null = null
+          let lastError: unknown = null
+          for (let attempt = 0; attempt < 40; attempt += 1) {
+            try {
+              profile = await completeProfile({
+                phone: phone.trim(),
+                province,
+              })
+              break
+            } catch (caught) {
+              lastError = caught
+              if (convexErrorCode(caught) !== "UNAUTHENTICATED") throw caught
+              await new Promise((resolve) => setTimeout(resolve, 250))
+            }
+          }
+          if (!profile) throw lastError
           setWaUrl(profile.waUrl)
         } catch (caught) {
           // The auth user exists by now. Remove it so a rejected profile
@@ -233,8 +278,13 @@ function SignInFormView({
         return
       }
 
-      router.replace(nextPath)
-      router.refresh()
+      // A full navigation remounts the Convex auth provider with the session
+      // cookie, so the workspace queries start with a token instead of
+      // rendering an unauthenticated error.
+      await authClient
+        .getSession({ query: { disableCookieCache: true } })
+        .catch(() => null)
+      window.location.assign(nextPath)
     } catch (caught) {
       setError(errorMessage(caught, "Tidak dapat masuk. Coba lagi."))
     } finally {
