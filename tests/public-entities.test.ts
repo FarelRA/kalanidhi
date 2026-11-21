@@ -50,9 +50,9 @@ describe("public entity queries", () => {
     expect(teachers.length).toBeGreaterThan(0)
 
     const teacher = await t.query(api.content.getPublicTeacher, {
-      slug: "sri-sriningsih",
+      slug: "zadira-ahmada",
     })
-    expect(teacher?.name).toBe("Sri Sriningsih")
+    expect(teacher?.name).toBe("Zadira Ahmada")
     expect(teacher?.paths.length).toBeGreaterThan(0)
     expect(teacher?.works.length).toBeGreaterThan(0)
 

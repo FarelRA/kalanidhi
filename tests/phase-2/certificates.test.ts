@@ -78,7 +78,7 @@ describe("certificates / issuance and public verification", () => {
     const certificate = await t.run(async (ctx) => ctx.db.get(certificateId))
     expect(certificate?.snapshot.studentName).toBe("Anisa Rahmawati")
     expect(certificate?.snapshot.pathTitle).toBe("Batik Tulis Soga")
-    expect(certificate?.snapshot.teacherName).toBe("Bambang Hardjono")
+    expect(certificate?.snapshot.teacherName).toBe("Zadira Ahmada")
     expect(certificate?.snapshot.assessmentScore).toBe(89)
     expect(certificate?.status).toBe("issued")
     expect(certificate?.issuedAt).toBeGreaterThan(0)
@@ -339,7 +339,7 @@ describe("certificates / issuance and public verification", () => {
     const events = mine[0]?.events ?? []
 
     expect(events.map((event) => event.kind)).toEqual(["issue", "revoke"])
-    expect(events[0]?.actorName).toBe("Bambang Hardjono")
+    expect(events[0]?.actorName).toBe("Zadira Ahmada")
     expect(events[1]?.actorName).toBe("Nadia Kusuma")
     expect(events[1]?.reason).toContain("Pencabutan")
   })

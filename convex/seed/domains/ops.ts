@@ -24,7 +24,7 @@ export const seedOps = internalMutation({
     const clock = createSeedClock(args.now)
     const admin = await seedAdmin(ctx)
     const sari = await userByEmail(ctx, seedEmail("sari"))
-    const sri = await userByEmail(ctx, seedEmail("sri"))
+    const zadira = await userByEmail(ctx, seedEmail("zadira"))
     const arif = await userByEmail(ctx, seedEmail("arif"))
     const dwi = await userByEmail(ctx, seedEmail("dwi"))
     const anisa = await userByEmail(ctx, seedEmail("anisa"))
@@ -83,7 +83,7 @@ export const seedOps = internalMutation({
         name: "Nanda Kusuma",
         email: seedEmail("nanda"),
         whatsapp: seedPhone("nanda"),
-        interest: "Kriya gerabah Bantul",
+        interest: "Kriya Gerabah",
         message: "Kabari saya kalau kelas gerabah Kasongan sudah dibuka.",
         source: "footer",
         status: "closed" as const,
@@ -511,7 +511,7 @@ export const seedOps = internalMutation({
         daysAgo: 318,
       },
       {
-        recipient: sri,
+        recipient: zadira,
         channel: "email" as const,
         template: "cohort.session_reminder",
         title: "Pengingat sesi live",

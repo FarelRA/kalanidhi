@@ -295,8 +295,8 @@ describe("workspace data sources", () => {
   it("workspace files never hardcode fixture entity names", () => {
     const forbidden = [
       "Anisa Rahmawati",
-      "Bambang Hardjono",
-      "Sri Sriningsih",
+      "Zadira Ahmada",
+      "Zadira Ahmada",
       "Nadia Kusuma",
       "Fajar Nugroho",
       "Giriloyo",

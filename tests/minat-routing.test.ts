@@ -19,7 +19,7 @@ function path(overrides: Partial<LearningPath> = {}): LearningPath {
     code: "JLR-01",
     title: "Batik Bambu",
     subtitle: "Belajar batik bambu dari perajin Krebet.",
-    teacher: "Sri Sriningsih",
+    teacher: "Zadira Ahmada",
     teacherRole: "Pembatik",
     region: "Krebet, Bantul, Yogyakarta",
     level: "Dasar",
@@ -44,7 +44,7 @@ function work(overrides: Partial<PublicWorkView> = {}): PublicWorkView {
     category: "batik",
     maker: "Sari",
     makerRole: "Pengrajin",
-    teacher: "Sri Sriningsih",
+    teacher: "Zadira Ahmada",
     region: "Krebet, Bantul",
     price: 450_000,
     priceLabel: null,
@@ -71,8 +71,8 @@ function teacher(
   overrides: Partial<PublicTeacherDetail> = {},
 ): PublicTeacherDetail {
   return {
-    slug: "sri-sriningsih",
-    name: "Sri Sriningsih",
+    slug: "zadira-ahmada",
+    name: "Zadira Ahmada",
     initials: "SS",
     specialty: "Batik bambu",
     region: "Krebet, Bantul",
@@ -129,7 +129,7 @@ describe("/minat smart routing", () => {
 
   it("sends consultation intent to /tanya with the same context", () => {
     const result = resolveMinat({
-      params: { teacher: "sri-sriningsih", intent: "consultation" },
+      params: { teacher: "zadira-ahmada", intent: "consultation" },
       paths: [],
       works: [],
       teacher: teacher(),
@@ -137,7 +137,7 @@ describe("/minat smart routing", () => {
     expect(result).toEqual({
       kind: "redirect",
       href: consultHref({
-        teacher: "sri-sriningsih",
+        teacher: "zadira-ahmada",
         intent: "consultation",
       }),
     })
@@ -160,7 +160,7 @@ describe("/minat smart routing", () => {
 
   it("sends a teacher with exactly one path to that path checkout", () => {
     const result = resolveMinat({
-      params: { teacher: "sri-sriningsih", intent: "student" },
+      params: { teacher: "zadira-ahmada", intent: "student" },
       paths: [path()],
       works: [],
       teacher: teacher(),
@@ -173,7 +173,7 @@ describe("/minat smart routing", () => {
 
   it("renders a chooser when a teacher has multiple paths", () => {
     const result = resolveMinat({
-      params: { teacher: "sri-sriningsih" },
+      params: { teacher: "zadira-ahmada" },
       paths: [path(), path({ slug: "kriya-gerabah-bantul" })],
       works: [],
       teacher: teacher({
@@ -190,7 +190,7 @@ describe("/minat smart routing", () => {
           {
             slug: "kriya-gerabah-bantul",
             code: "JLR-02",
-            title: "Kriya Gerabah Bantul",
+            title: "Kriya Gerabah",
             level: "Dasar",
             region: "Bantul",
             price: 900_000,
@@ -204,14 +204,14 @@ describe("/minat smart routing", () => {
 
   it("sends a teacher without paths to /tanya", () => {
     const result = resolveMinat({
-      params: { teacher: "sri-sriningsih" },
+      params: { teacher: "zadira-ahmada" },
       paths: [],
       works: [],
       teacher: teacher({ paths: [] }),
     })
     expect(result).toEqual({
       kind: "redirect",
-      href: consultHref({ teacher: "sri-sriningsih" }),
+      href: consultHref({ teacher: "zadira-ahmada" }),
     })
   })
 

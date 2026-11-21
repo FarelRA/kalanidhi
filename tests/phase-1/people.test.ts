@@ -12,8 +12,8 @@ async function seedTeacherDossier(
   return await t.run(async (ctx) =>
     ctx.db.insert("teachers", {
       order: 1,
-      slug: "bambang-hardjono",
-      name: "Bambang Hardjono",
+      slug: "zadira-ahmada",
+      name: "Zadira Ahmada",
       initials: "BH",
       specialty: "Pengajar batik halus",
       region: "Giriloyo, Yogyakarta",
@@ -36,7 +36,7 @@ describe("people / accounts", () => {
   it("[P1-ACC-01] lists users, teachers, and team with filters", async () => {
     const t = createTestDb()
     await seedAdmin(t, "auth-admin")
-    const teacherId = await seedStudent(t, "auth-teacher", "Bambang Hardjono")
+    const teacherId = await seedStudent(t, "auth-teacher", "Zadira Ahmada")
     await t.run(async (ctx) => {
       await ctx.db.patch(teacherId, { roles: ["teacher"] })
     })
@@ -53,14 +53,14 @@ describe("people / accounts", () => {
     const team = await identity.query(api.people.list, { tab: "team" })
     expect(team.every((person) => person.roles.includes("admin"))).toBe(true)
 
-    const searched = await identity.query(api.people.list, { q: "bambang" })
+    const searched = await identity.query(api.people.list, { q: "zadira" })
     expect(searched).toHaveLength(1)
   })
 
   it("[P1-ACC-02] account detail shows roles, entitlement scope, dossier, sessions, and history without auth tokens", async () => {
     const t = createTestDb()
     await seedAdmin(t, "auth-admin")
-    const teacherId = await seedStudent(t, "auth-teacher", "Bambang Hardjono")
+    const teacherId = await seedStudent(t, "auth-teacher", "Zadira Ahmada")
     await seedTeacherDossier(t, teacherId)
     await t.run(async (ctx) => {
       await ctx.db.insert("sessions", {
@@ -103,7 +103,7 @@ describe("people / accounts", () => {
   it("[P1-TCH-01] teacher verification publishes the profile and writes an audit row", async () => {
     const t = createTestDb()
     await seedAdmin(t, "auth-admin")
-    const teacherId = await seedStudent(t, "auth-teacher", "Bambang Hardjono")
+    const teacherId = await seedStudent(t, "auth-teacher", "Zadira Ahmada")
     const dossierId = await seedTeacherDossier(t, teacherId)
 
     await t
@@ -135,7 +135,7 @@ describe("people / accounts", () => {
   it("[P1-TCH-02] rejecting or suspending a teacher unpublishes the profile", async () => {
     const t = createTestDb()
     await seedAdmin(t, "auth-admin")
-    const teacherId = await seedStudent(t, "auth-teacher", "Sri Sriningsih")
+    const teacherId = await seedStudent(t, "auth-teacher", "Zadira Ahmada")
     const dossierId = await seedTeacherDossier(t, teacherId)
     const identity = t.withIdentity({ subject: "auth-admin" })
 
@@ -167,7 +167,7 @@ describe("people / accounts", () => {
   it("[P1-TCH-03] publishing requires an active verified profile", async () => {
     const t = createTestDb()
     await seedAdmin(t, "auth-admin")
-    const teacherId = await seedStudent(t, "auth-teacher", "Bambang Hardjono")
+    const teacherId = await seedStudent(t, "auth-teacher", "Zadira Ahmada")
     const dossierId = await seedTeacherDossier(t, teacherId)
     const identity = t.withIdentity({ subject: "auth-admin" })
 
@@ -306,7 +306,7 @@ describe("people / seller onboarding", () => {
     const t = createTestDb()
     await seedAdmin(t, "auth-admin")
     await seedContent(t)
-    const teacherId = await seedStudent(t, "auth-teacher", "Bambang Hardjono")
+    const teacherId = await seedStudent(t, "auth-teacher", "Zadira Ahmada")
     const identity = t.withIdentity({ subject: "auth-admin" })
 
     const dossierId = await identity.mutation(api.people.createTeacherProfile, {
@@ -352,7 +352,7 @@ describe("people / seller onboarding", () => {
   it("[P1-SEL-01] activates a seller only with a complete checklist and an earned scope", async () => {
     const t = createTestDb()
     await seedAdmin(t, "auth-admin")
-    const teacherId = await seedStudent(t, "auth-teacher", "Bambang Hardjono")
+    const teacherId = await seedStudent(t, "auth-teacher", "Zadira Ahmada")
     const dossierId = await seedTeacherDossier(t, teacherId)
     const identity = t.withIdentity({ subject: "auth-admin" })
 
@@ -364,7 +364,7 @@ describe("people / seller onboarding", () => {
 
     const result = await identity.mutation(api.people.activateSeller, {
       userId: teacherId,
-      displayName: "Bambang Hardjono",
+      displayName: "Zadira Ahmada",
       checklist: {
         payoutAccount: true,
         consent: true,
@@ -394,7 +394,7 @@ describe("people / seller onboarding", () => {
   it("[P1-SEL-02] rejects an incomplete checklist and an account without a seller scope", async () => {
     const t = createTestDb()
     await seedAdmin(t, "auth-admin")
-    const teacherId = await seedStudent(t, "auth-teacher", "Bambang Hardjono")
+    const teacherId = await seedStudent(t, "auth-teacher", "Zadira Ahmada")
     const studentId = await seedStudent(t, "auth-student", "Anisa Rahmawati")
     const dossierId = await seedTeacherDossier(t, teacherId)
     const identity = t.withIdentity({ subject: "auth-admin" })

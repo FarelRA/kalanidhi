@@ -49,7 +49,7 @@ describe("stats / empty states", () => {
 describe("stats / derived metrics", () => {
   it("[P1-STAT-01..19] metrics and the funnel come from real records", async () => {
     const t = await adminDb()
-    const teacherId = await seedStudent(t, "auth-teacher", "Bambang Hardjono")
+    const teacherId = await seedStudent(t, "auth-teacher", "Zadira Ahmada")
     const studentId = await seedStudent(t, "auth-student", "Anisa Rahmawati")
 
     await seedLead(t, { status: "converted", email: "converted@example.test" })
@@ -117,7 +117,7 @@ describe("stats / derived metrics", () => {
           snapshot: {
             studentName: "Anisa Rahmawati",
             pathTitle: "Batik Tulis Soga",
-            teacherName: "Bambang Hardjono",
+            teacherName: "Zadira Ahmada",
             assessmentScore: 90,
             issuedAt: NOW,
           },

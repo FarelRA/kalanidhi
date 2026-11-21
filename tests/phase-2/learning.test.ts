@@ -434,7 +434,7 @@ describe("learning / paths, cohorts, enrollment", () => {
       .query(api.learning.listPaths, {})
     const path = paths.find((row) => row.slug === h.pathId)
     expect(path?.teacherId).toBe(h.teacherId)
-    expect(path?.teacherName).toBe("Bambang Hardjono")
+    expect(path?.teacherName).toBe("Zadira Ahmada")
   })
 
   it("[P2-LRN-19] cohort overview exposes the stored title and updated timestamp", async () => {

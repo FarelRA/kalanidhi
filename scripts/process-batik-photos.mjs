@@ -33,8 +33,8 @@ const PORTRAIT = { width: 1200, height: 1500 }
 const photos = [
   { name: "path-batik-bambu", source: "path-batik-bambu.jpg", ...LANDSCAPE },
   {
-    name: "teacher-sriningsih",
-    source: "teacher-sriningsih.jpg",
+    name: "teacher-zadira-ahmada",
+    source: "teacher-batik-bambu.jpg",
     ...PORTRAIT,
   },
   {

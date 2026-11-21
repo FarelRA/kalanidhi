@@ -106,11 +106,11 @@ describe("public source rendering never borrows one row for the site", () => {
 
 describe("published teacher visibility", () => {
   it("keeps a name only when the profile is published", () => {
-    const published = ["Sri Sriningsih", "Bambang Hardjono"]
-    expect(publishedTeacherName("Sri Sriningsih", published)).toBe(
-      "Sri Sriningsih",
+    const published = ["Zadira Ahmada", "Zadira Ahmada"]
+    expect(publishedTeacherName("Zadira Ahmada", published)).toBe(
+      "Zadira Ahmada",
     )
-    expect(publishedTeacherName("Sutrisno Wibowo", published)).toBeNull()
+    expect(publishedTeacherName("Pengajar belum ditetapkan", published)).toBeNull()
     expect(publishedTeacherName("Pengajar belum ditautkan", published)).toBeNull()
     expect(publishedTeacherName("", published)).toBeNull()
   })

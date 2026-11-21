@@ -251,7 +251,7 @@ mengunggahnya ke Convex storage dan mendaftarkannya di `mediaAssets`; seed akan 
 jika ada `imageFile` yang belum terdaftar.
 
 Katalog seed berisi enam kelas. Kelas terbuka adalah Batik Bambu, Aksara Jawa, Tari
-Kreasi, dan Kuliner Nusantara. Kriya Gerabah Bantul dan Batik Tulis berstatus
+Kreasi, dan Kuliner Nusantara. Kriya Gerabah dan Batik Tulis berstatus
 `comingSoon`; Batik Tulis tidak memiliki modul atau pelajaran karena materi batik tulis
 di atas kain belum tersedia sebagai kurikulum. Kurikulum Batik Bambu diadaptasi dari
 materi Paguyuban Batik Tulis Giriloyo untuk kain, lalu disesuaikan dengan proses bambu

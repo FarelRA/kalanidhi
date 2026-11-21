@@ -68,7 +68,7 @@ async function issueCertificate(
       snapshot: {
         studentName: "Anisa Rahmawati",
         pathTitle: "Batik Tulis Soga",
-        teacherName: "Bambang Hardjono",
+        teacherName: "Zadira Ahmada",
         assessmentScore: 90,
         issuedAt: NOW,
       },

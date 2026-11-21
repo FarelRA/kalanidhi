@@ -687,7 +687,7 @@ describe("calls / recording consent", () => {
       [world.studentId, world.teacherId].sort(),
     )
     expect(call.recordings[0]?.consentedBy.map((item) => item.name)).toContain(
-      "Bambang Hardjono",
+      "Zadira Ahmada",
     )
   })
 

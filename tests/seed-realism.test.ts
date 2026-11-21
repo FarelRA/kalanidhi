@@ -539,7 +539,7 @@ describe("seed realism", () => {
     const stats = await t.query(api.content.getPublicStats, {})
     expect(stats).toEqual({
       fields: 10,
-      teachers: 5,
+      teachers: 4,
       participants,
       submissions: assessedSubmissions,
       works: 6,
@@ -842,7 +842,7 @@ describe("seed realism", () => {
       expect(teacher?.verificationStatus).toBe("verified")
       expect(teacher?.published).toBe(true)
       expect(teacher?.status).toBe("active")
-      expect(teacher?.experience).toMatch(/tahun/)
+      expect(teacher?.experience).toMatch(/Medalis/)
     }
   })
 
@@ -858,7 +858,7 @@ describe("seed realism", () => {
     for (const work of batikWorks) {
       expect(work.pathId, work.slug).toBe("batik-bambu")
       expect(work.title.toLowerCase(), work.slug).toContain("bambu")
-      expect(work.teacher, work.slug).toBe("Sri Sriningsih")
+      expect(work.teacher, work.slug).toBe("Zadira Ahmada")
     }
     const titles = works.map((work) => work.title)
     expect(titles).not.toContain("Kain Batik Soga Anyaman")

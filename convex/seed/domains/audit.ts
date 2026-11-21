@@ -22,15 +22,14 @@ export const seedAudit = internalMutation({
   handler: async (ctx, args) => {
     const clock = createSeedClock(args.now)
     const admin = await seedAdmin(ctx)
-    const bambang = await userByEmail(ctx, seedEmail("bambang"))
-    const sri = await userByEmail(ctx, seedEmail("sri"))
+    const zadira = await userByEmail(ctx, seedEmail("zadira"))
     const sari = await userByEmail(ctx, seedEmail("sari"))
     const anisa = await userByEmail(ctx, seedEmail("anisa"))
     const order1 = await orderByIdempotency(ctx, "seed-idem-order-1")
     const work = await workBySlug(ctx, workSlug("nampanBatikBambu"))
     const certificate = await certificateByCode(ctx, certificatePublicCode("anisa"))
     const aksaraCertificate = await certificateByCode(ctx, certificatePublicCode("galuh"))
-    const suwardi = await userByEmail(ctx, seedEmail("suwardi"))
+    const cendrawa = await userByEmail(ctx, seedEmail("cendrawa"))
     const submission = await submissionByCode(ctx, evidenceCode("sariBbm1"))
     const payoutForOrder1 = (
       await ctx.db
@@ -81,8 +80,8 @@ export const seedAudit = internalMutation({
         actorRole: "Pengelola",
         action: "users.setRoles",
         entityType: "users",
-        entityId: bambang._id,
-        reason: "Verifikasi pengajar batik tulis Giriloyo.",
+        entityId: zadira._id,
+        reason: "Verifikasi pengajar Batik Bambu.",
         severity: "info" as const,
         daysAgo: 395,
         before: { roles: ["student"] },
@@ -101,7 +100,7 @@ export const seedAudit = internalMutation({
         after: { version: 2 },
       },
       {
-        actorId: sri._id,
+        actorId: zadira._id,
         actorRole: "Pengajar",
         action: "assessments.grade",
         entityType: "submissions",
@@ -222,7 +221,7 @@ export const seedAudit = internalMutation({
         actorRole: "Pengelola",
         action: "users.setRoles",
         entityType: "users",
-        entityId: suwardi._id,
+        entityId: cendrawa._id,
         reason: "Verifikasi pengajar aksara Jawa, Kota Yogyakarta.",
         severity: "info" as const,
         daysAgo: 259,

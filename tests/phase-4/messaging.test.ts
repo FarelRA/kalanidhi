@@ -348,7 +348,7 @@ describe("messages", () => {
     expect(editedMessage?.edits[0]?.previousBody).toContain("dua celupan")
     expect(editedMessage?.edits[0]?.nextBody).toContain("tiga celupan")
     expect(editedMessage?.edits[0]?.editorId).toBe(world.teacherId)
-    expect(editedMessage?.edits[0]?.editorName).toBe("Bambang Hardjono")
+    expect(editedMessage?.edits[0]?.editorName).toBe("Zadira Ahmada")
     expect(typeof editedMessage?.edits[0]?.createdAt).toBe("number")
 
     expect(

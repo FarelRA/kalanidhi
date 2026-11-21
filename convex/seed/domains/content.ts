@@ -130,14 +130,14 @@ export const seedContent = internalMutation({
     for (const [order, path] of seededPaths.entries()) {
       const teacher = teacherForPath(path)
       const user = teacher ? users.get(teacher.name) : undefined
-      if (!user) {
+      if (teacher && !user) {
         throw new Error(`Seed teacher user missing for path ${path.slug}`)
       }
       await ctx.db.insert("paths", {
         order,
         ...path,
         modules: 0,
-        teacherId: user._id,
+        teacherId: user?._id,
         status: path.comingSoon ? "planned" : "open",
         createdAt: clock.ago(395 - order * 12),
       })

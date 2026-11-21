@@ -75,7 +75,7 @@ export async function seedPhase2(t: TestDb) {
     })
     const teacherId = await ctx.db.insert("users", {
       authUserId: "auth-teacher",
-      name: "Bambang Hardjono",
+      name: "Zadira Ahmada",
       email: "bambang@example.test",
       emailVerified: true,
       phone: "6280000000000",
@@ -165,8 +165,8 @@ export async function seedPhase2(t: TestDb) {
 
     await ctx.db.insert("teachers", {
       order: 1,
-      slug: "bambang-hardjono",
-      name: "Bambang Hardjono",
+      slug: "zadira-ahmada",
+      name: "Zadira Ahmada",
       initials: "BH",
       specialty: "Batik tulis",
       region: "Giriloyo",
@@ -204,7 +204,7 @@ export async function seedPhase2(t: TestDb) {
       code: "Jalur 01",
       title: "Batik Tulis Soga",
       subtitle: "Dari canting pertama",
-      teacher: "Bambang Hardjono",
+      teacher: "Zadira Ahmada",
       teacherRole: "Pengajar batik",
       region: "Giriloyo",
       level: "Pemula",
@@ -481,7 +481,7 @@ export async function seedWorkForCertificate(
       kind: "product",
       maker: "Anisa Rahmawati",
       makerRole: "Lulusan",
-      teacher: "Bambang Hardjono",
+      teacher: "Zadira Ahmada",
       region: "Yogyakarta",
       price: 1_450_000,
       unit: "Kain",

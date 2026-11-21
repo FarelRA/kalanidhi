@@ -13,7 +13,7 @@ export const seedSettings = internalMutation({
     const clock = createSeedClock(args.now)
     const admin = await seedAdmin(ctx)
     const sari = await userByEmail(ctx, seedEmail("sari"))
-    const bambang = await userByEmail(ctx, seedEmail("bambang"))
+    const zadira = await userByEmail(ctx, seedEmail("zadira"))
     const anisa = await userByEmail(ctx, seedEmail("anisa"))
 
     const settings = [
@@ -50,7 +50,7 @@ export const seedSettings = internalMutation({
       })
     }
 
-    const profileUsers = [admin, sari, bambang, anisa]
+    const profileUsers = [admin, sari, zadira, anisa]
     for (const user of profileUsers) {
       await ctx.db.insert("settings", {
         key: `profile.preferences.${user._id}`,

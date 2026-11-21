@@ -299,7 +299,7 @@ const SUPPORT_SCENARIOS = [
   },
   {
     subject: "Sertifikat belum muncul di akun",
-    body: "Tugas akhir saya sudah dinilai Bu Sri minggu lalu, tapi sertifikat belum ada di halaman akun. Apakah ada yang kurang?",
+    body: "Tugas akhir saya sudah dinilai Bu Zadira minggu lalu, tapi sertifikat belum ada di halaman akun. Apakah ada yang kurang?",
     reply:
       "Sudah saya cek, penilaiannya masuk dan sertifikat terbit hari ini. Coba muat ulang halaman verifikasi, kalau masih kosong, kirim tangkapan layarnya ke sini.",
     priority: "normal" as const,

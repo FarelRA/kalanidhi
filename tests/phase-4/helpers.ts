@@ -134,7 +134,7 @@ export type World = Awaited<ReturnType<typeof seedWorld>>
 export async function seedWorld(t: Db) {
   const teacherId = await seedUser(t, {
     authUserId: "auth-teacher",
-    name: "Bambang Hardjono",
+    name: "Zadira Ahmada",
     roles: ["teacher"],
   })
   const otherTeacherId = await seedUser(t, {

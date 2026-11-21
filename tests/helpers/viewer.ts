@@ -56,7 +56,7 @@ export const studentViewer = () =>
 export const teacherViewer = () =>
   makeViewer({
     userId: "u-teacher",
-    name: "Bambang Hardjono",
+    name: "Zadira Ahmada",
     roles: ["teacher"],
     teacherProfile: {
       id: "t-1",

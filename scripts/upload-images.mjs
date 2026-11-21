@@ -55,34 +55,18 @@ const token = process.env.SEED_UPLOAD_SECRET
 
 /** Descriptive alt text for every checked-in seed image. */
 const ALT_BY_FILENAME = {
-  "hero-canting.webp":
-    "Canting meneteskan malam di atas nampan anyaman bambu",
-  "chat-lembar-pola.webp":
-    "Peserta menggambar pola batik di atas kertas",
-  "path-batik-bambu.webp":
-    "Sri Sriningsih mendampingi peserta mencanting silinder bambu",
-  "path-gerabah-bantul.webp":
-    "Plat tipografi kelas Kriya Gerabah Bantul, membentuk, mengeringkan, dan membakar gerabah Kasongan",
-  "path-aksara-jawa.webp":
-    "Plat tipografi kelas Aksara Jawa, dari hanacaraka sampai kalimat utuh tanpa spasi, Kota Yogyakarta",
-  "path-batik-tulis-giriloyo.webp":
-    "Plat tipografi kelas Batik Tulis, materi batik tulis di atas kain sedang disiapkan, Giriloyo, Wukirsari, Imogiri, Bantul",
-  "path-tari-kreasi.webp":
-    "Plat tipografi kelas Tari Kreasi, gerak murni dan maknawi, ruang-waktu-tenaga, Kota Yogyakarta dan Sleman",
-  "path-kuliner-nusantara.webp":
-    "Plat tipografi kelas Kuliner Nusantara, gastronomi, identitas, dan pelestarian makanan, Kota Yogyakarta dan Kulon Progo",
-  "teacher-hardjono.webp":
-    "Plat tipografi pengajar Bambang Hardjono, label pengajar, nama besar, dan keterangan pengajar batik halus Giriloyo",
-  "teacher-sriningsih.webp":
-    "Sri Sriningsih di depan layar Batik Bambu",
-  "teacher-suwardi.webp":
-    "Plat tipografi pengajar Suwardi Pratama, pengajar aksara Jawa, Kota Yogyakarta",
-  "teacher-gerabah.webp":
-    "Plat tipografi perajin Sutrisno Wibowo, pengrajin gerabah Kasongan, Kasihan, Bantul",
-  "teacher-tari-kreasi.webp":
-    "Plat tipografi pengajar Retno Wulandari, pengajar tari dan koreografer, Sleman",
-  "teacher-kuliner-nusantara.webp":
-    "Plat tipografi pengajar Joko Santosa, pengajar kuliner rumahan dan pendamping UMKM, Kulon Progo",
+  "hero-canting.webp": "Canting meneteskan malam di atas nampan anyaman bambu",
+  "chat-lembar-pola.webp": "Peserta menggambar pola batik di atas kertas",
+  "path-batik-bambu.webp": "Kelas Batik Bambu di Lopati, Srandakan, Bantul",
+  "path-gerabah-bantul.webp": "Plat tipografi kelas Kriya Gerabah di Kasongan, Bantul",
+  "path-aksara-jawa.webp": "Plat tipografi kelas Aksara Jawa di Daerah Istimewa Yogyakarta",
+  "path-batik-tulis-giriloyo.webp": "Plat tipografi kelas Batik Tulis di Giriloyo, Bantul",
+  "path-tari-kreasi.webp": "Plat tipografi kelas Tari Kreasi di Kulon Progo, Yogyakarta",
+  "path-kuliner-nusantara.webp": "Plat tipografi kelas Kuliner Nusantara di Bambanglipuro, Bantul",
+  "teacher-zadira-ahmada.webp": "Zadira Ahmada, pengajar Batik Bambu",
+  "teacher-cendrawa-giani-az-zahra.webp": "Cendrawa Giani Az Zahra, pengajar Aksara Jawa",
+  "teacher-arfan-agus-tianto.webp": "Arfan Agus Tianto, pengajar Tari Kreasi",
+  "teacher-syafa-nur-hafinanda.webp": "Syafa Nur Hafinanda, pengajar Kuliner Nusantara",
   "work-bambu-nampan.webp":
     "Nampan bambu batik bermotif geometris",
   "work-bambu-kotak-bundar.webp":
@@ -163,7 +147,7 @@ function maxFor(base) {
 /** Batik Bambu photos come from the class archive, plates from the in-house set. */
 const CREDIT_BY_BASE = {
   "path-batik-bambu": "Dokumentasi kelas Batik Bambu",
-  "teacher-sriningsih": "Dokumentasi kelas Batik Bambu",
+  "teacher-zadira-ahmada": "Dokumentasi kelas Batik Bambu",
   "work-bambu-nampan": "Dokumentasi kelas Batik Bambu",
   "work-bambu-kotak-bundar": "Dokumentasi kelas Batik Bambu",
   "work-bambu-hiasan": "Dokumentasi kelas Batik Bambu",

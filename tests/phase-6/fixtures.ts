@@ -75,7 +75,7 @@ export async function seedWorld(t: Db) {
   })
   const teacherId = await seedUser(t, {
     authUserId: "auth-teacher",
-    name: "Bambang Hardjono",
+    name: "Zadira Ahmada",
     roles: ["teacher"],
   })
   return { adminId, adminTwoId, studentId, outsiderId, teacherId }
@@ -124,7 +124,7 @@ export async function seedWork(
       kind: "product",
       maker: "Anisa Rahmawati",
       makerRole: "Peserta",
-      teacher: "Bambang Hardjono",
+      teacher: "Zadira Ahmada",
       region: "Yogyakarta",
       price: 850_000,
       unit: "lembar",

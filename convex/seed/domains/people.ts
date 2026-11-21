@@ -111,7 +111,7 @@ export const seedPeople = internalMutation({
           updatedAt: clock.now,
           payout: active
             ? {
-                bankCode: seed.key === "sri" ? "BRI" : "BCA",
+                bankCode: seed.key === "zadira" ? "BRI" : "BCA",
                 accountName: teacher.name,
                 accountNumberMasked: `****${accountSuffix(teacher.name)}`,
                 accountRef: `vault:seed:${seed.key}`,
@@ -254,14 +254,14 @@ export const seedPeople = internalMutation({
       createdAt: clock.ago(2),
     })
     await ctx.db.insert("invites", {
-      email: seedEmail("bambang"),
-      name: "Bambang Hardjono",
+      email: seedEmail("zadira"),
+      name: "Zadira Ahmada",
       roles: ["teacher"],
-      tokenHash: await sha256("seed-invite-bambang"),
+      tokenHash: await sha256("seed-invite-zadira"),
       status: "accepted",
       invitedBy: admin._id,
-      acceptedBy: byKey.get("bambang")?._id,
-      reason: "Pengajar batik Giriloyo",
+      acceptedBy: byKey.get("zadira")?._id,
+        reason: "Pengajar Batik Bambu",
       expiresAt: clock.ago(SEED_ADMIN_PROFILE.joinedDaysAgo - 8),
       createdAt: clock.ago(SEED_ADMIN_PROFILE.joinedDaysAgo),
       acceptedAt: clock.ago(SEED_ADMIN_PROFILE.joinedDaysAgo) + DAY,

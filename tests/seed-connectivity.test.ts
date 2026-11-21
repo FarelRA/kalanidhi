@@ -225,6 +225,10 @@ describe("comprehensive seed connectivity", () => {
       const breakGlass = await ctx.db.query("breakGlassGrants").collect()
 
       for (const path of paths) {
+        if (path.comingSoon) {
+          expect(path.teacherId, `path ${path.slug} teacherId`).toBeUndefined()
+          continue
+        }
         expect(path.teacherId, `path ${path.slug} teacherId`).toBeTruthy()
         expect(userIds.has(path.teacherId as string)).toBe(true)
       }

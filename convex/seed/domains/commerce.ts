@@ -7,7 +7,7 @@ import {
   buildPayoutAllocation,
   buildRefundReversal,
 } from "../lib/builders"
-import { orderCode, pathSlug, workSlug } from "../lib/codes"
+import { orderCode, workSlug } from "../lib/codes"
 import { createSeedClock, DAY, HOUR } from "../lib/clock"
 import { seedAdmin, userByEmail, workBySlug } from "../lib/lookup"
 import { seedEmail } from "../content/identities"
@@ -406,42 +406,6 @@ export const seedCommerce = internalMutation({
         updatedAt: clock.now,
       })
       enrollmentOrders += 1
-    }
-
-    const bambang = await userByEmail(ctx, seedEmail("bambang"))
-    const bambangCohort = cohorts.find(
-      (row) => row.teacherId === bambang._id,
-    )
-    if (!bambangCohort) {
-      const startDate = clock.ahead(30)
-      const endDate = clock.ahead(90)
-      const cohortId = await ctx.db.insert("cohorts", {
-        code: "BTS-2026-01",
-        pathId: pathSlug("batikTulisSoga"),
-        teacherId: bambang._id,
-        title: "Batik Tulis Giriloyo, Angkatan Perdana",
-        startDate,
-        endDate,
-        capacity: 8,
-        timezone: "Asia/Jakarta",
-        // This cohort exists so the coming-soon teacher has a real teaching
-        // record. It stays internal until the curriculum is published.
-        status: "draft",
-        createdAt: clock.ago(20),
-        updatedAt: clock.now,
-      })
-      const assessmentAt = startDate + 45 * DAY
-      await ctx.db.insert("cohortSessions", {
-        cohortId,
-        title: "Penilaian akhir batik tulis",
-        kind: "assessment",
-        startsAt: assessmentAt,
-        endsAt: assessmentAt + 2 * HOUR,
-        timezone: "Asia/Jakarta",
-        roomId: "kalanidhi-bts-2026-01-1",
-        status: "scheduled",
-        createdAt: clock.ago(18),
-      })
     }
 
     return {

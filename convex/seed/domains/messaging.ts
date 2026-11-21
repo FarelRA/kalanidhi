@@ -59,22 +59,22 @@ export const seedMessagingBatch = internalMutation({
 
     if (args.group === "direct") {
       const admin = await seedAdmin(ctx)
-      const sri = await userByEmail(ctx, seedEmail("sri"))
+      const zadira = await userByEmail(ctx, seedEmail("zadira"))
       const sari = await userByEmail(ctx, seedEmail("sari"))
       const dimas = await userByEmail(ctx, seedEmail("dimas"))
       const nanda = await userByEmail(ctx, seedEmail("nanda"))
       const yusuf = await userByEmail(ctx, seedEmail("yusuf"))
       const anisa = await userByEmail(ctx, seedEmail("anisa"))
-      const suwardi = await userByEmail(ctx, seedEmail("suwardi"))
+      const cendrawa = await userByEmail(ctx, seedEmail("cendrawa"))
       const galuh = await userByEmail(ctx, seedEmail("galuh"))
 
       const directId = await ctx.db.insert("conversations", {
         kind: "direct",
         title: "Batik, catatan canting",
         pathId: pathSlug("batikBambu"),
-        createdBy: sri._id,
+        createdBy: zadira._id,
         status: "open",
-        pairKey: pairKey(sri._id, sari._id),
+        pairKey: pairKey(zadira._id, sari._id),
         lastMessageAt: clock.ago(1),
         createdAt: clock.ago(20),
         updatedAt: clock.ago(1),
@@ -82,7 +82,7 @@ export const seedMessagingBatch = internalMutation({
       conversations += 1
       await ctx.db.insert("conversationMembers", {
         conversationId: directId,
-        userId: sri._id,
+        userId: zadira._id,
         role: "owner",
         lastReadAt: clock.ago(1),
         lastSeenAt: clock.ago(1),
@@ -99,7 +99,7 @@ export const seedMessagingBatch = internalMutation({
 
       const directMessages = [
         {
-          senderId: sri._id,
+          senderId: zadira._id,
           kind: "text" as const,
           body: "Sari, untuk latihan Sabtu bawa lembar pola yang sudah kamu gambar. Ulangan di lengkung kanan masih perlu dilonggarkan.",
           createdAt: clock.ago(3),
@@ -111,7 +111,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: clock.ago(2),
         },
         {
-          senderId: sri._id,
+          senderId: zadira._id,
           kind: "text" as const,
           body: "Voice note-nya jelas. Besok kita cek lagi di sesi live, bawa potongan bambu sisa.",
           createdAt: clock.ago(2),
@@ -123,7 +123,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: clock.ago(1),
         },
         {
-          senderId: sri._id,
+          senderId: zadira._id,
           kind: "text" as const,
           body: "Polanya sudah rapi. Untuk Sabtu bawa bilah bambu 40 cm, kita latihan lengkung ganda.",
           createdAt: clock.ago(0.8),
@@ -135,7 +135,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: clock.ago(0.6),
         },
         {
-          senderId: sri._id,
+          senderId: zadira._id,
           kind: "text" as const,
           body: "Bagus. Datang lima belas menit lebih awal supaya sempat menyiapkan wajan.",
           createdAt: clock.ago(0.4),
@@ -181,7 +181,7 @@ export const seedMessagingBatch = internalMutation({
           })
           await ctx.db.patch(messageId, { assetId })
         }
-        for (const member of [sri, sari]) {
+        for (const member of [zadira, sari]) {
           await ctx.db.insert("messageReceipts", {
             messageId,
             userId: member._id,
@@ -195,7 +195,7 @@ export const seedMessagingBatch = internalMutation({
         if (index === 0) {
           await ctx.db.insert("messageEdits", {
             messageId,
-            editorId: sri._id,
+            editorId: zadira._id,
             previousBody:
               "Sari, foto latihan garisnya sudah saya lihat. Tekanan canting masih terlalu kuat.",
             nextBody:
@@ -210,19 +210,19 @@ export const seedMessagingBatch = internalMutation({
         kind: "direct",
         title: "Pewarnaan alami, catatan nila",
         pathId: pathSlug("batikBambu"),
-        createdBy: sri._id,
+        createdBy: zadira._id,
         status: "open",
-        pairKey: pairKey(sri._id, dimas._id),
+        pairKey: pairKey(zadira._id, dimas._id),
         lastMessageAt: clock.ago(6),
         createdAt: clock.ago(15),
         updatedAt: clock.ago(6),
       })
       conversations += 1
-      for (const member of [sri, dimas]) {
+      for (const member of [zadira, dimas]) {
         await ctx.db.insert("conversationMembers", {
           conversationId: dimasConversationId,
           userId: member._id,
-          role: member._id === sri._id ? "owner" : "member",
+          role: member._id === zadira._id ? "owner" : "member",
           lastReadAt: clock.ago(6),
           lastSeenAt: clock.ago(6),
           joinedAt: clock.ago(15),
@@ -230,7 +230,7 @@ export const seedMessagingBatch = internalMutation({
       }
       for (const message of [
         {
-          senderId: sri._id,
+          senderId: zadira._id,
           body: "Dimas, hasil pencelupan nila sudah bagus. Jangan lupa catat pH air sebelum pencelupan berikutnya.",
           createdAt: clock.ago(6),
         },
@@ -240,7 +240,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: clock.ago(5.6),
         },
         {
-          senderId: sri._id,
+          senderId: zadira._id,
           body: "Itu masih masuk rentang. Coba ulangi dengan bilah bambu yang sama sebagai pembanding, lalu foto berdampingan.",
           createdAt: clock.ago(5.2),
         },
@@ -258,7 +258,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: message.createdAt,
         })
         messages += 1
-        for (const member of [sri, dimas]) {
+        for (const member of [zadira, dimas]) {
           await ctx.db.insert("messageReceipts", {
             messageId,
             userId: member._id,
@@ -350,19 +350,19 @@ export const seedMessagingBatch = internalMutation({
         kind: "direct",
         title: "Bimbingan karya akhir Anisa",
         pathId: pathSlug("batikBambu"),
-        createdBy: sri._id,
+        createdBy: zadira._id,
         status: "archived",
-        pairKey: pairKey(sri._id, anisa._id),
+        pairKey: pairKey(zadira._id, anisa._id),
         lastMessageAt: clock.ago(300),
         createdAt: clock.ago(360),
         updatedAt: clock.ago(300),
       })
       conversations += 1
-      for (const member of [sri, anisa]) {
+      for (const member of [zadira, anisa]) {
         await ctx.db.insert("conversationMembers", {
           conversationId: mentorConversationId,
           userId: member._id,
-          role: member._id === sri._id ? "owner" : "member",
+          role: member._id === zadira._id ? "owner" : "member",
           lastReadAt: clock.ago(300),
           lastSeenAt: clock.ago(300),
           joinedAt: clock.ago(360),
@@ -376,7 +376,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: clock.ago(356),
         },
         {
-          senderId: sri._id,
+          senderId: zadira._id,
           body: "Bagus. Pastikan foto bahan dan takaran ikut, bukan hanya hasil akhir.",
           createdAt: clock.ago(355),
         },
@@ -386,7 +386,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: clock.ago(354),
         },
         {
-          senderId: sri._id,
+          senderId: zadira._id,
           body: "Kirim yang jelas saja. Nanti saya nilai dan ajukan Kartu Karya.",
           createdAt: clock.ago(353),
         },
@@ -396,7 +396,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: clock.ago(300),
         },
         {
-          senderId: sri._id,
+          senderId: zadira._id,
           body: "Boleh. Setelah sertifikat terbit, ajukan lewat menu pengajar.",
           createdAt: clock.ago(300),
         },
@@ -409,7 +409,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: message.createdAt,
         })
         messages += 1
-        for (const member of [sri, anisa]) {
+        for (const member of [zadira, anisa]) {
           await ctx.db.insert("messageReceipts", {
             messageId,
             userId: member._id,
@@ -501,19 +501,19 @@ export const seedMessagingBatch = internalMutation({
         kind: "direct",
         title: "Aksara, koreksi pasangan dan spasi",
         pathId: pathSlug("aksaraJawa"),
-        createdBy: suwardi._id,
+        createdBy: cendrawa._id,
         status: "open",
-        pairKey: pairKey(suwardi._id, galuh._id),
+        pairKey: pairKey(cendrawa._id, galuh._id),
         lastMessageAt: clock.ago(122),
         createdAt: clock.ago(124),
         updatedAt: clock.ago(122),
       })
       conversations += 1
-      for (const member of [suwardi, galuh]) {
+      for (const member of [cendrawa, galuh]) {
         await ctx.db.insert("conversationMembers", {
           conversationId: aksaraConversationId,
           userId: member._id,
-          role: member._id === suwardi._id ? "owner" : "member",
+          role: member._id === cendrawa._id ? "owner" : "member",
           lastReadAt: clock.ago(122),
           lastSeenAt: clock.ago(122),
           joinedAt: clock.ago(124),
@@ -521,7 +521,7 @@ export const seedMessagingBatch = internalMutation({
       }
       for (const message of [
         {
-          senderId: suwardi._id,
+          senderId: cendrawa._id,
           body: "Galuh, draf lembar uji aksara-mu sudah saya baca. Pasangan ra sudah benar, tetapi masih ada spasi di tengah kalimat ketiga.",
           createdAt: clock.ago(123.6),
         },
@@ -531,7 +531,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: clock.ago(123.2),
         },
         {
-          senderId: suwardi._id,
+          senderId: cendrawa._id,
           body: "Pada lingsa tetap menempel tanpa spasi, sama seperti aksara lain di sekitarnya.",
           createdAt: clock.ago(122.8),
         },
@@ -541,7 +541,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: clock.ago(122.4),
         },
         {
-          senderId: suwardi._id,
+          senderId: cendrawa._id,
           body: "Bagus. Untuk undangan yang kamu tulis, kirim dulu ejaan Latin-nya supaya saya bisa cek nama sebelum naik ke aksara.",
           createdAt: clock.ago(122),
         },
@@ -554,7 +554,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: message.createdAt,
         })
         messages += 1
-        for (const member of [suwardi, galuh]) {
+        for (const member of [cendrawa, galuh]) {
           await ctx.db.insert("messageReceipts", {
             messageId,
             userId: member._id,
@@ -570,7 +570,7 @@ export const seedMessagingBatch = internalMutation({
 
     if (args.group === "groups") {
       const admin = await seedAdmin(ctx)
-      const sri = await userByEmail(ctx, seedEmail("sri"))
+      const zadira = await userByEmail(ctx, seedEmail("zadira"))
       const sari = await userByEmail(ctx, seedEmail("sari"))
       const dwi = await userByEmail(ctx, seedEmail("dwi"))
       const ratih = await userByEmail(ctx, seedEmail("ratih"))
@@ -586,18 +586,18 @@ export const seedMessagingBatch = internalMutation({
         title: "Batik Bambu, Angkatan 1",
         pathId: pathSlug("batikBambu"),
         cohortId: cohort._id,
-        createdBy: sri._id,
+        createdBy: zadira._id,
         status: "open",
         lastMessageAt: clock.ago(1),
         createdAt: clock.ago(40),
         updatedAt: clock.ago(1),
       })
       conversations += 1
-      for (const member of [sri, ...cohortStudents]) {
+      for (const member of [zadira, ...cohortStudents]) {
         await ctx.db.insert("conversationMembers", {
           conversationId: cohortConversationId,
           userId: member._id,
-          role: member._id === sri._id ? "owner" : "member",
+          role: member._id === zadira._id ? "owner" : "member",
           lastReadAt: clock.ago(1),
           lastSeenAt: clock.ago(1),
           joinedAt: clock.ago(40),
@@ -611,7 +611,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: clock.ago(40),
         },
         {
-          senderId: sri._id,
+          senderId: zadira._id,
           kind: "text" as const,
           body: "Untuk sesi besok, bawa bilah bambu yang sudah direbus dan diamplas. Kita mulai dari latihan lengkung ganda.",
           createdAt: clock.ago(2),
@@ -629,7 +629,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: clock.ago(23.2),
         },
         {
-          senderId: sri._id,
+          senderId: zadira._id,
           kind: "text" as const,
           body: "Untuk latihan boleh. Untuk tugas akhir tetap pakai primis supaya hasil pewarnaan bisa dibandingkan.",
           createdAt: clock.ago(1.1),
@@ -641,7 +641,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: clock.ago(23.05),
         },
         {
-          senderId: sri._id,
+          senderId: zadira._id,
           kind: "text" as const,
           body: "Iya, ulangi fiksasi dengan waktu yang sama. Catat suhu airnya, jangan hanya takaran bahan.",
           createdAt: clock.ago(0.8),
@@ -655,7 +655,7 @@ export const seedMessagingBatch = internalMutation({
           createdAt: message.createdAt,
         })
         messages += 1
-        for (const member of [sri, ...cohortStudents]) {
+        for (const member of [zadira, ...cohortStudents]) {
           await ctx.db.insert("messageReceipts", {
             messageId,
             userId: member._id,
@@ -775,7 +775,7 @@ export const seedMessagingBatch = internalMutation({
 
     if (args.group === "calls") {
       const admin = await seedAdmin(ctx)
-      const sri = await userByEmail(ctx, seedEmail("sri"))
+      const zadira = await userByEmail(ctx, seedEmail("zadira"))
       const sari = await userByEmail(ctx, seedEmail("sari"))
       const dimas = await userByEmail(ctx, seedEmail("dimas"))
       const cohort = await cohortByCode(ctx, cohortCode("bbm2026_01"))
@@ -793,25 +793,25 @@ export const seedMessagingBatch = internalMutation({
       const callId = await ctx.db.insert("callSessions", {
         roomName: "kalanidhi-bbm-2026-01-review",
         kind: "voice",
-        initiatorId: sri._id,
-        hostId: sri._id,
+        initiatorId: zadira._id,
+        hostId: zadira._id,
         conversationId: direct._id,
         title: "Tinjauan canting bersama Sari",
         status: "ended",
         startedAt: clock.ago(2),
         endedAt: clock.ago(2) + 32 * 60_000,
-        endedBy: sri._id,
+        endedBy: zadira._id,
         endReason: "Sesi selesai",
         durationMs: 32 * 60_000,
         qualitySummary: "Kualitas baik, tanpa putus.",
         recordingConsent: "both",
-        recordingConsentUserIds: [sri._id, sari._id],
+        recordingConsentUserIds: [zadira._id, sari._id],
         recordingEnabled: true,
         createdAt: clock.ago(2),
       })
       calls += 1
       for (const [member, role] of [
-        [sri, "host"],
+        [zadira, "host"],
         [sari, "guest"],
       ] as const) {
         await ctx.db.insert("callParticipants", {
@@ -826,8 +826,8 @@ export const seedMessagingBatch = internalMutation({
         })
       }
       for (const event of [
-        { kind: "scheduled" as const, actorId: sri._id, at: clock.ago(2) },
-        { kind: "joined" as const, actorId: sri._id, at: clock.ago(2) },
+        { kind: "scheduled" as const, actorId: zadira._id, at: clock.ago(2) },
+        { kind: "joined" as const, actorId: zadira._id, at: clock.ago(2) },
         {
           kind: "joined" as const,
           actorId: sari._id,
@@ -835,7 +835,7 @@ export const seedMessagingBatch = internalMutation({
         },
         {
           kind: "ended" as const,
-          actorId: sri._id,
+          actorId: zadira._id,
           at: clock.ago(2) + 32 * 60_000,
         },
       ]) {
@@ -850,7 +850,7 @@ export const seedMessagingBatch = internalMutation({
       await ctx.db.insert("callRecordings", {
         callId,
         assetId: args.recordingStorage,
-        consentedBy: [sri._id, sari._id],
+        consentedBy: [zadira._id, sari._id],
         retentionUntil: clock.ahead(90),
         accessLog: [
           {
@@ -872,8 +872,8 @@ export const seedMessagingBatch = internalMutation({
       const scheduledCallId = await ctx.db.insert("callSessions", {
         roomName: "kalanidhi-bbm-2026-01-sesi-3",
         kind: "cohort",
-        initiatorId: sri._id,
-        hostId: sri._id,
+        initiatorId: zadira._id,
+        hostId: zadira._id,
         cohortId: cohort._id,
         cohortSessionId: scheduledSession?._id,
         title: "Sesi 3, lengkung ganda",
@@ -884,11 +884,11 @@ export const seedMessagingBatch = internalMutation({
         createdAt: clock.ago(5),
       })
       calls += 1
-      for (const member of [sri, ...cohortStudents]) {
+      for (const member of [zadira, ...cohortStudents]) {
         await ctx.db.insert("callParticipants", {
           callId: scheduledCallId,
           userId: member._id,
-          role: member._id === sri._id ? "host" : "guest",
+          role: member._id === zadira._id ? "host" : "guest",
           status: "invited",
           invitedAt: clock.ago(5),
         })
@@ -896,16 +896,16 @@ export const seedMessagingBatch = internalMutation({
       await ctx.db.insert("callEvents", {
         callId: scheduledCallId,
         kind: "scheduled",
-        actorId: sri._id,
+        actorId: zadira._id,
         payload: { source: "seed" },
         createdAt: clock.ago(5),
       })
 
       const cancelledCallId = await ctx.db.insert("callSessions", {
-        roomName: "kalanidhi-sri-dimas-cancelled",
+        roomName: "kalanidhi-zadira-dimas-cancelled",
         kind: "voice",
-        initiatorId: sri._id,
-        hostId: sri._id,
+        initiatorId: zadira._id,
+        hostId: zadira._id,
         conversationId: dimasConversation._id,
         title: "Konsultasi pewarnaan nila",
         status: "cancelled",
@@ -918,7 +918,7 @@ export const seedMessagingBatch = internalMutation({
       })
       calls += 1
       for (const [member, role] of [
-        [sri, "host"],
+        [zadira, "host"],
         [dimas, "guest"],
       ] as const) {
         await ctx.db.insert("callParticipants", {
@@ -932,7 +932,7 @@ export const seedMessagingBatch = internalMutation({
       await ctx.db.insert("callEvents", {
         callId: cancelledCallId,
         kind: "cancelled",
-        actorId: sri._id,
+        actorId: zadira._id,
         payload: { source: "seed", reason: "Jadwal bentrok" },
         createdAt: clock.ago(3) - 10 * 60_000,
       })

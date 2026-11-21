@@ -21,7 +21,7 @@ const baseStudent: ViewerSeed = {
 
 const baseTeacher: ViewerSeed = {
   userId: "u-teacher",
-  name: "Bambang Hardjono",
+  name: "Zadira Ahmada",
   email: "bambang@example.test",
   roles: ["teacher"],
   teacherProfile: {
