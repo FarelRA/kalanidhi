@@ -322,6 +322,29 @@ const SEED_IMAGE_METADATA: Record<
   "work-tari-kreasi.webp": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
 }
 
+/** Files retired with removed seed domains. They must leave the registry, not
+ * merely become archived, because their descriptive metadata is public data. */
+const RETIRED_SEED_FILENAMES = new Set([
+  "path-pranatacara.webp",
+  "teacher-sudarsono.webp",
+  "work-pranatacara.webp",
+])
+
+export const purgeRetiredSeedMedia = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const assets = await ctx.db.query("mediaAssets").collect()
+    let removed = 0
+    for (const asset of assets) {
+      if (!RETIRED_SEED_FILENAMES.has(asset.filename)) continue
+      if (asset.storageId) await ctx.storage.delete(asset.storageId)
+      await ctx.db.delete(asset._id)
+      removed += 1
+    }
+    return { removed }
+  },
+})
+
 /**
  * Archives duplicate and stale seed images without touching an asset that a
  * content row still references. The uploader calls this after registering the
