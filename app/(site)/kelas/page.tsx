@@ -3,7 +3,7 @@ import Link from "next/link"
 
 import { PathCard } from "@/components/landing/path-card"
 import { PublicPageIntro } from "@/components/landing/public-page-intro"
-import { pathMatchesField } from "@/lib/content/catalog"
+import { orderCatalogFields, pathMatchesField } from "@/lib/content/catalog"
 import { buildPageMetadata } from "@/lib/content/metadata"
 import { publishedTeacherNames } from "@/lib/content/people"
 import { fieldHref, PUBLIC_ROUTES } from "@/lib/content/routes"
@@ -40,7 +40,7 @@ export default async function PathsPage({
   const teacherNames = publishedTeacherNames(teachers)
   const rawField = params.bidang
   const selectedField = Array.isArray(rawField) ? rawField[0] : rawField
-  const fields = data.catalog.fields
+  const fields = orderCatalogFields(data.catalog.fields)
   const activeField = selectedField
     ? fields.find((field) => field.name === selectedField)
     : undefined

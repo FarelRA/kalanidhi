@@ -1,4 +1,18 @@
-import type { LearningPath } from "./types"
+import type { CatalogField, LearningPath } from "./types"
+
+const CATALOG_STATUS_ORDER: Record<CatalogField["status"], number> = {
+  Terbuka: 0,
+  "Sedang dipetakan": 1,
+  Direncanakan: 2,
+}
+
+/** Places ready fields before those being prepared and those awaiting a teacher. */
+export function orderCatalogFields(fields: CatalogField[]): CatalogField[] {
+  return [...fields].sort(
+    (left, right) =>
+      CATALOG_STATUS_ORDER[left.status] - CATALOG_STATUS_ORDER[right.status],
+  )
+}
 
 /**
  * Catalog fields and learning paths are separate tables. A field filter is a

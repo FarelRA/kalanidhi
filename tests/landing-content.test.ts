@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest"
 
 import { siteSeed, pathsSeed } from "../convex/seed/content/data"
 import { SPLIT_PERCENTAGES } from "../lib/commerce/money"
-import { pathMatchesField } from "../lib/content/catalog"
+import { orderCatalogFields, pathMatchesField } from "../lib/content/catalog"
 import { fieldHref, PUBLIC_ROUTES } from "../lib/content/routes"
 import type { LearningPath } from "../lib/content/types"
 
@@ -96,5 +96,30 @@ describe("landing content sources", () => {
       expect(pathMatchesField(tariKreasi, field), field).toBe(false)
       expect(pathMatchesField(gerabah, field), field).toBe(false)
     }
+  })
+
+  it("orders field selectors by readiness", () => {
+    expect(
+      orderCatalogFields([
+        {
+          name: "Wayang",
+          region: "Bantul",
+          status: "Direncanakan",
+          note: "Belum ada pengajar",
+        },
+        {
+          name: "Kriya gerabah",
+          region: "Bantul",
+          status: "Sedang dipetakan",
+          note: "Kurikulum disusun",
+        },
+        {
+          name: "Batik bambu",
+          region: "Bantul",
+          status: "Terbuka",
+          note: "Kelas aktif",
+        },
+      ]).map((field) => field.name),
+    ).toEqual(["Batik bambu", "Kriya gerabah", "Wayang"])
   })
 })
