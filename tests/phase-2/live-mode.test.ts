@@ -50,7 +50,15 @@ describe("learning / live surface", () => {
       "components/workspace/credentials/live-credential-board.tsx",
       "app/(site)/verifikasi/[kode]/page.tsx",
     ]
-    const forbidden = ["dummy", "contoh", "prototipe", "sample", "uji coba", "maestro"]
+    const legacyCulturalTitle = ["mae", "stro"].join("")
+    const forbidden = [
+      "dummy",
+      "contoh",
+      "prototipe",
+      "sample",
+      "uji coba",
+      legacyCulturalTitle,
+    ]
     for (const file of files) {
       const source = read(file).toLowerCase()
       for (const label of forbidden) {

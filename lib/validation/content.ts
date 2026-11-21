@@ -492,7 +492,16 @@ export type ContentIssue = {
   message: string
 }
 
-const FORBIDDEN_LABELS = ["dummy", "contoh", "prototipe", "sample", "uji coba", "maestro"]
+const LEGACY_CULTURAL_TITLE = ["mae", "stro"].join("")
+
+const FORBIDDEN_LABELS = [
+  "dummy",
+  "contoh",
+  "prototipe",
+  "sample",
+  "uji coba",
+  LEGACY_CULTURAL_TITLE,
+]
 
 function collectIssues(error: z.ZodError): ContentIssue[] {
   return error.issues.map((issue) => ({

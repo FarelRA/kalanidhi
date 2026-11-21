@@ -1,7 +1,7 @@
 # Kerangka Proposal BUDAYA GO! — [Nama Produk]
 
 > **Catatan implementasi.** Dokumen ini adalah kerangka proposal, bukan spec UI.
-> Istilah “maestro” di sini tidak dipakai di antarmuka; produk memakai “pengajar”.
+> Istilah “ahli budaya” di sini tidak dipakai di antarmuka; produk memakai “pengajar”.
 > “Paspor Karya” di dokumen ini setara dengan “Kartu Karya” di produk.
 
 **Status dokumen:** kerangka kerja (bukan teks jadi). Setiap butir menjelaskan *fungsi paragraf*, *isi wajib*, *sumber bukti*, dan *sambungan* ke paragraf berikutnya, sehingga tim tinggal mengembangkan menjadi kalimat.
@@ -19,7 +19,7 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 | 1 | Sub tema | **Sub Tema 4 — Pembelajaran dan Edukasi Digital Berbasis Budaya** | Identitas produk adalah pembelajaran; commerce adalah muara, bukan inti | Bila memilih Sub Tema 2, juri menilai produk sebagai marketplace dan menuntut fitur multi-vendor, logistik, dan akuisisi penjual |
 | 2 | Jumlah jalur | **Dua jalur**: batik canting (utama) dan tari kreasi (pembeda) | Kedalaman dinilai 25% (Akar Budaya); lima jalur membuat semuanya dangkal | Klaim "Nusantara" tanpa kedalaman justru menurunkan skor |
 | 3 | Status produk | **Rilis publik sebelum 31 Maret tahun pendaftaran** | Juknis mensyaratkan produk tersedia paling lambat 31 Maret, dengan bukti yang dapat diverifikasi | Produk konsep atau mockup non-fungsional gugur di seleksi substansi |
-| 4 | Bukti maestro | **Surat pernyataan minat (LoI) tertulis, minimal dua maestro** | Akar Budaya dinilai dari ketepatan dan penghormatan terhadap sumber | Narasi "akan bekerja sama" tanpa dokumen dianggap klaim |
+| 4 | Bukti ahli budaya | **Surat pernyataan minat (LoI) tertulis, minimal dua ahli budaya** | Akar Budaya dinilai dari ketepatan dan penghormatan terhadap sumber | Narasi "akan bekerja sama" tanpa dokumen dianggap klaim |
 | 5 | Cakupan wilayah | **Jawa (Yogyakarta dan sekitarnya) sebagai basis, mitra luar Jawa masuk roadmap** | Kejujuran cakupan lebih kuat daripada klaim luas tanpa bukti | Klaim "Nusantara" dibantah satu pertanyaan juri |
 | 6 | Rekam jejak | **Uji coba terbatas, dilaporkan apa adanya** | Juknis menyatakan ketiadaan rekam jejak komersial tidak menggugurkan | Melebih-lebihkan kesiapan melanggar kode etik dan berisiko diskualifikasi |
 | 7 | Angka | **Satu seri data, satu tahun, satu sumber** | Angka yang berbeda antar bagian adalah kesalahan paling mudah terlihat | Konsistensi masuk indikator "Kejelasan dan Kualitas Proposal" (30%) |
@@ -74,9 +74,9 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 
 1. **Nama dan makna.** Sebutkan nama, lalu jelaskan asal kata atau metaforanya dalam satu kalimat. Alasan: nama yang diberi makna mudah diingat dan menunjukkan akar budaya, bukan sekadar merek.
 2. **Satu kalimat posisi.** Rumus: "[Nama] adalah [jenis produk] yang [fungsi utama] untuk [pengguna], sehingga [hasil]." Jangan lebih dari satu kalimat; kalimat kedua mulai melemahkan posisi.
-3. **Tiga fungsi utama.** Belajar berjenjang, penilaian oleh maestro, dan muara karya atau jasa. Tulis berurutan karena urutan itu adalah tesis produk.
+3. **Tiga fungsi utama.** Belajar berjenjang, penilaian oleh ahli budaya, dan muara karya atau jasa. Tulis berurutan karena urutan itu adalah tesis produk.
 4. **Pengguna sasaran.** Sebutkan dua segmen terbesar (pelajar perorangan dan institusi), bukan daftar panjang.
-5. **Nilai utama dan bukti awal.** Satu angka status (misalnya jumlah pengguna uji atau jumlah maestro terlibat) dengan tanggal. Angka ini harus sama dengan Bagian 7 dan 14.
+5. **Nilai utama dan bukti awal.** Satu angka status (misalnya jumlah pengguna uji atau jumlah ahli budaya terlibat) dengan tanggal. Angka ini harus sama dengan Bagian 7 dan 14.
 
 **Jangan:** mengklaim "platform pertama" atau "satu-satunya"; memakai nama yang belum dicek ketersediaannya (merek, domain, akun media sosial).
 
@@ -141,7 +141,7 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 4. **Masalah ekonomi pelaku.** Jelaskan ketergantungan perajin pada perantara dan pasar umum, serta ketiadaan bukti keaslian bagi pembeli. Akibatnya harga tidak mencerminkan proses dan pembeli ragu membayar mahal. Sambungan: masalah ini tidak selesai oleh kursus saja.
 5. **Masalah dokumentasi pengetahuan.** Jelaskan bahwa pengetahuan budaya tersebar di media sosial, tidak terverifikasi, dan rawan salah klaim. Alasan relevansi: produk akan memakai basis pengetahuan dan asisten AI, sehingga kualitas korpus adalah prasyarat.
 6. **Urgensi.** Hubungkan dengan Indeks Pembangunan Kebudayaan yang dimensi ekonomi budayanya tertinggal (rujuk Kata Pengantar juknis) dan dengan Asta Cita ke-3, ke-4, dan ke-8. Sambungan: urgensi kebijakan menjelaskan mengapa solusi ini layak didanai.
-7. **Kesenjangan solusi.** Bandingkan empat kategori yang sudah ada dan sebutkan celah masing-masing secara objektif: platform kursus umum (tanpa maestro dan tanpa muara), marketplace umum (tanpa pembelajaran dan tanpa verifikasi proses), media sosial (tanpa struktur dan tanpa jaminan mutu), sanggar (mendalam tetapi kapasitas dan jangkauan terbatas). Gunakan tabel agar tidak bertele-tele.
+7. **Kesenjangan solusi.** Bandingkan empat kategori yang sudah ada dan sebutkan celah masing-masing secara objektif: platform kursus umum (tanpa ahli budaya dan tanpa muara), marketplace umum (tanpa pembelajaran dan tanpa verifikasi proses), media sosial (tanpa struktur dan tanpa jaminan mutu), sanggar (mendalam tetapi kapasitas dan jangkauan terbatas). Gunakan tabel agar tidak bertele-tele.
 8. **Peluang inovasi.** Nyatakan tesis: menyatukan keempat celah dalam satu siklus tertutup, sehingga pasokan karya dan praktisi berasal dari lulusan sendiri. Sambungan: peluang ini yang kemudian dirumuskan menjadi pertanyaan penelitian.
 9. **Rumusan masalah dan batasan.** Tiga pertanyaan (bagaimana memverifikasi keterampilan, bagaimana membuktikan keaslian karya, bagaimana menutup jalur dari belajar ke berpenghasilan) dan tiga batasan (dua jalur, wilayah Jawa, katalog kurasi terbatas).
 
@@ -149,7 +149,7 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 
 | Instrumen | Responden | Jumlah minimal | Yang diukur | Bukti lampiran |
 |---|---|---|---|---|
-| Wawancara mendalam | Maestro/perajin | 5 | Proses pewarisan, kesulitan mengajar, ekspektasi bagi hasil | Transkrip anonim + izin |
+| Wawancara mendalam | Ahli budaya/perajin | 5 | Proses pewarisan, kesulitan mengajar, ekspektasi bagi hasil | Transkrip anonim + izin |
 | Wawancara | Calon pelajar | 20 | Alasan mau/tidak mau membayar, penghalang | Rekap kuesioner |
 | Wawancara | Sanggar, EO/WO, guru | 5 | Kebutuhan pelatihan dan penyediaan praktisi | Catatan + kontak |
 | Observasi | Kelas/sanggar | 3 sesi | Durasi koreksi, rasio guru-murid | Foto (dengan izin) |
@@ -166,12 +166,12 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 
 1. **Objek dan asal-usul.** Jelaskan batik tulis sebagai teknologi tradisional sekaligus seni, dan tari kreasi sebagai tradisi lisan sekaligus adat istiadat. Sebutkan wilayah praktik dan variasi lokal. Bukti: rujukan akademik dan dokumentasi komunitas.
 2. **Pemetaan ke sepuluh Objek Pemajuan Kebudayaan.** Sajikan tabel: jalur belajar, OPK utama, OPK pendukung, alasan. Tabel ini menjawab langsung indikator Akar Budaya tanpa perlu penjelasan panjang.
-3. **Pengetahuan tacit sebagai inti produk.** Uraikan apa yang sesungguhnya dinilai (misalnya ketepatan unggah-ungguh, tempo dan jeda, kebersihan canting, konsistensi motif). Alasan: bagian ini membuktikan bahwa maestro tidak bisa digantikan video, sehingga model bisnis punya dasar.
-4. **Komunitas dan maestro.** Sebutkan nama, sanggar atau komunitas, peran, dan dasar hubungan (surat minat atau perjanjian). Jelaskan bentuk kompensasi. Alasan: juri menilai penghormatan terhadap pemilik pengetahuan, bukan hanya keterlibatan.
+3. **Pengetahuan tacit sebagai inti produk.** Uraikan apa yang sesungguhnya dinilai (misalnya ketepatan unggah-ungguh, tempo dan jeda, kebersihan canting, konsistensi motif). Alasan: bagian ini membuktikan bahwa ahli budaya tidak bisa digantikan video, sehingga model bisnis punya dasar.
+4. **Komunitas dan ahli budaya.** Sebutkan nama, sanggar atau komunitas, peran, dan dasar hubungan (surat minat atau perjanjian). Jelaskan bentuk kompensasi. Alasan: juri menilai penghormatan terhadap pemilik pengetahuan, bukan hanya keterlibatan.
 5. **Proses riset dan dokumentasi.** Jelaskan metode (wawancara mendalam, perekaman, transkrip, peninjauan kurator), jumlah sesi, dan siapa yang memvalidasi. Sambungan: metode ini yang membuat konten dapat dipertanggungjawabkan.
 6. **Relevansi dan pembaruan.** Jelaskan bahwa produk mempercepat transfer pengetahuan tanpa membekukan tradisi; tradisi tetap hidup karena ada praktik, bukan karena ada arsip. Hindari dikotomi "modern versus tradisional".
-7. **Etika dan hak komunitas.** Empat hal: atribusi, persetujuan tertulis, bagi hasil, dan tingkat akses (publik, berbayar, terbatas komunitas). Tambahkan mekanisme penarikan materi oleh maestro. Alasan: juknis menempatkan penghormatan hak komunitas sebagai bagian penilaian, bukan pelengkap.
-8. **Mengapa budaya bersifat substantif.** Satu paragraf penutup dengan uji kontrafaktual: bila maestro dan konteks budaya dihapus, produk kehilangan rubrik, kehilangan penilaian, dan kehilangan alasan pembelian. Inilah bukti bahwa budaya bukan ornamen.
+7. **Etika dan hak komunitas.** Empat hal: atribusi, persetujuan tertulis, bagi hasil, dan tingkat akses (publik, berbayar, terbatas komunitas). Tambahkan mekanisme penarikan materi oleh ahli budaya. Alasan: juknis menempatkan penghormatan hak komunitas sebagai bagian penilaian, bukan pelengkap.
+8. **Mengapa budaya bersifat substantif.** Satu paragraf penutup dengan uji kontrafaktual: bila ahli budaya dan konteks budaya dihapus, produk kehilangan rubrik, kehilangan penilaian, dan kehilangan alasan pembelian. Inilah bukti bahwa budaya bukan ornamen.
 
 **Jangan:** menyebut motif sakral atau motif larangan sebagai dekorasi; mengklaim cakupan Nusantara bila mitra baru satu wilayah; menulis "melestarikan budaya" tanpa menyebut praktik apa yang dilestarikan dan oleh siapa.
 
@@ -183,16 +183,16 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 
 **Alur paragraf (delapan paragraf):**
 
-1. **Lima segmen.** Pelajar perorangan, institusi (sekolah, EO/WO, desa wisata, korporat), perajin/penjual, maestro, dan praktisi jasa. Alasan lima, bukan sepuluh: setiap segmen menuntut fitur dan metrik berbeda.
+1. **Lima segmen.** Pelajar perorangan, institusi (sekolah, EO/WO, desa wisata, korporat), perajin/penjual, ahli budaya, dan praktisi jasa. Alasan lima, bukan sepuluh: setiap segmen menuntut fitur dan metrik berbeda.
 2. **Profil dan pekerjaan yang ingin diselesaikan.** Tabel: segmen, kebutuhan utama, pemicu, penghalang, cara masuk. Gunakan bahasa konkret (misalnya "ingin bisa membawakan acara keluarga tanpa salah unggah-ungguh").
 3. **Cara menggunakan atau membeli.** Jelaskan jalur masuk tiap segmen dan siapa yang membayar. Alasan: pada B2B, pengguna dan pembayar berbeda orang.
 4. **Manfaat per segmen.** Satu kalimat per segmen, dihubungkan dengan fitur tertentu.
 5. **Dampak aktual.** Hanya yang punya bukti. Sertakan periode dan metode pengukuran.
 6. **Hasil uji coba awal.** Bedakan dari dampak aktual: jumlah peserta, tingkat penyelesaian, temuan.
 7. **Target terukur.** Tabel: metrik, definisi operasional, garis dasar, target 6/12/24 bulan, cara ukur, sumber data. Definisi wajib, karena "pengguna aktif" bisa berarti tiga hal berbeda.
-8. **Dampak bagi komunitas.** Jumlah perajin yang terlibat, pendapatan yang mengalir, jam kerja maestro yang dibayar. Alasan: dampak ekonomi budaya adalah tujuan program, bukan efek samping.
+8. **Dampak bagi komunitas.** Jumlah perajin yang terlibat, pendapatan yang mengalir, jam kerja ahli budaya yang dibayar. Alasan: dampak ekonomi budaya adalah tujuan program, bukan efek samping.
 
-**Metrik yang layak dipakai:** pengguna aktif bulanan, tingkat penyelesaian proyek, jumlah tugas yang dinilai maestro, jumlah transaksi, omzet, jumlah perajin dan maestro terlibat, jumlah institusi mitra, jangkauan pembelajaran.
+**Metrik yang layak dipakai:** pengguna aktif bulanan, tingkat penyelesaian proyek, jumlah tugas yang dinilai ahli budaya, jumlah transaksi, omzet, jumlah perajin dan ahli budaya terlibat, jumlah institusi mitra, jangkauan pembelajaran.
 
 **Jangan:** menulis "dampak: meningkatnya kesejahteraan" tanpa indikator; mencampur capaian dan target dalam satu kalimat.
 
@@ -228,7 +228,7 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 | Aspek | Sudah terjadi | Jangka pendek (6–12 bulan) | Jangka panjang (3–5 tahun) |
 |---|---|---|---|
 | Budaya | dokumentasi terverifikasi | | |
-| Ekonomi | pendapatan maestro/perajin | | |
+| Ekonomi | pendapatan ahli budaya/perajin | | |
 | Sosial | akses pembelajaran | | |
 
 **Alur paragraf:**
@@ -249,7 +249,7 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 
 **Alur paragraf (delapan paragraf):**
 
-1. **Metode pembandingan.** Tetapkan lima kriteria sebelum membandingkan: akses ke maestro, verifikasi keterampilan, muara karya atau jasa, bukti keaslian, dan harga.
+1. **Metode pembandingan.** Tetapkan lima kriteria sebelum membandingkan: akses ke ahli budaya, verifikasi keterampilan, muara karya atau jasa, bukti keaslian, dan harga.
 2. **Tabel pembanding.** Lima baris: kursus daring umum, marketplace umum, media sosial edukasi, sanggar konvensional, dan produk ini. Isi dengan deskripsi netral, bukan penilaian merendahkan.
 3. **Kebaruan konsep.** Siklus tertutup: lulusan menjadi pemasok karya dan praktisi, sehingga masalah pasokan awal teratasi.
 4. **Kebaruan teknis.** Verifikasi keterampilan berbasis rubrik, provenance karya, dan basis pengetahuan berpagat. Tekankan bahwa kebaruan bukan teknologi baru, melainkan rekayasa alur.
@@ -270,7 +270,7 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 
 1. **Prinsip pemilihan.** Kebutuhan dahulu, teknologi kemudian; tiga kriteria: keterjangkauan pengguna, biaya operasional, dan kemudahan perawatan oleh tim kecil.
 2. **Pilihan per lapisan.** Tabel: lapisan, pilihan, alasan, alternatif yang ditolak dan sebabnya. Contoh lapisan: antarmuka, server, basis data, pencarian, pembayaran, pengiriman, penyimpanan media.
-3. **Metode produksi konten.** Alur: kurator menyusun kerangka, maestro merekam, tim menyunting, kurator memvalidasi, lalu terbit. Alasan: kualitas konten adalah risiko utama, bukan teknologi.
+3. **Metode produksi konten.** Alur: kurator menyusun kerangka, ahli budaya merekam, tim menyunting, kurator memvalidasi, lalu terbit. Alasan: kualitas konten adalah risiko utama, bukan teknologi.
 4. **Metode penilaian.** Bagaimana rubrik disusun, diuji, dan direvisi; bagaimana penilai dilatih agar konsisten.
 5. **AI dan batasannya.** Model, sumber data, mekanisme pengambilan, dan cara validasi. Sebutkan secara jujur bila masih terbatas.
 6. **Keterbatasan dan kebutuhan berikutnya.** Tiga keterbatasan konkret dan tiga kebutuhan (dana, ahli, waktu).
@@ -311,7 +311,7 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 5. **Strategi harga.** Tiga tingkat (mandiri, dengan kit, kohort) dan alasan psikologis serta ekonomi di baliknya.
 6. **Saluran dan kemitraan.** Daftar mitra per fungsi: produksi kit, distribusi, pembayaran, institusi, komunitas budaya.
 7. **Skala dan produk turunan.** Path-builder, lisensi kurikulum, kelas korporat, dan hadiah korporat.
-8. **Risiko komersial.** Ketergantungan pada maestro, biaya konten, dan musiman permintaan.
+8. **Risiko komersial.** Ketergantungan pada ahli budaya, biaya konten, dan musiman permintaan.
 
 **Jangan:** menulis proyeksi omzet tanpa asumsi jumlah pengguna dan harga; memakai persentase komisi tanpa perhitungan; menyebut "pasti untung".
 
@@ -340,14 +340,14 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 
 **Alur paragraf (sembilan paragraf):**
 
-1. **Keberlanjutan pengetahuan.** Regenerasi maestro, kaderisasi kurator, dan arsip yang terawat.
+1. **Keberlanjutan pengetahuan.** Regenerasi ahli budaya, kaderisasi kurator, dan arsip yang terawat.
 2. **Keberlanjutan komunitas.** Skema bagi hasil, peran komunitas, dan mekanisme persetujuan.
 3. **Operasional dan sumber daya manusia.** Peran inti, beban kerja, dan rencana perekrutan.
 4. **Teknologi dan biaya.** Biaya tetap, strategi menekan biaya, dan ketergantungan pada pihak ketiga.
 5. **Konsistensi mutu.** Prosedur baku, audit rubrik, dan peninjauan berkala.
 6. **Kapasitas.** Rencana menambah jalur melalui path-builder dan penambahan mitra.
 7. **Pasar dan distribusi.** Perluasan kanal dan kemitraan.
-8. **Manajemen risiko.** Tabel: risiko, dampak, mitigasi, pemicu. Risiko utama: maestro berhenti, konten tidak selesai, biaya produksi membengkak, sengketa hak, gangguan layanan.
+8. **Manajemen risiko.** Tabel: risiko, dampak, mitigasi, pemicu. Risiko utama: ahli budaya berhenti, konten tidak selesai, biaya produksi membengkak, sengketa hak, gangguan layanan.
 9. **Dampak ekonomi budaya.** Hubungkan dengan pendapatan pelaku dan regenerasi.
 
 **Jangan:** menulis "akan terus dikembangkan" tanpa sumber daya yang disebutkan.
@@ -399,7 +399,7 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 
 | No | Lampiran | Isi | Dirujuk dari |
 |---|---|---|---|
-| L1 | Surat minat maestro | Nama, komunitas, lingkup, masa berlaku | 6, 10 |
+| L1 | Surat minat ahli budaya | Nama, komunitas, lingkup, masa berlaku | 6, 10 |
 | L2 | Bukti produk | Tangkapan layar bertanggal, URL, akun demo | 8, 14 |
 | L3 | Data uji coba | Rekap peserta, penyelesaian, umpan balik | 7, 14 |
 | L4 | Diagram arsitektur dan model data | Satu halaman | 11, 12 |
@@ -420,7 +420,7 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 |---|---|---|---|
 | 0:00–0:20 | Pembuka | Masalah konkret, satu orang, satu adegan | Data di layar |
 | 0:20–0:50 | Pengenalan | Nama, unsur budaya, posisi produk | Tabel OPK singkat |
-| 0:50–2:30 | Demonstrasi | Alur nyata: pilih jalur, tugas, penilaian maestro, sertifikat, Paspor Karya | Rekaman layar asli |
+| 0:50–2:30 | Demonstrasi | Alur nyata: pilih jalur, tugas, penilaian ahli budaya, sertifikat, Paspor Karya | Rekaman layar asli |
 | 2:30–3:10 | Manfaat | Pengguna dan perajin, dengan angka | Data uji |
 | 3:10–3:40 | Keunikan | Perbandingan ringkas | Tabel pembanding |
 | 3:40–4:20 | Bukti penggunaan | Testimoni singkat, dokumentasi | Rekaman bertanggal |
@@ -475,7 +475,7 @@ Isi tabel ini paralel dengan penulisan. Satu baris untuk satu klaim yang akan di
 | ID | Klaim yang akan ditulis | Bagian | Bukti | Pemilik | Status |
 |---|---|---|---|---|---|
 | K1 | Produk terbit pada [tanggal] | 2, 8, 14 | URL + tangkapan layar bertanggal | Teknologi | |
-| K2 | Maestro [nama] bersedia | 6, 10 | Surat minat | Budaya | |
+| K2 | Ahli budaya [nama] bersedia | 6, 10 | Surat minat | Budaya | |
 | K3 | Uji coba [n] peserta | 7, 14 | Rekap + tangkapan layar | Ekonomi | |
 | K4 | Biaya produksi kit | 13 | Nota bahan + ongkir | Ekonomi | |
 | K5 | Rubrik telah diuji | 6, 8 | Dokumen rubrik + catatan revisi | Budaya | |
@@ -485,12 +485,12 @@ Isi tabel ini paralel dengan penulisan. Satu baris untuk satu klaim yang akan di
 ## SEPULUH PERTANYAAN YANG HARUS DIJAWAB SEBELUM MENULIS
 
 1. Apa bukti paling kuat bahwa produk sudah berfungsi, dan dapatkah juri memeriksanya tanpa dibantu?
-2. Siapa maestro pertama yang bersedia menilai, dan apa yang ia terima?
+2. Siapa ahli budaya pertama yang bersedia menilai, dan apa yang ia terima?
 3. Berapa biaya satu peserta menyelesaikan satu jalur, dan dari mana angka itu?
 4. Mengapa lulusan mau menjual lewat platform ini, bukan lewat kanal yang sudah mereka pakai?
-5. Apa yang terjadi bila maestro berhenti pada bulan ketiga?
+5. Apa yang terjadi bila ahli budaya berhenti pada bulan ketiga?
 6. Pengetahuan mana yang sengaja tidak dijual, dan mengapa?
-7. Berapa lama satu tugas praktik dinilai, dan siapa yang menilai bila maestro berhalangan?
+7. Berapa lama satu tugas praktik dinilai, dan siapa yang menilai bila ahli budaya berhalangan?
 8. Angka mana yang paling rapuh bila ditanya juri, dan bagaimana menyiapkan jawabannya?
 9. Apa yang membedakan produk ini dari kanal video gratis, dalam satu kalimat tanpa kata "budaya"?
 10. Bila hanya satu jalur yang boleh bertahan, jalur mana, dan mengapa?
@@ -500,5 +500,5 @@ Isi tabel ini paralel dengan penulisan. Satu baris untuk satu klaim yang akan di
 ## TIGA KESALAHAN YANG PALING MAHAL
 
 1. **Produk belum terbit saat tenggat ketersediaan.** Ini bukan soal kualitas, melainkan syarat administratif. Tidak ada narasi yang dapat menutupinya.
-2. **Budaya dipakai sebagai ornamen.** Bila maestro tidak terlibat secara substantif, skor Akar Budaya (25%) dan kredibilitas seluruh proposal runtuh bersamaan.
+2. **Budaya dipakai sebagai ornamen.** Bila ahli budaya tidak terlibat secara substantif, skor Akar Budaya (25%) dan kredibilitas seluruh proposal runtuh bersamaan.
 3. **Angka tidak konsisten antarbagian.** Abstrak, Bagian 7, 13, 14, dan 17 harus memakai satu seri angka yang sama; ketidakkonsistenan langsung terlihat dan mengurangi skor kejelasan (30%).

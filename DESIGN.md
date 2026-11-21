@@ -90,7 +90,7 @@ Each tag carries a region and a short note. Open fields link to the paths sectio
 
 ## Copy voice
 
-Plain, warm, specific, and comfortable saying “belum”. Buttons name the outcome. The page avoids “maestro”, invented maturity metrics, and generic marketplace language. One evidence series is used everywhere, recomputed from the seed: **11 fields, 3 open paths (plus 2 coming-soon paths), 4 published teachers, 62 participants, 57 assessed tasks, 5 works and services**.
+Plain, warm, specific, and comfortable saying “belum”. Buttons name the outcome. The page avoids invented maturity metrics and generic marketplace language. One evidence series is used everywhere, recomputed from the seed: **11 fields, 3 open paths (plus 2 coming-soon paths), 4 published teachers, 62 participants, 57 assessed tasks, 5 works and services**.
 
 Representative lines:
 
@@ -129,4 +129,4 @@ Representative lines:
 - A catalog that implies every field is live.
 - Ratings, review counts, or revenue claims that do not come from actual records.
 - Government/BNSP accreditation language.
-- “Maestro”, sample/dummy labels, or Nyantrik branding.
+- Sample/dummy labels or Nyantrik branding.

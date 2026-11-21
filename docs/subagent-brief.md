@@ -31,7 +31,7 @@ Do not skim. Do not rely on a summary. If this brief and the plan conflict, the 
 8. **Financial ledger is append-only.** Corrections are reversal entries. 70 / 15 / 15 is computed by the system.
 9. **Certificate is a platform certificate** with public verification. Never government or BNSP language.
 10. **Base region is Yogyakarta and Jawa Tengah**, open to practitioners elsewhere. No nationwide coverage claim.
-11. **No forbidden labels** in UI copy: `dummy`, `contoh`, `prototipe`, `sample`, `uji coba`, `maestro`.
+11. **No placeholder labels** in UI copy: `dummy`, `contoh`, `prototipe`, `sample`, `uji coba`.
 12. **No invented metrics.** Every number comes from a record. Stats are derived, not typed in.
 13. **Bangku Kayu design.** Cream, teak, copper, moss, brass; Fraunces + Karla; square plates; dense tables; status shape + label; no generic SaaS cards or gradients.
 
