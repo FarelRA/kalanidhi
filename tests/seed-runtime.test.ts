@@ -109,21 +109,18 @@ async function timestampSnapshot(t: TestDb) {
 }
 
 describe("seed runtime", () => {
-  it("reproduces the same counts when run twice and completes", async () => {
+  it("completes from an empty deployment", async () => {
     const t = createTestDb()
     await registerImages(t)
 
     const first = await t.action(internal.seed.run.run, { now: NOW })
-    const second = await t.action(internal.seed.run.run, { now: NOW })
-
-    expect(second).toEqual(first)
+    expect(first).toMatchObject({ integrity: { violations: 0 } })
 
     const runs = await t.run(
       async (ctx) => await ctx.db.query("seedRuns").collect(),
     )
-    // History is preserved: the lock row survives clearBatch.
-    expect(runs).toHaveLength(2)
-    expect(runs.map((row) => row.status)).toEqual(["complete", "complete"])
+    expect(runs).toHaveLength(1)
+    expect(runs.map((row) => row.status)).toEqual(["complete"])
 
     const latest = await t.query(internal.seed.run.status, {})
     expect(latest?.status).toBe("complete")
@@ -167,24 +164,13 @@ describe("seed runtime", () => {
     expect(latest?.status).toBe("running")
   }, 180_000)
 
-  it("reruns after a failed run and skips after a complete one", async () => {
+  it("rejects seeding an occupied deployment", async () => {
     const t = createTestDb()
     await registerImages(t)
-    await insertRun(t, {
-      status: "failed",
-      startedAt: NOW - 5 * MINUTE,
-      step: "commerce",
-      error: "boom",
-    })
-
-    const rerun = await t.action(internal.seed.run.runIfEmpty, {})
-    expect(rerun.seeded).toBe(true)
-
-    const skip = await t.action(internal.seed.run.runIfEmpty, {})
-    expect(skip.seeded).toBe(false)
-
-    const latest = await t.query(internal.seed.run.status, {})
-    expect(latest?.status).toBe("complete")
+    await t.action(internal.seed.run.run, { now: NOW })
+    await expect(
+      t.action(internal.seed.run.run, { now: NOW }),
+    ).rejects.toThrow(/SEED_REQUIRES_EMPTY_DEPLOYMENT/)
   }, 180_000)
 
   it("keeps the batched seed's row counts and integrity", async () => {

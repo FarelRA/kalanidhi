@@ -15,9 +15,7 @@
  *   SEED_UPLOAD_SECRET        must match the Convex env var of the same name
  *                             when that variable is set on the deployment
  *
- * The script is idempotent: re-uploading a filename updates the existing
- * active `mediaAssets` row instead of creating a duplicate. Secrets are never
- * printed.
+ * Run this only after a full Convex reset. Secrets are never printed.
  */
 import { readdir, readFile } from "node:fs/promises"
 import path from "node:path"
@@ -251,14 +249,11 @@ if (files.length === 0) {
 }
 
 let uploaded = 0
-const keepFilenames = []
 for (const base of files) {
   const source = byBase.get(base)
   const filePath = path.join(imageDir, source)
   const bytes = await readFile(filePath)
   const optimized = await optimizeToWebp(source, bytes)
-  keepFilenames.push(optimized.filename)
-
   const uploadUrl = await client.mutation(api.media.generateSeedUploadUrl, {
     token,
   })
@@ -294,13 +289,5 @@ for (const base of files) {
     `uploaded ${source} -> ${optimized.filename} (${optimized.width}x${optimized.height})`,
   )
 }
-
-const pruned = await client.mutation(api.media.pruneSeedImageUploads, {
-  token,
-  keepFilenames,
-})
-console.log(
-  `Registry cleanup. ${pruned.archived} stale/duplicate row(s) archived, ${pruned.active} active seed image(s).`,
-)
 
 console.log(`Done. ${uploaded} image(s) registered in mediaAssets as WebP.`)

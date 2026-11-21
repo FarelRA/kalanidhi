@@ -115,11 +115,29 @@ npm run test:coverage
 npm run convex:deploy
 npm run convex:codegen
 npm run convex:seed
-npm run convex:seed:if-empty
+npm run convex:reset:self-hosted
 ```
 
-Untuk mengisi deployment produksi, jalankan
-`npx convex run seed/run:run --prod` setelah `npx convex deploy`.
+Untuk membangun ulang data produksi, jalankan sebagai user `podman`:
+
+```bash
+cd /home/farel/projects/apps/budaya
+sudo -iu podman env CONFIRM_CONVEX_RESET=DELETE_ALL_CONVEX_DATA \
+  bash "$PWD/scripts/reset-self-hosted-convex.sh"
+export CONVEX_SELF_HOSTED_URL=https://convex.kalanidhi.site
+export CONVEX_SELF_HOSTED_ADMIN_KEY="$(sudo cat /home/podman/services/data/kalanidhi/convex-admin-key)"
+npx convex deploy
+npm run images:upload
+npx convex run seed/run:run
+```
+
+Reset menghapus seluruh database, komponen Better Auth, media storage, indeks, ekspor,
+file sementara, dan modul terdeploy. Kredensial instance dipertahankan agar endpoint dan
+admin key yang sudah dikonfigurasi tetap dapat dipakai. Isi ulang environment deployment yang
+diperlukan sebelum `npx convex deploy`, termasuk `SITE_URL`, `BETTER_AUTH_SECRET`,
+`PAYMENTS_INTERNAL_KEY`, `SEED_UPLOAD_SECRET`, `WEBHOOK_SIGNING_SECRET`, dan endpoint
+notifikasi bila digunakan. Seed hanya menerima deployment kosong dan tidak menghapus
+data lama secara selektif.
 
 `CONVEX_URL` wajib diisi saat build dan runtime. Tidak ada fallback konten statis:
 landing selalu membaca `content.getSite` dari Convex. Jika deployment belum di-seed,
@@ -127,17 +145,14 @@ build gagal dengan pesan yang jelas.
 
 ### Akun seed dan login
 
-Seed membuat akun peserta, pengajar, pembuat karya, dan pengelola dengan Better Auth,
-bukan lagi `authUserId` placeholder. Setiap alamat didaftarkan sekali lewat
-`signUpEmail`, lalu baris aplikasi asli dihubungkan ke subjek Better Auth yang asli;
-baris duplikat yang dibuat trigger dihapus bersama role, consent, session, dan auth log
-miliknya. Pemetaan email → subjek disimpan di `seedAuthAccounts`, di luar tabel yang
-dibersihkan saat reseed, sehingga menjalankan ulang seed tidak gagal dengan
-`USER_ALREADY_EXISTS`.
+Seed membuat akun peserta, pengajar, pembuat karya, dan pengelola dengan Better Auth.
+Setiap alamat dibuat pada deployment yang baru di-reset, lalu profil seed lengkap
+dihubungkan ke subjek Better Auth yang baru dibuat. Tidak ada pemetaan akun atau data
+lama yang dipertahankan antarreset.
 
-Kata sandi seed-only untuk akun yang dibuat seed: **`KalaNidhi2026!`**. Admin yang sudah
-ada sebelum seed memakai kata sandinya sendiri. Jangan pakai kata sandi seed untuk akun
-nyata. Contoh login peserta:
+Kata sandi seed-only untuk akun yang dibuat seed: **`KalaNidhi2026!`**. Reset penuh
+mengganti semua akun sebelumnya. Jangan pakai kata sandi seed untuk akun nyata. Contoh
+login peserta:
 
 ```bash
 curl -X POST https://kalanidhi.site/api/auth/sign-in/email \
@@ -227,20 +242,19 @@ testimoni, bidang katalog, FAQ, dan karya untuk Kartu Karya hero dilakukan di ha
 3. Untuk menambah kelas, pengajar, karya, atau bidang, tambahkan entri di
    `convex/seed/content/data.ts` atau dashboard domain terkait. Urutan tampil memakai field
    `order`.
-4. Jalankan `npm run convex:seed` hanya bila ingin mengisi ulang seluruh data domain;
-   tabel `leads` tidak dihapus.
+4. Untuk mengisi ulang data, jalankan reset volume Convex lalu unggah media dan seed
+   dari nol. Semua tabel dan file Convex ikut dihapus.
 
 Gambar sumber berada di `seed/images/`. Jalankan `npm run images:upload` untuk
 mengunggahnya ke Convex storage dan mendaftarkannya di `mediaAssets`; seed akan gagal
 jika ada `imageFile` yang belum terdaftar.
 
-Katalog seed berisi lima kelas: tiga terbuka dan dua sedang disiapkan. Kelas terbuka
-adalah Batik Bambu (Krebet, Sendangsari, Pajangan, Bantul), Aksara Jawa, dan Seni
-Pembawa Acara Tradisi Jawa. Kriya Gerabah Bantul dan Batik Tulis berstatus
+Katalog seed berisi enam kelas. Kelas terbuka adalah Batik Bambu, Aksara Jawa, Tari
+Kreasi, dan Kuliner Nusantara. Kriya Gerabah Bantul dan Batik Tulis berstatus
 `comingSoon`; Batik Tulis tidak memiliki modul atau pelajaran karena materi batik tulis
 di atas kain belum tersedia sebagai kurikulum. Kurikulum Batik Bambu diadaptasi dari
 materi Paguyuban Batik Tulis Giriloyo untuk kain, lalu disesuaikan dengan proses bambu
-dari Fitinline dan profil Desa Wisata Krebet (Jadesta Kementerian Pariwisata). Krebet
+dari Fitinline dan profil Desa Wisata Krebet, Jadesta Kementerian Pariwisata. Krebet
 dikenal sebagai desa batik kayu; sebagian pengrajinnya juga membatik bambu.
 
 ## Keputusan implementasi

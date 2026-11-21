@@ -78,11 +78,11 @@ The same loop appears in the FAQ and the about page. A first-time visitor sees l
 
 The catalog is a shelf, not a logo wall. **Rak bahan** groups eleven mapped fields by readiness:
 
-- **Sudah di bangku (3):** Batik Bambu, Aksara Jawa: Membaca dan Menulis, Seni Pembawa Acara Tradisi Jawa.
-- **Sedang disiapkan (4):** Kriya gerabah (Kasongan), Batik tulis (Giriloyo), Karawitan, Tari tradisi.
-- **Menunggu pengajar (4):** Keramik, Kuliner tradisi, Jamu, Wayang.
+- **Sudah di bangku (4):** Batik Bambu, Aksara Jawa: Membaca dan Menulis, Tari Kreasi, Kuliner Nusantara.
+- **Sedang disiapkan (2):** Kriya gerabah (Kasongan), Batik tulis (Giriloyo).
+- **Menunggu pengajar (4):** Karawitan, Keramik, Jamu, Wayang.
 
-The seeded catalog has five paths: the three open above, plus Kriya Gerabah Bantul and Batik Tulis as coming-soon paths. Batik Tulis keeps its teacher persona and the Giriloyo attribution but has no modules or lessons, because the cloth material is not published as a curriculum yet. Batik Bambu is the only open batik path, located in Krebet, Sendangsari, Pajangan, Bantul. Krebet is known for batik kayu; some of its artisans also work bamboo.
+The seeded catalog has six paths: the four open above, plus Kriya Gerabah Bantul and Batik Tulis as coming-soon paths. Batik Tulis keeps its teacher persona and the Giriloyo attribution but has no modules or lessons, because the cloth material is not published as a curriculum yet. Batik Bambu is the only open batik path, located in Krebet, Sendangsari, Pajangan, Bantul. Krebet is known for batik kayu; some of its artisans also work bamboo.
 
 **Adaptation note.** The Batik Bambu curriculum is adapted from the Paguyuban Batik Tulis Giriloyo deck, which is written for batik tulis on cloth. What transfers is kept: classic Giriloyo motifs, wax as resist, dyeing, nglorod, and safety. Cloth-specific steps are replaced with the bamboo process described by Fitinline (select bamboo, boil, dry, sand, pattern, nglowongi, ngisen-isen, mbabar, nembok, base colour, nglorod, mepe, finishing, check). The lesson copy says plainly that the material we hold covers cloth only. The Krebet village profile at Jadesta (Kementerian Pariwisata) supports the location and the nampan bambu batik product; the bamboo-age reference is the Jurnal Hutan Tropis Universitas Mulawarman.
 

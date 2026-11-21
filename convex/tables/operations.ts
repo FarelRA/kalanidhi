@@ -64,18 +64,6 @@ export const operationsTables = {
     .index("by_leadId", ["leadId"])
     .index("by_ownerId", ["ownerId"]),
 
-  /**
-   * Seed-only map from an app user's email to the Better Auth subject that
-   * owns it. It lives outside `CLEAR_TABLES` so a reseed can reuse the auth
-   * account instead of failing on `USER_ALREADY_EXISTS`.
-   */
-  seedAuthAccounts: defineTable({
-    email: v.string(),
-    authUserId: v.string(),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  }).index("by_email", ["email"]),
-
   supportTickets: defineTable({
     code: v.string(),
     requesterId: v.optional(v.id("users")),
@@ -601,10 +589,7 @@ export const operationsTables = {
     .index("by_entity", ["entityType", "entityId"])
     .index("by_expiresAt", ["expiresAt"]),
 
-  /**
-   * Seed run history. Never part of `CLEAR_TABLES`: a failed run is the
-   * evidence `runIfEmpty` uses to decide whether to reseed.
-   */
+  /** Seed run history for the current, freshly reset deployment. */
   seedRuns: defineTable({
     status: v.union(
       v.literal("running"),

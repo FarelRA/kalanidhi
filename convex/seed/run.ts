@@ -7,39 +7,13 @@ import {
   internalMutation,
   internalQuery,
 } from "../_generated/server"
-import { isPlaceholderAuthId, normalizeSeedEmail } from "./lib/auth"
 import { DAY, jakartaDayStart, SEED_START } from "./lib/clock"
-import {
-  pathsSeed,
-  siteSeed,
-  teachersSeed,
-  worksSeed,
-} from "./content/data"
-import {
-  CURRICULUM_IMAGE_FILES,
-  CURRICULUM_MEDIA_FILES,
-} from "./domains/curriculum"
-import { MESSAGING_IMAGE_FILES } from "./domains/messaging"
 
 /** Bumped whenever the seed's shape changes; stored on every run row. */
-export const SEED_VERSION = "2026-11-seed-v5"
+export const SEED_VERSION = "2026-11-seed-v6"
 
 /** A run whose last heartbeat is younger than this still owns the lock. */
 const LOCK_TTL_MS = 10 * 60_000
-
-/** Every media file the seed expects to keep active, one row per filename. */
-const SEED_MEDIA_FILES = Array.from(
-  new Set([
-    siteSeed.hero.plate.imageFile,
-    siteSeed.metadata.image.imageFile,
-    ...pathsSeed.map((path) => path.imageFile),
-    ...teachersSeed.map((teacher) => teacher.imageFile),
-    ...worksSeed.map((work) => work.imageFile),
-    ...CURRICULUM_IMAGE_FILES,
-    ...CURRICULUM_MEDIA_FILES,
-    ...MESSAGING_IMAGE_FILES,
-  ]),
-)
 
 /**
  * Acquires the seed lock and opens a run row.
@@ -54,31 +28,23 @@ export const beginRun = internalMutation({
   args: {
     now: v.number(),
     version: v.string(),
-    allowRealUsers: v.optional(v.boolean()),
   },
   handler: async (ctx, args): Promise<Id<"seedRuns">> => {
-    // A full seed clears every domain table. Preserving a real account row
-    // would leave that account without its orders, certificates, or messages,
-    // so refuse before touching anything unless the operator explicitly asks
-    // for a destructive replay.
-    const mappings = await ctx.db.query("seedAuthAccounts").collect()
-    const seedEmails = new Set(
-      mappings.map((row) => normalizeSeedEmail(row.email)),
-    )
-    const users = await ctx.db.query("users").collect()
-    const realUsers = users.filter(
-      (user) =>
-        user.status !== "deleted" &&
-        !user.roles.includes("admin") &&
-        !isPlaceholderAuthId(user.authUserId) &&
-        !seedEmails.has(normalizeSeedEmail(user.email)),
-    )
-    if (realUsers.length > 0 && !args.allowRealUsers) {
+    // Reseeding an occupied deployment would leave rows that the seed does
+    // not own. Full reset belongs to the self-hosted Convex volume, not to a
+    // collection of application-level deletion rules.
+    const occupied = await Promise.all([
+      ctx.db.query("users").first(),
+      ctx.db.query("paths").first(),
+      ctx.db.query("siteContent").first(),
+      ctx.db.query("cohorts").first(),
+      ctx.db.query("orders").first(),
+    ])
+    if (occupied.some(Boolean)) {
       throw new ConvexError({
-        code: "SEED_REAL_USERS_PRESENT",
+        code: "SEED_REQUIRES_EMPTY_DEPLOYMENT",
         message:
-          `Seed dihentikan karena ada ${realUsers.length} akun nyata. ` +
-          "Data akun itu bisa ikut terhapus. Jalankan ulang dengan allowRealUsers bila memang ingin mengganti seluruh data.",
+          "Seed hanya dapat dijalankan pada deployment kosong. Reset volume Convex lebih dulu, deploy functions, unggah media seed, lalu jalankan seed.",
       })
     }
 
@@ -166,56 +132,23 @@ export const status = internalQuery({
 })
 
 /**
- * Readiness signal for `runIfEmpty`. A `complete` run row alone is not enough:
- * a process can die after writing the row but before every domain committed, or
- * an operator can clear one table by hand. The seed is ready to skip only when
- * each key table has at least one row.
- */
-export const readiness = internalQuery({
-  args: {},
-  handler: async (ctx) => {
-    const checks = {
-      users: (await ctx.db.query("users").first()) !== null,
-      paths: (await ctx.db.query("paths").first()) !== null,
-      pathModules: (await ctx.db.query("pathModules").first()) !== null,
-      lessons: (await ctx.db.query("lessons").first()) !== null,
-      cohorts: (await ctx.db.query("cohorts").first()) !== null,
-      enrollments: (await ctx.db.query("enrollments").first()) !== null,
-      orders: (await ctx.db.query("orders").first()) !== null,
-      payments: (await ctx.db.query("payments").first()) !== null,
-      siteContent:
-        (await ctx.db
-          .query("siteContent")
-          .withIndex("by_key", (q) => q.eq("key", "site"))
-          .first()) !== null,
-    }
-    return {
-      ready: Object.values(checks).every(Boolean),
-      checks,
-    }
-  },
-})
-
-/**
- * Full reseed.
+ * Seed an empty deployment.
  *
  * The wall clock is read exactly once; every mutation and action receives that
- * `now` so two runs anchored to the same instant produce identical rows. Run
- * history is never cleared: `seedRuns` sits outside `CLEAR_TABLES`.
+ * `now` so two empty deployments anchored to the same instant produce
+ * identical rows. Resetting a deployment removes run history with every other
+ * application row.
  */
 export const run = internalAction({
   args: {
     /** Test/ops replay hook; production reads the wall clock exactly once. */
     now: v.optional(v.number()),
-    /** Only set this when a destructive replay with real accounts is intended. */
-    allowRealUsers: v.optional(v.boolean()),
   },
   handler: async (ctx, args): Promise<Record<string, unknown>> => {
     const now = args.now ?? Date.now()
     const runId = await ctx.runMutation(internal.seed.run.beginRun, {
       now,
       version: SEED_VERSION,
-      allowRealUsers: args.allowRealUsers,
     })
 
     const step = async <T>(name: string, fn: () => Promise<T>): Promise<T> => {
@@ -224,32 +157,6 @@ export const run = internalAction({
     }
 
     try {
-      // Convex caps a mutation at one second, so the workspace is cleared in
-      // budget-sized slices instead of one large transaction.
-      await step("clear", async () => {
-        let cleared = false
-        while (!cleared) {
-          const result = await ctx.runMutation(
-            internal.seed.domains.clear.clearBatch,
-            { includeRealUsers: args.allowRealUsers },
-          )
-          cleared = result.done
-        }
-      })
-      await step("retireRemovedAccounts", () =>
-        ctx.runAction(internal.seed.domains.auth.retireRemovedSeedAccounts, {}),
-      )
-      await step("retireRemovedMedia", () =>
-        ctx.runMutation(internal.media.purgeRetiredSeedMedia, {}),
-      )
-      // The registry lives outside CLEAR_TABLES, so stale and duplicate seed
-      // rows survive a reseed. Archive them now, keeping every filename the
-      // seed uses and every asset a content row still references.
-      await step("media", () =>
-        ctx.runMutation(internal.media.pruneSeedImagesInternal, {
-          keepFilenames: SEED_MEDIA_FILES,
-        }),
-      )
       await step("people", () =>
         ctx.runMutation(internal.seed.domains.people.seedPeople, { now }),
       )
@@ -311,9 +218,6 @@ export const run = internalAction({
         ctx.runMutation(internal.seed.domains.audit.seedAudit, { now }),
       )
       // Provision Better Auth subjects before integrity checks the final users.
-      // The operator's admin account is created by Better Auth itself and keeps
-      // its real subject, so `seedAuthAccounts` intentionally has no admin
-      // mapping; only placeholder seed accounts are mapped here.
       const auth = await step("auth", () =>
         ctx.runAction(internal.seed.domains.auth.seedAuthAccounts, { now }),
       )
@@ -353,25 +257,5 @@ export const run = internalAction({
       })
       throw error
     }
-  },
-})
-
-/**
- * Seeds only when there is nothing trustworthy to keep.
- *
- * A `complete` run plus every key table populated means skip. A `failed` run,
- * no run at all, or a complete row with missing tables means the last attempt
- * left a half-seeded database, so clear and run again.
- */
-export const runIfEmpty = internalAction({
-  args: {},
-  handler: async (ctx): Promise<{ seeded: boolean }> => {
-    const latest = await ctx.runQuery(internal.seed.run.status, {})
-    if (latest?.status === "complete") {
-      const { ready } = await ctx.runQuery(internal.seed.run.readiness, {})
-      if (ready) return { seeded: false }
-    }
-    await ctx.runAction(internal.seed.run.run, {})
-    return { seeded: true }
   },
 })

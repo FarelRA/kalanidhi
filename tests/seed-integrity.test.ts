@@ -1,7 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest"
 
 import { internal } from "../convex/_generated/api"
-import type { Id } from "../convex/_generated/dataModel"
 import {
   pathsSeed,
   siteSeed,
@@ -289,77 +288,5 @@ describe("seed integrity", () => {
         snapshot.dailyMetrics.map((row) => `${row.metricKey}:${row.date}`),
       ),
     ).toBe(true)
-  })
-})
-
-describe("seed clearBatch", () => {
-  it("removes more than 100 non-admin users across repeated batches", async () => {
-    const t = createTestDb()
-    const ids = await t.run(async (ctx) => {
-      const adminId = await ctx.db.insert("users", {
-        authUserId: "admin",
-        name: "Admin",
-        email: "admin@kalanidhi.site",
-        emailVerified: true,
-        phone: "6280000000001",
-        province: "DI Yogyakarta",
-        whatsappVerified: true,
-        initials: "AD",
-        region: "Kota Yogyakarta, DI Yogyakarta",
-        roles: ["admin"],
-        status: "active",
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      })
-      const studentIds: Id<"users">[] = []
-      for (let index = 0; index < 150; index += 1) {
-        studentIds.push(
-          await ctx.db.insert("users", {
-            authUserId: `student-${index}`,
-            name: `Student ${index}`,
-            email: `student.${index}12@gmail.com`,
-            emailVerified: true,
-            phone: `62812${String(index).padStart(7, "0")}`,
-            province: "DI Yogyakarta",
-            whatsappVerified: true,
-            initials: "ST",
-            region: "Kota Yogyakarta, DI Yogyakarta",
-            roles: ["student"],
-            status: "active",
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-          }),
-        )
-      }
-      for (let index = 0; index < 120; index += 1) {
-        await ctx.db.insert("sessions", {
-          userId: studentIds[index % studentIds.length],
-          authSessionId: `session-${index}`,
-          deviceName: "Browser",
-          userAgent: "Test",
-          createdAt: Date.now(),
-          lastSeenAt: Date.now(),
-          expiresAt: Date.now() + 86_400_000,
-        })
-      }
-      return { adminId, studentIds }
-    })
-
-    await t.mutation(internal.seed.domains.clear.clearBatch, {})
-    const second = await t.mutation(internal.seed.domains.clear.clearBatch, {})
-    expect(second.done).toBe(true)
-
-    const remaining = await t.run(async (ctx) => {
-      const users = await ctx.db.query("users").collect()
-      const sessions = await ctx.db.query("sessions").collect()
-      return {
-        admin: users.filter((user) => user.roles.includes("admin")),
-        nonAdmin: users.filter((user) => !user.roles.includes("admin")),
-        sessions,
-      }
-    })
-    expect(remaining.admin.map((user) => user._id)).toEqual([ids.adminId])
-    expect(remaining.nonAdmin).toHaveLength(0)
-    expect(remaining.sessions).toHaveLength(0)
   })
 })

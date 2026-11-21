@@ -42,7 +42,6 @@ export type SeedSnapshot = {
   leadAssignments: Doc<"leadAssignments">[]
   dailyMetrics: Doc<"dailyMetrics">[]
   metricDefinitions: Doc<"metricDefinitions">[]
-  seedAuthAccounts: Doc<"seedAuthAccounts">[]
 }
 
 export type SeedViolation = {
@@ -92,7 +91,6 @@ export async function loadSeedSnapshot(ctx: SeedDb): Promise<SeedSnapshot> {
     leadAssignments,
     dailyMetrics,
     metricDefinitions,
-    seedAuthAccounts,
   ] = await Promise.all([
     ctx.db.query("users").collect(),
     ctx.db.query("sessions").collect(),
@@ -126,7 +124,6 @@ export async function loadSeedSnapshot(ctx: SeedDb): Promise<SeedSnapshot> {
     ctx.db.query("leadAssignments").collect(),
     ctx.db.query("dailyMetrics").collect(),
     ctx.db.query("metricDefinitions").collect(),
-    ctx.db.query("seedAuthAccounts").collect(),
   ])
 
   return {
@@ -162,7 +159,6 @@ export async function loadSeedSnapshot(ctx: SeedDb): Promise<SeedSnapshot> {
     leadAssignments,
     dailyMetrics,
     metricDefinitions,
-    seedAuthAccounts,
   }
 }
 
@@ -1874,51 +1870,9 @@ export function checkSeedIntegrity(snapshot: SeedSnapshot): SeedViolation[] {
     }
   }
 
-  // Seed auth mapping ----------------------------------------------------
-  const userByEmail = new Map(
-    snapshot.users.map((row) => [row.email.toLowerCase(), row]),
-  )
-  checkUnique(violations, {
-    code: "UNIQUE_SEED_AUTH_EMAIL",
-    table: "seedAuthAccounts",
-    field: "email",
-    rows: snapshot.seedAuthAccounts.map((row) => ({
-      _id: row._id,
-      value: row.email.toLowerCase(),
-    })),
-  })
-  for (const row of snapshot.seedAuthAccounts) {
-    const user = userByEmail.get(row.email.toLowerCase())
-    if (!user) {
-      violation(violations, {
-        code: "SEED_AUTH_USER_MISSING",
-        table: "seedAuthAccounts",
-        rowId: row._id,
-        message: `Seed auth mapping for ${row.email} has no user.`,
-      })
-      continue
-    }
-    if (user.authUserId !== row.authUserId) {
-      violation(violations, {
-        code: "SEED_AUTH_SUBJECT_MISMATCH",
-        table: "seedAuthAccounts",
-        rowId: row._id,
-        message: `Seed auth mapping for ${row.email} does not match the user subject.`,
-        evidence: {
-          mapped: row.authUserId,
-          user: user.authUserId,
-        },
-      })
-    }
-  }
-
   // Public identity ------------------------------------------------------
-  const seededEmails = new Set(
-    snapshot.seedAuthAccounts.map((row) => row.email.toLowerCase()),
-  )
   for (const user of snapshot.users) {
     if (user.roles.includes("admin")) continue
-    if (!seededEmails.has(user.email.toLowerCase())) continue
     if (user.province !== "DI Yogyakarta") {
       violation(violations, {
         code: "IDENTITY_PROVINCE",

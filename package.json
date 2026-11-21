@@ -17,7 +17,7 @@
     "convex:deploy": "convex deploy",
     "convex:codegen": "convex codegen",
     "convex:seed": "convex run seed/run:run",
-    "convex:seed:if-empty": "convex run seed/run:runIfEmpty",
+    "convex:reset:self-hosted": "bash scripts/reset-self-hosted-convex.sh",
     "images:upload": "node scripts/upload-images.mjs",
     "icons:build": "node scripts/build-icons.mjs"
   },

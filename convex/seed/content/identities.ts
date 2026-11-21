@@ -8,9 +8,6 @@
  * pile up on a single day.
  */
 
-/** Owner tag for media rows the seed itself creates, so reseeds can clear them. */
-export const SEED_ASSET_OWNER = "KalaNidhi"
-
 export type SeedRole = "student" | "teacher" | "admin"
 
 export type SeedUser = {

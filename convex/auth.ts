@@ -50,6 +50,18 @@ export const authComponent: ReturnType<typeof createClient<DataModel>> =
       onCreate: async (ctx, doc) => {
         const email = doc.email.toLowerCase()
         const timestamp = Date.now()
+        const seededUser = await ctx.db
+          .query("users")
+          .withIndex("by_email", (q) => q.eq("email", email))
+          .unique()
+        if (seededUser?.authUserId.startsWith("seed-")) {
+          await ctx.db.patch(seededUser._id, {
+            authUserId: doc._id,
+            emailVerified: Boolean(doc.emailVerified),
+            updatedAt: timestamp,
+          })
+          return
+        }
         const invites = await ctx.db
           .query("invites")
           .withIndex("by_email", (q) => q.eq("email", email))
