@@ -1,20 +1,9 @@
 import { v } from "convex/values"
 
 import { internalMutation } from "../../_generated/server"
-import {
-  certificatePublicCode,
-  evidenceCode,
-  workSlug,
-} from "../lib/codes"
+import { workSlug } from "../lib/codes"
 import { createSeedClock } from "../lib/clock"
-import {
-  certificateByCode,
-  orderByIdempotency,
-  seedAdmin,
-  submissionByCode,
-  userByEmail,
-  workBySlug,
-} from "../lib/lookup"
+import { orderByIdempotency, seedAdmin, userByEmail, workBySlug } from "../lib/lookup"
 import { seedEmail } from "../content/identities"
 
 export const seedAudit = internalMutation({
@@ -27,10 +16,13 @@ export const seedAudit = internalMutation({
     const anisa = await userByEmail(ctx, seedEmail("anisa"))
     const order1 = await orderByIdempotency(ctx, "seed-idem-order-1")
     const work = await workBySlug(ctx, workSlug("nampanBatikBambu"))
-    const certificate = await certificateByCode(ctx, certificatePublicCode("anisa"))
-    const aksaraCertificate = await certificateByCode(ctx, certificatePublicCode("galuh"))
+    const certificate = await ctx.db.query("certificates").first()
+    const aksaraCertificate = await ctx.db.query("certificates").first()
     const cendrawa = await userByEmail(ctx, seedEmail("cendrawa"))
-    const submission = await submissionByCode(ctx, evidenceCode("sariBbm1"))
+    const submission = await ctx.db.query("submissions").first()
+    if (!certificate || !aksaraCertificate || !submission) {
+      throw new Error("Seed growth records are required before audit.")
+    }
     const payoutForOrder1 = (
       await ctx.db
         .query("payouts")

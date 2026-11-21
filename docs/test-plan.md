@@ -232,7 +232,7 @@ Phase 0 owns the signatures; these are the required behaviours.
 ```ts
 seedBase(t)                       // identities, roles, sessions
 seedContent(t)                    // published + draft content, media, entities
-seedLearning(t)                   // cohorts, enrollments, submissions, certificates
+seedGrowth(t)                     // cohorts, enrollments, submissions, certificates
 seedCommerce(t)                   // works, orders, payments, ledger, payouts
 seedCommunication(t)              // conversations, messages, calls
 seedOperations(t)                 // leads, tickets, logs, flags, flows

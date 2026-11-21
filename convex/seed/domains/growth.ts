@@ -16,7 +16,13 @@ import {
   internalMutation,
   type MutationCtx,
 } from "../../_generated/server"
-import { DAY, HOUR, jakartaDayStart, SEED_START } from "../lib/clock"
+import {
+  DAY,
+  FIRST_PARTICIPANT_AT,
+  HOUR,
+  jakartaDayStart,
+  SEED_START,
+} from "../lib/clock"
 import { insertSeedUser } from "../lib/identity"
 import { openPaths, type OpenPath } from "../lib/lookup"
 import { evidenceStorageId } from "../lib/media"
@@ -39,21 +45,22 @@ import { pathSlug } from "../lib/codes"
 export const GROWTH_MONTHS = 11
 
 /**
- * New buyers per month: a person who pays for a path or a work for the first
- * time. January is small, March crosses five, and the year rises.
+ * New path registrations by month. Intake begins on 3 January, grows through
+ * May with a March correction, then expands in a second, slower growth phase.
  */
-export const GROWTH_MONTHLY_BUYERS = [2, 3, 8, 9, 10, 10, 11, 12, 13, 13, 14] as const
+export const GROWTH_MONTHLY_PATH = [1, 3, 2, 5, 5, 6, 10, 11, 8, 9, 7] as const
 
 /** Buyers who never enroll; they buy one to three craft works over time. */
-export const GROWTH_MONTHLY_WORK_ONLY = [0, 0, 1, 2, 2, 2, 2, 2, 2, 3, 4] as const
+export const GROWTH_MONTHLY_WORK_ONLY = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1] as const
 
-/** Path buyers = buyers minus work-only customers. */
-export const GROWTH_MONTHLY_PATH = GROWTH_MONTHLY_BUYERS.map(
-  (buyers, month) => buyers - (GROWTH_MONTHLY_WORK_ONLY[month] as number),
+/** New buyers include learners and people who only buy a craft work. */
+export const GROWTH_MONTHLY_BUYERS = GROWTH_MONTHLY_PATH.map(
+  (participants, month) =>
+    participants + (GROWTH_MONTHLY_WORK_ONLY[month] as number),
 )
 
 /** Browsers who leave a lead and never pay. */
-export const GROWTH_MONTHLY_LEADS = [2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 3] as const
+export const GROWTH_MONTHLY_LEADS = [1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2] as const
 
 /** All new accounts in a month. */
 export const GROWTH_MONTHLY_SIGNUPS = GROWTH_MONTHLY_BUYERS.map(
@@ -412,26 +419,25 @@ type CohortPlanRow = {
 
 /**
  * Fifteen cohorts across four intake windows. Sizes sum to the path rows in
- * each window: 12, 23, 34 (30 new + 4 repeats), and 27 (20 new + 7 repeats).
- * The last five slots in the later windows cover all five open paths, so the
- * new Tari Kreasi and Kuliner Nusantara cohorts are real, not relabelled.
+ * each window: 6, 16, 29, and 16 new participants. July and August are led
+ * by Tari Kreasi and Kuliner Nusantara before Batik Bambu and Aksara Jawa.
  */
 export const COHORT_PLAN: CohortPlanRow[] = [
-  { index: 0, period: 0, pathIndex: 0, ordinal: 0, size: 6 },
-  { index: 1, period: 0, pathIndex: 1, ordinal: 0, size: 6 },
-  { index: 2, period: 1, pathIndex: 0, ordinal: 0, size: 8 },
-  { index: 3, period: 1, pathIndex: 1, ordinal: 0, size: 8 },
-  { index: 4, period: 1, pathIndex: 2, ordinal: 0, size: 7 },
-  { index: 5, period: 2, pathIndex: 0, ordinal: 0, size: 8 },
-  { index: 6, period: 2, pathIndex: 1, ordinal: 0, size: 7 },
-  { index: 7, period: 2, pathIndex: 2, ordinal: 0, size: 7 },
-  { index: 8, period: 2, pathIndex: 3, ordinal: 0, size: 6 },
-  { index: 9, period: 2, pathIndex: 0, ordinal: 1, size: 6 },
-  { index: 10, period: 3, pathIndex: 0, ordinal: 0, size: 6 },
-  { index: 11, period: 3, pathIndex: 1, ordinal: 0, size: 6 },
-  { index: 12, period: 3, pathIndex: 2, ordinal: 0, size: 5 },
-  { index: 13, period: 3, pathIndex: 3, ordinal: 0, size: 5 },
-  { index: 14, period: 3, pathIndex: 0, ordinal: 1, size: 5 },
+  { index: 0, period: 0, pathIndex: 0, ordinal: 0, size: 3 },
+  { index: 1, period: 0, pathIndex: 1, ordinal: 0, size: 3 },
+  { index: 2, period: 1, pathIndex: 0, ordinal: 0, size: 6 },
+  { index: 3, period: 1, pathIndex: 1, ordinal: 0, size: 5 },
+  { index: 4, period: 1, pathIndex: 2, ordinal: 0, size: 5 },
+  { index: 5, period: 2, pathIndex: 2, ordinal: 0, size: 8 },
+  { index: 6, period: 2, pathIndex: 3, ordinal: 0, size: 7 },
+  { index: 7, period: 2, pathIndex: 2, ordinal: 1, size: 4 },
+  { index: 8, period: 2, pathIndex: 3, ordinal: 1, size: 3 },
+  { index: 9, period: 2, pathIndex: 0, ordinal: 0, size: 4 },
+  { index: 10, period: 2, pathIndex: 1, ordinal: 0, size: 3 },
+  { index: 11, period: 3, pathIndex: 0, ordinal: 0, size: 4 },
+  { index: 12, period: 3, pathIndex: 1, ordinal: 0, size: 4 },
+  { index: 13, period: 3, pathIndex: 2, ordinal: 0, size: 4 },
+  { index: 14, period: 3, pathIndex: 3, ordinal: 0, size: 4 },
 ]
 
 const COHORT_DAYS = 110
@@ -442,7 +448,7 @@ function monthStart(monthIndex: number): number {
 
 /** Cohort windows start in January, April, July, and October. */
 function periodStart(period: number): number {
-  return period === 0 ? SEED_START + 3 * DAY : Date.UTC(2026, period * 3, 5, 9)
+  return period === 0 ? FIRST_PARTICIPANT_AT : Date.UTC(2026, period * 3, 5, 9)
 }
 
 /** mulberry32, seeded from (month, row) so every reseed is identical. */
@@ -460,7 +466,7 @@ function rngFor(monthIndex: number, rowIndex: number): () => number {
 function signupDay(monthIndex: number, rowIndex: number, count: number): number {
   const span = 18
   const step = span / Math.max(1, count)
-  return 2 + Math.min(span - 1, Math.floor(rowIndex * step + 0.5))
+  return 3 + Math.min(span - 1, Math.floor(rowIndex * step + 0.5))
 }
 
 function signupTimestamp(
@@ -569,60 +575,12 @@ export function buildGrowthPlan(): PlanRow[] {
     assignCohorts(rows, period)
   }
 
-  // Repeat purchases: learners who already finished take another path.
-  const graduates = rows
-    .filter(
-      (row) =>
-        row.kind === "path" &&
-        row.period <= 1 &&
-        row.cohortOrdinal >= 0,
-    )
-    .sort((a, b) => a.globalIndex - b.globalIndex)
-  const repeatSources = graduates.filter((_, index) => index % 3 === 1).slice(0, 11)
-  const repeatMonths = [7, 7, 8, 8, 9, 9, 9, 10, 10, 10, 10]
-  const repeats: PlanRow[] = []
-  for (const [index, source] of repeatSources.entries()) {
-    const monthIndex = repeatMonths[index] ?? 10
-    repeats.push({
-      monthIndex,
-      rowIndex: 900 + index,
-      globalIndex: source.globalIndex,
-      kind: "repeat",
-      period: Math.floor(monthIndex / 3),
-      cohortIndex: -1,
-      cohortOrdinal: -1,
-      plannedStatus: "active",
-      workPurchases: 0,
-      sourceGlobalIndex: source.globalIndex,
-    })
-  }
-  rows.push(...repeats)
-  assignCohorts(rows, 2)
-  assignCohorts(rows, 3)
-
   // Statuses are keyed by cohort and position so they stay stable.
-  const withdrawnRows = new Set([
-    "0:0",
-    "1:0",
-    "2:0",
-    "3:0",
-    "5:0",
-    "6:0",
-  ])
   for (const row of rows) {
     if (row.kind !== "path" && row.kind !== "repeat") continue
     const cohort = COHORT_PLAN[row.cohortIndex]
     if (!cohort) continue
-    const key = `${row.cohortIndex}:${row.cohortOrdinal}`
-    if (cohort.period <= 2) {
-      row.plannedStatus = withdrawnRows.has(key) ? "withdrawn" : "completed"
-    } else if (row.cohortOrdinal === 0) {
-      row.plannedStatus = "pending_payment"
-    } else if (row.cohortOrdinal === 2) {
-      row.plannedStatus = "withdrawn"
-    } else {
-      row.plannedStatus = "active"
-    }
+    row.plannedStatus = cohort.period <= 2 ? "completed" : "active"
   }
 
   // A subset of learners also buys a craft work after their certificate.
@@ -855,7 +813,6 @@ async function loadGrowthContext(
     works: workRows
       .filter(
         (work) =>
-          work.status === "published" &&
           work.price > 0 &&
           work.pathId !== undefined &&
           work.makerId !== undefined,
@@ -1464,7 +1421,11 @@ export const seedGrowthBatch = internalMutation({
       // recorded when the cohort actually starts.
       const enrolledAt = Math.min(
         now - HOUR,
-        Math.max(paidAt, cohort.startDate + HOUR),
+        Math.max(
+          paidAt,
+          cohort.startDate + HOUR,
+          Number.NEGATIVE_INFINITY,
+        ),
       )
       const submissionAt = Math.min(
         now - 4 * DAY,
@@ -1788,6 +1749,39 @@ export const seedGrowthBatch = internalMutation({
           auditReason: "Penilaian akhir disetujui",
           updatedAt: now,
         })
+        const certificateId = await ctx.db
+          .query("certificates")
+          .withIndex("by_serial", (q) => q.eq("serial", serial))
+          .unique()
+        if (!certificateId) {
+          throw new Error("Seed growth certificate missing after insert.")
+        }
+        const work = context.works.find(
+          (item) => item.pathId === path.slug && item.certificateId === undefined,
+        )
+        if (work) {
+          await ctx.db.patch(work._id, {
+            makerId: user._id,
+            certificateId: certificateId._id,
+            createdAt: issuedAt,
+            status: "published",
+          })
+          const card = await ctx.db
+            .query("workCards")
+            .withIndex("by_workId", (q) => q.eq("workId", work._id))
+            .unique()
+          if (card) {
+            await ctx.db.patch(card._id, {
+              makerId: user._id,
+              certificateId: certificateId._id,
+              createdAt: issuedAt,
+              updatedAt: now,
+            })
+          }
+          work.certificateId = certificateId._id
+          work.makerId = user._id
+          work.createdAt = issuedAt
+        }
         context.certificates.push({ serial, issuedAt })
         certificateIssuedAt = issuedAt
         result.certificates += 1
@@ -1844,11 +1838,11 @@ export const seedGrowthBatch = internalMutation({
         })
       }
 
-      if (row.workPurchases > 0) {
-        const anchorAt =
-          status === "completed" && certificateIssuedAt !== undefined
-            ? certificateIssuedAt
-            : enrolledAt
+        if (row.workPurchases > 0) {
+          const anchorAt =
+            status === "completed" && certificateIssuedAt !== undefined
+              ? certificateIssuedAt
+              : enrolledAt
         for (let purchase = 0; purchase < row.workPurchases; purchase += 1) {
           const purchaseAt = Math.min(
             now - HOUR,

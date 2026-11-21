@@ -357,62 +357,11 @@ export const seedCommerce = internalMutation({
       })
     }
 
-    // Base-seeded enrollments predate commerce, so they need their own class
-    // order and payment. Pending-payment enrollments are intentionally unpaid.
-    const [baseEnrollments, cohorts, paths] = await Promise.all([
-      ctx.db.query("enrollments").collect(),
-      ctx.db.query("cohorts").collect(),
-      ctx.db.query("paths").collect(),
-    ])
-    const cohortById = new Map(cohorts.map((row) => [row._id as string, row]))
-    const pathBySlug = new Map(paths.map((row) => [row.slug, row]))
-    let enrollmentOrders = 0
-    for (const [index, enrollment] of baseEnrollments.entries()) {
-      if (enrollment.status === "pending_payment") continue
-      const cohort = enrollment.cohortId
-        ? cohortById.get(enrollment.cohortId as string)
-        : undefined
-      const path = pathBySlug.get(enrollment.pathId)
-      const student = await ctx.db.get(enrollment.studentId)
-      if (!cohort || !path || !student) continue
-      const paidAt = enrollment.enrolledAt
-      await buildPaidOrder(ctx, {
-        now: clock.now,
-        code: `KN-2026-${String(900_001 + index).padStart(6, "0")}`,
-        buyer: student,
-        sellerId: cohort.teacherId,
-        itemKind: "path",
-        pathId: enrollment.pathId,
-        title: `Kelas ${path.title}`,
-        baseAmount: path.price ?? 500_000,
-        createdAt: paidAt,
-        paidAt,
-        status:
-          enrollment.status === "completed" && enrollment.completedAt !== undefined
-            ? "completed"
-            : "paid",
-        deliveredAt:
-          enrollment.status === "completed" && enrollment.completedAt !== undefined
-            ? paidAt
-            : undefined,
-        completedAt:
-          enrollment.status === "completed" ? enrollment.completedAt : undefined,
-        gatewayFee: Math.round((path.price ?? 500_000) * 0.01),
-        note: `Pendaftaran ${cohort.code}.`,
-        tokenSeed: `seed-enrollment-token-${enrollment._id}`,
-        providerKey: `enrollment_${enrollment._id}`,
-        orderIdempotencyKey: `seed-enrollment-idem-${enrollment._id}`,
-        paymentIdempotencyKey: `idem_enrollment_${enrollment._id}`,
-        updatedAt: clock.now,
-      })
-      enrollmentOrders += 1
-    }
-
     return {
-      orders: orderIds.size + enrollmentOrders,
-      payments: paymentIds.size + enrollmentOrders,
+      orders: orderIds.size,
+      payments: paymentIds.size,
       payouts: payoutIds.size,
-      enrollmentOrders,
+      enrollmentOrders: 0,
     }
   },
 })

@@ -162,16 +162,34 @@ export const seedContent = internalMutation({
       })
     }
 
+    const makers = await usersByName(ctx)
     for (const [order, work] of seededWorks.entries()) {
-      await ctx.db.insert("works", {
+      const source = worksSeed[order]
+      const maker = source ? makers.get(source.maker) : undefined
+      const workId = await ctx.db.insert("works", {
         order,
         ...work,
+        makerId: maker?._id,
+        pathId: source?.pathSlug,
         status: "published",
-        // Credentials seed the linked makers before their public works.
-        // Keep this provisional timestamp earlier than every certificate;
-        // credentials later assigns the final, causal timestamp.
         createdAt: clock.ago(390 - order * 20),
       })
+      if (source && maker) {
+        await ctx.db.insert("workCards", {
+          workId,
+          makerId: maker._id,
+          serial: source.workCard,
+          title: source.title,
+          technique: source.technique,
+          materials: source.unit,
+          provenance: `Karya peserta ${source.maker} pada ${source.pathSlug}.`,
+          permission: source.permission,
+          accessLevel: "public",
+          status: "published",
+          createdAt: clock.ago(390 - order * 20),
+          updatedAt: clock.now,
+        })
+      }
     }
 
     const testimonialIds: string[] = []

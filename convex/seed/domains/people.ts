@@ -90,8 +90,6 @@ export const seedPeople = internalMutation({
     const teacherIndex = new Map(
       SEED_TEACHERS.map((teacher, index) => [teacher.key, index] as const),
     )
-    const graduates = new Set(["anisa", "dimas", "purnomo"])
-
     const sellerFor = (seed: (typeof SEED_USERS)[number]) => {
       const teacher = SEED_TEACHERS.find((row) => row.key === seed.key)
       if (teacher) {
@@ -121,57 +119,6 @@ export const seedPeople = internalMutation({
                 updatedAt: clock.now,
               }
             : undefined,
-        }
-      }
-      if (graduates.has(seed.key)) {
-        const offset = 0
-        return {
-          displayName: seed.name,
-          status: "active" as const,
-          onboardingChecklist: {
-            payoutAccount: true,
-            consent: true,
-            firstWorkCard: true,
-            taxDetails: true,
-          },
-          activatedAt: clock.ago(300 + offset),
-          createdAt: clock.ago(320 + offset),
-          updatedAt: clock.now,
-          payout: {
-            bankCode: "BCA",
-            accountName: seed.name,
-            accountNumberMasked: `****${accountSuffix(seed.name)}`,
-            accountRef: `vault:seed:${seed.key}`,
-            verifiedBy: admin._id,
-            verifiedAt: clock.ago(310 + offset),
-            createdAt: clock.ago(315 + offset),
-            updatedAt: clock.now,
-          },
-        }
-      }
-      if (seed.key === "galuh") {
-        return {
-          displayName: seed.name,
-          status: "active" as const,
-          onboardingChecklist: {
-            payoutAccount: true,
-            consent: true,
-            firstWorkCard: true,
-            taxDetails: true,
-          },
-          activatedAt: clock.ago(107),
-          createdAt: clock.ago(109),
-          updatedAt: clock.now,
-          payout: {
-            bankCode: "BNI",
-            accountName: seed.name,
-            accountNumberMasked: `****${accountSuffix(seed.name)}`,
-            accountRef: "vault:seed:galuh",
-            verifiedBy: admin._id,
-            verifiedAt: clock.ago(107),
-            createdAt: clock.ago(108),
-            updatedAt: clock.now,
-          },
         }
       }
       return undefined

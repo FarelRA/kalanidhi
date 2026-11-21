@@ -2,20 +2,10 @@ import { v } from "convex/values"
 
 import { internalMutation } from "../../_generated/server"
 import {
-  certificatePublicCode,
-  cohortCode,
-  evidenceCode,
   workSlug,
 } from "../lib/codes"
 import { createSeedClock } from "../lib/clock"
-import {
-  certificateByCode,
-  orderByIdempotency,
-  seedAdmin,
-  submissionByCode,
-  userByEmail,
-  workBySlug,
-} from "../lib/lookup"
+import { orderByIdempotency, seedAdmin, userByEmail, workBySlug } from "../lib/lookup"
 import { seedEmail, seedPhone } from "../content/identities"
 
 export const seedOps = internalMutation({
@@ -43,9 +33,13 @@ export const seedOps = internalMutation({
         .withIndex("by_orderId", (q) => q.eq("orderId", order1._id))
         .collect()
     )[0]
-    const submission = await submissionByCode(ctx, evidenceCode("dwiBbm2"))
-    const certificate = await certificateByCode(ctx, certificatePublicCode("anisa"))
-    const aksaraCertificate = await certificateByCode(ctx, certificatePublicCode("galuh"))
+    const submission = await ctx.db.query("submissions").first()
+    const certificate = await ctx.db.query("certificates").first()
+    const aksaraCertificate = await ctx.db.query("certificates").first()
+    const cohort = await ctx.db.query("cohorts").first()
+    if (!submission || !certificate || !aksaraCertificate || !cohort) {
+      throw new Error("Seed growth records are required before ops.")
+    }
     const galuh = await userByEmail(ctx, seedEmail("galuh"))
     const work = await workBySlug(ctx, workSlug("hiasanDindingBatikBambu"))
     const anisaWork = await workBySlug(ctx, workSlug("nampanBatikBambu"))
@@ -484,7 +478,7 @@ export const seedOps = internalMutation({
         title: "Selamat datang di angkatan perintis",
         body: "Akses ruang belajar sudah dibuka. Sesi pertama dimulai minggu depan di Krebet.",
         entityType: "cohorts",
-        entityId: cohortCode("bbm2025_02"),
+        entityId: cohort._id,
         readAt: clock.ago(387),
         daysAgo: 390,
       },
@@ -517,7 +511,7 @@ export const seedOps = internalMutation({
         title: "Pengingat sesi live",
         body: "Sesi berikutnya angkatan BBM-2026-01 berlangsung Sabtu pukul 09.00 WIB. Tautan ruang sudah tersedia.",
         entityType: "cohorts",
-        entityId: cohortCode("bbm2026_01"),
+        entityId: cohort._id,
         readAt: clock.ago(2),
         daysAgo: 3,
       },
@@ -550,7 +544,7 @@ export const seedOps = internalMutation({
         title: "Tenggat tugas akhir",
         body: "Tugas akhir angkatan BBM-2026-01 jatuh tempo 10 hari lagi. Unggah dokumentasi proses bila sudah selesai.",
         entityType: "enrollments",
-        entityId: cohortCode("bbm2026_01"),
+        entityId: cohort._id,
         readAt: undefined,
         daysAgo: 12,
       },

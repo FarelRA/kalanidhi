@@ -19,7 +19,6 @@ const EXTRA_FILES = [
   "convex/seed/domains/messaging.ts",
   "convex/seed/domains/ops.ts",
   "convex/seed/domains/growth.ts",
-  "convex/seed/domains/learning.ts",
   "convex/seed/domains/content.ts",
   "convex/seed/domains/commerce.ts",
   "convex/seed/domains/governance.ts",

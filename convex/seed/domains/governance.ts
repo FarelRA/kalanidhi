@@ -312,14 +312,16 @@ export const seedGovernance = internalMutation({
     })
 
     const recordingDoc = recording[0]
-    await ctx.db.insert("breakGlassGrants", {
-      actorId: admin._id,
-      entityType: "call_recording",
-      entityId: recordingDoc?._id ?? "seed-recording",
-      reason: "Investigasi sengketa kualitas sesi.",
-      expiresAt: clock.ahead(2),
-      createdAt: clock.ago(1),
-    })
+    if (recordingDoc) {
+      await ctx.db.insert("breakGlassGrants", {
+        actorId: admin._id,
+        entityType: "call_recording",
+        entityId: recordingDoc._id,
+        reason: "Investigasi sengketa kualitas sesi.",
+        expiresAt: clock.ahead(2),
+        createdAt: clock.ago(1),
+      })
+    }
     const messageAsset = (await ctx.db.query("messageAssets").collect())[0]
     if (messageAsset) {
       await ctx.db.insert("breakGlassGrants", {

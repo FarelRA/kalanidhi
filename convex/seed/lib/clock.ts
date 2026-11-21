@@ -16,6 +16,9 @@ export const HOUR = 3_600_000
 /** The platform opened on 2 January 2026 (08:00 Jakarta). */
 export const SEED_START = Date.UTC(2026, 0, 2, 8, 0, 0)
 
+/** The first learner joins on 3 January 2026 (08:00 Jakarta). */
+export const FIRST_PARTICIPANT_AT = Date.UTC(2026, 0, 3, 8, 0, 0)
+
 /** Jakarta is UTC+7 all year; the seed never needs a tz database. */
 const JAKARTA_OFFSET = 7 * HOUR
 

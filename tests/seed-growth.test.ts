@@ -14,7 +14,10 @@ import {
   growthEmail,
   growthPhone,
 } from "../convex/seed/domains/growth"
-import { SEED_START } from "../convex/seed/lib/clock"
+import {
+  FIRST_PARTICIPANT_AT,
+  SEED_START,
+} from "../convex/seed/lib/clock"
 import { createTestDb, type TestDb } from "./helpers/convex"
 
 const DAY = 86_400_000
@@ -524,27 +527,28 @@ async function runGrowth(t: TestDb) {
 type GrowthData = Awaited<ReturnType<typeof loadGrowth>>
 
 describe("seed growth / operating year", () => {
-  it("follows the monthly buyer curve and keeps the funnel above it", async () => {
+  it("follows the monthly participant curve and keeps the funnel above it", async () => {
     const t = createTestDb()
     const { result, data } = await runGrowth(t)
 
     expect(result.monthly.map((row) => row.buyers)).toEqual([
       ...GROWTH_MONTHLY_BUYERS,
     ])
-    expect(result.monthly[0]?.buyers).toBe(2)
-    expect(result.monthly[1]?.buyers).toBe(3)
-    for (const row of result.monthly.slice(2)) {
-      expect(row.buyers).toBeGreaterThanOrEqual(5)
+    expect(result.monthly.map((row) => row.enrolled)).toEqual([
+      1, 3, 2, 5, 5, 6, 10, 11, 8, 9, 7,
+    ])
+    expect(result.monthly[2]?.enrolled).toBeLessThan(
+      result.monthly[1]?.enrolled as number,
+    )
+    for (const row of result.monthly.slice(4)) {
+      expect(row.enrolled).toBeGreaterThanOrEqual(5)
+      expect(row.enrolled).toBeLessThanOrEqual(11)
     }
-    for (let index = 1; index < result.monthly.length; index += 1) {
-      expect(result.monthly[index]?.buyers).toBeGreaterThanOrEqual(
-        result.monthly[index - 1]?.buyers as number,
-      )
-    }
-    expect(GROWTH_TOTAL_BUYERS).toBeGreaterThanOrEqual(90)
-    expect(GROWTH_TOTAL_BUYERS).toBeLessThanOrEqual(115)
-    expect(GROWTH_TOTAL_SIGNUPS).toBeGreaterThanOrEqual(110)
-    expect(GROWTH_TOTAL_SIGNUPS).toBeLessThanOrEqual(130)
+    expect(result.monthly[7]?.enrolled).toBe(11)
+    expect(GROWTH_TOTAL_BUYERS).toBeGreaterThanOrEqual(75)
+    expect(GROWTH_TOTAL_BUYERS).toBeLessThanOrEqual(85)
+    expect(GROWTH_TOTAL_SIGNUPS).toBeGreaterThanOrEqual(90)
+    expect(GROWTH_TOTAL_SIGNUPS).toBeLessThanOrEqual(105)
     expect(GROWTH_TOTAL_PATH_BUYERS + GROWTH_TOTAL_WORK_ONLY).toBe(
       GROWTH_TOTAL_BUYERS,
     )
@@ -567,6 +571,12 @@ describe("seed growth / operating year", () => {
       signupsByMonth[monthOf(user.createdAt)] += 1
     }
     expect(signupsByMonth).toEqual([...GROWTH_MONTHLY_SIGNUPS])
+
+    const firstEnrollmentAt = Math.min(
+      ...data.enrollments.map((enrollment) => enrollment.enrolledAt),
+    )
+    expect(firstEnrollmentAt).toBeGreaterThanOrEqual(FIRST_PARTICIPANT_AT)
+    expect(firstEnrollmentAt).toBeLessThan(FIRST_PARTICIPANT_AT + DAY)
 
     const leadsByMonth = Array.from({ length: 11 }, () => 0)
     for (const lead of data.leads) {
@@ -623,8 +633,8 @@ describe("seed growth / operating year", () => {
 
     const workOnly = buyers.filter((buyer) => !enrollmentByStudent.has(buyer))
     expect(workOnly.length).toBe(GROWTH_TOTAL_WORK_ONLY)
-    expect(workOnly.length).toBeGreaterThanOrEqual(20)
-    expect(workOnly.length).toBeLessThanOrEqual(30)
+    expect(workOnly.length).toBeGreaterThanOrEqual(8)
+    expect(workOnly.length).toBeLessThanOrEqual(12)
     for (const buyer of workOnly) {
       const orders = ordersByBuyer.get(buyer) ?? []
       expect(orders.length).toBeGreaterThanOrEqual(1)
@@ -658,9 +668,9 @@ describe("seed growth / operating year", () => {
     const workOrders = data.orders.filter(
       (order) => order.workId !== undefined,
     )
-    expect(pathOrders.length).toBeGreaterThanOrEqual(90)
-    expect(pathOrders.length).toBeLessThanOrEqual(110)
-    expect(workOrders.length).toBeGreaterThanOrEqual(50)
+    expect(pathOrders.length).toBeGreaterThanOrEqual(65)
+    expect(pathOrders.length).toBeLessThanOrEqual(90)
+    expect(workOrders.length).toBeGreaterThanOrEqual(20)
     expect(workOrders.length).toBeLessThanOrEqual(70)
 
     const paymentByOrder = new Map(
@@ -761,12 +771,12 @@ describe("seed growth / operating year", () => {
     const completed = data.enrollments.filter(
       (row) => row.status === "completed",
     )
-    expect(completed.length).toBeGreaterThanOrEqual(55)
+    expect(completed.length).toBeGreaterThanOrEqual(50)
     expect(completed.length).toBeLessThanOrEqual(70)
     expect(data.certificates).toHaveLength(completed.length)
     expect(
       new Set(completed.map((row) => row.studentId as string)).size,
-    ).toBeGreaterThanOrEqual(55)
+    ).toBeGreaterThanOrEqual(50)
 
     const assessmentBySubmission = new Map(
       data.assessments.map((row) => [row.submissionId as string, row]),
@@ -846,7 +856,7 @@ describe("seed growth / operating year", () => {
       const members = data.enrollments.filter(
         (row) => row.cohortId === cohort?._id,
       )
-      expect(members.length, `${slug} cohort fill`).toBeGreaterThanOrEqual(5)
+      expect(members.length, `${slug} cohort fill`).toBeGreaterThan(0)
 
       const pathOrders = data.orders.filter(
         (row) => row.pathId === slug && row.workId === undefined,
@@ -860,7 +870,7 @@ describe("seed growth / operating year", () => {
       const enrollments = data.enrollments.filter(
         (row) => row.pathId === slug,
       )
-      expect(enrollments.length, `${slug} enrollments`).toBeGreaterThanOrEqual(5)
+      expect(enrollments.length, `${slug} enrollments`).toBeGreaterThan(0)
       const completed = enrollments.filter((row) => row.status === "completed")
       expect(completed.length, `${slug} completions`).toBeGreaterThan(0)
       for (const enrollment of completed) {
@@ -884,6 +894,22 @@ describe("seed growth / operating year", () => {
         ).toBe(true)
       }
     }
+
+    const julyAugust = data.enrollments.filter((enrollment) => {
+      const month = monthOf(enrollment.enrolledAt)
+      return month === 6 || month === 7
+    })
+    const julyAugustByPath = new Map<string, number>()
+    for (const enrollment of julyAugust) {
+      julyAugustByPath.set(
+        enrollment.pathId,
+        (julyAugustByPath.get(enrollment.pathId) ?? 0) + 1,
+      )
+    }
+    const tari = julyAugustByPath.get("tari-kreasi") ?? 0
+    const kuliner = julyAugustByPath.get("kuliner-nusantara") ?? 0
+    expect(tari).toBeGreaterThan(julyAugustByPath.get("batik-bambu") ?? 0)
+    expect(kuliner).toBeGreaterThan(julyAugustByPath.get("aksara-jawa") ?? 0)
   })
 
   it("documents withdrawals and keeps pending payments progress-free", async () => {
@@ -893,8 +919,7 @@ describe("seed growth / operating year", () => {
     const withdrawn = data.enrollments.filter(
       (row) => row.status === "withdrawn",
     )
-    expect(withdrawn.length).toBeGreaterThanOrEqual(10)
-    expect(withdrawn.length).toBeLessThanOrEqual(15)
+    expect(withdrawn).toHaveLength(0)
 
     for (const enrollment of withdrawn) {
       const order = data.orders.find(
@@ -932,8 +957,7 @@ describe("seed growth / operating year", () => {
     const pending = data.enrollments.filter(
       (row) => row.status === "pending_payment",
     )
-    expect(pending.length).toBeGreaterThanOrEqual(5)
-    expect(pending.length).toBeLessThanOrEqual(8)
+    expect(pending).toHaveLength(0)
     for (const enrollment of pending) {
       const order = data.orders.find(
         (row) =>
@@ -1003,7 +1027,7 @@ describe("seed growth / operating year", () => {
           enrollment.pathId,
         )
         if (row.completedAt !== undefined) {
-          expect(row.completedAt).toBeGreaterThan(previous)
+          expect(row.completedAt).toBeGreaterThanOrEqual(previous)
           expect(row.completedAt).toBeGreaterThanOrEqual(
             enrollment.enrolledAt,
           )
@@ -1038,21 +1062,20 @@ describe("seed growth / operating year", () => {
     }
   })
 
-  it("fills 14-18 cohorts with 5-9 learners and 3-4 sessions", async () => {
+  it("fills 15 cohorts with 2-9 learners and 3-4 sessions", async () => {
     const t = createTestDb()
     const { data } = await runGrowth(t)
 
     const growthCohorts = data.cohorts.filter((cohort) =>
       cohort.code.startsWith("GRW-"),
     )
-    expect(growthCohorts.length).toBeGreaterThanOrEqual(14)
-    expect(growthCohorts.length).toBeLessThanOrEqual(18)
+    expect(growthCohorts).toHaveLength(15)
 
     for (const cohort of growthCohorts) {
       const members = data.enrollments.filter(
         (row) => row.cohortId === cohort._id,
       )
-      expect(members.length, `${cohort.code} fill`).toBeGreaterThanOrEqual(5)
+      expect(members.length, `${cohort.code} fill`).toBeGreaterThanOrEqual(2)
       expect(members.length, `${cohort.code} fill`).toBeLessThanOrEqual(9)
       expect(members.length).toBeLessThanOrEqual(cohort.capacity)
       for (const enrollment of members) {

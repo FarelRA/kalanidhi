@@ -10,7 +10,7 @@ import {
 import { DAY, jakartaDayStart, SEED_START } from "./lib/clock"
 
 /** Bumped whenever the seed's shape changes; stored on every run row. */
-export const SEED_VERSION = "2026-11-seed-v6"
+export const SEED_VERSION = "2026-11-seed-v7"
 
 /** A run whose last heartbeat is younger than this still owns the lock. */
 const LOCK_TTL_MS = 10 * 60_000
@@ -136,8 +136,9 @@ export const status = internalQuery({
  *
  * The wall clock is read exactly once; every mutation and action receives that
  * `now` so two empty deployments anchored to the same instant produce
- * identical rows. Resetting a deployment removes run history with every other
- * application row.
+ * identical rows. Production is anchored to the completed previous day so the
+ * last full reporting day is stable. Resetting a deployment removes run
+ * history with every other application row.
  */
 export const run = internalAction({
   args: {
@@ -145,7 +146,7 @@ export const run = internalAction({
     now: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<Record<string, unknown>> => {
-    const now = args.now ?? Date.now()
+    const now = args.now ?? Date.now() - DAY
     const runId = await ctx.runMutation(internal.seed.run.beginRun, {
       now,
       version: SEED_VERSION,
@@ -166,17 +167,8 @@ export const run = internalAction({
       const curriculum = await step("curriculum", () =>
         ctx.runMutation(internal.seed.domains.curriculum.seedCurriculum, { now }),
       )
-      const learning = await step("learning", () =>
-        ctx.runAction(internal.seed.domains.learning.seedLearning, { now }),
-      )
-      const credentials = await step("credentials", () =>
-        ctx.runMutation(internal.seed.domains.credentials.seedCredentials, { now }),
-      )
       const commerce = await step("commerce", () =>
         ctx.runMutation(internal.seed.domains.commerce.seedCommerce, { now }),
-      )
-      const messaging = await step("messaging", () =>
-        ctx.runAction(internal.seed.domains.messaging.seedMessaging, { now }),
       )
       const settings = await step("settings", () =>
         ctx.runMutation(internal.seed.domains.settings.seedSettings, { now }),
@@ -191,6 +183,9 @@ export const run = internalAction({
       // slices, so daily GMV, activation, and cohort fill include it.
       const growth = await step("growth", () =>
         ctx.runAction(internal.seed.domains.growth.seedGrowth, { now }),
+      )
+      const messaging = await step("messaging", () =>
+        ctx.runAction(internal.seed.domains.messaging.seedMessaging, { now }),
       )
       const codes = await step("codes", () =>
         ctx.runMutation(internal.seed.domains.codes.renumberOrders),
@@ -229,8 +224,6 @@ export const run = internalAction({
       const counts = {
         content,
         curriculum,
-        learning,
-        credentials,
         commerce,
         messaging,
         settings,

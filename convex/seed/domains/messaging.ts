@@ -3,14 +3,9 @@ import { v } from "convex/values"
 import { internal } from "../../_generated/api"
 import type { Doc, Id } from "../../_generated/dataModel"
 import { internalAction, internalMutation, type MutationCtx } from "../../_generated/server"
-import { cohortCode, pathSlug } from "../lib/codes"
+import { pathSlug } from "../lib/codes"
 import { createSeedClock, DAY, HOUR } from "../lib/clock"
-import {
-  cohortByCode,
-  conversationByTitle,
-  seedAdmin,
-  userByEmail,
-} from "../lib/lookup"
+import { conversationByTitle, seedAdmin, userByEmail } from "../lib/lookup"
 import { seedEmail } from "../content/identities"
 import { resolveMediaStorage } from "../lib/media"
 
@@ -574,7 +569,8 @@ export const seedMessagingBatch = internalMutation({
       const sari = await userByEmail(ctx, seedEmail("sari"))
       const dwi = await userByEmail(ctx, seedEmail("dwi"))
       const ratih = await userByEmail(ctx, seedEmail("ratih"))
-      const cohort = await cohortByCode(ctx, cohortCode("bbm2026_01"))
+      const cohort = await ctx.db.query("cohorts").first()
+      if (!cohort) throw new Error("Seed growth cohort missing for messaging.")
       const cohortStudents = await Promise.all(
         ["sari", "dwi", "bayu", "nanda", "ratih", "yusuf", "melati", "arif"].map(
           (key) => userByEmail(ctx, seedEmail(key)),
@@ -778,7 +774,8 @@ export const seedMessagingBatch = internalMutation({
       const zadira = await userByEmail(ctx, seedEmail("zadira"))
       const sari = await userByEmail(ctx, seedEmail("sari"))
       const dimas = await userByEmail(ctx, seedEmail("dimas"))
-      const cohort = await cohortByCode(ctx, cohortCode("bbm2026_01"))
+      const cohort = await ctx.db.query("cohorts").first()
+      if (!cohort) throw new Error("Seed growth cohort missing for calls.")
       const direct = await conversationByTitle(ctx, "Batik, catatan canting")
       const dimasConversation = await conversationByTitle(
         ctx,
