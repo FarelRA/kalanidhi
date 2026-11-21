@@ -46,7 +46,7 @@ export function MaterialShelf({ catalog }: { catalog: SiteData["catalog"] }) {
 
             return (
               <div key={group.status}>
-                <div className="mb-5 flex flex-col gap-2 border-b border-ink/20 pb-3 sm:flex-row sm:items-end sm:justify-between">
+                <div className="mb-5 flex items-baseline gap-3 border-b border-ink/20 pb-3">
                   <div className="flex items-baseline gap-3">
                     <h3 className="font-heading text-[1.45rem] leading-none">
                       {group.title}
@@ -55,9 +55,6 @@ export function MaterialShelf({ catalog }: { catalog: SiteData["catalog"] }) {
                       {fields.length} bidang
                     </span>
                   </div>
-                  <p className="max-w-[36rem] text-[12px] leading-relaxed text-ink-soft">
-                    {group.blurb}
-                  </p>
                 </div>
 
                 <ul className="flex flex-wrap gap-3 sm:gap-4">

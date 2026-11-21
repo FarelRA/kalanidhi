@@ -174,26 +174,20 @@ export const siteSeed: SeedSiteCopy = {
     label: "Bidang budaya",
     title: "Bidang ini dibuka bertahap, bersama pengajarnya.",
     description:
-      "Katalog bertambah dari pengajar yang masuk. Daftar di bawah menunjukkan mana yang sudah bisa dikerjakan sekarang, mana yang sedang disiapkan, dan mana yang masih menunggu pengajar.",
+      "Katalog bertambah dari pengajar yang masuk. Daftar di bawah menunjukkan mana yang sudah bisa dikerjakan sekarang, mana yang sedang disiapkan, dan mana yang sedang direncanakan.",
     cta: "Lihat kelas yang terbuka",
     groups: [
       {
         status: "Terbuka",
         title: "Sudah terbuka",
-        blurb:
-          "Bisa dimulai sekarang, dengan pengajar dan kurikulum yang siap.",
       },
       {
         status: "Sedang dipetakan",
         title: "Sedang disiapkan",
-        blurb:
-          "Kurikulum dan pengajar sedang ditata. Belum dibuka untuk pendaftaran.",
       },
       {
         status: "Direncanakan",
-        title: "Menunggu pengajar",
-        blurb:
-          "Bidangnya ada. Pengajar yang mau membuka kelas belum bergabung.",
+        title: "Sedang direncanakan",
       },
     ],
   },
@@ -210,7 +204,7 @@ export const siteSeed: SeedSiteCopy = {
       statusLabel: "Status",
       contentLabel: "Isi",
       includesLabel: "Yang termasuk",
-      curriculumPending: "Kurikulum disusun",
+      curriculumPending: "Sedang disusun",
       teacherLabel: "Pengajar",
       regionLabel: "Daerah",
       levelLabel: "Level",
@@ -652,19 +646,19 @@ export const catalogFieldsSeed: CatalogField[] = [
     name: "Kriya gerabah",
     region: "Kasongan, Bantul",
     status: "Sedang dipetakan",
-    note: "Kurikulum disusun",
+    note: "Sedang disusun",
   },
   {
     name: "Batik tulis",
     region: "Giriloyo, Wukirsari, Imogiri, Bantul",
     status: "Sedang dipetakan",
-    note: "Materi sumber belum tersedia",
+    note: "Sedang disusun",
   },
   {
     name: "Karawitan",
     region: "Kota Yogyakarta",
     status: "Sedang dipetakan",
-    note: "Pengajar sedang dicari",
+    note: "Sedang disusun",
   },
   {
     name: "Tari kreasi",
@@ -676,7 +670,7 @@ export const catalogFieldsSeed: CatalogField[] = [
     name: "Keramik",
     region: "Bantul",
     status: "Direncanakan",
-    note: "Belum ada pengajar",
+    note: "Sedang direncanakan",
   },
   {
     name: "Kuliner Nusantara",
@@ -688,13 +682,13 @@ export const catalogFieldsSeed: CatalogField[] = [
     name: "Jamu",
     region: "Sleman",
     status: "Direncanakan",
-    note: "Belum ada pengajar",
+    note: "Sedang direncanakan",
   },
   {
     name: "Wayang",
     region: "Bantul",
     status: "Direncanakan",
-    note: "Belum ada pengajar",
+    note: "Sedang direncanakan",
   },
 ]
 
@@ -789,7 +783,7 @@ export const pathsSeed: SeedLearningPath[] = [
     price: null,
     priceLabel: "Sedang disusun",
     imageFile: "path-batik-tulis-giriloyo.webp",
-    tags: ["Sedang disusun", "Materi sumber belum tersedia"],
+    tags: ["Sedang disusun"],
     outcome:
       "Kelas batik tulis di atas kain belum dibuka. Materi sumber dari Paguyuban Batik Tulis Giriloyo masih disiapkan dan belum diterbitkan sebagai modul, jadi belum ada kurikulum yang bisa dijanjikan.",
     includes: [

@@ -269,7 +269,6 @@ export type LoopContent = {
 export type CatalogGroup = {
   status: CatalogStatus
   title: string
-  blurb: string
 }
 
 export type CatalogContent = {

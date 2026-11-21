@@ -83,7 +83,7 @@ export default async function FieldsPage() {
 
               return (
                 <section key={group.status} aria-labelledby={groupId}>
-                  <div className="mb-5 flex flex-col gap-2 border-b border-ink/20 pb-3 sm:flex-row sm:items-end sm:justify-between">
+                  <div className="mb-5 flex items-baseline gap-3 border-b border-ink/20 pb-3">
                     <div className="flex items-baseline gap-3">
                       <h2
                         id={groupId}
@@ -95,9 +95,6 @@ export default async function FieldsPage() {
                         {fields.length} bidang
                       </span>
                     </div>
-                    <p className="max-w-[36rem] text-[12px] leading-relaxed text-ink-soft">
-                      {group.blurb}
-                    </p>
                   </div>
 
                   <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

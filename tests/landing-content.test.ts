@@ -105,13 +105,13 @@ describe("landing content sources", () => {
           name: "Wayang",
           region: "Bantul",
           status: "Direncanakan",
-          note: "Belum ada pengajar",
+          note: "Sedang direncanakan",
         },
         {
           name: "Kriya gerabah",
           region: "Bantul",
           status: "Sedang dipetakan",
-          note: "Kurikulum disusun",
+          note: "Sedang disusun",
         },
         {
           name: "Batik bambu",

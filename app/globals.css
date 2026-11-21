@@ -153,23 +153,14 @@
     outline-color: var(--brass);
   }
 
-  ::-webkit-scrollbar {
-    width: 11px;
-    height: 11px;
+  /* Preserve scrolling while keeping every viewport and nested pane clean. */
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
-  ::-webkit-scrollbar-track {
-    background: #e7d5b8;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #a9845f;
-    border: 2px solid #e7d5b8;
-    border-radius: 999px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #8c6a49;
+  *::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -385,14 +376,6 @@
   .text-link:hover {
     color: var(--thread);
     text-decoration-color: var(--thread);
-  }
-
-  .no-scrollbar {
-    scrollbar-width: none;
-  }
-
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
   }
 
   .safe-bottom {

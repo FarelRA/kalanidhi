@@ -100,7 +100,6 @@ const loopStageSchema = z.object({
 const catalogGroupSchema = z.object({
   status: catalogStatusSchema,
   title: required(120),
-  blurb: required(600),
 })
 
 const featuredSelectionSchema = z.object({

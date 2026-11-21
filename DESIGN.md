@@ -80,7 +80,7 @@ The catalog is a shelf, not a logo wall. **Rak bahan** groups eleven mapped fiel
 
 - **Sudah di bangku (4):** Batik Bambu, Aksara Jawa: Membaca dan Menulis, Tari Kreasi, Kuliner Nusantara.
 - **Sedang disiapkan (2):** Kriya gerabah (Kasongan), Batik tulis (Giriloyo).
-- **Menunggu pengajar (4):** Karawitan, Keramik, Jamu, Wayang.
+- **Sedang direncanakan (4):** Karawitan, Keramik, Jamu, Wayang.
 
 The seeded catalog has six paths: the four open above, plus Kriya Gerabah Bantul and Batik Tulis as coming-soon paths. Batik Tulis keeps its teacher persona and the Giriloyo attribution but has no modules or lessons, because the cloth material is not published as a curriculum yet. Batik Bambu is the only open batik path, located in Krebet, Sendangsari, Pajangan, Bantul. Krebet is known for batik kayu; some of its artisans also work bamboo.
 
