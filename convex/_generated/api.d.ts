@@ -51,7 +51,6 @@ import type * as seed_domains_ops from "../seed/domains/ops.js";
 import type * as seed_domains_people from "../seed/domains/people.js";
 import type * as seed_domains_settings from "../seed/domains/settings.js";
 import type * as seed_integrity from "../seed/integrity.js";
-import type * as seed_lib_auth from "../seed/lib/auth.js";
 import type * as seed_lib_builders from "../seed/lib/builders.js";
 import type * as seed_lib_clock from "../seed/lib/clock.js";
 import type * as seed_lib_codes from "../seed/lib/codes.js";
@@ -124,7 +123,6 @@ declare const fullApi: ApiFromModules<{
   "seed/domains/people": typeof seed_domains_people;
   "seed/domains/settings": typeof seed_domains_settings;
   "seed/integrity": typeof seed_integrity;
-  "seed/lib/auth": typeof seed_lib_auth;
   "seed/lib/builders": typeof seed_lib_builders;
   "seed/lib/clock": typeof seed_lib_clock;
   "seed/lib/codes": typeof seed_lib_codes;

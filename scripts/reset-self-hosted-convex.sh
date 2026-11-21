@@ -2,14 +2,15 @@
 # Reset all self-hosted Convex data: SQLite, component data, file storage,
 # exports, search indexes, temporary files, and deployed modules. The instance
 # credentials remain so the configured endpoint and admin key keep working.
-# This is intentionally destructive and must run on the host that owns volume.
+# This is intentionally destructive and must run as root on the host that owns
+# the volume. Convex may create root-owned mapped files in a rootless volume.
 set -euo pipefail
 
 SERVICE_DIR="${CONVEX_SERVICE_DIR:-/home/podman/services}"
 DATA_DIR="${CONVEX_DATA_DIR:-$SERVICE_DIR/data/kalanidhi/convex-data}"
 
-if [[ "$(id -un)" != "podman" ]]; then
-  echo "Run as the podman service user: sudo -iu podman $0" >&2
+if [[ "$(id -u)" -ne 0 ]]; then
+  echo "Run as root: sudo env CONFIRM_CONVEX_RESET=DELETE_ALL_CONVEX_DATA $0" >&2
   exit 1
 fi
 
@@ -29,14 +30,17 @@ EOF
   exit 1
 fi
 
-cd "$SERVICE_DIR"
-podman compose stop convex convex-dashboard
+run_as_podman() {
+  sudo -iu podman "$@"
+}
+
+run_as_podman bash -lc "cd '$SERVICE_DIR' && podman compose stop convex convex-dashboard"
 mkdir -p "$DATA_DIR/credentials"
 find "$DATA_DIR" -mindepth 1 -maxdepth 1 ! -name credentials -exec rm -rf -- {} +
-podman compose up -d convex convex-dashboard
+run_as_podman bash -lc "cd '$SERVICE_DIR' && podman compose up -d convex convex-dashboard"
 
 for _ in $(seq 1 24); do
-  health=$(podman inspect services-convex-1 --format '{{.State.Health.Status}}' 2>/dev/null || true)
+  health=$(run_as_podman podman inspect services-convex-1 --format '{{.State.Health.Status}}' 2>/dev/null || true)
   if [[ "$health" == "healthy" ]]; then
     echo "Convex volume reset complete. Next: deploy functions, upload seed images, then run seed/run:run."
     exit 0

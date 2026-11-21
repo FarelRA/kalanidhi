@@ -118,11 +118,12 @@ npm run convex:seed
 npm run convex:reset:self-hosted
 ```
 
-Untuk membangun ulang data produksi, jalankan sebagai user `podman`:
+Untuk membangun ulang data produksi, jalankan sebagai root. Skrip menjalankan
+container kembali sebagai user `podman`:
 
 ```bash
 cd /home/farel/projects/apps/budaya
-sudo -iu podman env CONFIRM_CONVEX_RESET=DELETE_ALL_CONVEX_DATA \
+sudo env CONFIRM_CONVEX_RESET=DELETE_ALL_CONVEX_DATA \
   bash "$PWD/scripts/reset-self-hosted-convex.sh"
 export CONVEX_SELF_HOSTED_URL=https://convex.kalanidhi.site
 export CONVEX_SELF_HOSTED_ADMIN_KEY="$(sudo cat /home/podman/services/data/kalanidhi/convex-admin-key)"
