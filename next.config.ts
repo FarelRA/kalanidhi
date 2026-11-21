@@ -25,29 +25,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: process.env.SKIP_TYPECHECK === "1",
   },
-  async redirects() {
-    // The three cloth works became bamboo products. Keep their old public
-    // URLs working instead of returning a 404 to anyone holding a link.
-    const renamedWorks = [
-      ["batik-soga-anyaman", "nampan-batik-bambu"],
-      ["selendang-canting-nitik", "box-tisu-batik-bambu"],
-      ["batik-soga-lereng", "hiasan-dinding-batik-bambu"],
-    ] as const
-    const renamedWorksRedirects = renamedWorks.flatMap(([from, to]) => [
-      {
-        source: `/karya/${from}`,
-        destination: `/karya/${to}`,
-        permanent: true,
-      },
-      {
-        source: `/pesan/${from}`,
-        destination: `/pesan/${to}`,
-        permanent: true,
-      },
-    ])
-
-    return renamedWorksRedirects
-  },
 };
 
 export default nextConfig;

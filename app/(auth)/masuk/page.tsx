@@ -29,11 +29,18 @@ export default async function MasukPage({
   const nextPath = safeNextPath(params.next)
   const configured = isAuthConfigured()
 
+  let authenticated = false
   if (configured) {
-    const auth = getAuthServer()
-    if (await auth.isAuthenticated()) {
-      redirect(nextPath)
+    try {
+      authenticated = await getAuthServer().isAuthenticated()
+    } catch (error) {
+      // A reseed briefly empties the session tables. A direct load must still
+      // render the form instead of falling into the error boundary.
+      console.error("[auth] Could not read the session.", error)
     }
+  }
+  if (authenticated) {
+    redirect(nextPath)
   }
 
   return (

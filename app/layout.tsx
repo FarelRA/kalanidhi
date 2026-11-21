@@ -6,6 +6,7 @@ import { ConvexClientProvider } from "@/components/providers/convex-client-provi
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { getSiteData } from "@/lib/convex/server"
+import { buildRootMetadata } from "@/lib/content/metadata"
 
 import "./globals.css"
 
@@ -37,37 +38,8 @@ const javanese = Noto_Sans_Javanese({
 })
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { metadata } = await getSiteData()
-
-  return {
-    metadataBase: new URL(metadata.siteUrl),
-    title: {
-      default: metadata.title,
-      template: `%s | ${metadata.siteName}`,
-    },
-    description: metadata.description,
-    applicationName: metadata.siteName,
-    keywords: metadata.keywords,
-    openGraph: {
-      type: "website",
-      locale: "id_ID",
-      siteName: metadata.siteName,
-      title: metadata.ogTitle,
-      description: metadata.ogDescription,
-      images: metadata.image.url ? [metadata.image] : undefined,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: metadata.twitterTitle,
-      description: metadata.twitterDescription,
-      images: metadata.image.url ? [metadata.image.url] : undefined,
-    },
-    robots: {
-      index: true,
-      follow: true,
-    },
-    category: metadata.category,
-  }
+  const data = await getSiteData().catch(() => null)
+  return buildRootMetadata(data)
 }
 
 export const viewport: Viewport = {

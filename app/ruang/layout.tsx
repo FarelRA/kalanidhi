@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { headers } from "next/headers"
-import { redirect } from "next/navigation"
 
+import { RedirectNotice } from "@/components/workspace/redirect-notice"
 import { WorkspaceShell } from "@/components/workspace/shell/workspace-shell"
 import { WhatsappGate } from "@/components/workspace/verification/whatsapp-gate"
 import { api } from "@/convex/_generated/api"
@@ -60,7 +60,7 @@ export default async function WorkspaceLayout({
   })
 
   if (decision.kind === "redirect") {
-    redirect(decision.to)
+    return <RedirectNotice to={decision.to} />
   }
 
   if (decision.kind === "unavailable") {

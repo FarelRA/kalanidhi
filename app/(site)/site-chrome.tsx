@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 import { MobileCtaDock } from "@/components/landing/mobile-cta-dock"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
@@ -17,10 +19,30 @@ export async function SiteChrome({
   const data = await getSiteData().catch(() => null)
 
   if (!data) {
+    // Do not render children that need Convex content while the database is
+    // empty. A short maintenance page keeps every direct URL readable during a
+    // reseed instead of sending it to the error boundary.
     return (
       <div className="flex min-h-svh flex-col">
-        <main id="konten" tabIndex={-1} className="flex-1">
-          {children}
+        <main id="konten" tabIndex={-1} className="flex flex-1 items-center">
+          <div className="shell py-16">
+            <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-copper-dark">
+              KalaNidhi Digital
+            </p>
+            <h1 className="heading-section mt-3 max-w-[20ch]">
+              Sedang diperbarui.
+            </h1>
+            <p className="body-copy mt-4 max-w-[38rem]">
+              Konten sedang dimuat ulang. Coba buka halaman ini lagi beberapa
+              saat lagi.
+            </p>
+            <Link
+              href="/"
+              className="mt-7 inline-flex min-h-11 items-center border border-ink bg-ink px-5 text-[11px] font-bold uppercase tracking-[0.06em] text-paper"
+            >
+              Kembali ke beranda
+            </Link>
+          </div>
         </main>
       </div>
     )

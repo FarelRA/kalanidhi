@@ -20,6 +20,7 @@ seed
 # The build runs the prerender guard, so keep that one file in the context.
 scripts/*
 !scripts/check-prerender.mjs
+!scripts/check-routes.mjs
 .icon-build
 **/*.md
 vitest.config.mts

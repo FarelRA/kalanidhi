@@ -155,6 +155,65 @@ export async function buildPageMetadata(
 }
 
 /**
+ * Root metadata must survive a deployment where Convex has no site content yet
+ * (for example the short clear window during a reseed). A direct request gets
+ * this fallback instead of a 500 from `generateMetadata`; client navigation
+ * never re-runs the root metadata, which is why only reloads used to fail.
+ */
+export function buildRootMetadata(
+  data: Pick<SiteData, "metadata"> | null,
+): Metadata {
+  const fallbackSiteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://kalanidhi.site"
+
+  if (!data) {
+    return {
+      metadataBase: new URL(fallbackSiteUrl),
+      title: {
+        default: "KalaNidhi Digital",
+        template: "%s | KalaNidhi Digital",
+      },
+      description:
+        "Platform belajar praktik budaya Nusantara di Yogyakarta.",
+      applicationName: "KalaNidhi Digital",
+      robots: { index: true, follow: true },
+      category: "education",
+    }
+  }
+
+  const { metadata } = data
+  return {
+    metadataBase: new URL(metadata.siteUrl),
+    title: {
+      default: metadata.title,
+      template: `%s | ${metadata.siteName}`,
+    },
+    description: metadata.description,
+    applicationName: metadata.siteName,
+    keywords: metadata.keywords,
+    openGraph: {
+      type: "website",
+      locale: "id_ID",
+      siteName: metadata.siteName,
+      title: metadata.ogTitle,
+      description: metadata.ogDescription,
+      images: metadata.image.url ? [metadata.image] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: metadata.twitterTitle,
+      description: metadata.twitterDescription,
+      images: metadata.image.url ? [metadata.image.url] : undefined,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+    category: metadata.category,
+  }
+}
+
+/**
  * The public origin for absolute URLs such as the sitemap and robots file.
  * Convex site metadata is the source of truth; NEXT_PUBLIC_SITE_URL is only a
  * deployment fallback when Convex cannot be reached.
