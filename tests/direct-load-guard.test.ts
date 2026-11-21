@@ -4,6 +4,7 @@ import { buildRootMetadata } from "../lib/content/metadata"
 
 type RouteGuard = {
   EXTRA_ROUTES: string[]
+  REQUIRED_200: string[]
   RETIRED_ROUTES: string[]
   routePaths: (sitemapXml: string, extra?: string[]) => string[]
 }
@@ -73,6 +74,12 @@ describe("direct-load route smoke list", () => {
       "/kelas",
       "/masuk",
     ])
+  })
+
+  it("requires the auth and listing pages to answer 200", () => {
+    expect(guard.REQUIRED_200).toEqual(
+      expect.arrayContaining(["/", "/masuk", "/daftar", "/kelas", "/ruang"]),
+    )
   })
 
   it("keeps every retired work URL in the 404 list", () => {

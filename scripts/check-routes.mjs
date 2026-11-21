@@ -30,6 +30,19 @@ export const EXTRA_ROUTES = [
   "/verifikasi/kn-9147",
 ]
 
+/** Routes a visitor must be able to open directly, not just via a link. */
+export const REQUIRED_200 = [
+  "/",
+  "/masuk",
+  "/daftar",
+  "/kelas",
+  "/karya",
+  "/pengajar",
+  "/tentang",
+  "/ruang",
+  "/verifikasi",
+]
+
 /** Old work links must return 404, not a redirect to a replacement. */
 export const RETIRED_ROUTES = [
   "/karya/selendang-canting-nitik",
@@ -122,6 +135,13 @@ async function main() {
       }
       if (ERROR_TEXT.test(first.body) || ERROR_TEXT.test(second.body)) {
         failures.push(`${pathname} rendered the global error boundary`)
+      }
+    }
+
+    for (const pathname of REQUIRED_200) {
+      const response = await fetch(`${base}${pathname}`, { redirect: "manual" })
+      if (response.status !== 200) {
+        failures.push(`${pathname} must be 200, got ${response.status}`)
       }
     }
 
