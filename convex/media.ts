@@ -325,8 +325,13 @@ const SEED_IMAGE_METADATA: Record<
 /** Files retired with removed seed domains. They must leave the registry, not
  * merely become archived, because their descriptive metadata is public data. */
 const RETIRED_SEED_FILENAMES = new Set([
+  "lesson-pranatacara-video.mp4",
+  "og-kalanidhi.jpg",
+  "path-pranatacara.jpg",
   "path-pranatacara.webp",
+  "teacher-sudarsono.jpg",
   "teacher-sudarsono.webp",
+  "work-pranatacara.jpg",
   "work-pranatacara.webp",
 ])
 
