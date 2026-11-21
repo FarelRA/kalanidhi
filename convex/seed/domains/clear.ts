@@ -136,7 +136,10 @@ export const clearBatch = internalMutation({
     const hasSeedScope = seedEmails.size > 0
     const isSeedUser = (user: Doc<"users">): boolean =>
       isPlaceholderAuthId(user.authUserId) ||
-      seedEmails.has(normalizeSeedEmail(user.email))
+      seedEmails.has(normalizeSeedEmail(user.email)) ||
+      RETIRED_SEED_EMAILS.includes(
+        normalizeSeedEmail(user.email) as (typeof RETIRED_SEED_EMAILS)[number],
+      )
 
     // Each pass must empty the table (or contain only preserved rows) before
     // the next one starts. A single `take(100)` used to leave the rest behind
