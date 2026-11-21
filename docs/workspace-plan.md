@@ -78,7 +78,7 @@ sellScopes = union(
 
 Every work card carries `pathId` and, for student sellers, `certificateId`. The server checks `assertCanSell(viewer, pathId)` before listing.
 
-A certificate in Batik Bambu never authorizes selling pranatacara services.
+A certificate in Batik Bambu never authorizes selling tari kreasi services.
 
 ---
 

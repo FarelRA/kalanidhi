@@ -237,7 +237,6 @@ const LEAD_MESSAGES = [
   "Saya mau tanya paket bahan. Kalau ikut dari luar kota, alatnya dikirim juga?",
   "Undangan saya sudah dicetak, tinggal aksara Jawa-nya. Bisa dibantu cek ejaan dulu?",
   "Angkatan Oktober masih buka? Saya baru tahu dari teman di Sleman.",
-  "Untuk pranatacara, apakah harus sudah pernah jadi MC sebelumnya?",
   "Saya ikut kelas batik di kampung, mau lanjut ke level yang dinilai sertifikat.",
   "Apakah bisa cicil? Saya lihat nominalnya cukup besar untuk ukuran saya.",
   "Mau daftar untuk dua orang, saya dan adik. Bisa satu formulir?",
@@ -267,7 +266,7 @@ const LEAD_NOTES = [
   "Minta dihubungi lewat telepon, bukan WA. Sudah saya catat nomornya dan jadwalkan sore.",
   "Tanya soal aksara untuk undangan pernikahan. Saya kirim contoh dan tarif jasa tulis.",
   "Sudah saya kabari jadwal angkatan Agustus, dia minta pengingat H-3.",
-  "Tertarik pranatacara untuk acara keluarga. Saya sarankan ikut angkatan Oktober.",
+  "Tanya perbedaan kelas praktik dan rekaman mandiri. Saya jelaskan tugas tetap diperiksa pengajar.",
 ] as const
 
 const SUPPORT_SCENARIOS = [
@@ -427,12 +426,12 @@ export const COHORT_PLAN: CohortPlanRow[] = [
   { index: 6, period: 2, pathIndex: 1, ordinal: 0, size: 7 },
   { index: 7, period: 2, pathIndex: 2, ordinal: 0, size: 7 },
   { index: 8, period: 2, pathIndex: 3, ordinal: 0, size: 6 },
-  { index: 9, period: 2, pathIndex: 4, ordinal: 0, size: 6 },
+  { index: 9, period: 2, pathIndex: 0, ordinal: 1, size: 6 },
   { index: 10, period: 3, pathIndex: 0, ordinal: 0, size: 6 },
   { index: 11, period: 3, pathIndex: 1, ordinal: 0, size: 6 },
   { index: 12, period: 3, pathIndex: 2, ordinal: 0, size: 5 },
   { index: 13, period: 3, pathIndex: 3, ordinal: 0, size: 5 },
-  { index: 14, period: 3, pathIndex: 4, ordinal: 0, size: 5 },
+  { index: 14, period: 3, pathIndex: 0, ordinal: 1, size: 5 },
 ]
 
 const COHORT_DAYS = 110
@@ -1701,9 +1700,7 @@ export const seedGrowthBatch = internalMutation({
         const taskTitle =
           path.slug === pathSlug("aksaraJawa")
             ? "Ujian akhir, paragraf aksara Jawa"
-            : path.slug === pathSlug("pranatacaraJawa")
-              ? "Ujian akhir, susunan acara dan praktik"
-              : path.slug === pathSlug("tariKreasi")
+            : path.slug === pathSlug("tariKreasi")
                 ? "Ujian akhir, kreasi tari dua menit"
                 : path.slug === pathSlug("kulinerNusantara")
                   ? "Ujian akhir, masak dan dokumentasi hidangan"

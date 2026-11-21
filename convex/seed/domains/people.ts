@@ -90,7 +90,7 @@ export const seedPeople = internalMutation({
     const teacherIndex = new Map(
       SEED_TEACHERS.map((teacher, index) => [teacher.key, index] as const),
     )
-    const graduates = new Set(["anisa", "dimas", "purnomo", "rani"])
+    const graduates = new Set(["anisa", "dimas", "purnomo"])
 
     const sellerFor = (seed: (typeof SEED_USERS)[number]) => {
       const teacher = SEED_TEACHERS.find((row) => row.key === seed.key)
@@ -124,7 +124,7 @@ export const seedPeople = internalMutation({
         }
       }
       if (graduates.has(seed.key)) {
-        const offset = seed.key === "rani" ? 18 : 0
+        const offset = 0
         return {
           displayName: seed.name,
           status: "active" as const,
@@ -138,7 +138,7 @@ export const seedPeople = internalMutation({
           createdAt: clock.ago(320 + offset),
           updatedAt: clock.now,
           payout: {
-            bankCode: seed.key === "rani" ? "BRI" : "BCA",
+            bankCode: "BCA",
             accountName: seed.name,
             accountNumberMasked: `****${accountSuffix(seed.name)}`,
             accountRef: `vault:seed:${seed.key}`,

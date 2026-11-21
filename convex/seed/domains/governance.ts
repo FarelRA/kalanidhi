@@ -16,7 +16,6 @@ export const seedGovernance = internalMutation({
     const dwi = await userByEmail(ctx, seedEmail("dwi"))
     const anisa = await userByEmail(ctx, seedEmail("anisa"))
     const workNampan = await workBySlug(ctx, workSlug("nampanBatikBambu"))
-    const workPranatacara = await workBySlug(ctx, workSlug("pranatacaraSiraman"))
     const workAksara = await workBySlug(ctx, workSlug("jasaTulisAksara"))
     const workTari = await workBySlug(ctx, workSlug("tariKreasiAcara"))
     const workKuliner = await workBySlug(ctx, workSlug("geblekRentengBeku"))
@@ -101,23 +100,6 @@ export const seedGovernance = internalMutation({
         attribution:
           "Catatan pewarna alami dari lingkungan perajin Pleret, Bantul. Bahan dan takaran dibagikan untuk pelajar terdaftar, dokumen sumber diarsipkan pengelola platform.",
         notes: "Sebagian takaran hanya untuk pelajar terdaftar.",
-        withdrawalStatus: "active" as const,
-        status: "active" as const,
-      },
-      {
-        community: "Arsip pengelola platform",
-        sourceName: "Rundown siraman dan midodareni",
-        pathId: pathSlug("pranatacaraJawa"),
-        workId: workPranatacara._id,
-        permissionDocumentRef: "Arsip dokumen pengelola platform",
-        permissionDocumentUrl: undefined,
-        permissionDate: Date.UTC(2026, 1, 9),
-        recordedAt: Date.UTC(2026, 1, 9),
-        permissionStatus: "granted" as const,
-        accessLevel: "public" as const,
-        attribution:
-          "Rundown disusun ulang untuk konteks kelas dari urutan siraman dan midodareni yang lazim di Yogyakarta, dengan rujukan publik Wikipedia bahasa Indonesia dan Marverial (2020) di Jurnal Desain Komunikasi Visual Universitas Bhayangkara Jakarta Raya.",
-        notes: "Rundown tidak memuat data keluarga nyata, kebiasaan tiap keluarga dapat berbeda.",
         withdrawalStatus: "active" as const,
         status: "active" as const,
       },

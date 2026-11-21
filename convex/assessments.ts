@@ -45,12 +45,6 @@ const BATIK_BAMBU_RUBRIC: RubricCriterion[] = [
   { criterion: "Keselamatan dan catatan", weight: 10 },
 ]
 
-const PRANATACARA_RUBRIC: RubricCriterion[] = [
-  { criterion: "Urutan acara", weight: 45 },
-  { criterion: "Tata wicara", weight: 35 },
-  { criterion: "Kejelasan suara", weight: 20 },
-]
-
 const AKSARA_RUBRIC: RubricCriterion[] = [
   { criterion: "Ketepatan aksara", weight: 40 },
   { criterion: "Sandhangan dan panyigeg", weight: 20 },
@@ -90,7 +84,6 @@ const DEFAULT_RUBRIC: RubricCriterion[] = [
 
 export function rubricForPath(pathId: string): RubricCriterion[] {
   if (pathId === "batik-bambu") return BATIK_BAMBU_RUBRIC
-  if (pathId === "pranatacara-jawa") return PRANATACARA_RUBRIC
   if (pathId === "aksara-jawa") return AKSARA_RUBRIC
   if (pathId === "kriya-gerabah-bantul") return GERABAH_RUBRIC
   if (pathId === "tari-kreasi") return TARI_RUBRIC

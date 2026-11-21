@@ -196,15 +196,15 @@ describe("seed runtime", () => {
     // Learning is split by cohort; messaging by conversation group. The totals
     // must match the pre-batching seed exactly.
     expect(counts.learning).toEqual({
-      cohorts: 10,
-      enrollments: 29,
-      submissions: 29,
-      assessments: 27,
+      cohorts: 7,
+      enrollments: 19,
+      submissions: 22,
+      assessments: 20,
     })
     expect(counts.messaging).toEqual({
-      conversations: 10,
-      messages: 48,
-      calls: 4,
+      conversations: 9,
+      messages: 43,
+      calls: 3,
     })
     expect(counts.auth).toEqual({ accounts: 0, unavailable: true })
     const growth = counts.growth as {

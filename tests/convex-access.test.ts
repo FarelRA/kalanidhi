@@ -236,7 +236,7 @@ describe("viewer resolution", () => {
     await t.run(async (ctx) => {
       await ctx.db.insert("enrollments", {
         studentId,
-        pathId: "pranatacara",
+        pathId: "tari kreasi",
         status: "active",
         enrolledAt: NOW,
         createdAt: NOW,
@@ -282,7 +282,7 @@ describe("viewer resolution", () => {
     await t.run(async (ctx) => {
       await ctx.db.insert("enrollments", {
         studentId: userId,
-        pathId: "pranatacara",
+        pathId: "tari kreasi",
         status: "active",
         enrolledAt: NOW,
         createdAt: NOW,
@@ -406,8 +406,8 @@ describe("capability and scope guards", () => {
     expect(assertScope(viewer, "teach", "batik-tulis-soga").userId).toBe(
       viewer?.userId,
     )
-    expect(() => assertScope(viewer, "teach", "pranatacara")).toThrow()
-    expect(() => assertScope(viewer, "sell", "pranatacara")).toThrow()
+    expect(() => assertScope(viewer, "teach", "tari kreasi")).toThrow()
+    expect(() => assertScope(viewer, "sell", "tari kreasi")).toThrow()
   })
 
   it("blocks self-dealing for grading and financial approval", async () => {

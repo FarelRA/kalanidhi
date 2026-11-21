@@ -32,7 +32,6 @@ function serialPrefix(pathId: string): string {
   const known: Record<string, string> = {
     "batik-bambu": "BBM",
     "batik-tulis-soga": "BTS",
-    "pranatacara-jawa": "PRC",
     "aksara-jawa": "AKS",
     "kriya-gerabah-bantul": "GRB",
   }

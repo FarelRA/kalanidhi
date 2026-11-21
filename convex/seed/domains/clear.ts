@@ -6,6 +6,11 @@ import { internalMutation } from "../../_generated/server"
 import { SEED_ASSET_OWNER } from "../content/identities"
 import { isPlaceholderAuthId, normalizeSeedEmail } from "../lib/auth"
 
+const RETIRED_SEED_EMAILS = [
+  "widagdo.saputra75@gmail.com",
+  "rani.wikaningsih97@gmail.com",
+] as const
+
 const CLEAR_TABLES: TableNamesInDataModel<DataModel>[] = [
   "siteContent",
   "contentRevisions",
@@ -99,6 +104,13 @@ export const clearBatch = internalMutation({
     includeRealUsers: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    for (const email of RETIRED_SEED_EMAILS) {
+      const mapping = await ctx.db
+        .query("seedAuthAccounts")
+        .withIndex("by_email", (q) => q.eq("email", email))
+        .unique()
+      if (mapping) await ctx.db.delete(mapping._id)
+    }
     let budget = 500
 
     for (const table of CLEAR_TABLES) {

@@ -161,7 +161,7 @@ export async function seedWorld(t: Db) {
   await seedTeacherProfile(t, { userId: teacherId })
   await seedTeacherProfile(t, {
     userId: otherTeacherId,
-    pathIds: ["pranatacara"],
+    pathIds: ["tari kreasi"],
   })
 
   const cohortId = await seedCohort(t, {
@@ -170,14 +170,14 @@ export async function seedWorld(t: Db) {
   })
   const otherCohortId = await seedCohort(t, {
     teacherId: otherTeacherId,
-    code: "KOH-PRN-01",
-    pathId: "pranatacara",
+    code: "KOH-TRI-01",
+    pathId: "tari kreasi",
   })
   await enroll(t, { studentId, cohortId })
   await enroll(t, {
     studentId: outsiderId,
     cohortId: otherCohortId,
-    pathId: "pranatacara",
+    pathId: "tari kreasi",
   })
 
   return {

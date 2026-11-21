@@ -63,8 +63,6 @@ const ALT_BY_FILENAME = {
     "Peserta menggambar pola batik di atas kertas",
   "path-batik-bambu.webp":
     "Sri Sriningsih mendampingi peserta mencanting silinder bambu",
-  "path-pranatacara.webp":
-    "Plat tipografi kelas Seni Pembawa Acara Tradisi Jawa, tata wicara, urutan acara, dan etiket panggung, dengan garis tembaga",
   "path-gerabah-bantul.webp":
     "Plat tipografi kelas Kriya Gerabah Bantul, membentuk, mengeringkan, dan membakar gerabah Kasongan",
   "path-aksara-jawa.webp":
@@ -79,8 +77,6 @@ const ALT_BY_FILENAME = {
     "Plat tipografi pengajar Bambang Hardjono, label pengajar, nama besar, dan keterangan pengajar batik halus Giriloyo",
   "teacher-sriningsih.webp":
     "Sri Sriningsih di depan layar Batik Bambu",
-  "teacher-sudarsono.webp":
-    "Plat tipografi pengajar Widagdo Saputra, pembina pembawa acara adat, Kota Yogyakarta",
   "teacher-suwardi.webp":
     "Plat tipografi pengajar Suwardi Pratama, pengajar aksara Jawa, Kota Yogyakarta",
   "teacher-gerabah.webp":
@@ -95,8 +91,6 @@ const ALT_BY_FILENAME = {
     "Kotak bambu bundar bertutup dengan motif batik",
   "work-bambu-hiasan.webp":
     "Panel bambu batik berdiri tegak",
-  "work-pranatacara.webp":
-    "Plat Kartu Karya KN-JS-014 Pembawa Acara Siraman dan Midodareni, bingkai tipis dan keterangan praktisi Rani Wikaningsih",
   "work-aksara.webp":
     "Plat Kartu Karya KN-AKS-021 Jasa Tulis Aksara untuk Undangan dan Papan Nama, bingkai tipis dan keterangan Galuh Puspita",
   "work-tari-kreasi.webp":

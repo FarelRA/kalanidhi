@@ -167,7 +167,10 @@ export const seedContent = internalMutation({
         order,
         ...work,
         status: "published",
-        createdAt: clock.ago(320 - order * 45),
+        // Credentials seed the linked makers before their public works.
+        // Keep this provisional timestamp earlier than every certificate;
+        // credentials later assigns the final, causal timestamp.
+        createdAt: clock.ago(390 - order * 20),
       })
     }
 

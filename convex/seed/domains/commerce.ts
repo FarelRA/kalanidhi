@@ -64,22 +64,6 @@ export const seedCommerce = internalMutation({
         gatewayFee: 6_500,
       },
       {
-        key: "order-4",
-        code: orderCode("order4"),
-        buyerKey: "nanda",
-        sellerKey: "rani",
-        workSlug: workSlug("pranatacaraSiraman"),
-        baseAmount: 2_500_000,
-        uniqueAmount: 2_500_009,
-        status: "awaiting_payment" as const,
-        paidDaysAgo: undefined,
-        createdDaysAgo: 0.005,
-        completedDaysAgo: undefined,
-        paymentStatus: "pending" as const,
-        payoutStatus: undefined,
-        gatewayFee: undefined,
-      },
-      {
         key: "order-5",
         code: orderCode("order5"),
         buyerKey: "ratih",
@@ -138,21 +122,6 @@ export const seedCommerce = internalMutation({
         paymentStatus: "paid" as const,
         payoutStatus: "paid" as const,
         gatewayFee: 6_500,
-      },
-      {
-        key: "order-9",
-        code: orderCode("order9"),
-        buyerKey: "melati",
-        sellerKey: "rani",
-        workSlug: workSlug("pranatacaraSiraman"),
-        baseAmount: 2_500_000,
-        uniqueAmount: 2_500_072,
-        status: "completed" as const,
-        paidDaysAgo: 155,
-        completedDaysAgo: 148,
-        paymentStatus: "paid" as const,
-        payoutStatus: "approved" as const,
-        gatewayFee: 25_000,
       },
       {
         key: "order-10",
@@ -242,11 +211,7 @@ export const seedCommerce = internalMutation({
       const buyer = await userByEmail(ctx, seedEmail(seed.buyerKey))
       const seller = await userByEmail(ctx, seedEmail(seed.sellerKey))
       const work = await workBySlug(ctx, seed.workSlug)
-      const createdAt = clock.ago(
-        "createdDaysAgo" in seed && seed.createdDaysAgo !== undefined
-          ? seed.createdDaysAgo
-          : (seed.paidDaysAgo ?? 2),
-      )
+      const createdAt = clock.ago(seed.paidDaysAgo ?? 2)
       const paidAt =
         seed.paidDaysAgo !== undefined ? clock.ago(seed.paidDaysAgo) : undefined
       // Delivery falls between payment and completion, and never in the future.

@@ -52,14 +52,6 @@ export const seedCredentials = internalMutation({
         status: "issued" as const,
       },
       {
-        key: "rani",
-        submissionKey: "rani-pra-final",
-        pathSlug: pathSlug("pranatacaraJawa"),
-        issuedDaysAgo: 318,
-        serial: certificateSerial("rani"),
-        status: "issued" as const,
-      },
-      {
         key: "galuh",
         submissionKey: "galuh-aks-final",
         pathSlug: pathSlug("aksaraJawa"),
@@ -173,9 +165,8 @@ export const seedCredentials = internalMutation({
         pathId: work.pathSlug,
         status: "published",
         permission: work.permission,
-        createdAt: clock.ago(
-          [323, 268, 213, 158, 103, 90, 60][index] ?? 60,
-        ),
+        // Work evidence follows its maker's issued credential.
+        createdAt: clock.ago([320, 265, 210, 100, 85, 55][index] ?? 55),
       })
       await ctx.db.insert("workCards", {
         workId: workDoc._id,
@@ -199,9 +190,7 @@ export const seedCredentials = internalMutation({
         accessLevel: "public",
         // One card waits in teacher review so the review path is demonstrable.
         status: work.slug === "geblek-renteng-beku" ? "submitted" : "published",
-        createdAt: clock.ago(
-          [323, 268, 213, 158, 103, 90, 60][index] ?? 60,
-        ),
+        createdAt: clock.ago([320, 265, 210, 100, 85, 55][index] ?? 55),
         updatedAt: clock.now,
       })
     }

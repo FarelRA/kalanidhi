@@ -46,7 +46,7 @@ export const studentViewer = () =>
     enrollments: [
       {
         id: "e-1",
-        pathId: "pranatacara",
+        pathId: "tari kreasi",
         cohortId: "c-1",
         status: "active",
       },

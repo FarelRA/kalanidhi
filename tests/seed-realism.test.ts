@@ -413,7 +413,7 @@ describe("seed realism", () => {
       data.mediaAssets.some(
         (asset) =>
           asset.filename === "lesson-soga-audio.mp3" ||
-          asset.filename === "lesson-pranatacara-video.mp4",
+          asset.filename === "lesson-tari kreasi-video.mp4",
       ),
     ).toBe(false)
 
@@ -538,11 +538,11 @@ describe("seed realism", () => {
     ).length
     const stats = await t.query(api.content.getPublicStats, {})
     expect(stats).toEqual({
-      fields: 11,
-      teachers: 6,
+      fields: 10,
+      teachers: 5,
       participants,
       submissions: assessedSubmissions,
-      works: 7,
+      works: 6,
     })
   })
 

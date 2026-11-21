@@ -236,6 +236,9 @@ export const run = internalAction({
           cleared = result.done
         }
       })
+      await step("retireRemovedAccounts", () =>
+        ctx.runAction(internal.seed.domains.auth.retireRemovedSeedAccounts, {}),
+      )
       // The registry lives outside CLEAR_TABLES, so stale and duplicate seed
       // rows survive a reseed. Archive them now, keeping every filename the
       // seed uses and every asset a content row still references.

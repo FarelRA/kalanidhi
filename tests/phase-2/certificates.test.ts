@@ -242,7 +242,7 @@ describe("certificates / issuance and public verification", () => {
       .withIdentity({ subject: "auth-student" })
       .query(api.access.getViewer, {})
     expect(viewer?.sellScopes).toEqual(["batik-tulis-soga"])
-    expect(viewer?.sellScopes).not.toContain("pranatacara-jawa")
+    expect(viewer?.sellScopes).not.toContain("tari-kreasi")
   })
 
   it("[P2-CRT-11] certificate events are append-only records with actor and reason", async () => {

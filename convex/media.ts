@@ -307,13 +307,11 @@ const SEED_IMAGE_METADATA: Record<
   "path-batik-tulis-giriloyo.webp": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
   "path-gerabah-bantul.webp": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
   "path-kuliner-nusantara.webp": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
-  "path-pranatacara.webp": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
   "path-tari-kreasi.webp": { width: 1600, height: 1000, credit: "Arsip KalaNidhi Digital" },
   "teacher-gerabah.webp": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
   "teacher-hardjono.webp": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
   "teacher-kuliner-nusantara.webp": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
   "teacher-sriningsih.webp": { width: 1200, height: 1500, credit: "Dokumentasi kelas Batik Bambu" },
-  "teacher-sudarsono.webp": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
   "teacher-suwardi.webp": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
   "teacher-tari-kreasi.webp": { width: 1200, height: 1500, credit: "Arsip KalaNidhi Digital" },
   "work-aksara.webp": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
@@ -321,7 +319,6 @@ const SEED_IMAGE_METADATA: Record<
   "work-bambu-hiasan.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
   "work-bambu-nampan.webp": { width: 1600, height: 1200, credit: "Dokumentasi kelas Batik Bambu" },
   "work-kuliner-nusantara.webp": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
-  "work-pranatacara.webp": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
   "work-tari-kreasi.webp": { width: 1400, height: 760, credit: "Arsip KalaNidhi Digital" },
 }
 

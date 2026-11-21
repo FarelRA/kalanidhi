@@ -17,7 +17,7 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 | # | Keputusan | Pilihan yang disarankan | Alasan | Konsekuensi bila salah |
 |---|---|---|---|---|
 | 1 | Sub tema | **Sub Tema 4 — Pembelajaran dan Edukasi Digital Berbasis Budaya** | Identitas produk adalah pembelajaran; commerce adalah muara, bukan inti | Bila memilih Sub Tema 2, juri menilai produk sebagai marketplace dan menuntut fitur multi-vendor, logistik, dan akuisisi penjual |
-| 2 | Jumlah jalur | **Dua jalur**: batik canting (utama) dan pranatacara (pembeda) | Kedalaman dinilai 25% (Akar Budaya); lima jalur membuat semuanya dangkal | Klaim "Nusantara" tanpa kedalaman justru menurunkan skor |
+| 2 | Jumlah jalur | **Dua jalur**: batik canting (utama) dan tari kreasi (pembeda) | Kedalaman dinilai 25% (Akar Budaya); lima jalur membuat semuanya dangkal | Klaim "Nusantara" tanpa kedalaman justru menurunkan skor |
 | 3 | Status produk | **Rilis publik sebelum 31 Maret tahun pendaftaran** | Juknis mensyaratkan produk tersedia paling lambat 31 Maret, dengan bukti yang dapat diverifikasi | Produk konsep atau mockup non-fungsional gugur di seleksi substansi |
 | 4 | Bukti maestro | **Surat pernyataan minat (LoI) tertulis, minimal dua maestro** | Akar Budaya dinilai dari ketepatan dan penghormatan terhadap sumber | Narasi "akan bekerja sama" tanpa dokumen dianggap klaim |
 | 5 | Cakupan wilayah | **Jawa (Yogyakarta dan sekitarnya) sebagai basis, mitra luar Jawa masuk roadmap** | Kejujuran cakupan lebih kuat daripada klaim luas tanpa bukti | Klaim "Nusantara" dibantah satu pertanyaan juri |
@@ -135,7 +135,7 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 
 **Alur paragraf (sembilan paragraf):**
 
-1. **Konteks budaya.** Jelaskan objek budaya yang menjadi sumber (batik tulis, pranatacara), status pengakuannya, dan lanskap praktiknya di Yogyakarta. Bukti: daftar Warisan Budaya Takbenda UNESCO (batik tercatat 2009) dan UU Nomor 5 Tahun 2017 tentang Pemajuan Kebudayaan. Sambungan: dari kekayaan menuju persoalan pewarisan.
+1. **Konteks budaya.** Jelaskan objek budaya yang menjadi sumber (batik tulis, tari kreasi), status pengakuannya, dan lanskap praktiknya di Yogyakarta. Bukti: daftar Warisan Budaya Takbenda UNESCO (batik tercatat 2009) dan UU Nomor 5 Tahun 2017 tentang Pemajuan Kebudayaan. Sambungan: dari kekayaan menuju persoalan pewarisan.
 2. **Masalah regenerasi.** Sajikan data jumlah usaha dan tenaga kerja, lalu data penurunan jumlah perajin. Bukti: Kementerian Perindustrian (5.946 industri batik, sekitar 200 sentra, sekitar 200 ribu tenaga kerja) dan data APPBI (penurunan sekitar 20% pada 2019–2023). Konsekuensi: pengetahuan tacit hilang bersamaan dengan bertambahnya usia perajin. Sambungan: bila pengetahuan hilang, pertanyaannya adalah bagaimana mewariskannya.
 3. **Masalah pembelajaran.** Jelaskan bahwa keterampilan tangan dan lidah menuntut koreksi langsung, sedangkan kursus daring mandiri memiliki tingkat penyelesaian rendah. Bukti akademik: median tingkat penyelesaian MOOC sekitar 12,6% (Jordan, 2015); kajian lain menunjukkan angka khas sekitar 5% (Celik, 2024). Sambungan: karena itu video saja tidak cukup, dibutuhkan penilaian manusia.
 4. **Masalah ekonomi pelaku.** Jelaskan ketergantungan perajin pada perantara dan pasar umum, serta ketiadaan bukti keaslian bagi pembeli. Akibatnya harga tidak mencerminkan proses dan pembeli ragu membayar mahal. Sambungan: masalah ini tidak selesai oleh kursus saja.
@@ -164,7 +164,7 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 
 **Alur paragraf (delapan paragraf):**
 
-1. **Objek dan asal-usul.** Jelaskan batik tulis sebagai teknologi tradisional sekaligus seni, dan pranatacara sebagai tradisi lisan sekaligus adat istiadat. Sebutkan wilayah praktik dan variasi lokal. Bukti: rujukan akademik dan dokumentasi komunitas.
+1. **Objek dan asal-usul.** Jelaskan batik tulis sebagai teknologi tradisional sekaligus seni, dan tari kreasi sebagai tradisi lisan sekaligus adat istiadat. Sebutkan wilayah praktik dan variasi lokal. Bukti: rujukan akademik dan dokumentasi komunitas.
 2. **Pemetaan ke sepuluh Objek Pemajuan Kebudayaan.** Sajikan tabel: jalur belajar, OPK utama, OPK pendukung, alasan. Tabel ini menjawab langsung indikator Akar Budaya tanpa perlu penjelasan panjang.
 3. **Pengetahuan tacit sebagai inti produk.** Uraikan apa yang sesungguhnya dinilai (misalnya ketepatan unggah-ungguh, tempo dan jeda, kebersihan canting, konsistensi motif). Alasan: bagian ini membuktikan bahwa maestro tidak bisa digantikan video, sehingga model bisnis punya dasar.
 4. **Komunitas dan maestro.** Sebutkan nama, sanggar atau komunitas, peran, dan dasar hubungan (surat minat atau perjanjian). Jelaskan bentuk kompensasi. Alasan: juri menilai penghormatan terhadap pemilik pengetahuan, bukan hanya keterlibatan.
@@ -459,7 +459,7 @@ Tujuh keputusan ini menentukan koherensi seluruh proposal. Apabila salah satu be
 | Penurunan jumlah perajin | ±20% (2019–2023) | APPBI melalui pemberitaan | Terverifikasi sekunder | Cari kutipan primer; ada versi angka 131.565 menjadi ±105 ribu, dan versi 151 ribu pada 2020 — pilih satu seri dan sebut tahunnya |
 | Tingkat penyelesaian MOOC | median 12,6% | Jordan, 2015 | Terverifikasi | Sitasi akademik, bukan blog |
 | Tingkat penyelesaian khas MOOC | ±5% | Celik, 2024 | Terverifikasi | Pakai sebagai pembanding, bukan angka tunggal |
-| Pernikahan di Indonesia | ±1,4 juta (2023) | BPS, Statistik Indonesia 2024 | Terverifikasi | **Tren menurun**: jangan klaim pasar pranatacara tumbuh dari volume; fokus pada segmen adat dan premium |
+| Pernikahan di Indonesia | ±1,4 juta (2023) | BPS, Statistik Indonesia 2024 | Terverifikasi | **Tren menurun**: jangan klaim pasar tari kreasi tumbuh dari volume; fokus pada segmen adat dan premium |
 | Penutur bahasa Jawa | ±80 juta | Badan Bahasa | Perlu verifikasi | Cek publikasi terbaru sebelum dikutip |
 | Ekspor ekonomi kreatif | US$26,68 miliar (Jan–Okt 2025); fesyen 14,86; kriya 11,10 | Juknis BUDAYA GO! 2026 | Terverifikasi (dari juknis) | Kutip sebagai data penyelenggara |
 | Dimensi ekonomi budaya tertinggal | — | Kata Pengantar juknis | Terverifikasi (dari juknis) | Kutip sebagai pernyataan penyelenggara |

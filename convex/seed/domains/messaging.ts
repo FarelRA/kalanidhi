@@ -62,7 +62,6 @@ export const seedMessagingBatch = internalMutation({
       const sri = await userByEmail(ctx, seedEmail("sri"))
       const sari = await userByEmail(ctx, seedEmail("sari"))
       const dimas = await userByEmail(ctx, seedEmail("dimas"))
-      const rani = await userByEmail(ctx, seedEmail("rani"))
       const nanda = await userByEmail(ctx, seedEmail("nanda"))
       const yusuf = await userByEmail(ctx, seedEmail("yusuf"))
       const anisa = await userByEmail(ctx, seedEmail("anisa"))
@@ -204,77 +203,6 @@ export const seedMessagingBatch = internalMutation({
             createdAt: clock.ago(3) + 5 * 60_000,
           })
           await ctx.db.patch(messageId, { editedAt: clock.ago(3) + 5 * 60_000 })
-        }
-      }
-
-      const raniConversationId = await ctx.db.insert("conversations", {
-        kind: "direct",
-        title: "Pranatacara, jadwal siraman",
-        pathId: pathSlug("pranatacaraJawa"),
-        createdBy: (await userByEmail(ctx, seedEmail("widagdo")))._id,
-        status: "open",
-        pairKey: pairKey(
-          (await userByEmail(ctx, seedEmail("widagdo")))._id,
-          rani._id,
-        ),
-        lastMessageAt: clock.ago(4),
-        createdAt: clock.ago(12),
-        updatedAt: clock.ago(4),
-      })
-      conversations += 1
-      const widagdo = await userByEmail(ctx, seedEmail("widagdo"))
-      for (const member of [widagdo, rani]) {
-        await ctx.db.insert("conversationMembers", {
-          conversationId: raniConversationId,
-          userId: member._id,
-          role: member._id === widagdo._id ? "owner" : "member",
-          lastReadAt: clock.ago(4),
-          lastSeenAt: clock.ago(4),
-          joinedAt: clock.ago(12),
-        })
-      }
-      for (const message of [
-        {
-          senderId: widagdo._id,
-          body: "Rani, rundown siraman sudah saya periksa. Bagian penutup perlu satu kalimat penyerahan ke keluarga.",
-          createdAt: clock.ago(5),
-        },
-        {
-          senderId: rani._id,
-          body: "Sudah saya tambahkan, Pak. Saya kirim ulang malam ini.",
-          createdAt: clock.ago(4.2),
-        },
-        {
-          senderId: widagdo._id,
-          body: "Sudah saya baca. Bagian penyerahan ke keluarga sudah pas, tinggal latih tempo bicaranya.",
-          createdAt: clock.ago(3.8),
-        },
-        {
-          senderId: rani._id,
-          body: "Baik. Saya juga sudah menyiapkan susunan keluarga untuk prosesi siraman.",
-          createdAt: clock.ago(3.5),
-        },
-        {
-          senderId: widagdo._id,
-          body: "Bagus. Besok kita gladi resik pukul 19.00 lewat panggilan, saya kirim tautannya.",
-          createdAt: clock.ago(3.2),
-        },
-      ]) {
-        const messageId = await ctx.db.insert("messages", {
-          conversationId: raniConversationId,
-          senderId: message.senderId,
-          kind: "text",
-          body: message.body,
-          createdAt: message.createdAt,
-        })
-        messages += 1
-        for (const member of [widagdo, rani]) {
-          await ctx.db.insert("messageReceipts", {
-            messageId,
-            userId: member._id,
-            deliveredAt: message.createdAt + 1_000,
-            readAt: message.createdAt + 15_000,
-          })
         }
       }
 
@@ -849,15 +777,9 @@ export const seedMessagingBatch = internalMutation({
       const admin = await seedAdmin(ctx)
       const sri = await userByEmail(ctx, seedEmail("sri"))
       const sari = await userByEmail(ctx, seedEmail("sari"))
-      const widagdo = await userByEmail(ctx, seedEmail("widagdo"))
-      const rani = await userByEmail(ctx, seedEmail("rani"))
       const dimas = await userByEmail(ctx, seedEmail("dimas"))
       const cohort = await cohortByCode(ctx, cohortCode("bbm2026_01"))
       const direct = await conversationByTitle(ctx, "Batik, catatan canting")
-      const raniConversation = await conversationByTitle(
-        ctx,
-        "Pranatacara, jadwal siraman",
-      )
       const dimasConversation = await conversationByTitle(
         ctx,
         "Pewarnaan alami, catatan nila",
@@ -977,47 +899,6 @@ export const seedMessagingBatch = internalMutation({
         actorId: sri._id,
         payload: { source: "seed" },
         createdAt: clock.ago(5),
-      })
-
-      const missedCallId = await ctx.db.insert("callSessions", {
-        roomName: "kalanidhi-pra-rani-missed",
-        kind: "voice",
-        initiatorId: widagdo._id,
-        hostId: widagdo._id,
-        conversationId: raniConversation._id,
-        title: "Panggilan tindak lanjut rundown",
-        status: "missed",
-        startedAt: clock.ago(4),
-        endedAt: clock.ago(4) + 60_000,
-        endReason: "Tidak dijawab",
-        durationMs: 0,
-        recordingConsent: "pending",
-        createdAt: clock.ago(4),
-      })
-      calls += 1
-      for (const [member, role] of [
-        [widagdo, "host"],
-        [rani, "guest"],
-      ] as const) {
-        await ctx.db.insert("callParticipants", {
-          callId: missedCallId,
-          userId: member._id,
-          role,
-          status: member._id === rani._id ? "invited" : "left",
-          invitedAt: clock.ago(4),
-          joinedAt: member._id === widagdo._id ? clock.ago(4) : undefined,
-          leftAt:
-            member._id === widagdo._id
-              ? clock.ago(4) + 60_000
-              : undefined,
-        })
-      }
-      await ctx.db.insert("callEvents", {
-        callId: missedCallId,
-        kind: "missed",
-        actorId: widagdo._id,
-        payload: { source: "seed" },
-        createdAt: clock.ago(4) + 60_000,
       })
 
       const cancelledCallId = await ctx.db.insert("callSessions", {
@@ -1152,22 +1033,6 @@ function cohortLines(pathId: string): PathLines {
         "Rekaman sesi 2 muter terus di HP saya, tapi di laptop bisa. Nanti saya catat dari laptop.",
         "Punya saya masih kebalik pasangan ha dan na. Sudah saya tandai di buku, nanti saya tanya pas sesi.",
         "Siap pak, malam ini saya kirim. Aksaranya masih agak miring soalnya.",
-      ],
-    }
-  }
-  if (pathId === pathSlug("pranatacaraJawa")) {
-    return {
-      teacher: [
-        "Rundown siraman sudah saya baca. Bagian penyerahan ke keluarga perlu satu kalimat lagi, jangan terlalu cepat.",
-        "Besok latihan tempo. Bawa catatan urutan acara yang sudah ditandai, kita potong bagian yang terlalu panjang.",
-        "Untuk sesi 3, coba hafalkan pembuka tanpa membaca. Sisanya boleh bawa catatan.",
-        "Yang mau saya dengar besok itu kejelasan suku kata, bukan hafalan cepat.",
-      ],
-      student: [
-        "Pak, kalimat penyerahan saya tambah satu baris, tapi jadi kepanjangan. Dipotong di mana enaknya?",
-        "Saya sudah latihan tempo di rumah. Pas bagian midodareni masih suka kecepatan sendiri.",
-        "Besok saya bawa catatan yang sudah ditandai. Bagian sambutan tamu saya belum hafal.",
-        "Siap pak. Saya rekam latihan tadi, nanti saya kirim buat dicek.",
       ],
     }
   }

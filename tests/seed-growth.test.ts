@@ -87,8 +87,8 @@ async function seedGrowthWorld(t: TestDb) {
     })
     const teacherThree = await insertUser({
       authUserId: "growth-teacher-3",
-      name: "Widagdo Saputra",
-      email: "widagdo.saputra19@gmail.com",
+      name: "Retno Saputra",
+      email: "retno.saputra19@gmail.com",
       phone: "6281294736508",
       roles: ["teacher"],
     })
@@ -152,23 +152,24 @@ async function seedGrowthWorld(t: TestDb) {
       },
       {
         order: 1,
-        slug: "pranatacara-jawa",
+        slug: "batik-tulis-soga",
         code: "Jalur 02",
-        title: "Seni Pembawa Acara Tradisi Jawa",
-        subtitle: "Tata wicara",
-        teacher: "Widagdo Saputra",
-        teacherRole: "Pembawa acara",
-        region: "Kota Yogyakarta, D.I. Yogyakarta",
+        title: "Batik Tulis",
+        subtitle: "Dasar membatik kain",
+        teacher: "Bambang Hardjono",
+        teacherRole: "Pengajar batik tulis",
+        region: "Bantul, D.I. Yogyakarta",
         level: "Pemula",
         modules: 2,
         weeks: 14,
         tasks: 2,
         price: 980_000,
-        tags: ["Pranatacara"],
-        outcome: "Rundown acara.",
+        tags: ["Batik tulis"],
+        outcome: "Kain latihan.",
         includes: ["Dua modul"],
         teacherId: teacherThree,
         status: "open" as const,
+        comingSoon: true,
         createdAt: SEED_START,
       },
       {
@@ -237,7 +238,7 @@ async function seedGrowthWorld(t: TestDb) {
     ]
     const lessonCounts: Record<string, number> = {
       "batik-bambu": 30,
-      "pranatacara-jawa": 15,
+      "batik-tulis-soga": 15,
       "aksara-jawa": 25,
       "tari-kreasi": 30,
       "kuliner-nusantara": 30,

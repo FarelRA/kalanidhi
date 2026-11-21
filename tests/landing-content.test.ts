@@ -69,14 +69,14 @@ describe("landing content sources", () => {
     expect(pathMatchesField(bamboo, "Batik bambu")).toBe(true)
     expect(pathMatchesField(bamboo, "Batik tulis")).toBe(false)
     expect(pathMatchesField(bamboo, "Kriya gerabah")).toBe(false)
-    const aksara = { ...pathsSeed[3], modules: 0, image: "" } as LearningPath
+    const aksara = { ...pathsSeed[2], modules: 0, image: "" } as LearningPath
     expect(pathMatchesField(aksara, "Aksara Jawa")).toBe(true)
-    const pranatacara = { ...pathsSeed[1], modules: 0, image: "" } as LearningPath
-    expect(pathMatchesField(pranatacara, "Pranatacara")).toBe(true)
-    const gerabah = { ...pathsSeed[2], modules: 0, image: "" } as LearningPath
+    const tariKreasi = { ...pathsSeed[4], modules: 0, image: "" } as LearningPath
+    expect(pathMatchesField(tariKreasi, "Tari Kreasi")).toBe(true)
+    const gerabah = { ...pathsSeed[1], modules: 0, image: "" } as LearningPath
     expect(pathMatchesField(gerabah, "Kriya gerabah")).toBe(true)
     const batikTulis = {
-      ...pathsSeed[4],
+      ...pathsSeed[3],
       modules: 0,
       image: "",
     } as LearningPath
@@ -93,7 +93,7 @@ describe("landing content sources", () => {
     ]) {
       expect(pathMatchesField(bamboo, field), field).toBe(false)
       expect(pathMatchesField(aksara, field), field).toBe(false)
-      expect(pathMatchesField(pranatacara, field), field).toBe(false)
+      expect(pathMatchesField(tariKreasi, field), field).toBe(false)
       expect(pathMatchesField(gerabah, field), field).toBe(false)
     }
   })

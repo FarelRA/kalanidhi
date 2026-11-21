@@ -536,15 +536,15 @@ describe("content CMS / computed public data", () => {
     await seedContent(t)
 
     const stats = await t.query(api.content.getPublicStats, {})
-    expect(stats.fields).toBe(11)
-    expect(stats.teachers).toBe(6)
-    expect(stats.participants).toBe(7)
-    expect(stats.submissions).toBe(7)
-    expect(stats.works).toBe(7)
+    expect(stats.fields).toBe(10)
+    expect(stats.teachers).toBe(5)
+    expect(stats.participants).toBe(6)
+    expect(stats.submissions).toBe(6)
+    expect(stats.works).toBe(6)
 
     const site = await t.query(api.content.getSite, {})
     const values = site?.traction.figures.map((figure) => figure.value)
-    expect(values).toEqual(["11", "6", "7", "7", "7"])
+    expect(values).toEqual(["10", "5", "6", "6", "6"])
   })
 
   it("[P1-CMS-37] public attribution reads culturalSources rows", async () => {

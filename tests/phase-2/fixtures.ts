@@ -90,8 +90,8 @@ export async function seedPhase2(t: TestDb) {
     })
     const teacherOtherId = await ctx.db.insert("users", {
       authUserId: "auth-teacher-other",
-      name: "Widagdo Saputra",
-      email: "widagdo@example.test",
+      name: "Retno Saputra",
+      email: "retno@example.test",
       emailVerified: true,
       phone: "6280000000000",
       province: "DI Yogyakarta",
@@ -182,19 +182,19 @@ export async function seedPhase2(t: TestDb) {
     })
     await ctx.db.insert("teachers", {
       order: 2,
-      slug: "widagdo-saputra",
-      name: "Widagdo Saputra",
+      slug: "retno-saputra",
+      name: "Retno Saputra",
       initials: "WS",
-      specialty: "Pranatacara",
+      specialty: "Tari Kreasi",
       region: "Surakarta",
       experience: "30 tahun",
       quote: "Napas acara.",
       focus: "Pembawa acara",
-      path: "Pranatacara",
+      path: "Tari Kreasi",
       community: "Sanggar Wicara",
       verified: true,
       userId: teacherOtherId,
-      pathIds: ["pranatacara-jawa"],
+      pathIds: ["tari-kreasi"],
       status: "active",
     })
 
@@ -220,11 +220,11 @@ export async function seedPhase2(t: TestDb) {
     })
     await ctx.db.insert("paths", {
       order: 2,
-      slug: "pranatacara-jawa",
+      slug: "tari-kreasi",
       code: "Jalur 02",
       title: "Seni Pembawa Acara Tradisi Jawa",
       subtitle: "Tata wicara",
-      teacher: "Widagdo Saputra",
+      teacher: "Retno Saputra",
       teacherRole: "Pembina",
       region: "Surakarta",
       level: "Terbuka",
@@ -285,7 +285,7 @@ export async function seedPhase2(t: TestDb) {
     })
     const pranataModuleId = await ctx.db.insert("pathModules", {
       order: 1,
-      pathId: "pranatacara-jawa",
+      pathId: "tari-kreasi",
       title: "Tata wicara",
       summary: "Dasar",
       estimatedMinutes: 60,
@@ -295,7 +295,7 @@ export async function seedPhase2(t: TestDb) {
     const pranataLessonId = await ctx.db.insert("lessons", {
       order: 1,
       moduleId: pranataModuleId,
-      pathId: "pranatacara-jawa",
+      pathId: "tari-kreasi",
       title: "Napas kalimat",
       kind: "text",
       body: "Latihan",
@@ -321,9 +321,9 @@ export async function seedPhase2(t: TestDb) {
     })
     const cohortOtherId = await ctx.db.insert("cohorts", {
       code: "PRC-03",
-      pathId: "pranatacara-jawa",
+      pathId: "tari-kreasi",
       teacherId: teacherOtherId,
-      title: "Pranatacara · PRC-03",
+      title: "Tari Kreasi · PRC-03",
       startDate: NOW - 20 * DAY,
       endDate: NOW + 20 * DAY,
       capacity: 5,
@@ -345,7 +345,7 @@ export async function seedPhase2(t: TestDb) {
     })
     const enrollmentOtherId = await ctx.db.insert("enrollments", {
       studentId: studentOtherId,
-      pathId: "pranatacara-jawa",
+      pathId: "tari-kreasi",
       cohortId: cohortOtherId,
       status: "active",
       enrolledAt: NOW - 20 * DAY,
@@ -405,7 +405,7 @@ export async function seedPhase2(t: TestDb) {
       studentId,
       studentOtherId,
       pathId: "batik-tulis-soga",
-      pathOtherId: "pranatacara-jawa",
+      pathOtherId: "tari-kreasi",
       moduleId,
       moduleTwoId,
       lessonOneId,

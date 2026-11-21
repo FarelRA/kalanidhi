@@ -15,7 +15,7 @@ import {
 } from "./helpers"
 
 const PATH = "batik-tulis-soga"
-const OTHER_PATH = "pranatacara"
+const OTHER_PATH = "tari kreasi"
 
 async function admin(t: ReturnType<typeof createTestDb>) {
   return await seedAccount(t, {
@@ -196,7 +196,7 @@ describe("works / scope and moderation", () => {
     const t = createTestDb()
     const seller = await seedSeller(t, { authUserId: "auth-wrong-teacher" })
     await seedSeller(t, {
-      authUserId: "auth-pranatacara-teacher",
+      authUserId: "auth-tari kreasi-teacher",
       pathId: OTHER_PATH,
       teacherProfile: true,
     })
@@ -210,7 +210,7 @@ describe("works / scope and moderation", () => {
 
     await expect(
       t
-        .withIdentity({ subject: "auth-pranatacara-teacher" })
+        .withIdentity({ subject: "auth-tari kreasi-teacher" })
         .mutation(api.commerce.confirmWork, { workId: created.workId }),
     ).rejects.toThrow()
   })

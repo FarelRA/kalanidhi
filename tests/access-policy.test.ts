@@ -12,7 +12,7 @@ const baseStudent: ViewerSeed = {
   enrollments: [
     {
       id: "e-1",
-      pathId: "pranatacara",
+      pathId: "tari kreasi",
       cohortId: "c-1",
       status: "active",
     },
@@ -53,11 +53,11 @@ describe("role to capability mapping", () => {
         status: "active",
         pathIds: ["batik-tulis-soga"],
       },
-      certificates: [issuedCertificate("pranatacara")],
+      certificates: [issuedCertificate("tari kreasi")],
       enrollments: [
         {
           id: "e-1",
-          pathId: "pranatacara",
+          pathId: "tari kreasi",
           cohortId: "c-1",
           status: "active",
         },
@@ -67,7 +67,7 @@ describe("role to capability mapping", () => {
     })
 
     expect(viewer.roles).toEqual(["teacher", "student"])
-    expect(viewer.sellScopes).toEqual(["batik-tulis-soga", "pranatacara"])
+    expect(viewer.sellScopes).toEqual(["batik-tulis-soga", "tari kreasi"])
     expect(viewer.assessScopes).toEqual(["batik-tulis-soga"])
     expect(viewer.status).toBe("active")
   })

@@ -28,11 +28,9 @@ export const seedOps = internalMutation({
     const arif = await userByEmail(ctx, seedEmail("arif"))
     const dwi = await userByEmail(ctx, seedEmail("dwi"))
     const anisa = await userByEmail(ctx, seedEmail("anisa"))
-    const rani = await userByEmail(ctx, seedEmail("rani"))
     const purnomo = await userByEmail(ctx, seedEmail("purnomo"))
     const order1 = await orderByIdempotency(ctx, "seed-idem-order-1")
     const order3 = await orderByIdempotency(ctx, "seed-idem-order-3")
-    const order9 = await orderByIdempotency(ctx, "seed-idem-order-9")
     const payoutForOrder1 = (
       await ctx.db
         .query("payouts")
@@ -45,12 +43,6 @@ export const seedOps = internalMutation({
         .withIndex("by_orderId", (q) => q.eq("orderId", order1._id))
         .collect()
     )[0]
-    const raniConversation = (
-      await ctx.db.query("conversations").collect()
-    ).find((item) => item.title === "Pranatacara, jadwal siraman")
-    const missedCall = (await ctx.db.query("callSessions").collect()).find(
-      (item) => item.status === "missed",
-    )
     const submission = await submissionByCode(ctx, evidenceCode("dwiBbm2"))
     const certificate = await certificateByCode(ctx, certificatePublicCode("anisa"))
     const aksaraCertificate = await certificateByCode(ctx, certificatePublicCode("galuh"))
@@ -72,18 +64,6 @@ export const seedOps = internalMutation({
         daysAgo: 1,
       },
       {
-        intent: "student" as const,
-        name: "Rina Kusumawati",
-        email: "rina.kusumawati88@gmail.com",
-        whatsapp: "6281392847506",
-        interest: "Pranatacara Jawa",
-        message:
-          "Saya sudah pernah membantu acara keluarga di Sleman, ingin belajar susunan acara yang lebih rapi.",
-        source: "instagram",
-        status: "contacted" as const,
-        daysAgo: 4,
-      },
-      {
         intent: "institution" as const,
         name: "Dwi Lestari",
         email: seedEmail("dwi"),
@@ -97,18 +77,6 @@ export const seedOps = internalMutation({
         source: "referral",
         status: "qualified" as const,
         daysAgo: 8,
-      },
-      {
-        intent: "consultation" as const,
-        name: "Bayu Pratama",
-        email: seedEmail("bayu"),
-        whatsapp: seedPhone("bayu"),
-        interest: "Pembawa acara siraman",
-        message:
-          "Apakah bisa konsultasi paket siraman dan midodareni untuk akad Desember?",
-        source: "landing",
-        status: "converted" as const,
-        daysAgo: 12,
       },
       {
         intent: "notify" as const,
@@ -131,21 +99,6 @@ export const seedOps = internalMutation({
         source: "unknown",
         status: "spam" as const,
         daysAgo: 2,
-      },
-      {
-        intent: "institution" as const,
-        name: "Retno Palupi",
-        email: "retno.palupi80@gmail.com",
-        whatsapp: "6285728103946",
-        institution: "Sanggar Tari Kembang Setaman",
-        institutionType: "Sanggar seni",
-        participants: 16,
-        interest: "Kelas pranatacara untuk pengurus sanggar",
-        message:
-          "Kami ingin menyiapkan enam pengurus agar bisa memandu acara sanggar.",
-        source: "referral",
-        status: "converted" as const,
-        daysAgo: 186,
       },
       {
         intent: "consultation" as const,
@@ -315,36 +268,6 @@ export const seedOps = internalMutation({
           },
         ],
         daysAgo: 6,
-      },
-      {
-        code: "SUP-2026-0002",
-        requester: rani,
-        subject: "Akses rekaman sesi",
-        priority: "low" as const,
-        status: "closed" as const,
-        channel: "email" as const,
-        linkedRecords: [
-          {
-            type: "conversation" as const,
-            id: raniConversation?._id ?? "Pranatacara, jadwal siraman",
-            label: "Pranatacara, jadwal siraman",
-          },
-        ],
-        messages: [
-          {
-            authorId: rani._id,
-            kind: "user" as const,
-            body: "Bisakah saya mendapatkan rekaman sesi latihan?",
-            daysAgo: 10,
-          },
-          {
-            authorId: admin._id,
-            kind: "user" as const,
-            body: "Rekaman tersedia selama 90 hari. Tautan sudah dikirim ke email.",
-            daysAgo: 9,
-          },
-        ],
-        daysAgo: 10,
       },
       {
         code: "SUP-2026-0001",
@@ -555,17 +478,6 @@ export const seedOps = internalMutation({
         daysAgo: 24,
       },
       {
-        recipient: rani,
-        channel: "push" as const,
-        template: "call.missed",
-        title: "Panggilan tak terjawab",
-        body: "Widagdo Saputra mencoba menghubungi Anda.",
-        entityType: "callSessions",
-        entityId: missedCall?._id ?? "Panggilan tak terjawab",
-        readAt: undefined,
-        daysAgo: 4,
-      },
-      {
         recipient: anisa,
         channel: "email" as const,
         template: "enrollment.welcome",
@@ -608,17 +520,6 @@ export const seedOps = internalMutation({
         entityId: cohortCode("bbm2026_01"),
         readAt: clock.ago(2),
         daysAgo: 3,
-      },
-      {
-        recipient: rani,
-        channel: "in_app" as const,
-        template: "order.paid",
-        title: "Pesanan dibayar",
-        body: `Pesanan ${order9.code} sudah dibayar. Mohon siapkan gladi resik sehari sebelum acara.`,
-        entityType: "orders",
-        entityId: order9.code,
-        readAt: clock.ago(152),
-        daysAgo: 154,
       },
       {
         recipient: admin,
@@ -808,4 +709,3 @@ export const seedOps = internalMutation({
     return { leads: leads.length, tickets: tickets.length }
   },
 })
-

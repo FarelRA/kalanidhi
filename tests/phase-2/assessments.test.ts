@@ -668,6 +668,6 @@ describe("assessments / submissions", () => {
       "Koreksi menyeluruh setelah bukti tambahan",
     )
     expect(detail?.secondReviewerId).toBe(h.teacherOtherId)
-    expect(detail?.secondReviewerName).toBe("Widagdo Saputra")
+    expect(detail?.secondReviewerName).toBe("Retno Saputra")
   })
 })

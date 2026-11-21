@@ -17,6 +17,13 @@ const linkRow = v.object({
   authUserId: v.string(),
 })
 
+// Accounts retired with a removed seed domain. Keep this list narrow so a
+// reseed never touches a real account merely because its address is similar.
+const RETIRED_SEED_EMAILS = [
+  "widagdo.saputra75@gmail.com",
+  "rani.wikaningsih97@gmail.com",
+] as const
+
 function authUnavailable(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error)
   return /component|betterauth|secret|BETTER_AUTH/i.test(message)
@@ -104,7 +111,7 @@ export const seedAuthAccounts = internalAction({
       await flush()
       return {
         accounts: new Set([
-          ...mappings.map((row) => normalizeSeedEmail(row.email)),
+          ...mappings.map((row: { email: string }) => normalizeSeedEmail(row.email)),
           ...linkedEmails,
         ]).size,
         provisioned: 0,
@@ -143,7 +150,7 @@ export const seedAuthAccounts = internalAction({
             await flush()
             return {
               accounts: new Set([
-                ...mappings.map((row) => normalizeSeedEmail(row.email)),
+                ...mappings.map((row: { email: string }) => normalizeSeedEmail(row.email)),
                 ...linkedEmails,
               ]).size,
               provisioned,
@@ -179,7 +186,7 @@ export const seedAuthAccounts = internalAction({
     await flush()
     return {
       accounts: new Set([
-        ...mappings.map((row) => normalizeSeedEmail(row.email)),
+        ...mappings.map((row: { email: string }) => normalizeSeedEmail(row.email)),
         ...linkedEmails,
       ]).size,
       provisioned,
@@ -307,6 +314,29 @@ export const linkSeedAuthAccounts = internalMutation({
       linked += 1
     }
     return { linked, duplicates }
+  },
+})
+
+/** Removes obsolete seed mappings and their Better Auth users after clear. */
+export const retireRemovedSeedAccounts = internalAction({
+  args: {},
+  handler: async (ctx) => {
+    for (const email of RETIRED_SEED_EMAILS) {
+      try {
+        const authUserId = await findAuthUserByEmail(ctx, email)
+        if (authUserId) {
+          await ctx.runMutation(components.betterAuth.adapter.deleteOne, {
+            input: {
+              model: "user",
+              where: [{ field: "_id", value: authUserId }],
+            },
+          })
+        }
+      } catch (error) {
+        if (!authUnavailable(error)) throw error
+      }
+    }
+    return { removed: RETIRED_SEED_EMAILS.length }
   },
 })
 
